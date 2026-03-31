@@ -29,8 +29,13 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+HOME_DIR="${HOME:-$(getent passwd "$(whoami)" | cut -d: -f6)}"
+
+WALLUST_CACHE="$HOME_DIR/.cache/wallust/colors"
+mkdir -p -m 755 "$WALLUST_CACHE"
+
 if [ "$ACTION" == "generate" ]; then
-    WP_PATH=$(sed -n 's/^wallpaper[[:space:]]*=[[:space:]]*//p' ~/.config/waypaper/config.ini | sed "s|^~|$HOME|")
+    WP_PATH=$(sed -n 's/^wallpaper[[:space:]]*=[[:space:]]*//p' "$HOME_DIR/.config/waypaper/config.ini" | sed "s|^~|$HOME_DIR|")
 
     if [ ! -f "$WP_PATH" ]; then
         [ "$NOTIFY" = true ] && notify-send -u critical "Error" "No hay wallpaper"
@@ -40,7 +45,7 @@ if [ "$ACTION" == "generate" ]; then
     wallust run $SKIP_SEQUENCES "$WP_PATH"
 
 elif [ "$ACTION" == "default" ]; then
-    wallust cs $SKIP_SEQUENCES "$HOME/.config/wallust/themes/minor-default.json"
+    wallust cs $SKIP_SEQUENCES "$HOME_DIR/.config/wallust/themes/minor-default.json"
     killall -SIGUSR1 kitty 2>/dev/null
 fi
 

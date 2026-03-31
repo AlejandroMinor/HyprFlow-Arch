@@ -3,17 +3,17 @@ palette = "harddark"
 
 [templates]
 rofi.template = "colors-rofi.rasi"
-rofi.target = ".cache/wallust/colors/colors-rofi.rasi"
+rofi.target = "~/.cache/wallust/colors/colors-rofi.rasi"
 rofi.pywal = true
 
 hyprland.template = "colors-hyprland.conf"
-hyprland.target = ".cache/wallust/colors/colors-hyprland.conf"
+hyprland.target = "~/.cache/wallust/colors/colors-hyprland.conf"
 hyprland.pywal = true
 
 waybar.template = "colors-waybar.css"
-waybar.target = ".cache/wallust/colors/colors-waybar.css"
+waybar.target = "~/.cache/wallust/colors/colors-waybar.css"
 waybar.pywal = true
 
 colors-rofi-sh.template = "colors-rofi-sh.conf"
-colors-rofi-sh.target = ".cache/wallust/colors/colors-rofi-sh.conf"
+colors-rofi-sh.target = "~/.cache/wallust/colors/colors-rofi-sh.conf"
 colors-rofi-sh.pywal = true

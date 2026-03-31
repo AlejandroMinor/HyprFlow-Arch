@@ -36,8 +36,8 @@
         "scroll-step": 5,
         "format": "{icon} {volume}%",
         "format-muted": "{icon} {volume}%",
-        "on-click": "hyprctl dispatch exec \"[workspace special:sinkswitch] kitty --class kitty-sinkswitch -e inkswitch -sync -notify-hypr -nick\"",
-	"on-click-right": "pavucontrol",
+        "on-click": "hyprctl dispatch exec \"[workspace special:sinkswitch] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\"",
+        "on-click-right": "pavucontrol",
         "format-icons": {
             "default": [
                 "<span color='#7aa2f7'> </span>", 

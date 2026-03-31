@@ -1,0 +1,46 @@
+[
+    // --- FULL INFO --- 
+     {
+        "output": ["HDMI-A-1"],
+        "include": ["~/.config/waybar/modules.json"],
+        "layer": "top",
+        "exclusive": true,
+        "width": 2300,
+        "margin-top": 10,
+        "margin-left": 15,
+        "margin-right": 15,
+        "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
+        "modules-center": ["mpris"],
+        "modules-right": ["tray", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "battery", "custom/swaync", "clock", "custom/power"],        
+    },
+
+    {
+        "output": ["eDP-1"],
+        "include": ["~/.config/waybar/modules.json"],
+        "layer": "top",
+        "exclusive": true,
+        "width": 1800,
+        "margin-top": 10,
+        "margin-left": 15,
+        "margin-right": 15,
+        "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
+        "modules-center": ["mpris"],
+        "modules-right": ["tray", "custom/theme-selector", "custom/vpn", "pulseaudio", "battery", "custom/swaync", "clock", "custom/power"],  
+	},
+
+    // --- MINIMAL INFO ---
+    {
+        "name": "minimal-bar", 
+	"output": ["DVI-I-1", "DVI-I-2", "DP-1"],
+        "include": ["~/.config/waybar/modules.json"],
+        "layer": "top",
+        "exclusive": true,
+        "width": 50,
+        "margin-top": 5,
+	"margin-bottom": -3,
+        "modules-center": ["hyprland/workspaces"],
+    },
+
+]
+
+

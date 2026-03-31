@@ -1,0 +1,259 @@
+{
+    "cpu": {
+        "interval": 5,
+        "format": "<span color='#f7768e'> </span> {}%",
+        "max-length": 10
+    },
+    "memory": {
+        "interval": 5,
+        "format": "<span color='#7dcfff'> </span> {used}GiB",
+        "max-length": 10
+    },
+    "disk": {
+        "format": "<span color='#e0af68'> </span> {used}",
+        "interval": 60
+    },
+    "battery": {
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 10
+        },
+        "format": "{icon}  <span color='#F1F1F1'>{capacity}%</span>",
+        "format-charging": "<span color='#9ece6a'></span> <span color='#F1F1F1'>{capacity}%</span>",
+        "format-plugged": " <span color='#F1F1F1'>{capacity}</span>%",
+        "format-alt": "<span color='#F1F1F1'>{time}</span> {icon}",
+        "format-icons": [
+            "<span color='#f7768e'></span>", 
+            "<span color='#e0af68'></span>", 
+            "<span color='#e0af68'></span>", 
+            "<span color='#9ece6a'></span>", 
+            "<span color='#9ece6a'></span>"
+        ]
+    },
+    "pulseaudio": {
+        "tooltip": false,
+        "scroll-step": 5,
+        "format": "{icon} {volume}%",
+        "format-muted": "{icon} {volume}%",
+        "on-click": "hyprctl dispatch exec \"[workspace special:sinkswitch] kitty --class kitty-sinkswitch -e inkswitch -sync -notify-hypr -nick\"",
+	"on-click-right": "pavucontrol",
+        "format-icons": {
+            "default": [
+                "<span color='#7aa2f7'> </span>", 
+                "<span color='#7aa2f7'> </span>", 
+                "<span color='#7aa2f7'> </span>"
+            ]
+        }
+    },
+
+	"custom/mute-indicator": {
+		"exec": "mute_indicator.sh",
+		"return-type": "json",
+		"interval": 1
+	},
+
+    "network": {
+        "tooltip": false,
+        "format-wifi": "<span color='#9ece6a'> </span> {bandwidthDownBits}",
+        "format-ethernet": "󰈀 ",
+        "interval": 10
+    },
+
+    "backlight": {
+        "tooltip": false,
+        "format": " {}%",
+        "interval": 1,
+        "on-scroll-up": "light -A 5",
+        "on-scroll-down": "light -U 5"
+    },
+
+    "privacy": {
+        "icon-spacing": 5,
+        "icon-size": 14,
+        "nodes": [
+            { "type": "audio-in", "tooltip": true },
+            { "type": "screenshare", "tooltip": true },
+            { "type": "camera", "tooltip": true }
+        ]
+    },
+
+     "custom/privacy-camera": {
+        "format": "{}",
+        "exec": "camera_status.py",
+        "return-type": "json",
+        "interval": 2,
+        "tooltip": true
+    },
+
+    "custom/magic-trackpad-battery": {
+	"exec": "trackpad-battery",
+	"return-type": "json",
+	"interval": 60,
+	"format": "{}",
+	"tooltip": true,
+	"markup": true
+    },
+
+    "custom/mouse-battery": {
+        "format": "{}",
+        "exec": "peripherals_battery.sh mouse",
+        "return-type": "json",
+        "interval": 60,
+        "tooltip": true
+    },
+
+    "custom/keyboard-battery": {
+        "format": "{}",
+        "exec": "peripherals_battery.sh keyboard",
+        "return-type": "json",
+        "interval": 60,
+        "tooltip": true
+    },
+
+
+    "custom/g733-battery": {
+    "format": "{}",
+    "exec": "g733_battery.sh",
+    "on-click": "headsetcontrol -l 0",
+    "on-click-right": "headsetcontrol -l 1",
+    "return-type": "json",
+    "interval": 60,
+    "tooltip": true
+    },
+
+    "clock": {
+        "tooltip": true,
+        "interval": 60,
+        "format": "󰃭 {:%d/%m %H:%M}",
+        "tooltip-format": "{:%Y-%m-%d}"
+    },
+
+    "tray": {
+        "icon-size": 16,
+        "spacing": 10
+    },
+
+    "custom/launcher": {
+        "format": " ",
+        "on-click": "rofi -show drun -theme ~/.config/rofi/launchers/type-3/style-1.rasi",
+        "on-click-right": "killall rofi"
+    },
+
+    "custom/vpn": {
+        "format": "{}",
+        "exec": "vpn_status.sh",
+        "interval": 5,
+        "return-type": "json"
+    },
+
+    "custom/swaync": {
+        "format": "{}",
+        "exec": "swaync-dnd.sh",
+        "interval": 1,
+        "on-click": "swaync-client -t",
+        "on-click-right": "swaync-client -d && pkill -RTMIN+8 waybar",
+        "signal": 8
+    },
+
+    "custom/updates": {
+        "format": "{} Update(s)",
+        "exec": "checkupdates | wc -l",
+        "exec-if": "[[ $(checkupdates | wc -l) != 0 ]]",
+        "interval": 3600,
+        "on-click": "kitty -e paru -Syu"
+    },
+
+    "custom/power": {
+        "format": "<span color='#f7768e'>⏻</span>",
+        "on-click": "wlogout"
+    },
+
+    "mpris": {
+    "format": "{player_icon} {artist} - {title}",
+    "max-length": 35,
+    "player-icons": {
+	"default": "▶",
+        "spotify": "",
+	"edge": "🌐"
+    	}
+    },
+
+    "hyprland/window": {
+        "format": "{class}",
+        "max-length": 30,
+        "rewrite": {
+            "^(.*Microsoft-edge.*)$": "🌐 Edge",
+            "^(.*Kitty.*)$": "🐱 Terminal",
+            "^(.*Warp.*)$": "⚡ Warp",
+            "^(.*Emacs.*)$": "📝 Emacs",
+            "^(.*Visual Studio Code.*)$": "💻 VS Code",
+            "^(.*Spotify.*)$": " Spotify"
+        }
+    },
+
+    "hyprland/workspaces": {
+	    "all-outputs": false,
+	    "active-only": false,
+	    "on-click": "activate",
+	    "show-special": true,
+	    "format": "{icon}", 
+	    "format-icons": {
+		    "magic": "󰍳", 
+		    "1": "1",
+		    "2": "2",
+		    "3": "3",
+		    "4": "4",
+		    "5": "5",
+		    "6": "6",
+		    "7": "7",
+		    "8": "8",
+		    "9": "9"
+	    }
+    },
+
+"custom/theme-selector": {
+    "format": "",
+    "tooltip": false,
+    "on-click": "waypaper",
+    "on-click-right": "waypaper --random"
+},
+
+"group/hardware": {
+    "orientation": "horizontal",
+    	"drawer": {
+		"transition-duration": 200,
+		"transition-left-to-right": true
+	},
+    "modules": [
+	"custom/hardware-wrap",
+        "cpu",
+        "memory",
+        "disk",
+        "custom/magic-trackpad-battery",
+        "custom/mouse-battery",
+        "custom/keyboard-battery",
+	"custom/g733-battery"
+    ]
+},
+
+"custom/hardware-wrap": {
+	"format": "󰌢 {}",
+	"on-click": "kitty --class btop-float -e paru -Syu",
+        "exec": "echo $(( $(pacman -Qu | wc -l) + $(paru -Qua | wc -l) ))",
+	"interval": 3600,
+	"tooltip": false
+},
+
+"group/privacy-info": {
+	"orientation": "horizontal",
+	"modules": ["custom/separator-wrap","privacy", "custom/privacy-camera"]
+},
+
+"custom/separator-wrap": {
+    "format": " ",
+    "tooltip": false,
+    "on-click": "kitty --class btop-float -e btop"
+}
+
+}

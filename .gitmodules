@@ -1,3 +1,6 @@
 [submodule "modules/rofi-collection"]
 	path = modules/rofi-collection
 	url = https://github.com/adi1090x/rofi.git
+[submodule "bin/modules/apple-magic-trackpad-battery"]
+	path = bin/modules/apple-magic-trackpad-battery
+	url = https://github.com/AlejandroMinor/apple-magic-trackpad-battery-percent-python.git

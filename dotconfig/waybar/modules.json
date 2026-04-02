@@ -265,7 +265,7 @@
     "format": "󱠵",
     "exec": "battery_alert.py",
     "return-type": "json",
-    "interval": 5,
+    "interval": 3600,
     "tooltip": false,
     "markup": true
 },

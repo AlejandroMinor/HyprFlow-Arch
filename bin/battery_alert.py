@@ -19,11 +19,15 @@ def get_percentage(command: str, args: str = None) -> dict:
     return {"text": "Not Found", "class": "not-found", "percentage": 0}
 
 def main():
-    peripherals_info["keyboard"] = get_percentage("peripherals_battery.sh", "keyboard")
-    peripherals_info["mouse"] = get_percentage("peripherals_battery.sh", "mouse")
-    peripherals_info["g733"] = get_percentage("g733_battery.sh")
-    peripherals_info["trackpad"] = get_percentage("trackpad-battery")
-
+    devices = {
+        "keyboard": ("peripherals_battery.sh", "keyboard"),
+        "mouse": ("peripherals_battery.sh", "mouse"),
+        "g733": ("g733_battery.sh", None),
+        "trackpad": ("trackpad-battery", None)
+    }
+    
+    for device_name, (command, args) in devices.items():
+        peripherals_info[device_name] = get_percentage(command, args)
 
     for device_name, info in peripherals_info.items():
         if info.get("class") == "critical" or info.get("class") == "warning":

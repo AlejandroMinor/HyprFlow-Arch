@@ -9,6 +9,10 @@ echo "🚀 Installing HyprFlow-Arch..."
 mkdir -p "$BIN_FILES_PATH"
 mkdir -p "$CONFIG_DEST"
 
+# Set execute permissions on all binary files first
+echo "⚙️  Setting execute permissions on scripts..."
+find "$REPO_PATH/bin" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x {} \;
+
 # Copy configuration files (dotconfig -> ~/.config)
 echo "📁 Copying configuration files..."
 cp -rf "$REPO_PATH/dotconfig"/* "$CONFIG_DEST/"

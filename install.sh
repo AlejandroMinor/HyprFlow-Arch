@@ -18,6 +18,13 @@ echo "📁 Copying rofi-collection module..."
 mkdir -p "$CONFIG_DEST/rofi"
 cp -rf "$REPO_PATH/modules/rofi-collection"/files/* "$CONFIG_DEST/rofi/" 2>/dev/null || true
 
+# 📁 Adds personal rofi themes
+echo "🎨 Applying custom Rofi themes..."
+ROFI_CUSTOM_PATH="$REPO_PATH/dotconfig/rofi"
+if [ -d "$ROFI_CUSTOM_PATH" ]; then
+    cp -rf "$ROFI_CUSTOM_PATH"/* "$CONFIG_DEST/rofi/"
+fi
+
 # Create symbolic links for binary files (bin -> ~/.local/bin)
 echo "⚙️  Creating symbolic links for binaries..."
 for file in "$REPO_PATH/bin"/*; do

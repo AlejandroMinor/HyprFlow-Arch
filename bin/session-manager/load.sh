@@ -13,7 +13,7 @@ fi
 
 SELECTION=$(ls "$TEMPLATE_DIR" | sed 's/\.json$//' | rofi -dmenu \
     -p " Entorno:" \
-    -theme ~/HyprFlow-Arch/rofi/launchers/type-2/style-1.rasi \
+    -theme $HOME/.config/rofi/launchers/type-2/style-1.rasi \
     -theme-str "window { width: 400px; location: center; anchor: center; x-offset: 0px; y-offset: 0px;} listview { lines: 3; columns: 1; } element selected.normal { border: 0px 0px 0px 4px; border-color: ${color2}; background-color: ${color0}; }")
 
 if [ -n "$SELECTION" ]; then

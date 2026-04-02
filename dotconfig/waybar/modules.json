@@ -157,11 +157,11 @@
     },
 
     "custom/updates": {
-        "format": "{} Update(s)",
-        "exec": "checkupdates | wc -l",
-        "exec-if": "[[ $(checkupdates | wc -l) != 0 ]]",
+        "format": " {}",
+        "tooltip": false,	
+        "on-click-right": "kitty --class btop-float -e paru -Syu",
+        "exec": "echo $(( $(pacman -Qu | wc -l) + $(paru -Qua | wc -l) ))",
         "interval": 3600,
-        "on-click": "kitty -e paru -Syu"
     },
 
     "custom/power": {
@@ -223,26 +223,20 @@
     "orientation": "horizontal",
     	"drawer": {
 		"transition-duration": 200,
-		"transition-left-to-right": true
+		"transition-left-to-right": true,
+        "click-to-reveal": true
 	},
     "modules": [
 	"custom/hardware-wrap",
         "cpu",
         "temperature",
         "memory",
-        "disk",
-        "custom/magic-trackpad-battery",
-        "custom/mouse-battery",
-        "custom/keyboard-battery",
-	"custom/g733-battery"
+        "disk"
     ]
 },
 
 "custom/hardware-wrap": {
-	"format": "󰌢 {}",
-	"on-click": "kitty --class btop-float -e paru -Syu",
-        "exec": "echo $(( $(pacman -Qu | wc -l) + $(paru -Qua | wc -l) ))",
-	"interval": 3600,
+	"format": "󰌢 ",
 	"tooltip": false
 },
 
@@ -265,7 +259,35 @@
     "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
     "format-icons": ["", "", "", "", ""],
     "tooltip": false
+},
+
+"custom/power-hub": {
+    "format": "󱠵",
+    "exec": "battery_alert.py",
+    "return-type": "json",
+    "interval": 5,
+    "tooltip": false,
+    "markup": true
+},
+
+
+"group/batteries": {
+    "orientation": "horizontal",
+    "drawer": {
+        "transition-duration": 300,
+        "transition-left-to-right": false,
+        "click-to-reveal": true
+    },
+    "modules": [
+        "custom/power-hub", 
+        "battery",
+        "custom/mouse-battery",
+        "custom/keyboard-battery",
+        "custom/magic-trackpad-battery",
+        "custom/g733-battery"
+    ]
 }
+
 
 
 }

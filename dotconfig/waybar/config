@@ -1,5 +1,4 @@
 [
-    // --- FULL INFO --- 
      {
         "output": ["HDMI-A-1"],
         "include": ["~/.config/waybar/modules.json"],
@@ -11,7 +10,7 @@
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
         "modules-center": ["mpris"],
-        "modules-right": ["tray", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "battery", "custom/swaync", "clock", "custom/power"],        
+        "modules-right": ["tray", "group/batteries", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]   
     },
 
     {
@@ -25,10 +24,8 @@
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
         "modules-center": ["mpris"],
-        "modules-right": ["tray", "custom/theme-selector", "custom/vpn", "pulseaudio", "battery", "custom/swaync", "clock", "custom/power"],  
+        "modules-right": ["tray", "group/batteries", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]   
 	},
-
-    // --- MINIMAL INFO ---
     {
         "name": "minimal-bar", 
 	"output": ["DVI-I-1", "DVI-I-2", "DP-1"],
@@ -38,8 +35,8 @@
         "width": 50,
         "margin-top": 5,
 	"margin-bottom": -3,
-        "modules-center": ["hyprland/workspaces"],
-    },
+        "modules-center": ["hyprland/workspaces"]
+    }
 
 ]
 

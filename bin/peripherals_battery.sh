@@ -65,5 +65,5 @@ fi
 
 TOOLTIP="${FINAL_MODEL}\\nEstado: ${STATE}\\nBatería: ${PERCENT}%"
 
-printf '{"text": "%s %d%%", "tooltip": "%s", "class": "%s"}\n' \
-    "$DISPLAY_ICON" "$PERCENT" "$TOOLTIP" "$CLASS"
+printf '{"text": "%s %d%%", "tooltip": "%s", "class": "%s", "percentage": %d}\n' \
+    "$DISPLAY_ICON" "$PERCENT" "$TOOLTIP" "$CLASS" "$PERCENT"

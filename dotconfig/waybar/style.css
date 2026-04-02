@@ -25,7 +25,7 @@ window#waybar.hidden {
 #network, #pulseaudio, #battery, 
 #custom-swaync, #clock, #custom-power, #mpris, 
 #custom-magic-trackpad-battery, #custom-mouse-battery, 
-#custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector, #custom-updates, #custom-g733-battery, #custom-mute-indicator {
+#custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector, #custom-updates, #custom-g733-battery, #custom-mute-indicator, #custom-power-hub {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
     padding: 0 12px;
@@ -96,7 +96,7 @@ window#waybar.hidden {
 
 #custom-mute-indicator.muted_active  { 
     color: #f7768e;
-     font-size: 18px;
+    font-size: 18px;
 }
 
 #battery.charging, #battery.plugged {
@@ -184,4 +184,8 @@ window#waybar.hidden {
 #temperature.critical {
     color: #f7768e;
     animation: blink 0.5s linear infinite alternate;
+}
+
+#custom-power-hub.critical  {
+    animation: blink-privacy-icon 1s linear infinite alternate;
 }

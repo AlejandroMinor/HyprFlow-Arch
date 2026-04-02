@@ -173,4 +173,15 @@ window#waybar.hidden {
     min-width: 45px;
 }
 
+#temperature {
+    background: alpha(@color0, 0.8);
+    margin: 5px 3px;
+    padding: 0 12px;
+    border-radius: 8px;
+    color: #7dcfff;
+}
 
+#temperature.critical {
+    color: #f7768e;
+    animation: blink 0.5s linear infinite alternate;
+}

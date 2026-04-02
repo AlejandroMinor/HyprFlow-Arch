@@ -228,6 +228,7 @@
     "modules": [
 	"custom/hardware-wrap",
         "cpu",
+        "temperature",
         "memory",
         "disk",
         "custom/magic-trackpad-battery",
@@ -254,6 +255,17 @@
     "format": " ",
     "tooltip": false,
     "on-click": "kitty --class btop-float -e btop"
+},
+
+"temperature": {
+    "interval": 10,
+    "hwmon-path": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon6/temp1_input",
+    "critical-threshold": 80,
+    "format-critical": "<span color='#f7768e'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
+    "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
+    "format-icons": ["", "", "", "", ""],
+    "tooltip": false
 }
+
 
 }

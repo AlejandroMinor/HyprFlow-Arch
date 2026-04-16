@@ -86,7 +86,7 @@ git submodule update --init --recursive
 
 ### Instalación Completa (Repos Oficiales)
 ```bash
-sudo pacman -S hyprland waybar yazi kitty swww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
+sudo pacman -S hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
 ```
 
 ### Instalación Completa (AUR)

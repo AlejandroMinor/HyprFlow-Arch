@@ -250,4 +250,5 @@ Esto abrirá una interfaz visual donde podrás explorar todos los keybindings co
 - **Sesiones:** Usa `session-manager/save.sh` para guardar el layout actual, `restore.sh` para recuperarlo (disponibles en keybindings)
 - **Audio:** Usa `sinkswitch` para cambiar rápidamente entre dispositivos de audio (también en atajos)
 - **Monitores:** Si agregas o cambias monitores, ejecuta `monitors.sh` nuevamente
+- **Waybar:** Si tienes problemas con Waybar, puede que el problema sea el mapeo de monitores. Revisa `dotconfig/hypr/monitors_ids.conf` para colocar los IDs correctos de tus pantallas y ajusta `dotconfig/waybar/config` para que Waybar identifique bien tus monitores. El script debería resolver los IDs en la mayoría de los casos, pero según tu hardware y preferencias puede ser necesario adaptar Waybar manualmente.
 - **Permisos:** Los scripts `.sh` requieren permisos de ejecución. El `install.sh` los asigna automáticamente

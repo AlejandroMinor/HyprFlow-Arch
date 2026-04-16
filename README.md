@@ -42,7 +42,17 @@ El mapeo lógico de hardware se define en `monitors_ids.conf`, mientras que la d
 
 ## Instalación Rápida
 
-### Con un script automatizado:
+### Primero instala las dependencias
+
+```bash
+sudo pacman -S cpio cmake hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
+```
+
+```bash
+yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol
+```
+
+### Luego instala esta configuración:
 
 ```bash
 git clone --recursive https://github.com/AlejandroMinor/HyprFlow-Arch.git
@@ -60,9 +70,8 @@ El script se encargará de:
 
 ### Después de la instalación:
 
-1. **Instalar dependencias del sistema** (ver sección [Dependencias](#dependencias))
-2. **Configurar periféricos** si es necesario (ver [Post-Instalación](#post-instalación-y-configuración))
-3. **Recargar Hyprland:** `hyprctl reload`
+1. **Configurar periféricos** si es necesario (ver [Post-Instalación](#post-instalación-y-configuración))
+2. **Recargar Hyprland:** `hyprctl reload`
 
 ## Clonación del Repositorio
 
@@ -86,7 +95,7 @@ git submodule update --init --recursive
 
 ### Instalación Completa (Repos Oficiales)
 ```bash
-sudo pacman -S hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
+sudo pacman -S cpio cmake hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
 ```
 
 ### Instalación Completa (AUR)
@@ -190,6 +199,24 @@ HyprFlow-Arch/
 ```
 
 ## Hyprland Plugins (hyprpm)
+
+El repositorio oficial de plugins para `hyprpm` es [hyprwm/hyprland-plugins](https://github.com/hyprwm/hyprland-plugins).
+
+Flujo recomendado:
+
+```bash
+hyprpm update
+hyprpm add https://github.com/hyprwm/hyprland-plugins
+hyprpm list
+hyprpm enable <plugin-name>
+hyprpm update
+```
+
+Si quieres verificar qué plugins quedaron instalados antes de activarlos, usa:
+
+```bash
+hyprpm list
+```
 
 Plugins actualmente activos:
 

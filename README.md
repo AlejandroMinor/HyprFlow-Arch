@@ -149,7 +149,7 @@ En `~/.config/waypaper/config.ini`, activa el `zen_mode` y el `post_command` par
 
 ```ini
 [Settings]
-backend = swww
+backend = awww
 fill = fill
 zen_mode = True
 post_command = bash -c "$HOME/HyprFlow-Arch/bin/wallust-theme-manager.sh --generate-palette --notify"
@@ -246,9 +246,8 @@ Esto abrirá una interfaz visual donde podrás explorar todos los keybindings co
 ## Notas y Tips
 
 - **Atajos de teclado:** Muchos de los binarios pueden ejecutarse directamente desde atajos. Usa `help-binds` para ver todos los keybindings disponibles
-- **Temas:** Cambia de tema con `wallust cs <tema.json>` y luego `wallust-theme-manager.sh --restore-default` (también asignado a atajos)
 - **Sesiones:** Usa `session-manager/save.sh` para guardar el layout actual, `restore.sh` para recuperarlo (disponibles en keybindings)
 - **Audio:** Usa `sinkswitch` para cambiar rápidamente entre dispositivos de audio (también en atajos)
 - **Monitores:** Si agregas o cambias monitores, ejecuta `monitors.sh` nuevamente
 - **Waybar:** Si tienes problemas con Waybar, puede que el problema sea el mapeo de monitores. Revisa `dotconfig/hypr/monitors_ids.conf` para colocar los IDs correctos de tus pantallas y ajusta `dotconfig/waybar/config` para que Waybar identifique bien tus monitores. El script debería resolver los IDs en la mayoría de los casos, pero según tu hardware y preferencias puede ser necesario adaptar Waybar manualmente.
-- **Permisos:** Los scripts `.sh` requieren permisos de ejecución. El `install.sh` los asigna automáticamente
+- **Permisos:** Los scripts requieren permisos de ejecución. El `install.sh` los asigna automáticamente, pero en caso de tener algun problema asignarlos con "chmod +x nombre_script"

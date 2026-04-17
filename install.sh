@@ -17,6 +17,11 @@ find "$REPO_PATH/bin" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x 
 echo "📁 Copying configuration files..."
 cp -rf "$REPO_PATH/dotconfig"/* "$CONFIG_DEST/"
 
+# Copy eww config
+echo "📁 Copying eww configuration..."
+mkdir -p "$CONFIG_DEST/eww"
+cp -rf "$REPO_PATH/dotconfig/eww"/* "$CONFIG_DEST/eww/"
+
 # Copy rofi-collection module
 echo "📁 Copying rofi-collection module..."
 mkdir -p "$CONFIG_DEST/rofi"

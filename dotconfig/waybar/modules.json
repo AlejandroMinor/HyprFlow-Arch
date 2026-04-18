@@ -161,7 +161,7 @@
         "tooltip": false,	
         "on-click-right": "kitty --class btop-float -e paru -Syu",
         "exec": "echo $(( $(pacman -Qu | wc -l) + $(paru -Qua | wc -l) ))",
-        "interval": 3600,
+        "interval": 3600
     },
 
     "custom/power": {
@@ -231,7 +231,8 @@
         "cpu",
         "temperature",
         "memory",
-        "disk"
+        "disk",
+        "temperature#desktop"
     ]
 },
 
@@ -258,6 +259,17 @@
     "format-critical": "<span color='#f7768e'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
     "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
     "format-icons": ["", "", "", "", ""],
+    "tooltip": false
+},
+
+
+"temperature#desktop": {
+    "interval": 10,
+    "hwmon-path": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon3/temp1_input",
+    "critical-threshold": 80,
+    "format-critical": "<span color='#f7768e'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
+    "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
+    "format-icons": ["", ""],
     "tooltip": false
 },
 

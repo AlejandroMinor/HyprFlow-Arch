@@ -173,7 +173,8 @@ window#waybar.hidden {
     min-width: 45px;
 }
 
-#temperature {
+#temperature,
+#temperature.desktop {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
     padding: 0 12px;
@@ -181,7 +182,8 @@ window#waybar.hidden {
     color: #7dcfff;
 }
 
-#temperature.critical {
+#temperature.critical,
+#temperature.desktop.critical {
     color: #f7768e;
     animation: blink 0.5s linear infinite alternate;
 }

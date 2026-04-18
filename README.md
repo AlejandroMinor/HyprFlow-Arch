@@ -49,7 +49,7 @@ sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessct
 ```
 
 ```bash
-yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol
+yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol bibata-cursor-theme-bin
 ```
 
 ### Luego instala esta configuración:
@@ -100,7 +100,7 @@ sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessct
 
 ### Instalación Completa (AUR)
 ```bash
-yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol
+yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol bibata-cursor-theme-bin
 ```
 
 ## Scripts y Binarios Incluidos

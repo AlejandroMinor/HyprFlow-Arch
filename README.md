@@ -1,151 +1,137 @@
 # HyprFlow-Arch
 
-Configuración completa de **Hyprland + Arch Linux** optimizada para productividad técnica avanzada con soporte para múltiples monitores, periféricos de lujo y automatización inteligente.
+Configuración completa de **Hyprland + Arch Linux** optimizada para productividad técnica con soporte para múltiples monitores, periféricos Logitech/Apple y tematización dinámica automatizada.
 
-### Características Principales
+## Características Principales
 
-- ⚙️ **Configuración completa lista para usar** - Instalación automatizada con un script
-- 🎨 **Tematización dinámica** - Generación automática de paletas con `wallust`
-- 📊 **Gestor de monitores avanzado** - Mapeo automático de 4 pantallas  
-- 🔋 **Monitoreo de batería integrado** - Batería de mouse, trackpad, teclado y headset en Waybar
-- 🎯 **Múltiples aplicaciones y módulos** - Launcher de Rofi personalizado, controles de audio, status VPN, etc.
-- 🔌 **Soporte para periféricos** - Optimizado para Magic Trackpad, Logitech MX Master, Dell D6000 y más
+- **Instalación automatizada** — un script copia configs, crea symlinks y aplica el tema base
+- **Tematización dinámica** — paletas de color generadas automáticamente con `wallust` al cambiar wallpaper
+- **Gestión de 4 monitores** — mapeo lógico automático vía `monitors.sh`, layout configurable
+- **Batería de periféricos en Waybar** — mouse, teclado, trackpad y headset en tiempo real
+- **Módulos de estado** — VPN, cámara, micrófono, audio y notificaciones DND integrados
+- **Soporte DisplayLink** — compatibilidad con dock Dell D6000
 
 ## Tabla de Contenidos
 
-- [Hardware & Periféricos](#hardware--periféricos)
-- [Instalación Rápida](#instalación-rápida)
-- [Clonación del Repositorio](#clonación-del-repositorio)
-- [Dependencias](#dependencias)
-- [Scripts y Binarios Incluidos](#scripts-y-binarios-incluidos)
-- [Post-Instalación y Configuración](#post-instalación-y-configuración)
-- [Hyprland Plugins](#hyprland-plugins)
+- [Vista Previa](#vista-previa)
+- [Hardware y Periféricos](#hardware-y-periféricos)
+- [Instalación](#instalación)
+- [Scripts Incluidos](#scripts-incluidos)
+- [Post-Instalación](#post-instalación)
+- [Plugins de Hyprland](#plugins-de-hyprland)
 - [Estructura del Proyecto](#estructura-del-proyecto)
+- [Tips](#tips)
 
-## Hardware & Periféricos
+## Vista Previa
 
-Este setup está diseñado para los siguientes periféricos, con gestión de batería integrada en Waybar:
 
-* **Mouse:** Logitech MX Master 3S.
-* **Teclado:** Logitech MX Keys S.
-* **Trackpad:** Apple Magic Trackpad (vía `magic-trackpad-battery-git`).
-* **Dock:** Dell D6000 (Soporte DisplayLink).
 
-### Gestión de Monitores (4 Pantallas)
+## Hardware y Periféricos
 
-El mapeo lógico de hardware se define en `monitors_ids.conf`, mientras que la disposición física se gestiona en `monitors.conf`. El layout actual de izquierda a derecha es:
+Setup diseñado para los siguientes periféricos, con monitoreo de batería integrado:
 
-1. **AOC** ($AOC - 1080p).
-2. **NZXT** (Principal - 1440p @ 120Hz).
-3. **ASUS** ($ASUS - 1080p).
-4. **THINKPAD** (Laptop - 1080p).
+| Periférico | Modelo |
+|------------|--------|
+| Mouse | Logitech MX Master 3S |
+| Teclado | Logitech MX Keys S |
+| Trackpad | Apple Magic Trackpad |
+| Dock | Dell D6000 (DisplayLink) |
 
-## Instalación Rápida
+### Distribución de Monitores (4 pantallas)
 
-### Primero instala las dependencias
+El mapeo lógico se define en `monitors_ids.conf` (auto-generado). El layout actual de izquierda a derecha:
 
+| Posición | Monitor | Resolución |
+|----------|---------|------------|
+| 1 | AOC | 1080p |
+| 2 | NZXT (Principal) | 1440p @ 120Hz |
+| 3 | ASUS | 1080p |
+| 4 | ThinkPad (laptop) | 1080p |
+
+## Instalación
+
+### 1. Instalar dependencias
+
+**Repositorios oficiales:**
 ```bash
 sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
 ```
 
+**AUR (requiere `yay` u otro helper):**
 ```bash
 yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol bibata-cursor-theme-bin
 ```
 
-### Luego instala esta configuración:
+### 2. Clonar e instalar
+
+Este repositorio usa **submódulos Git** (temas de Rofi, trackpad-battery, sinkswitch). Clona con `--recursive`:
 
 ```bash
 git clone --recursive https://github.com/AlejandroMinor/HyprFlow-Arch.git
 cd HyprFlow-Arch
-chmod +x install.sh
 bash install.sh
 ```
 
-El script se encargará de:
-- ✅ Dar permisos de ejecución a todos los scripts `.sh` y `.py`
-- ✅ Copiar configuración a `~/.config`
-- ✅ Crear enlaces simbólicos de los binarios en `~/.local/bin`
-- ✅ Aplicar la paleta de colores por defecto
-- ✅ Recargar Hyprland y los plugins
-
-### Después de la instalación:
-
-1. **Configurar periféricos** si es necesario (ver [Post-Instalación](#post-instalación-y-configuración))
-2. **Recargar Hyprland:** `hyprctl reload`
-
-## Clonación del Repositorio
-
-Este proyecto utiliza **submódulos de Git** para gestionar dependencias externas (como la colección de temas de Rofi). Es importante clonar el repositorio con la opción `--recursive`:
-
-```bash
-git clone --recursive https://github.com/AlejandroMinor/HyprFlow-Arch.git
-cd HyprFlow-Arch
-```
-
-Si ya tienes el repositorio clonado sin los submódulos, actualízalos con:
-
+Si ya clonaste sin `--recursive`:
 ```bash
 git submodule update --init --recursive
 ```
 
-## Dependencias
+El script de instalación se encarga de:
+- Dar permisos de ejecución a todos los scripts `.sh` y `.py`
+- Copiar configuración a `~/.config`
+- Crear symlinks de los binarios en `~/.local/bin`
+- Aplicar la paleta de colores por defecto
+- Recargar Hyprland y los plugins
 
-* **Rofi:** Temas basados en la colección de adi1090x/rofi (incluido como submódulo).
-* **Tematización:** Soporte para colores dinámicos con `wallust`.
+### 3. Primeros pasos
 
-### Instalación Completa (Repos Oficiales)
+Ejecuta `help-binds` para ver todos los atajos de teclado disponibles:
+
 ```bash
-sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
+help-binds
 ```
 
-### Instalación Completa (AUR)
-```bash
-yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol bibata-cursor-theme-bin
-```
+## Scripts Incluidos
 
-## Scripts y Binarios Incluidos
-
-Todos los scripts en `bin/` están disponibles en `~/.local/bin` después de la instalación y pueden ser ejecutados desde cualquier lugar.
+Todos los scripts en `bin/` quedan disponibles globalmente en `~/.local/bin` tras la instalación.
 
 | Script | Descripción |
 |--------|-------------|
-| `wallust-theme-manager.sh` | Gestor de temas - genera paletas de colores dinámicas y aplica temas |
-| `monitors.sh` | Detecta automáticamente los monitores y crea el mapeo en `monitors_ids.conf` |
-| `help-binds.sh` | Muestra todos los atajos de teclado de Hyprland en una interfaz visual |
-| `mute_indicator.sh` | Indicador de estado de micrófono en Waybar |
-| `swaync-dnd.sh` | Control de "Do Not Disturb" (DND) en SwayNC |
-| `vpn_status.sh` | Muestra el estado de conexión VPN en Waybar |
-| `peripherals_battery.sh` | Monitorea y muestra la batería de periféricos en Waybar |
+| `wallust-theme-manager.sh` | Genera paletas de color dinámicas y aplica temas |
+| `monitors.sh` | Detecta monitores y crea el mapeo en `monitors_ids.conf` |
+| `help-binds.sh` | Muestra todos los atajos de teclado en interfaz visual |
+| `mute_indicator.sh` | Indicador de estado del micrófono en Waybar |
+| `swaync-dnd.sh` | Control de Do Not Disturb en SwayNC |
+| `vpn_status.sh` | Estado de conexión VPN en Waybar |
+| `peripherals_battery.sh` | Batería de periféricos en Waybar |
 | `battery_alert.py` | Alerta de batería baja del sistema |
-| `camera_status.py` | Indicador de estado de cámara en uso |
-| `g733_battery.sh` | Muestra la batería del headset Logitech G733 |
-| `trackpad-battery` | Monitorea la batería del Magic Trackpad |
-| `sinkswitch` | Cambiar rápidamente entre dispositivos de audio (sinks) |
+| `camera_status.py` | Indicador de cámara en uso |
+| `g733_battery.sh` | Batería del headset Logitech G733 |
+| `trackpad-battery` | Batería del Apple Magic Trackpad |
+| `sinkswitch` | Cambio rápido entre dispositivos de audio |
 
-**Módulos incluidos (submódulos):**
-- `rofi-collection` - Colección completa de temas, applets y launchers para Rofi
-- `apple-magic-trackpad-battery` - Script especializado para mostrar batería del trackpad
-- `sinkswitch` - Utilidad para cambiar outputs de audio
+**Submódulos incluidos:**
+- `modules/rofi-collection` — colección de temas, applets y launchers para Rofi
+- `modules/apple-magic-trackpad-battery` — script de batería del trackpad
+- `modules/sinkswitch` — utilidad de cambio de audio output
 
-## Post-Instalación y Configuración
+## Post-Instalación
 
-### 1. Configuración de Magic Trackpad (Opcional - solo si lo usas)
-Para que el Magic Trackpad se pueda leer correctamente, ejecuta el siguiente comando para crear la regla udev:
+### Magic Trackpad (opcional)
 
-```bash
-echo 'SUBSYSTEM=="hidraw", DRIVERS=="magicmouse", MODE="0660", GROUP="input"' | sudo tee /etc/udev/rules.d/99-magictrackpad.rules && sudo udevadm control --reload-rules && sudo udevadm trigger
-```
-
-### 2. Inicialización de Temas (Opcional)
-El script de instalación ya genera automáticamente la paleta por defecto y aplica los temas. Si necesitas restaurar manualmente los valores por defecto:
+Para leer correctamente el estado de batería del trackpad, crea la regla udev:
 
 ```bash
-wallust cs ~/HyprFlow-Arch/wallust/themes/minor-default.json
-~/HyprFlow-Arch/bin/wallust-theme-manager.sh --restore-default --notify
+echo 'SUBSYSTEM=="hidraw", DRIVERS=="magicmouse", MODE="0660", GROUP="input"' | \
+  sudo tee /etc/udev/rules.d/99-magictrackpad.rules && \
+  sudo udevadm control --reload-rules && \
+  sudo udevadm trigger
 ```
 
-### 3. Configuración de Waypaper (Recomendado)
-En `~/.config/waypaper/config.ini`, activa el `zen_mode` y el `post_command` para generar la paleta automáticamente al cambiar el fondo:
+### Tematización con Waypaper (recomendado)
+
+En `~/.config/waypaper/config.ini`, activa `zen_mode` y el `post_command` para regenerar la paleta al cambiar wallpaper:
 
 ```ini
 [Settings]
@@ -155,99 +141,88 @@ zen_mode = True
 post_command = bash -c "$HOME/HyprFlow-Arch/bin/wallust-theme-manager.sh --generate-palette --notify"
 ```
 
-### 4. Detección automática de monitores
-Para detectar automáticamente tus monitores y crear el mapeo lógico:
+Para restaurar la paleta por defecto manualmente:
 
 ```bash
-~/HyprFlow-Arch/bin/monitors.sh
+wallust cs ~/HyprFlow-Arch/wallust/themes/minor-default.json
+~/HyprFlow-Arch/bin/wallust-theme-manager.sh --restore-default --notify
 ```
 
-## Estructura del Proyecto
+### Detección de monitores
 
-```
-HyprFlow-Arch/
-├── bin/                          # Scripts y binarios ejecutables
-│   ├── wallust-theme-manager.sh  # Gestor de temas (principal)
-│   ├── monitors.sh               # Detección automática de monitores
-│   ├── help-binds.sh             # Visualizador de atajos
-│   ├── session-manager/          # Gestor de sesiones (save/restore/load)
-│   └── [otros scripts...]        # Scripts de estado y controles
-│
-├── dotconfig/                    # Archivos de configuración (~/.config)
-│   ├── hypr/                     # Configuración de Hyprland
-│   │   ├── hyprland.conf         # Configuración principal
-│   │   ├── keybindings.conf      # Atajos de teclado
-│   │   ├── monitors.conf         # Layout de monitores
-│   │   ├── monitors_ids.conf     # Mapeo lógico (auto-generado)
-│   │   ├── animations.conf       # Animaciones
-│   │   └── gestures.conf         # Gestos del touchpad
-│   ├── wallust/                  # Configuración de temas
-│   │   ├── wallust.toml          # Config de wallust
-│   │   ├── colors/               # Paletas de colores generadas
-│   │   └── templates/            # Plantillas para themes
-│   ├── rofi/                     # Configuración de Rofi
-│   ├── waybar/                   # Barra de estado
-│   └── wlogout/                  # Menú de apagado
-│
-├── modules/                      # Submódulos de Git (dependencias externas)
-│   ├── rofi-collection/          # Colección de temas de Rofi
-│   ├── apple-magic-trackpad-battery/  # Script de batería del trackpad
-│   └── sinkswitch/               # Utilidad de audio
-│
-├── install.sh                    # Script automatizado de instalación
-└── README.md                     # Este archivo
+Si agregas o cambias monitores, regenera el mapeo lógico:
+
+```bash
+monitors.sh
 ```
 
-## Hyprland Plugins (hyprpm)
+Si se presenta algún problema con Waybar, revisa `monitors_ids.conf` y ajusta los IDs manualmente. 
+Tambien puedes reiniciar hyprland para que recargue la configuración:
 
-El repositorio oficial de plugins para `hyprpm` es [hyprwm/hyprland-plugins](https://github.com/hyprwm/hyprland-plugins).
+```bash
+hyprctl reload
+```
 
-Flujo recomendado:
+### Dell D6000 / DisplayLink
+
+```bash
+sudo systemctl enable --now displaylink.service
+```
+
+## Plugins de Hyprland
+
+Instala y gestiona plugins con `hyprpm`:
 
 ```bash
 hyprpm update
 hyprpm add https://github.com/hyprwm/hyprland-plugins
-hyprpm list
 hyprpm enable <plugin-name>
-hyprpm update
-```
-
-Si quieres verificar qué plugins quedaron instalados antes de activarlos, usa:
-
-```bash
-hyprpm list
 ```
 
 Plugins actualmente activos:
 
 | Plugin | Descripción |
 |--------|-------------|
-| **hyprfocus** | Animación de transición y foco de ventanas mejorada |
-| **hyprwinwrap** | Permite embeber aplicaciones (como terminales de monitoreo) directamente en el fondo de escritorio |
+| `hyprfocus` | Animación de foco de ventanas mejorada |
+| `hyprwinwrap` | Embebe aplicaciones directamente en el fondo de escritorio |
 
-### Configuración de DisplayLink (para el Dock Dell D6000)
+## Estructura del Proyecto
 
-Si usas el Dell D6000 con Hyprland, habilita el servicio:
-
-```bash
-sudo systemctl enable --now displaylink.service
+```
+HyprFlow-Arch/
+├── bin/                          # Scripts ejecutables (symlinkeados a ~/.local/bin)
+│   ├── wallust-theme-manager.sh
+│   ├── monitors.sh
+│   ├── help-binds.sh
+│   ├── session-manager/          # Guardar/restaurar layout de ventanas
+│   └── ...
+│
+├── dotconfig/                    # Configuración (~/.config)
+│   ├── hypr/
+│   │   ├── hyprland.conf
+│   │   ├── keybindings.conf
+│   │   ├── monitors.conf         # Layout físico
+│   │   ├── monitors_ids.conf     # Mapeo lógico (auto-generado)
+│   │   ├── animations.conf
+│   │   └── gestures.conf
+│   ├── wallust/                  # Config de wallust y paletas
+│   ├── waybar/
+│   ├── rofi/
+│   ├── kitty/
+│   ├── eww/
+│   └── wlogout/
+│
+├── modules/                      # Submódulos Git
+│   ├── rofi-collection/
+│   ├── apple-magic-trackpad-battery/
+│   └── sinkswitch/
+│
+├── install.sh
+└── README.md
 ```
 
-## Primeros Pasos Después de Instalar
+## Tips
 
-**Te recomendamos ejecutar primero `help-binds`** para ver todos los atajos de teclado disponibles y familiarizarte con las funcionalidades principales:
-
-```bash
-help-binds
-```
-
-Esto abrirá una interfaz visual donde podrás explorar todos los keybindings configurados.
-
-## Notas y Tips
-
-- **Atajos de teclado:** Muchos de los binarios pueden ejecutarse directamente desde atajos. Usa `help-binds` para ver todos los keybindings disponibles
-- **Sesiones:** Usa `session-manager/save.sh` para guardar el layout actual, `restore.sh` para recuperarlo (disponibles en keybindings)
-- **Audio:** Usa `sinkswitch` para cambiar rápidamente entre dispositivos de audio (también en atajos)
-- **Monitores:** Si agregas o cambias monitores, ejecuta `monitors.sh` nuevamente
-- **Waybar:** Si tienes problemas con Waybar, puede que el problema sea el mapeo de monitores. Revisa `dotconfig/hypr/monitors_ids.conf` para colocar los IDs correctos de tus pantallas y ajusta `dotconfig/waybar/config` para que Waybar identifique bien tus monitores. El script debería resolver los IDs en la mayoría de los casos, pero según tu hardware y preferencias puede ser necesario adaptar Waybar manualmente.
-- **Permisos:** Los scripts requieren permisos de ejecución. El `install.sh` los asigna automáticamente, pero en caso de tener algun problema asignarlos con "chmod +x nombre_script"
+- **Waybar + monitores:** Si Waybar no aparece bien, revisa `dotconfig/hypr/monitors_ids.conf` y ajusta los IDs. El script `monitors.sh` lo resuelve en la mayoría de casos, pero con ciertos docks puede requerir ajuste manual en `dotconfig/waybar/config`.
+- **Sesiones:** `session-manager/save.sh` guarda el layout actual; `restore.sh` lo recupera. Ambos están disponibles como keybindings.
+- **Permisos:** Si un script no ejecuta, `chmod +x nombre_script`. El `install.sh` los asigna automáticamente.

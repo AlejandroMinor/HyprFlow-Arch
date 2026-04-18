@@ -3,8 +3,8 @@
 dnd_status=$(swaync-client -D)
 unread_count=$(swaync-client -c)
 
-icon_normal="🔔"
-icon_dnd="🔕"
+icon_normal=""
+icon_dnd=""
 
 
 if [[ "$dnd_status" == "true" ]]; then

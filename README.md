@@ -54,7 +54,7 @@ El mapeo lógico se define en `monitors_ids.conf` (auto-generado). El layout act
 
 **Repositorios oficiales:**
 ```bash
-sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts
+sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessctl playerctl wireplumber pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk
 ```
 
 **AUR (requiere `yay` u otro helper):**
@@ -117,6 +117,15 @@ Todos los scripts en `bin/` quedan disponibles globalmente en `~/.local/bin` tra
 - `modules/sinkswitch` — utilidad de cambio de audio output
 
 ## Post-Instalación
+
+### Tema oscuro
+Si quieres forzar colores oscuros para apps GTK:
+
+```bash
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+gsettings set org.gnome.desktop.interface icon-theme 'Adwaita'
+```
 
 ### Magic Trackpad (opcional)
 

@@ -11,7 +11,15 @@ mkdir -p "$CONFIG_DEST"
 
 # Set execute permissions on all binary files first
 echo "⚙️  Setting execute permissions on scripts..."
-find "$REPO_PATH/bin" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x {} \;
+find "$REPO_PATH/bin" -type f -exec chmod +x {} \;
+
+# Ensure symlinked binaries in bin point to executable targets
+while IFS= read -r -d '' link; do
+    target="$(readlink -f "$link" 2>/dev/null || true)"
+    if [ -n "$target" ] && [ -f "$target" ]; then
+        chmod +x "$target"
+    fi
+done < <(find "$REPO_PATH/bin" -maxdepth 1 -type l -print0)
 
 # Copy configuration files (dotconfig -> ~/.config)
 echo "📁 Copying configuration files..."
@@ -31,6 +39,13 @@ cp -rf "$REPO_PATH/dotconfig/kitty"/* "$CONFIG_DEST/kitty/" 2>/dev/null || true
 echo "📁 Copying rofi-collection module..."
 mkdir -p "$CONFIG_DEST/rofi"
 cp -rf "$REPO_PATH/modules/rofi-collection"/files/* "$CONFIG_DEST/rofi/" 2>/dev/null || true
+
+# Install rofi-collection fonts
+echo "🔤 Installing rofi fonts..."
+FONT_DIR="$HOME/.local/share/fonts"
+mkdir -p "$FONT_DIR"
+cp -rf "$REPO_PATH/modules/rofi-collection/fonts"/* "$FONT_DIR/"
+fc-cache -f "$FONT_DIR"
 
 # 📁 Adds personal rofi themes
 echo "🎨 Applying custom Rofi themes..."

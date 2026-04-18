@@ -22,6 +22,11 @@ echo "📁 Copying eww configuration..."
 mkdir -p "$CONFIG_DEST/eww"
 cp -rf "$REPO_PATH/dotconfig/eww"/* "$CONFIG_DEST/eww/"
 
+# Copy kitty config
+echo "📁 Copying kitty configuration..."
+mkdir -p "$CONFIG_DEST/kitty"
+cp -rf "$REPO_PATH/dotconfig/kitty"/* "$CONFIG_DEST/kitty/" 2>/dev/null || true
+
 # Copy rofi-collection module
 echo "📁 Copying rofi-collection module..."
 mkdir -p "$CONFIG_DEST/rofi"

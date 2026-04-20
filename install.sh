@@ -35,6 +35,11 @@ echo "📁 Copying kitty configuration..."
 mkdir -p "$CONFIG_DEST/kitty"
 cp -rf "$REPO_PATH/dotconfig/kitty"/* "$CONFIG_DEST/kitty/" 2>/dev/null || true
 
+# Copy xdg-desktop-portal config
+echo "📁 Copying xdg-desktop-portal configuration..."
+mkdir -p "$CONFIG_DEST/xdg-desktop-portal"
+cp -rf "$REPO_PATH/dotconfig/xdg-desktop-portal"/* "$CONFIG_DEST/xdg-desktop-portal/"
+
 # Copy rofi-collection module
 echo "📁 Copying rofi-collection module..."
 mkdir -p "$CONFIG_DEST/rofi"

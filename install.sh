@@ -62,7 +62,7 @@ fi
 # Create symbolic links for binary files (bin -> ~/.local/bin)
 echo "⚙️  Creating symbolic links for binaries..."
 for file in "$REPO_PATH/bin"/*; do
-    ln -sf "$file" "$BIN_FILES_PATH/$(basename "$file")"
+    [ -f "$file" ] && ln -sf "$file" "$BIN_FILES_PATH/$(basename "$file")"
 done
 
 # Apply default theme 

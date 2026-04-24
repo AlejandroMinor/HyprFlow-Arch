@@ -21,11 +21,12 @@ window#waybar.hidden {
 
 #custom-launcher,
 #cpu, #memory, #disk,
-#tray, #custom-vpn, 
-#network, #pulseaudio, #battery, 
-#custom-swaync, #clock, #custom-power, #mpris, 
-#custom-magic-trackpad-battery, #custom-mouse-battery, 
-#custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector, #custom-updates, #custom-g733-battery, #custom-mute-indicator, #custom-power-hub {
+#tray, #custom-vpn,
+#network, #pulseaudio, #battery,
+#custom-swaync, #clock, #custom-power, #mpris,
+#custom-magic-trackpad-battery, #custom-mouse-battery,
+#custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector, #custom-updates, #custom-g733-battery, #custom-mute-indicator, #custom-power-hub,
+#language, #submap {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
     padding: 0 12px;
@@ -190,4 +191,13 @@ window#waybar.hidden {
 
 #custom-power-hub.critical  {
     animation: blink-privacy-icon 1s linear infinite alternate;
+}
+
+#language {
+    color: @color4;
+}
+
+#submap {
+    color: @color3;
+    font-weight: bold;
 }

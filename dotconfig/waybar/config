@@ -10,7 +10,7 @@
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
         "modules-center": ["mpris"],
-        "modules-right": ["tray", "group/batteries", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]   
+        "modules-right": ["tray", "group/batteries", "hyprland/language", "hyprland/submap", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]
     },
 
     {
@@ -24,7 +24,7 @@
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
         "modules-center": ["mpris"],
-        "modules-right": ["tray", "group/batteries", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]   
+        "modules-right": ["tray", "group/batteries", "hyprland/language", "hyprland/submap", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]
 	},
     {
         "name": "minimal-bar", 

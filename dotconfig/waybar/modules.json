@@ -180,6 +180,19 @@
     	}
     },
 
+    "hyprland/language": {
+        "format": "󰌌 {short}",
+        "tooltip": false,
+        "on-click": "kb-layout-toggle"
+    },
+
+    "hyprland/submap": {
+        "format": "󰘳 {}",
+        "format-default": "",
+        "max-length": 15,
+        "tooltip": false
+    },
+
     "hyprland/window": {
         "format": "{class}",
         "max-length": 30,

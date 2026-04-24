@@ -56,7 +56,7 @@
     "network": {
         "tooltip": false,
         "format-wifi": "<span color='#9ece6a'> </span> {bandwidthDownBits}",
-        "format-ethernet": "󰈀 ",
+        "format-ethernet": "<span color='#7aa2f7'>󰈀 </span> {bandwidthDownBits} ↓ {bandwidthUpBits} ↑",
         "interval": 10
     },
 
@@ -171,11 +171,12 @@
 
     "mpris": {
     "format": "{player_icon} {artist} - {title}",
+    "format-paused": "<span color='#565f89'>{player_icon} {artist} - {title}</span>",
     "max-length": 35,
     "player-icons": {
 	"default": "▶",
         "spotify": "",
-	"edge": "🌐"
+	    "edge": ""
     	}
     },
 
@@ -228,11 +229,13 @@
 	},
     "modules": [
 	"custom/hardware-wrap",
+        "custom/updates",
         "cpu",
         "temperature",
         "memory",
         "disk",
-        "temperature#desktop"
+        "temperature#desktop",
+        "network"
     ]
 },
 

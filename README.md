@@ -59,7 +59,7 @@ sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessct
 
 **AUR (requiere `yay` u otro helper):**
 ```bash
-yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol bibata-cursor-theme-bin
+yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git warp-terminal-bin wallust headsetcontrol bibata-cursor-theme-bin paru
 ```
 
 ### 2. Clonar e instalar

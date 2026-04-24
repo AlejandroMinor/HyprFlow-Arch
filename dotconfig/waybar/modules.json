@@ -126,7 +126,8 @@
         "tooltip": true,
         "interval": 60,
         "format": "󰃭 {:%d/%m %H:%M}",
-        "tooltip-format": "{:%Y-%m-%d}"
+        "tooltip-format": "{:%Y-%m-%d}",
+        "on-click": "hyprctl dispatch exec \"kitty --class cal-popup -e bash -c 'cal; read -n1'\""
     },
 
     "tray": {

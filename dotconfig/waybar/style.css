@@ -201,3 +201,25 @@ window#waybar.hidden {
     color: @color3;
     font-weight: bold;
 }
+
+#submap.resize {
+    animation: submap-resize 1s ease-in-out infinite;
+    background: alpha(@color3, 0.25);
+}
+
+#submap.screenshot {
+    animation: submap-screenshot 1s ease-in-out infinite;
+    background: alpha(@color2, 0.25);
+}
+
+@keyframes submap-resize {
+    0%   { color: @color3; }
+    50%  { color: alpha(@color3, 0.3); }
+    100% { color: @color3; }
+}
+
+@keyframes submap-screenshot {
+    0%   { color: @color2; }
+    50%  { color: alpha(@color2, 0.3); }
+    100% { color: @color2; }
+}

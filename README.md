@@ -129,14 +129,9 @@ gsettings set org.gnome.desktop.interface icon-theme 'Adwaita'
 
 ### Magic Trackpad (opcional)
 
-Para leer correctamente el estado de batería del trackpad, crea la regla udev:
+Para que el módulo de batería del trackpad funcione correctamente, consulta la guía completa de configuración (permisos, grupos y opciones de seguridad) en el README del submodule:
 
-```bash
-echo 'SUBSYSTEM=="hidraw", DRIVERS=="magicmouse", MODE="0660", GROUP="input"' | \
-  sudo tee /etc/udev/rules.d/99-magictrackpad.rules && \
-  sudo udevadm control --reload-rules && \
-  sudo udevadm trigger
-```
+[apple-magic-trackpad-battery/README.md](https://github.com/AlejandroMinor/apple-magic-trackpad-battery-percent-python/blob/main/README.md)
 
 ### Tematización con Waypaper (recomendado)
 

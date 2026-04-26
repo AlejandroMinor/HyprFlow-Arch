@@ -234,6 +234,12 @@
     "on-click-right": "waypaper --random"
 },
 
+"custom/hymission": {
+    "format": "󰾍",
+    "tooltip": false,
+    "on-click": "hyprctl dispatch hymission:open"
+},
+
 "group/hardware": {
     "orientation": "horizontal",
     	"drawer": {

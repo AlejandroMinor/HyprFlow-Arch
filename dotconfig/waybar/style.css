@@ -19,6 +19,7 @@ window#waybar.hidden {
     opacity: 0;
 }
 
+#custom-hymission,
 #custom-launcher,
 #cpu, #memory, #disk,
 #tray, #custom-vpn,

@@ -8,7 +8,7 @@
         "margin-top": 10,
         "margin-left": 15,
         "margin-right": 15,
-        "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
+        "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/privacy-info", "group/hardware"],
         "modules-center": ["mpris"],
         "modules-right": ["tray", "group/batteries", "hyprland/language", "hyprland/submap", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]
     },
@@ -22,7 +22,7 @@
         "margin-top": 10,
         "margin-left": 15,
         "margin-right": 15,
-        "modules-left": ["custom/launcher", "hyprland/workspaces", "group/privacy-info", "group/hardware"],
+        "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/privacy-info", "group/hardware"],
         "modules-center": ["mpris"],
         "modules-right": ["tray", "group/batteries", "hyprland/language", "hyprland/submap", "custom/theme-selector", "custom/vpn", "pulseaudio", "custom/mute-indicator", "custom/swaync", "clock", "custom/power"]
 	},

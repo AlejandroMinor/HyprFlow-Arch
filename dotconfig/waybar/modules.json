@@ -182,7 +182,9 @@
     },
 
     "hyprland/language": {
-        "format": "󰌌 {short}",
+        "format": "󰌌 {}",
+        "format-en": "EN",
+        "format-es": "ES",
         "tooltip": false,
         "on-click": "kb-layout-toggle"
     },

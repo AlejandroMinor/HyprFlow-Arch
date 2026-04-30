@@ -189,6 +189,7 @@ Plugins actualmente activos:
 |--------|-------------|
 | `hyprfocus` | Animación de foco de ventanas mejorada |
 | `hyprwinwrap` | Embebe aplicaciones directamente en el fondo de escritorio |
+| `hymission` | Gestor de ventanas con vista de misión estilo macOS (Exposé), instalar vía `hyprpm add https://github.com/gfhdhytghd/hymission` |
 
 ## Estructura del Proyecto
 

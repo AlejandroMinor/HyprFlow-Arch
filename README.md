@@ -191,6 +191,12 @@ Plugins actualmente activos:
 | `hyprwinwrap` | Embebe aplicaciones directamente en el fondo de escritorio |
 | `hymission` | Gestor de ventanas con vista de misión estilo macOS (Exposé), instalar vía `hyprpm add https://github.com/gfhdhytghd/hymission` |
 
+> **Nota:** Si al arrancar aparecen errores sobre animaciones o referencias inválidas en `hyprland.conf`, suele ser porque los plugins están desactualizados respecto a la versión de Hyprland instalada. Ejecuta:
+> 
+> ```bash
+> hyprpm update
+> ```
+
 ## Estructura del Proyecto
 
 ```

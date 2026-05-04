@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# ─────────────────────────────────────────
+# VARIABLES
+# ─────────────────────────────────────────
+
 REPO_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN_FILES_PATH="$HOME/.local/bin"
 CONFIG_DEST="$HOME/.config"
@@ -11,87 +15,129 @@ for arg in "$@"; do
     esac
 done
 
-echo "󰣇 Installing HyprFlow-Arch..."
+TOTAL_STEPS=6
+[ "$SKIP_THEME" = true ] && TOTAL_STEPS=5
+CURRENT_STEP=0
 
-mkdir -p "$BIN_FILES_PATH"
-mkdir -p "$CONFIG_DEST"
+# ─────────────────────────────────────────
+# PROGRESS BAR
+# ─────────────────────────────────────────
 
-# Set execute permissions on all binary files first
-echo "󰒓 Setting execute permissions on scripts..."
-find "$REPO_PATH/bin" -type f -exec chmod +x {} \;
+progress() {
+    local label="$1"
+    CURRENT_STEP=$(( CURRENT_STEP + 1 ))
+    local percent=$(( CURRENT_STEP * 100 / TOTAL_STEPS ))
+    local width=36
+    local filled=$(( CURRENT_STEP * width / TOTAL_STEPS ))
+    local empty=$(( width - filled ))
+    local filled_str="" empty_str=""
+    for ((i=0; i<filled; i++)); do filled_str+="█"; done
+    for ((i=0; i<empty; i++)); do empty_str+="░"; done
+    printf "\n\033[1;32m[%s\033[90m%s\033[1;32m]\033[0m \033[1m%3d%%\033[0m  \033[1;36m%s\033[0m\n\n" \
+        "$filled_str" "$empty_str" "$percent" "$label"
+}
 
-# Ensure symlinked binaries in bin point to executable targets
-while IFS= read -r -d '' link; do
-    target="$(readlink -f "$link" 2>/dev/null || true)"
-    if [ -n "$target" ] && [ -f "$target" ]; then
-        chmod +x "$target"
+# ─────────────────────────────────────────
+# FUNCTIONS
+# ─────────────────────────────────────────
+
+set_permissions() {
+    progress "PERMISSIONS"
+    echo "󰒓 Setting execute permissions on scripts..."
+    find "$REPO_PATH/bin" -type f -exec chmod +x {} \;
+
+    while IFS= read -r -d '' link; do
+        target="$(readlink -f "$link" 2>/dev/null || true)"
+        if [ -n "$target" ] && [ -f "$target" ]; then
+            chmod +x "$target"
+        fi
+    done < <(find "$REPO_PATH/bin" -maxdepth 1 -type l -print0)
+}
+
+copy_configs() {
+    progress "CONFIG FILES"
+    echo "󰆐 Copying configuration files..."
+    cp -rf "$REPO_PATH/dotconfig"/* "$CONFIG_DEST/"
+
+    echo "󰆐 Copying eww configuration..."
+    mkdir -p "$CONFIG_DEST/eww"
+    cp -rf "$REPO_PATH/dotconfig/eww"/* "$CONFIG_DEST/eww/"
+
+    echo "󰄛 Copying kitty configuration..."
+    mkdir -p "$CONFIG_DEST/kitty"
+    cp -rf "$REPO_PATH/dotconfig/kitty"/* "$CONFIG_DEST/kitty/" 2>/dev/null || true
+
+    echo "󰆐 Copying xdg-desktop-portal configuration..."
+    mkdir -p "$CONFIG_DEST/xdg-desktop-portal"
+    cp -rf "$REPO_PATH/dotconfig/xdg-desktop-portal"/* "$CONFIG_DEST/xdg-desktop-portal/"
+}
+
+setup_rofi() {
+    progress "ROFI"
+    echo "󰍉 Copying rofi-collection module..."
+    mkdir -p "$CONFIG_DEST/rofi"
+    cp -rf "$REPO_PATH/modules/rofi-collection"/files/* "$CONFIG_DEST/rofi/" 2>/dev/null || true
+
+    echo "󰛖 Installing rofi fonts..."
+    local font_dir="$HOME/.local/share/fonts"
+    mkdir -p "$font_dir"
+    cp -rf "$REPO_PATH/modules/rofi-collection/fonts"/* "$font_dir/"
+    fc-cache -f "$font_dir"
+
+    echo "󰏘 Applying custom Rofi themes..."
+    local rofi_custom="$REPO_PATH/dotconfig/rofi"
+    if [ -d "$rofi_custom" ]; then
+        cp -rf "$rofi_custom"/* "$CONFIG_DEST/rofi/"
     fi
-done < <(find "$REPO_PATH/bin" -maxdepth 1 -type l -print0)
+}
 
-# Copy configuration files (dotconfig -> ~/.config)
-echo "󰆐 Copying configuration files..."
-cp -rf "$REPO_PATH/dotconfig"/* "$CONFIG_DEST/"
+create_symlinks() {
+    progress "BINARIES"
+    echo "󰌹 Creating symbolic links for binaries..."
+    for file in "$REPO_PATH/bin"/*; do
+        [ -f "$file" ] && ln -sf "$file" "$BIN_FILES_PATH/$(basename "$file")"
+    done
+}
 
-# Copy eww config
-echo "󰆐 Copying eww configuration..."
-mkdir -p "$CONFIG_DEST/eww"
-cp -rf "$REPO_PATH/dotconfig/eww"/* "$CONFIG_DEST/eww/"
-
-# Copy kitty config
-echo "󰄛 Copying kitty configuration..."
-mkdir -p "$CONFIG_DEST/kitty"
-cp -rf "$REPO_PATH/dotconfig/kitty"/* "$CONFIG_DEST/kitty/" 2>/dev/null || true
-
-# Copy xdg-desktop-portal config
-echo "󰆐 Copying xdg-desktop-portal configuration..."
-mkdir -p "$CONFIG_DEST/xdg-desktop-portal"
-cp -rf "$REPO_PATH/dotconfig/xdg-desktop-portal"/* "$CONFIG_DEST/xdg-desktop-portal/"
-
-# Copy rofi-collection module
-echo "󰍉 Copying rofi-collection module..."
-mkdir -p "$CONFIG_DEST/rofi"
-cp -rf "$REPO_PATH/modules/rofi-collection"/files/* "$CONFIG_DEST/rofi/" 2>/dev/null || true
-
-# Install rofi-collection fonts
-echo "󰛖 Installing rofi fonts..."
-FONT_DIR="$HOME/.local/share/fonts"
-mkdir -p "$FONT_DIR"
-cp -rf "$REPO_PATH/modules/rofi-collection/fonts"/* "$FONT_DIR/"
-fc-cache -f "$FONT_DIR"
-
-# Adds personal rofi themes
-echo "󰏘 Applying custom Rofi themes..."
-ROFI_CUSTOM_PATH="$REPO_PATH/dotconfig/rofi"
-if [ -d "$ROFI_CUSTOM_PATH" ]; then
-    cp -rf "$ROFI_CUSTOM_PATH"/* "$CONFIG_DEST/rofi/"
-fi
-
-# Create symbolic links for binary files (bin -> ~/.local/bin)
-echo "󰌹 Creating symbolic links for binaries..."
-for file in "$REPO_PATH/bin"/*; do
-    [ -f "$file" ] && ln -sf "$file" "$BIN_FILES_PATH/$(basename "$file")"
-done
-
-if [ "$SKIP_THEME" = false ]; then
-    # Apply default theme
+apply_theme() {
+    progress "THEME"
     echo "󰏘 Setting up colors..."
     "$REPO_PATH/bin/wallust-theme-manager.sh" --restore-default --notify 2>/dev/null || true
 
-    # Copy color templates
     echo "󰆐 Copying color templates to wallust cache..."
-    WALLUST_REPO_COLORS="$REPO_PATH/dotconfig/wallust/colors"
-    if [ -d "$WALLUST_REPO_COLORS" ]; then
-        cp "$WALLUST_REPO_COLORS"/* "$HOME/.cache/wallust/colors/" 2>/dev/null || true
+    local colors_src="$REPO_PATH/dotconfig/wallust/colors"
+    if [ -d "$colors_src" ]; then
+        cp "$colors_src"/* "$HOME/.cache/wallust/colors/" 2>/dev/null || true
     fi
+}
+
+reload_hyprland() {
+    progress "RELOAD"
+    echo "󰑓 Reloading Hyprpm..."
+    hyprpm reload
+
+    echo "󰑓 Reloading Hyprland..."
+    hyprctl reload
+}
+
+# ─────────────────────────────────────────
+# MAIN
+# ─────────────────────────────────────────
+
+echo "󰣇 Installing HyprFlow-Arch..."
+mkdir -p "$BIN_FILES_PATH" "$CONFIG_DEST"
+
+set_permissions
+copy_configs
+setup_rofi
+create_symlinks
+
+if [ "$SKIP_THEME" = false ]; then
+    apply_theme
 fi
 
-echo "󰉋 Repository path: $REPO_PATH"
-echo "󱂵 Home directory:  $HOME"
+reload_hyprland
 
-echo "󰑓 Reloading Hyprpm..."
-hyprpm reload
-
-echo "󰑓 Reloading Hyprland..."
-hyprctl reload
-
-echo "󰄬 Installation complete!"
+printf "\n\033[1;32m󰄬 Installation complete!\033[0m\n"
+echo "󰉋 Repository: $REPO_PATH"
+echo "󱂵 Home:        $HOME"

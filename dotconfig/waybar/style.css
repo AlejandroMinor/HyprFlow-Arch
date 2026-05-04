@@ -203,8 +203,8 @@ window#waybar.hidden {
     font-weight: bold;
 }
 
-#submap.resize {
-    animation: submap-resize 1s ease-in-out infinite;
+#submap.winctl {
+    animation: submap-winctl 1s ease-in-out infinite;
     background: alpha(@color6, 0.40);
 }
 
@@ -213,7 +213,7 @@ window#waybar.hidden {
     background: alpha(@color2, 0.40);
 }
 
-@keyframes submap-resize {
+@keyframes submap-winctl {
     0%   { color: @color6; }
     50%  { color: alpha(@color6, 0.3); }
     100% { color: @color6; }

@@ -232,8 +232,9 @@
 "custom/theme-selector": {
     "format": "",
     "tooltip": false,
-    "on-click": "waypaper",
-    "on-click-right": "waypaper --random"
+    "on-click": "hyprctl dispatch exec \"[float] kitty --class kitty-theme-picker -e ~/.local/bin/theme-picker.sh\"",
+    "on-click-right": "waypaper",
+    "on-click-middle": "waypaper --random"
 },
 
 "custom/hymission": {

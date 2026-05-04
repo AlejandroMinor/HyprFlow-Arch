@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Source: HyprFlow-Arch
 
 THEMES_DIR="$HOME/.config/wallust/themes"
 COLORS_DIR="$HOME/.config/wallust/colors"
@@ -16,7 +15,7 @@ SELECTED=$(printf '%s\n' \
     "Dracula" \
     "Monochrome" \
     | fzf \
-        --prompt="  Tema > " \
+        --prompt="  Selección de tema > " \
         --height=30% \
         --border=rounded \
         --layout=reverse \

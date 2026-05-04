@@ -199,24 +199,24 @@ window#waybar.hidden {
 }
 
 #submap {
-    color: @color3;
+    color: @color6;
     font-weight: bold;
 }
 
 #submap.resize {
     animation: submap-resize 1s ease-in-out infinite;
-    background: alpha(@color3, 0.25);
+    background: alpha(@color6, 0.40);
 }
 
 #submap.screenshot {
     animation: submap-screenshot 1s ease-in-out infinite;
-    background: alpha(@color2, 0.25);
+    background: alpha(@color2, 0.40);
 }
 
 @keyframes submap-resize {
-    0%   { color: @color3; }
-    50%  { color: alpha(@color3, 0.3); }
-    100% { color: @color3; }
+    0%   { color: @color6; }
+    50%  { color: alpha(@color6, 0.3); }
+    100% { color: @color6; }
 }
 
 @keyframes submap-screenshot {

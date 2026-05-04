@@ -72,6 +72,12 @@ cd HyprFlow-Arch
 bash install.sh
 ```
 
+Si no quieres aplicar el tema por defecto ni copiar las paletas de color (por ejemplo, al reinstalar conservando tu tema actual), usa el flag `--skip-theme`:
+
+```bash
+bash install.sh --skip-theme
+```
+
 Si ya clonaste sin `--recursive`:
 ```bash
 git submodule update --init --recursive

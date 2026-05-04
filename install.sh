@@ -4,6 +4,13 @@ REPO_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN_FILES_PATH="$HOME/.local/bin"
 CONFIG_DEST="$HOME/.config"
 
+SKIP_THEME=false
+for arg in "$@"; do
+    case "$arg" in
+        --skip-theme) SKIP_THEME=true ;;
+    esac
+done
+
 echo "🚀 Installing HyprFlow-Arch..."
 
 mkdir -p "$BIN_FILES_PATH"
@@ -65,15 +72,17 @@ for file in "$REPO_PATH/bin"/*; do
     [ -f "$file" ] && ln -sf "$file" "$BIN_FILES_PATH/$(basename "$file")"
 done
 
-# Apply default theme 
-echo "🎨 Setting up colors..."
-"$REPO_PATH/bin/wallust-theme-manager.sh" --restore-default --notify 2>/dev/null || true
+if [ "$SKIP_THEME" = false ]; then
+    # Apply default theme
+    echo "🎨 Setting up colors..."
+    "$REPO_PATH/bin/wallust-theme-manager.sh" --restore-default --notify 2>/dev/null || true
 
-# Copy color templates
-echo "📁 Copying color templates to wallust cache..."
-WALLUST_REPO_COLORS="$REPO_PATH/dotconfig/wallust/colors"
-if [ -d "$WALLUST_REPO_COLORS" ]; then
-    cp "$WALLUST_REPO_COLORS"/* "$HOME/.cache/wallust/colors/" 2>/dev/null || true
+    # Copy color templates
+    echo "📁 Copying color templates to wallust cache..."
+    WALLUST_REPO_COLORS="$REPO_PATH/dotconfig/wallust/colors"
+    if [ -d "$WALLUST_REPO_COLORS" ]; then
+        cp "$WALLUST_REPO_COLORS"/* "$HOME/.cache/wallust/colors/" 2>/dev/null || true
+    fi
 fi
 
 echo "📂 Repository path: $REPO_PATH"

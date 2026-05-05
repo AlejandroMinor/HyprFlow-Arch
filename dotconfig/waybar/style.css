@@ -79,7 +79,7 @@ window#waybar.hidden {
 
 #custom-power {
     color: @color1;
-    font-size: 16px;
+    padding: 0 10px 0 8px;
 }
 
 #tray {
@@ -96,12 +96,16 @@ window#waybar.hidden {
     to { background-color: rgba(247, 118, 142, 0.2); }
 }
 
-#custom-vpn.vpn-status-active { 
+#custom-vpn {
+    padding: 0 10px 0 8px;
+}
+
+#custom-vpn.vpn-status-active {
     color: #9ece6a;
 }
 
-#custom-vpn.vpn-status-warning{ 
-    color: #f7768e; 
+#custom-vpn.vpn-status-warning{
+    color: #f7768e;
 }
 
 #custom-mute-indicator {
@@ -210,7 +214,7 @@ window#waybar.hidden {
 #custom-system-tools-wrap {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
-    padding: 0 13px;
+    padding: 0 11px 0 8px;
     border-radius: 8px;
     color: @color4;
 }

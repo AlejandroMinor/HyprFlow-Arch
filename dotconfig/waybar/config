@@ -8,9 +8,9 @@
         "margin-top": 10,
         "margin-left": 15,
         "margin-right": 15,
-        "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/privacy-info", "group/hardware"],
+        "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
         "modules-center": ["mpris"],
-        "modules-right": ["group/system-tools", "group/batteries", "hyprland/submap", "pulseaudio", "custom/mute-indicator", "custom/vpn", "custom/swaync", "clock", "custom/power"]
+        "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
     },
 
     {
@@ -22,9 +22,9 @@
         "margin-top": 10,
         "margin-left": 15,
         "margin-right": 15,
-        "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/privacy-info", "group/hardware"],
+        "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
         "modules-center": ["mpris"],
-        "modules-right": ["group/system-tools", "group/batteries", "hyprland/submap", "pulseaudio", "custom/mute-indicator", "custom/vpn", "custom/swaync", "clock", "custom/power"]
+        "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
 	},
     {
         "name": "minimal-bar", 

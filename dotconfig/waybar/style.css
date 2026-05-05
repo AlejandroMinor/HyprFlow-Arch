@@ -97,9 +97,14 @@ window#waybar.hidden {
     color: #f7768e; 
 }
 
-#custom-mute-indicator.muted_active  { 
+#custom-mute-indicator {
+    color: @foreground;
+    font-size: 16px;
+}
+
+#custom-mute-indicator.muted_active {
     color: #f7768e;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 #battery.charging, #battery.plugged {

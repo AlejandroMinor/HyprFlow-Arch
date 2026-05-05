@@ -6,4 +6,6 @@ if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q "\[MUTED\]"; then
         device_name=$(echo "$wpctl_info" | grep "alsa.card_name" | awk -F'"' '{print $2}')
     fi
     printf '{"text": "󰖁", "class": "muted_active", "tooltip": "%s is muted"}\n' "$device_name"
+else
+    printf '{"text": "󰕾", "class": "", "tooltip": "Click to expand audio"}\n'
 fi

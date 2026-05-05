@@ -38,6 +38,7 @@
         "format-muted": "{icon} {volume}%",
         "on-click": "hyprctl dispatch exec \"[workspace special:sinkswitch] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\"",
         "on-click-right": "pavucontrol",
+        "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "format-icons": {
             "default": [
                 "<span color='#7aa2f7'> </span>", 
@@ -346,5 +347,17 @@
     "tooltip": false
 },
 
+"group/audio": {
+    "orientation": "horizontal",
+    "drawer": {
+        "transition-duration": 300,
+        "transition-left-to-right": false,
+        "click-to-reveal": true
+    },
+    "modules": [
+        "custom/mute-indicator",
+        "pulseaudio"
+    ]
+}
 
 }

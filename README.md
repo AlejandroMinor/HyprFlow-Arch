@@ -95,7 +95,7 @@ The install script handles:
 Run `help-binds` to see all available keybindings:
 
 ```bash
-help-binds
+help-binds.sh
 ```
 
 ## Included Scripts
@@ -105,8 +105,11 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 | Script | Description |
 |--------|-------------|
 | `wallust-theme-manager.sh` | Generates dynamic color palettes and applies themes |
+| `theme-picker.sh` | Interactive theme selector with pre-designed color palettes |
 | `monitors.sh` | Detects monitors and creates the mapping in `monitors_ids.conf` |
 | `help-binds.sh` | Shows all keybindings in a visual interface |
+| `hyprland-group-all.sh` | Groups all windows in the current workspace |
+| `kb-layout-toggle.sh` | Toggles keyboard layout |
 | `mute_indicator.sh` | Microphone status indicator in Waybar |
 | `swaync-dnd.sh` | Do Not Disturb control for SwayNC |
 | `vpn_status.sh` | VPN connection status in Waybar |

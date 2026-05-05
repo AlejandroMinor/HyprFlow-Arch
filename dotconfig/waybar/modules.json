@@ -203,7 +203,6 @@
         "rewrite": {
             "^(.*Microsoft-edge.*)$": "🌐 Edge",
             "^(.*Kitty.*)$": "🐱 Terminal",
-            "^(.*Warp.*)$": "⚡ Warp",
             "^(.*Emacs.*)$": "📝 Emacs",
             "^(.*Visual Studio Code.*)$": "💻 VS Code",
             "^(.*Spotify.*)$": " Spotify"

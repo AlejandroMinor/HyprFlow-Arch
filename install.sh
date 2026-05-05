@@ -125,7 +125,7 @@ reload_hyprland() {
 # ─────────────────────────────────────────
 
 echo "󰣇 Installing HyprFlow-Arch..."
-mkdir -p "$BIN_FILES_PATH" "$CONFIG_DEST"
+mkdir -p "$BIN_FILES_PATH" "$CONFIG_DEST" "$HOME/Pictures/Screenshots"
 
 set_permissions
 copy_configs

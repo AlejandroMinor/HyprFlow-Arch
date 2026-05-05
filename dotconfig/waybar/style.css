@@ -67,6 +67,10 @@ window#waybar.hidden {
     font-weight: bold;
 }
 
+#mpris.paused {
+    color: alpha(@color5, 0.4);
+}
+
 #custom-launcher {
     background: transparent;
     font-size: 18px;

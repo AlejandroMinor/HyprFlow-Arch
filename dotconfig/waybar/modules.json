@@ -173,7 +173,7 @@
 
     "mpris": {
     "format": "{player_icon} {artist} - {title}",
-    "format-paused": "<span color='#565f89'>{player_icon} {artist} - {title}</span>",
+    "format-paused": "{player_icon} {artist} - {title}",
     "max-length": 35,
     "player-icons": {
 	"default": "▶",

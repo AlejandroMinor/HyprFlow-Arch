@@ -1,15 +1,14 @@
 # HyprFlow-Arch
 
-Configuración completa de **Hyprland + Arch Linux** optimizada para productividad técnica con soporte para múltiples monitores, periféricos Logitech/Apple y tematización dinámica automatizada.
+Configuración completa de **Hyprland + Arch Linux** optimizada para productividad técnica en escritorio con soporte para múltiples monitores, periféricos Logitech/Apple y tematización dinámica automatizada.
 
 ## Características Principales
 
 - **Instalación automatizada** — un script copia configs, crea symlinks y aplica el tema base
 - **Tematización dinámica** — paletas de color generadas automáticamente con `wallust` al cambiar wallpaper
-- **Gestión de 4 monitores** — mapeo lógico automático vía `monitors.sh`, layout configurable
+- **Gestión de 3 monitores** — mapeo lógico automático vía `monitors.sh`, layout configurable (4 con ThinkPad)
 - **Batería de periféricos en Waybar** — mouse, teclado, trackpad y headset en tiempo real
 - **Módulos de estado** — VPN, cámara, micrófono, audio y notificaciones DND integrados
-- **Soporte DisplayLink** — compatibilidad con dock Dell D6000
 
 ## Tabla de Contenidos
 
@@ -19,7 +18,6 @@ Configuración completa de **Hyprland + Arch Linux** optimizada para productivid
 - [Scripts Incluidos](#scripts-incluidos)
 - [Post-Instalación](#post-instalación)
 - [Plugins de Hyprland](#plugins-de-hyprland)
-- [Estructura del Proyecto](#estructura-del-proyecto)
 - [Tips](#tips)
 
 ## Vista Previa
@@ -35,18 +33,17 @@ Setup diseñado para los siguientes periféricos, con monitoreo de batería inte
 | Mouse | Logitech MX Master 3S |
 | Teclado | Logitech MX Keys S |
 | Trackpad | Apple Magic Trackpad |
-| Dock | Dell D6000 (DisplayLink) |
+### Distribución de Monitores
 
-### Distribución de Monitores (4 pantallas)
-
-El mapeo lógico se define en `monitors_ids.conf` (auto-generado). El layout actual de izquierda a derecha:
+Setup principal de escritorio con 3 monitores. El mapeo lógico se define en `monitors_ids.conf` (auto-generado). El layout actual de izquierda a derecha:
 
 | Posición | Monitor | Resolución |
 |----------|---------|------------|
 | 1 | AOC | 1080p |
 | 2 | NZXT (Principal) | 1440p @ 120Hz |
 | 3 | ASUS | 1080p |
-| 4 | ThinkPad (laptop) | 1080p |
+
+> Al conectar la ThinkPad se suma como 4to monitor (`eDP-1`).
 
 ## Instalación
 
@@ -151,7 +148,13 @@ zen_mode = True
 post_command = bash -c "$HOME/HyprFlow-Arch/bin/wallust-theme-manager.sh --generate-palette --notify"
 ```
 
-Para restaurar la paleta por defecto manualmente:
+Para restaurar o cambiar la paleta de colores, usa el selector de temas interactivo:
+
+```bash
+theme-picker.sh
+```
+
+O manualmente para restaurar el tema por defecto:
 
 ```bash
 wallust cs ~/HyprFlow-Arch/wallust/themes/minor-default.json
@@ -202,41 +205,6 @@ Plugins actualmente activos:
 > ```bash
 > hyprpm update
 > ```
-
-## Estructura del Proyecto
-
-```
-HyprFlow-Arch/
-├── bin/                          # Scripts ejecutables (symlinkeados a ~/.local/bin)
-│   ├── wallust-theme-manager.sh
-│   ├── monitors.sh
-│   ├── help-binds.sh
-│   ├── session-manager/          # Guardar/restaurar layout de ventanas
-│   └── ...
-│
-├── dotconfig/                    # Configuración (~/.config)
-│   ├── hypr/
-│   │   ├── hyprland.conf
-│   │   ├── keybindings.conf
-│   │   ├── monitors.conf         # Layout físico
-│   │   ├── monitors_ids.conf     # Mapeo lógico (auto-generado)
-│   │   ├── animations.conf
-│   │   └── gestures.conf
-│   ├── wallust/                  # Config de wallust y paletas
-│   ├── waybar/
-│   ├── rofi/
-│   ├── kitty/
-│   ├── eww/
-│   └── wlogout/
-│
-├── modules/                      # Submódulos Git
-│   ├── rofi-collection/
-│   ├── apple-magic-trackpad-battery/
-│   └── sinkswitch/
-│
-├── install.sh
-└── README.md
-```
 
 ## Tips
 

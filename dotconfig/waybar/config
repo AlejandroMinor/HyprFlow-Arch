@@ -1,6 +1,6 @@
 [
      {
-        "output": ["HDMI-A-1"],
+        "output": ["DP-2"],
         "include": ["~/.config/waybar/modules.json"],
         "layer": "top",
         "exclusive": true,
@@ -28,7 +28,7 @@
 	},
     {
         "name": "minimal-bar", 
-	"output": ["DVI-I-1", "DVI-I-2", "DP-1"],
+	    "output": ["DVI-I-1", "DVI-I-2", "HDMI-A-1", "DP-1"],
         "include": ["~/.config/waybar/modules.json"],
         "layer": "top",
         "exclusive": true,

@@ -14,7 +14,8 @@ SELECTED=$(printf '%s\n' \
     "Gruvbox" \
     "Dracula" \
     "Monochrome" \
-    "Neon Streets" \
+    "Synthwave" \
+    "Kanagawa" \
     | fzf \
         --prompt="  Selección de tema > " \
         --height=30% \
@@ -61,7 +62,10 @@ case "$SELECTED" in
     "Monochrome")
         apply_theme "monochrome" "monochrome.json"
         ;;
-    "Neon Streets")
-        apply_theme "neon-streets" "neon-streets.json"
+    "Synthwave")
+        apply_theme "synthwave" "synthwave.json"
+        ;;
+    "Kanagawa")
+        apply_theme "kanagawa" "kanagawa.json"
         ;;
 esac

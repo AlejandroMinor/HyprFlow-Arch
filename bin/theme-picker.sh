@@ -14,6 +14,7 @@ SELECTED=$(printf '%s\n' \
     "Gruvbox" \
     "Dracula" \
     "Monochrome" \
+    "Neon Streets" \
     | fzf \
         --prompt="  Selección de tema > " \
         --height=30% \
@@ -28,7 +29,7 @@ apply_theme() {
     local subdir="$1"
     local json="$2"
 
-    cp "$COLORS_DIR/$subdir"/* "$CACHE_DIR/"
+    cp "$COLORS_DIR/$subdir"/* "$CACHE_DIR/" 2>/dev/null || true
     wallust cs "$THEMES_DIR/$json"
     hyprctl reload > /dev/null
     killall -SIGUSR2 waybar 2>/dev/null
@@ -59,5 +60,8 @@ case "$SELECTED" in
         ;;
     "Monochrome")
         apply_theme "monochrome" "monochrome.json"
+        ;;
+    "Neon Streets")
+        apply_theme "neon-streets" "neon-streets.json"
         ;;
 esac

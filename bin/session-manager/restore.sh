@@ -4,11 +4,11 @@ TEMPLATE_NAME="${1:-default}"
 TEMPLATE_FILE="$HOME/.config/hypr/templates/${TEMPLATE_NAME}.json"
 
 if [ ! -f "$TEMPLATE_FILE" ]; then
-    echo "❌ Error: La plantilla '$TEMPLATE_NAME' no existe."
+    echo "❌ Error: Layout '$TEMPLATE_NAME' not found."
     exit 1
 fi
 
-echo "🚀 Desplegando entorno: $TEMPLATE_NAME"
+echo "🚀 Loading layout: $TEMPLATE_NAME"
 
 jq -c '.[]' "$TEMPLATE_FILE" | while read -r i; do
     WS=$(echo "$i" | jq -r '.workspace')
@@ -55,6 +55,6 @@ jq -c '.[]' "$TEMPLATE_FILE" | while read -r i; do
     done
 
     if [ -z "$NEW_ADDR" ]; then
-        echo "⚠️  Timeout esperando ventana de $INIT_CLASS"
+        echo "⚠️  Timeout waiting for $INIT_CLASS window"
     fi
 done

@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# 1. INYECTAR LA CACHÉ DE PYWAL
+# 1. INJECT WALLUST CACHE
 source ~/.cache/wallust/colors/colors-rofi-sh.conf
 
 CONFIG="$HOME/.config/hypr/keybindings.conf"
 THEME="$HOME/.config/rofi/launchers/type-2/style-1.rasi"
 
 if [ ! -f "$CONFIG" ]; then
-    echo "Error: No se encuentra el archivo de configuración en $CONFIG"
+    echo "Error: Config file not found at $CONFIG"
     exit 1
 fi
 
-# 2. PASAR VARIABLES A AWK
+# 2. PASS VARIABLES TO AWK
 awk -v accent="$color15" -v muted="$color8" -F',' '
 /^(bind|bindd|binde|bindm|bindl)/ {
-    # 1. LIMPIEZA INICIAL
+    # 1. INITIAL CLEANUP
     line=$0;
     
     type=$1;
@@ -25,14 +25,14 @@ awk -v accent="$color15" -v muted="$color8" -F',' '
 
     split(line, args, ",");
 
-    # 2. PROCESAR MODIFICADORES Y TECLAS
+    # 2. PROCESS MODIFIERS AND KEYS
     mods = args[1]; gsub(/^[ \t]+|[ \t]+$/, "", mods);
     key  = args[2]; gsub(/^[ \t]+|[ \t]+$/, "", key);
     
     gsub(/\$mainMod/, "SUPER", mods);
-    if (mods == "") mods = "DIRECTO"; 
+    if (mods == "") mods = "DIRECT"; 
 
-    # 3. LÓGICA DE TEXTO (BIND / BINDD)
+    # 3. TEXT LOGIC (BIND / BINDD)
     display_text = "";
 
     if (type == "bindd") {
@@ -56,35 +56,35 @@ awk -v accent="$color15" -v muted="$color8" -F',' '
 
     gsub(/^[ \t]+|[ \t]+$/, "", display_text);
 
-    # 4. ICONOS 
+    # 4. ICONS 
     if (mods != "" && key != "" && display_text != "") {
         icon = " " 
         
         if (display_text ~ /Terminal|Alacritty|Kitty|Foot/) icon = " "
-        if (display_text ~ /Navegador|Firefox|Chrome|Brave/) icon = " "
-        if (display_text ~ /Archivos|File|Thunar|Dolphin/) icon = " "
-        if (display_text ~ /Menú|Apps|Rofi|Wofi/) icon = " "
-        if (display_text ~ /Ventana|Cerrar|Flotar|Tilear|Pin|Opaque|Kill/) icon = " "
-        if (display_text ~ /Workspace|Escritorio|Mágico/) icon = " "
-        if (display_text ~ /Mover|Split|Pseudo|Orientación|Swap/) icon = " "
-        if (display_text ~ /Resize|Redimensionar/) icon = " "
-        if (display_text ~ /Volumen|Audio|Mute/) icon = " "
-        if (display_text ~ /Brillo|Luz/) icon = " "
-        if (display_text ~ /Screenshot|Captura/) icon = " "
-        if (display_text ~ /Color|Pipeta/) icon = " "
-        if (display_text ~ /Portapapeles|Clip/) icon = " "
-        if (display_text ~ /Guía|Ayuda/) icon = " "
-        if (display_text ~ /Salir|Logout|Exit/) icon = " "
+        if (display_text ~ /Browser|Firefox|Chrome|Brave|Edge/) icon = " "
+        if (display_text ~ /File|Thunar|Dolphin/) icon = " "
+        if (display_text ~ /Launcher|Apps|Rofi|Wofi/) icon = " "
+        if (display_text ~ /Window|Close|Float|Tile|Pin|Opaque|Kill/) icon = " "
+        if (display_text ~ /Workspace|Scratchpad/) icon = " "
+        if (display_text ~ /Move|Split|Pseudo|Rotate|Swap/) icon = " "
+        if (display_text ~ /Resize/) icon = " "
+        if (display_text ~ /Volume|Audio|Mute/) icon = " "
+        if (display_text ~ /Brightness|Light/) icon = " "
+        if (display_text ~ /Screenshot|Capture/) icon = " "
+        if (display_text ~ /Color|Picker/) icon = " "
+        if (display_text ~ /Clipboard|Clip/) icon = " "
+        if (display_text ~ /Guide|Help/) icon = " "
+        if (display_text ~ /Exit|Logout/) icon = " "
 
-        # 5. IMPRIMIR FORMATO PANGO DINÁMICO
+        # 5. PRINT DYNAMIC PANGO FORMAT
         printf "<b><span color=\"%s\">%-18s</span></b>   <span color=\"%s\">%s</span>  <span size=\"small\">%s</span>\n", \
-        accent, (mods == "DIRECTO" ? key : mods " + " key), muted, icon, display_text
+        accent, (mods == "DIRECT" ? key : mods " + " key), muted, icon, display_text
     }
 }' "$CONFIG" | \
 rofi -dmenu \
     -i \
     -markup-rows \
-    -p "Atajos" \
+    -p "Keybindings" \
     -theme "$THEME" \
     -theme-str 'window {width: 900px;} listview {columns: 1;}' \
     -theme-str "element selected.normal { border: 0px 0px 0px 4px; border-color: ${color2}; background-color: ${color0}; }"

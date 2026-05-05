@@ -59,7 +59,7 @@ def save_template(name):
     file_path = os.path.join(TEMPLATE_DIR, f"{name}.json")
     with open(file_path, "w") as f:
         json.dump(session_data, f, indent=4)
-    print(f"✨ Plantilla '{name}' guardada en {file_path}")
+    print(f"Layout '{name}' saved to {file_path}")
 
 if __name__ == "__main__":
     tag = sys.argv[1] if len(sys.argv) > 1 else "default"

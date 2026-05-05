@@ -59,7 +59,7 @@ sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessct
 
 **AUR (requires `yay` or another helper):**
 ```bash
-yay -S wlogout eww-git displaylink evdi-dkms-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin paru
+yay -S wlogout eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin paru
 ```
 
 ### 2. Clone and install
@@ -92,7 +92,7 @@ The install script handles:
 
 ### 3. First steps
 
-Run `help-binds` to see all available keybindings:
+Run `help-binds.sh` or press `Super + I` to see all available keybindings:
 
 ```bash
 help-binds.sh
@@ -102,22 +102,40 @@ help-binds.sh
 
 All scripts in `bin/` are available globally in `~/.local/bin` after installation.
 
+**Theming**
+
 | Script | Description |
 |--------|-------------|
 | `wallust-theme-manager.sh` | Generates dynamic color palettes and applies themes |
 | `theme-picker.sh` | Interactive theme selector with pre-designed color palettes |
+
+**Monitors & Layout**
+
+| Script | Description |
+|--------|-------------|
 | `monitors.sh` | Detects monitors and creates the mapping in `monitors_ids.conf` |
+| `session-manager/` | Suite for saving and restoring window layouts (save, load, restore, snapshot) |
+
+**Waybar Status Modules**
+
+| Script | Description |
+|--------|-------------|
+| `mute_indicator.sh` | Microphone status indicator |
+| `vpn_status.sh` | VPN connection status |
+| `peripherals_battery.sh` | Peripheral battery levels (mouse, keyboard) |
+| `g733_battery.sh` | Logitech G733 headset battery |
+| `trackpad-battery` | Apple Magic Trackpad battery |
+| `camera_status.py` | Camera-in-use indicator |
+| `swaync-dnd.sh` | Do Not Disturb control for SwayNC |
+| `battery_alert.py` | Low system battery alert |
+
+**Utilities**
+
+| Script | Description |
+|--------|-------------|
 | `help-binds.sh` | Shows all keybindings in a visual interface |
 | `hyprland-group-all.sh` | Groups all windows in the current workspace |
 | `kb-layout-toggle.sh` | Toggles keyboard layout |
-| `mute_indicator.sh` | Microphone status indicator in Waybar |
-| `swaync-dnd.sh` | Do Not Disturb control for SwayNC |
-| `vpn_status.sh` | VPN connection status in Waybar |
-| `peripherals_battery.sh` | Peripheral battery levels in Waybar |
-| `battery_alert.py` | Low system battery alert |
-| `camera_status.py` | Camera-in-use indicator |
-| `g733_battery.sh` | Logitech G733 headset battery |
-| `trackpad-battery` | Apple Magic Trackpad battery |
 | `sinkswitch` | Quick audio output switcher |
 
 **Included submodules:**
@@ -167,27 +185,6 @@ wallust cs ~/HyprFlow-Arch/wallust/themes/minor-default.json
 ~/HyprFlow-Arch/bin/wallust-theme-manager.sh --restore-default --notify
 ```
 
-### Monitor detection
-
-If you add or change monitors, regenerate the logical mapping:
-
-```bash
-monitors.sh
-```
-
-If Waybar has issues, check `monitors_ids.conf` and adjust the IDs manually.
-You can also reload Hyprland to pick up the new configuration:
-
-```bash
-hyprctl reload
-```
-
-### Dell D6000 / DisplayLink
-
-```bash
-sudo systemctl enable --now displaylink.service
-```
-
 ## Hyprland Plugins
 
 Install and manage plugins with `hyprpm`:
@@ -215,5 +212,7 @@ Currently active plugins:
 ## Tips
 
 - **Waybar + monitors:** If Waybar doesn't appear correctly, check `dotconfig/hypr/monitors_ids.conf` and adjust the IDs. `monitors.sh` fixes it in most cases, but some setups may require manual adjustment in `dotconfig/waybar/config`.
+- **Monitor mapping:** If you add or change monitors, regenerate the logical mapping with `monitors.sh`. You can also reload Hyprland with `hyprctl reload` to pick up the new configuration.
 - **Sessions:** `session-manager/save.sh` saves the current layout; `restore.sh` restores it. Both are available as keybindings.
+- **DisplayLink:** Install `displaylink` and `evdi-dkms-git` from AUR (`yay -S displaylink evdi-dkms-git`), then enable the service with `sudo systemctl enable --now displaylink.service`.
 - **Permissions:** If a script won't run, `chmod +x script_name`. `install.sh` sets them automatically.

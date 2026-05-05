@@ -27,11 +27,10 @@ window#waybar.hidden {
 #custom-swaync, #clock, #custom-power, #mpris,
 #custom-magic-trackpad-battery, #custom-mouse-battery,
 #custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector, #custom-updates, #custom-g733-battery, #custom-mute-indicator, #custom-power-hub,
-#custom-system-tools-wrap,
 #language, #submap {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
-    padding: 0 12px;
+    padding: 0 10px;
     border-radius: 8px;
     color: @foreground;
 }
@@ -58,6 +57,11 @@ window#waybar.hidden {
     animation: blink-privacy-icon 1s linear infinite alternate;
 }
 
+#custom-separator-wrap{
+    background: transparent;
+    padding: 0 3px;
+}
+
 #clock, #mpris {
     color: @color5;
     font-weight: bold;
@@ -72,7 +76,6 @@ window#waybar.hidden {
 #custom-power {
     color: @color1;
     font-size: 16px;
-    padding: 0 15px;
 }
 
 #tray {
@@ -185,9 +188,9 @@ window#waybar.hidden {
 #temperature.desktop {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
-    padding: 0 12px;
+    padding: 0 10px;
     border-radius: 8px;
-    color: #7dcfff;
+    color: @color6;
 }
 
 #temperature.critical,
@@ -200,8 +203,24 @@ window#waybar.hidden {
     animation: blink-privacy-icon 1s linear infinite alternate;
 }
 
-#language {
+#custom-system-tools-wrap {
+    background: alpha(@color0, 0.8);
+    margin: 5px 3px;
+    padding: 0 13px;
+    border-radius: 8px;
     color: @color4;
+}
+
+#custom-hardware-wrap {
+    color: @color3;
+}
+
+#custom-theme-selector {
+    color: @color2;
+}
+
+#language {
+    color: @color5;
 }
 
 #submap {

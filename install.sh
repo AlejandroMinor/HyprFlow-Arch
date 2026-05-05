@@ -136,6 +136,8 @@ if [ "$SKIP_THEME" = false ]; then
     apply_theme
 fi
 
+killall -SIGUSR2 waybar 2>/dev/null || true
+
 reload_hyprland
 
 printf "\n\033[1;32m󰄬 Installation complete!\033[0m\n"

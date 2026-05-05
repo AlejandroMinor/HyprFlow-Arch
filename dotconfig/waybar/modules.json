@@ -317,15 +317,34 @@
         "click-to-reveal": true
     },
     "modules": [
-        "custom/power-hub", 
+        "custom/power-hub",
         "battery",
         "custom/mouse-battery",
         "custom/keyboard-battery",
         "custom/magic-trackpad-battery",
         "custom/g733-battery"
     ]
-}
+},
 
+"group/system-tools": {
+    "orientation": "horizontal",
+    "drawer": {
+        "transition-duration": 300,
+        "transition-left-to-right": false,
+        "click-to-reveal": true
+    },
+    "modules": [
+        "custom/system-tools-wrap",
+        "tray",
+        "hyprland/language",
+        "custom/theme-selector"
+    ]
+},
+
+"custom/system-tools-wrap": {
+    "format": "󰒓",
+    "tooltip": false
+},
 
 
 }

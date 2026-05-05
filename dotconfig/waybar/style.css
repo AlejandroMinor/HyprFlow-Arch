@@ -27,6 +27,7 @@ window#waybar.hidden {
 #custom-swaync, #clock, #custom-power, #mpris,
 #custom-magic-trackpad-battery, #custom-mouse-battery,
 #custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector, #custom-updates, #custom-g733-battery, #custom-mute-indicator, #custom-power-hub,
+#custom-system-tools-wrap,
 #language, #submap {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;

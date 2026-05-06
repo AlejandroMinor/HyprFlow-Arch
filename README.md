@@ -5,7 +5,7 @@ Complete **Hyprland + Arch Linux** configuration optimized for technical product
 ## Key Features
 
 - **Automated install** — one script copies configs, creates symlinks, and applies the base theme
-- **Dynamic theming** — color palettes auto-generated with `wallust` on wallpaper change
+- **Dynamic theming** — color palettes auto-generated with `wallust` on wallpaper change, synced to cava visualizer
 - **Master layout** — main window takes priority, secondary windows stack on the side
 - **3-monitor management** — automatic logical mapping via `monitors.sh`, configurable layout (4 with ThinkPad)
 - **Peripheral battery in Waybar** — mouse, keyboard, trackpad, and headset in real time
@@ -54,7 +54,7 @@ Primary desktop setup with 3 monitors. The logical mapping is defined in `monito
 
 **Official repositories:**
 ```bash
-sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome
+sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
 ```
 
 **AUR (requires `yay` or another helper):**
@@ -184,6 +184,24 @@ Or manually restore the default theme:
 wallust cs ~/HyprFlow-Arch/wallust/themes/minor-default.json
 ~/HyprFlow-Arch/bin/wallust-theme-manager.sh --restore-default --notify
 ```
+
+### Cava audio visualizer
+
+Cava is configured to sync its colors automatically with the active wallust theme. The palette is generated each time wallust runs and saved to `~/.config/cava/themes/wallust`.
+
+To run the visualizer in the terminal:
+
+```bash
+cava
+```
+
+To use the waybar integration (raw output for the waybar module):
+
+```bash
+cava -p ~/.config/cava/waybar.conf
+```
+
+Static themes `solarized_dark` and `tricolor` are available in `~/.config/cava/themes/` as fallbacks.
 
 ## Hyprland Plugins
 

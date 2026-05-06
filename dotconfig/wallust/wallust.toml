@@ -17,3 +17,7 @@ waybar.pywal = true
 colors-rofi-sh.template = "colors-rofi-sh.conf"
 colors-rofi-sh.target = "~/.cache/wallust/colors/colors-rofi-sh.conf"
 colors-rofi-sh.pywal = true
+
+cava.template = "colors-cava.conf"
+cava.target = "~/.config/cava/themes/wallust"
+cava.pywal = true

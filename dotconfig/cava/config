@@ -1,0 +1,9 @@
+[input]
+method = pipewire
+source = auto
+
+[output]
+method = noncurses
+
+[color]
+theme = 'wallust'

@@ -237,6 +237,13 @@
     "on-click-middle": "waypaper --random"
 },
 
+"custom/cava": {
+    "exec": "cava-waybar.sh",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": false
+},
+
 "custom/hymission": {
     "format": "󰾍",
     "tooltip": false,

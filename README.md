@@ -128,6 +128,7 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 | `camera_status.py` | Camera-in-use indicator |
 | `swaync-dnd.sh` | Do Not Disturb control for SwayNC |
 | `battery_alert.py` | Low system battery alert |
+| `cava-waybar.sh` | Cava audio visualizer output for Waybar (hides when silent) |
 
 **Utilities**
 
@@ -187,19 +188,14 @@ wallust cs ~/HyprFlow-Arch/wallust/themes/minor-default.json
 
 ### Cava audio visualizer
 
-Cava is configured to sync its colors automatically with the active wallust theme. The palette is generated each time wallust runs and saved to `~/.config/cava/themes/wallust`.
+Cava is integrated in two ways: as a terminal visualizer and as a Waybar center module. Colors sync automatically with the active wallust theme — the palette is regenerated each time wallust runs and saved to `~/.config/cava/themes/wallust`.
 
-To run the visualizer in the terminal:
-
+**Terminal:**
 ```bash
 cava
 ```
 
-To use the waybar integration (raw output for the waybar module):
-
-```bash
-cava -p ~/.config/cava/waybar.conf
-```
+**Waybar:** the `custom/cava` module runs `cava-waybar.sh`, which displays block-character bars in the center of the bar next to the media info. It hides automatically when there is no audio.
 
 Static themes `solarized_dark` and `tricolor` are available in `~/.config/cava/themes/` as fallbacks.
 

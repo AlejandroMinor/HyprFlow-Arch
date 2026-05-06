@@ -24,7 +24,7 @@ window#waybar.hidden {
 #cpu, #memory, #disk,
 #tray, #custom-vpn,
 #network, #pulseaudio, #battery,
-#custom-swaync, #clock, #custom-power,
+#custom-swaync, #clock, #custom-power, #mpris,
 #custom-magic-trackpad-battery, #custom-mouse-battery,
 #custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector, #custom-updates, #custom-g733-battery, #custom-mute-indicator, #custom-power-hub,
 #language, #submap {
@@ -62,17 +62,11 @@ window#waybar.hidden {
     padding: 0 3px;
 }
 
-#media {
+#custom-cava {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
     padding: 0 10px;
     border-radius: 8px;
-}
-
-#custom-cava {
-    background: transparent;
-    margin: 0;
-    padding: 0 0 0 6px;
     font-size: 11px;
 }
 
@@ -82,12 +76,6 @@ window#waybar.hidden {
     min-width: 0;
     border: none;
     background: transparent;
-}
-
-#mpris {
-    background: transparent;
-    margin: 0;
-    padding: 0;
 }
 
 #clock, #mpris {

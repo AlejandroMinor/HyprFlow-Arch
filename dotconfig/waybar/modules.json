@@ -160,8 +160,8 @@
 
     "custom/updates": {
         "format": " {}",
-        "tooltip": false,	
-        "on-click-right": "kitty --class btop-float -e paru -Syu",
+        "tooltip": false,
+        "on-click": "kitty --class updates-float -e paru -Syu",
         "exec": "echo $(( $(pacman -Qu | wc -l) + $(paru -Qua | wc -l) ))",
         "interval": 3600
     },
@@ -197,18 +197,6 @@
         "tooltip": false
     },
 
-    "hyprland/window": {
-        "format": "{class}",
-        "max-length": 30,
-        "rewrite": {
-            "^(.*Microsoft-edge.*)$": "🌐 Edge",
-            "^(.*Kitty.*)$": "🐱 Terminal",
-            "^(.*Emacs.*)$": "📝 Emacs",
-            "^(.*Visual Studio Code.*)$": "💻 VS Code",
-            "^(.*Spotify.*)$": " Spotify"
-        }
-    },
-
     "hyprland/workspaces": {
 	    "all-outputs": false,
 	    "active-only": false,
@@ -237,11 +225,6 @@
     "on-click-middle": "waypaper --random"
 },
 
-"group/media": {
-    "orientation": "horizontal",
-    "modules": ["mpris", "custom/cava"]
-},
-
 "custom/cava": {
     "exec": "cava-waybar.sh",
     "return-type": "json",
@@ -264,7 +247,6 @@
 	},
     "modules": [
 	"custom/hardware-wrap",
-        "custom/updates",
         "cpu",
         "temperature",
         "memory",
@@ -347,6 +329,7 @@
     },
     "modules": [
         "custom/system-tools-wrap",
+        "custom/updates",
         "tray",
         "hyprland/language",
         "custom/theme-selector"

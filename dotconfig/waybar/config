@@ -9,7 +9,7 @@
         "margin-left": 15,
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
-        "modules-center": ["group/media"],
+        "modules-center": ["mpris", "custom/cava"],
         "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
     },
 
@@ -23,7 +23,7 @@
         "margin-left": 15,
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
-        "modules-center": ["group/media"],
+        "modules-center": ["mpris", "custom/cava"],
         "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
 	},
     {

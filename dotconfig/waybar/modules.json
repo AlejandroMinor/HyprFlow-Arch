@@ -237,6 +237,11 @@
     "on-click-middle": "waypaper --random"
 },
 
+"group/media": {
+    "orientation": "horizontal",
+    "modules": ["mpris", "custom/cava"]
+},
+
 "custom/cava": {
     "exec": "cava-waybar.sh",
     "return-type": "json",

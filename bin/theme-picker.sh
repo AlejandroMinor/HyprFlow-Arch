@@ -34,7 +34,7 @@ apply_theme() {
     wallust cs "$THEMES_DIR/$json"
     hyprctl reload > /dev/null
     killall -SIGUSR2 waybar 2>/dev/null
-    notify-send -i "color-management" "Theme Picker" "Tema '$SELECTED' aplicado."
+    notify-send -i "color-management" "Theme Picker" "Applied theme: $SELECTED"
 }
 
 case "$SELECTED" in

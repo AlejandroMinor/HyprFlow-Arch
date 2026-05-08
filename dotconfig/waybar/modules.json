@@ -72,9 +72,12 @@
     "privacy": {
         "icon-spacing": 5,
         "icon-size": 14,
-        "nodes": [
+        "modules": [
             { "type": "screenshare", "tooltip": true },
-            { "type": "camera", "tooltip": true }
+            { "type": "audio-in", "tooltip": true }
+        ],
+        "ignore": [
+            { "type": "audio-in", "name": "cava" }
         ]
     },
 

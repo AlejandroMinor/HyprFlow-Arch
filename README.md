@@ -2,6 +2,19 @@
 
 Complete **Hyprland + Arch Linux** configuration optimized for technical productivity on desktop, with multi-monitor support, Logitech/Apple peripherals, and automated dynamic theming.
 
+## Compatibility
+
+> **Note:** Hyprland 0.55 is migrating configuration to `.lua`. This repo targets the `.conf` format and is tested with the versions below. A `pre-lua-migration` tag marks this checkpoint.
+
+| Tool | Version |
+|------|---------|
+| Hyprland | 0.54.3 |
+| Waybar | 0.15.0 |
+| eww | 0.6.0 |
+| swaync | 0.12.6 |
+| wallust | 3.5.2 |
+| rofi-wayland | 2.0.0 |
+
 ## Key Features
 
 - **Automated install** — one script copies configs, creates symlinks, and applies the base theme

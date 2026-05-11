@@ -72,12 +72,13 @@
     "privacy": {
         "icon-spacing": 5,
         "icon-size": 14,
-        "modules": [
-            { "type": "screenshare", "tooltip": true },
-            { "type": "audio-in", "tooltip": true }
-        ],
         "ignore": [
             { "type": "audio-in", "name": "cava" }
+        ],
+        "modules": [
+            { "type": "screenshare", "tooltip": true, "tooltip-icon-size": 14 },
+            { "type": "audio-in", "tooltip": true, "tooltip-icon-size": 14 },
+            { "type": "camera", "tooltip": true, "tooltip-icon-size": 14 }
         ]
     },
 
@@ -130,7 +131,7 @@
         "interval": 60,
         "format": "󰃭 {:%d/%m %H:%M}",
         "tooltip-format": "{:%Y-%m-%d}",
-        "on-click": "hyprctl dispatch exec \"kitty --class cal-popup -e bash -c 'cal; read -n1'\""
+        "on-click": "hyprctl dispatch exec \"[workspace special:cal-popup] kitty --class cal-popup -e bash -c 'cal; read -n1'\""
     },
 
     "tray": {

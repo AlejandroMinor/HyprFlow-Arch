@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 THEME="$HOME/.config/cava/themes/wallust"
-CHARS=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█")
+#CHARS=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█")  # bars
+CHARS=("⡀" "⣀" "⣄" "⣤" "⣦" "⣶" "⣷" "⣿")  # braille dots
 
 mapfile -t COLORS < <(grep 'gradient_color_' "$THEME" 2>/dev/null | sed "s/.*= '//;s/'//")
 NUM_COLORS=${#COLORS[@]}

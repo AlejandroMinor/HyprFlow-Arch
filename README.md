@@ -72,7 +72,7 @@ sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessct
 
 **AUR (requires `yay` or another helper):**
 ```bash
-yay -S wlogout eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin paru
+yay -S wlogout eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin paru zsh-fzf-tab oh-my-zsh-git
 ```
 
 ### 2. Clone and install
@@ -158,6 +158,34 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 - `modules/sinkswitch` — audio output switching utility
 
 ## Post-Installation
+
+### Zsh + Oh My Zsh (optional)
+
+A separate script is included if you want to use the same Zsh setup. It backs up your existing `.zshrc` before overwriting.
+
+**Dependencies:**
+```bash
+# Official repos
+sudo pacman -S zsh zsh-autosuggestions zsh-syntax-highlighting zoxide bat
+
+# AUR
+yay -S zsh-fzf-tab oh-my-zsh-git
+```
+
+**Install:**
+```bash
+bash install-zsh.sh
+```
+
+Plugins included:
+
+| Plugin | Source | Description |
+|--------|--------|-------------|
+| `git` `sudo` `copypath` `fzf` | Oh My Zsh built-in | Git aliases, sudo escape, clipboard, fzf integration |
+| `zsh-autosuggestions` | Official repos | Command suggestions from history |
+| `zsh-syntax-highlighting` | Official repos | Real-time command highlighting |
+| `fzf-tab` | AUR (`zsh-fzf-tab`) | Tab completion with fzf preview using `bat` |
+| `zoxide` | Official repos | Smart `cd` replacement (`z`, `zi`) |
 
 ### Dark theme
 To force dark colors for GTK apps:

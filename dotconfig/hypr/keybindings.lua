@@ -30,28 +30,32 @@ hl.bind(mainMod .. " + Q",         hl.dsp.window.close(),                       
 
 hl.bind(mainMod .. " + V",         hl.dsp.window.float({ action = "toggle" }),                   { description = "Toggle Float/Tile" })
 hl.bind(mainMod .. " + P",         hl.dsp.window.pin(),                                          { description = "Pin Window (all workspaces)" })
-hl.bind(mainMod .. " + F",         hl.dsp.exec_cmd("hyprctl dispatch fullscreen 1"),             { description = "Fullscreen" })
-hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd("hyprctl dispatch fullscreen 0"),             { description = "Fullscreen (Absolute)" })
-hl.bind(mainMod .. " + C",         hl.dsp.exec_cmd("hyprctl dispatch centerwindow"),             { description = "Center Floating Window" })
-hl.bind(mainMod .. " + O",         hl.dsp.exec_cmd("hyprctl setprop active opaque toggle"),      { description = "Toggle Opacity" })
-hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd([[sh -c "hyprctl dispatch setfloating && hyprctl dispatch resizeactive exact 1200 800 && hyprctl dispatch centerwindow"]]), { description = "Mini Window (1200x800)" })
+hl.bind(mainMod .. " + F",         hl.dsp.window.fullscreen({ mode = "maximized" }),             { description = "Fullscreen" })
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }),            { description = "Fullscreen (Absolute)" })
+hl.bind(mainMod .. " + C",         hl.dsp.window.center(),                                       { description = "Center Floating Window" })
+hl.bind(mainMod .. " + O",         hl.dsp.window.tag({ tag = "opaque" }),                                                                                                    { description = "Toggle Opacity" })
+hl.bind(mainMod .. " + SHIFT + C", function()
+    hl.dispatch(hl.dsp.window.float({ action = "enable" }))
+    hl.dispatch(hl.dsp.window.resize({ x = 1200, y = 800 }))
+    hl.dispatch(hl.dsp.window.center())
+end, { description = "Mini Window (1200x800)" })
 
 
 -- =======================================================
 --  GROUPS (Browser Mode)
 -- =======================================================
 
-hl.bind(mainMod .. " + G",         hl.dsp.exec_cmd("hyprctl dispatch togglegroup"),             { description = "Toggle Group" })
+hl.bind(mainMod .. " + G",         hl.dsp.group.toggle(),                                    { description = "Toggle Group" })
 hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.local/bin/hyprland-group-all.sh"),      { description = "Group All Windows in Workspace" })
 
-hl.bind("ALT + Tab",         hl.dsp.exec_cmd("hyprctl dispatch changegroupactive f"), { description = "Next Tab" })
-hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd("hyprctl dispatch changegroupactive b"), { description = "Previous Tab" })
+hl.bind("ALT + Tab",         hl.dsp.group.next(), { description = "Next Tab" })
+hl.bind("ALT + SHIFT + Tab", hl.dsp.group.prev(), { description = "Previous Tab" })
 
-hl.bind(mainMod .. " + ALT + H",    hl.dsp.exec_cmd("hyprctl dispatch moveintogroup l"))
-hl.bind(mainMod .. " + ALT + L",    hl.dsp.exec_cmd("hyprctl dispatch moveintogroup r"))
-hl.bind(mainMod .. " + ALT + K",    hl.dsp.exec_cmd("hyprctl dispatch moveintogroup u"))
-hl.bind(mainMod .. " + ALT + J",    hl.dsp.exec_cmd("hyprctl dispatch moveintogroup d"))
-hl.bind(mainMod .. " + ALT + down", hl.dsp.exec_cmd("hyprctl dispatch moveoutofgroup"))
+hl.bind(mainMod .. " + ALT + H",    hl.dsp.window.move({ into_group = "l" }))
+hl.bind(mainMod .. " + ALT + L",    hl.dsp.window.move({ into_group = "r" }))
+hl.bind(mainMod .. " + ALT + K",    hl.dsp.window.move({ into_group = "u" }))
+hl.bind(mainMod .. " + ALT + J",    hl.dsp.window.move({ into_group = "d" }))
+hl.bind(mainMod .. " + ALT + down", hl.dsp.window.move({ out_of_group = true }))
 
 
 -- =======================================================
@@ -140,28 +144,28 @@ hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
 --  MOVE WINDOWS (Swap)
 -- =======================================================
 
-hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.exec_cmd("hyprctl dispatch movewindow l"))
-hl.bind(mainMod .. " + SHIFT + right", hl.dsp.exec_cmd("hyprctl dispatch movewindow r"))
-hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.exec_cmd("hyprctl dispatch movewindow u"))
-hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.exec_cmd("hyprctl dispatch movewindow d"))
-hl.bind(mainMod .. " + SHIFT + H",     hl.dsp.exec_cmd("hyprctl dispatch movewindow l"))
-hl.bind(mainMod .. " + SHIFT + L",     hl.dsp.exec_cmd("hyprctl dispatch movewindow r"))
-hl.bind(mainMod .. " + SHIFT + K",     hl.dsp.exec_cmd("hyprctl dispatch movewindow u"))
-hl.bind(mainMod .. " + SHIFT + J",     hl.dsp.exec_cmd("hyprctl dispatch movewindow d"))
+hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "l" }))
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.move({ direction = "r" }))
+hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "u" }))
+hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "d" }))
+hl.bind(mainMod .. " + SHIFT + H",     hl.dsp.window.move({ direction = "l" }))
+hl.bind(mainMod .. " + SHIFT + L",     hl.dsp.window.move({ direction = "r" }))
+hl.bind(mainMod .. " + SHIFT + K",     hl.dsp.window.move({ direction = "u" }))
+hl.bind(mainMod .. " + SHIFT + J",     hl.dsp.window.move({ direction = "d" }))
 
 
 -- =======================================================
 --  FINE MOVEMENT (Floating windows)
 -- =======================================================
 
-hl.bind(mainMod .. " + CTRL + left",  hl.dsp.exec_cmd("hyprctl dispatch moveactive -50 0"), { repeating = true })
-hl.bind(mainMod .. " + CTRL + right", hl.dsp.exec_cmd("hyprctl dispatch moveactive 50 0"),  { repeating = true })
-hl.bind(mainMod .. " + CTRL + up",    hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 -50"), { repeating = true })
-hl.bind(mainMod .. " + CTRL + down",  hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 50"),  { repeating = true })
-hl.bind(mainMod .. " + CTRL + H",     hl.dsp.exec_cmd("hyprctl dispatch moveactive -50 0"), { repeating = true })
-hl.bind(mainMod .. " + CTRL + L",     hl.dsp.exec_cmd("hyprctl dispatch moveactive 50 0"),  { repeating = true })
-hl.bind(mainMod .. " + CTRL + K",     hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 -50"), { repeating = true })
-hl.bind(mainMod .. " + CTRL + J",     hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 50"),  { repeating = true })
+hl.bind(mainMod .. " + CTRL + left",  hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + right", hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + up",    hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + down",  hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + H",     hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + L",     hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + K",     hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + J",     hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
 
 
 -- =======================================================
@@ -182,33 +186,36 @@ hl.define_submap("winctl", function()
     hl.bind("j",     hl.dsp.window.resize({ x = 0,   y = 10,  relative = true }), { repeating = true })
 
     -- Move (floating)
-    hl.bind("SHIFT + right", hl.dsp.exec_cmd("hyprctl dispatch moveactive 50 0"),   { repeating = true })
-    hl.bind("SHIFT + left",  hl.dsp.exec_cmd("hyprctl dispatch moveactive -50 0"),  { repeating = true })
-    hl.bind("SHIFT + up",    hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 -50"),  { repeating = true })
-    hl.bind("SHIFT + down",  hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 50"),   { repeating = true })
-    hl.bind("SHIFT + h",     hl.dsp.exec_cmd("hyprctl dispatch moveactive -50 0"),  { repeating = true })
-    hl.bind("SHIFT + l",     hl.dsp.exec_cmd("hyprctl dispatch moveactive 50 0"),   { repeating = true })
-    hl.bind("SHIFT + k",     hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 -50"),  { repeating = true })
-    hl.bind("SHIFT + j",     hl.dsp.exec_cmd("hyprctl dispatch moveactive 0 50"),   { repeating = true })
+    hl.bind("SHIFT + right", hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
+    hl.bind("SHIFT + left",  hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
+    hl.bind("SHIFT + up",    hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
+    hl.bind("SHIFT + down",  hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
+    hl.bind("SHIFT + h",     hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
+    hl.bind("SHIFT + l",     hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
+    hl.bind("SHIFT + k",     hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
+    hl.bind("SHIFT + j",     hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
 
-    -- Float size presets
-    hl.bind("1", hl.dsp.exec_cmd([[hyprctl --batch "dispatch resizeactive exact 720 460"]]))
-    hl.bind("2", hl.dsp.exec_cmd([[hyprctl --batch "dispatch resizeactive exact 1100 700"]]))
-    hl.bind("3", hl.dsp.exec_cmd([[hyprctl --batch "dispatch resizeactive exact 1560 950"]]))
-    hl.bind("4", hl.dsp.exec_cmd([[hyprctl --batch "dispatch resizeactive exact 2000 1180"]]))
+    -- Float size presets (absolute)
+    hl.bind("1", hl.dsp.window.resize({ x = 720,  y = 460  }))
+    hl.bind("2", hl.dsp.window.resize({ x = 1100, y = 700  }))
+    hl.bind("3", hl.dsp.window.resize({ x = 1560, y = 950  }))
+    hl.bind("4", hl.dsp.window.resize({ x = 2000, y = 1180 }))
 
-    -- Master mfact presets (tiled only, notifies if floating)
+    -- Master mfact presets
     local function mfact(val)
-        return hl.dsp.exec_cmd([[sh -c 'hyprctl -j activewindow | grep -q "\"floating\": true" && notify-send "Resize" "mfact only applies to tiled windows" || hyprctl --batch "dispatch layoutmsg mfact -2 ; dispatch layoutmsg mfact ]] .. val .. [["']])
+        return function()
+            hl.dispatch(hl.dsp.layout("mfact -2"))
+            hl.dispatch(hl.dsp.layout("mfact " .. val))
+        end
     end
     hl.bind("SHIFT + 1", mfact("0.50"))
     hl.bind("SHIFT + 2", mfact("0.65"))
     hl.bind("SHIFT + 3", mfact("0.75"))
     hl.bind("SHIFT + 4", mfact("0.85"))
 
-    hl.bind("f",         hl.dsp.exec_cmd("hyprctl dispatch fullscreen 1"))
-    hl.bind("SHIFT + f", hl.dsp.exec_cmd("hyprctl dispatch fullscreen 0"))
-    hl.bind("c",         hl.dsp.exec_cmd("hyprctl dispatch centerwindow"))
+    hl.bind("f",         hl.dsp.window.fullscreen({ mode = "maximized" }))
+    hl.bind("SHIFT + f", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
+    hl.bind("c",         hl.dsp.window.center())
     hl.bind("escape",    hl.dsp.submap("reset"))
 end)
 
@@ -259,11 +266,18 @@ hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.exec_cmd("playerctl position 10-"
 --  ZOOM
 -- =======================================================
 
-local zoom_get = [[$(hyprctl getoption cursor:zoom_factor | grep 'float:' | awk '{print $2}')]]
-hl.bind(mainMod .. " + SHIFT + I",          hl.dsp.exec_cmd("hyprctl keyword cursor:zoom_factor $(awk 'BEGIN {print " .. zoom_get .. " + 0.5}')"), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + mouse_down", hl.dsp.exec_cmd("hyprctl keyword cursor:zoom_factor $(awk 'BEGIN {print " .. zoom_get .. " + 0.1}')"), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + O",          hl.dsp.exec_cmd("hyprctl keyword cursor:zoom_factor $(awk 'BEGIN {v=" .. zoom_get .. " - 0.5; print (v < 1) ? 1 : v}')"), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + mouse_up",   hl.dsp.exec_cmd("hyprctl keyword cursor:zoom_factor $(awk 'BEGIN {v=" .. zoom_get .. " - 0.1; print (v < 1) ? 1 : v}')"), { repeating = true })
+local _zoom = 1.0
+local function set_zoom(delta)
+    return function()
+        _zoom = math.max(1.0, _zoom + delta)
+        hl.config({ cursor = { zoom_factor = _zoom } })
+    end
+end
+
+hl.bind(mainMod .. " + SHIFT + I",          set_zoom( 0.5), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + mouse_down", set_zoom( 0.1), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + O",          set_zoom(-0.5), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + mouse_up",   set_zoom(-0.1), { repeating = true })
 
 
 -- =======================================================

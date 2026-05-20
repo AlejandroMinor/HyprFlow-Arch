@@ -169,7 +169,7 @@ A separate script is included if you want to use the same Zsh setup. It backs up
 sudo pacman -S zsh zsh-autosuggestions zsh-syntax-highlighting zoxide bat
 
 # AUR
-yay -S zsh-fzf-tab oh-my-zsh-git
+yay -S fzf-tab oh-my-zsh-git
 ```
 
 **Install:**
@@ -184,7 +184,7 @@ Plugins included:
 | `git` `sudo` `copypath` `fzf` | Oh My Zsh built-in | Git aliases, sudo escape, clipboard, fzf integration |
 | `zsh-autosuggestions` | Official repos | Command suggestions from history |
 | `zsh-syntax-highlighting` | Official repos | Real-time command highlighting |
-| `fzf-tab` | AUR (`zsh-fzf-tab`) | Tab completion with fzf preview using `bat` |
+| `fzf-tab` | AUR (`fzf-tab`) | Tab completion with fzf preview using `bat` |
 | `zoxide` | Official repos | Smart `cd` replacement (`z`, `zi`) |
 
 ### Dark theme

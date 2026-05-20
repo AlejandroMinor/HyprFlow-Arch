@@ -5,11 +5,12 @@ PORT_ASUS=$(hyprctl monitors all -j | jq -r '.[] | select(.description | contain
 PORT_NZXT=$(hyprctl monitors all -j | jq -r '.[] | select(.description | contains("NZXTCANVAS27Q")) | .name')
 PORT_THINK=$(hyprctl monitors all -j | jq -r '.[] | select(.description | contains("Lenovo")) | .name')
 
-cat <<EOF > ~/.config/hypr/monitors_ids.conf
-\$AOC = $PORT_AOC
-\$ASUS = $PORT_ASUS
-\$NZXT = $PORT_NZXT
-\$THINKPAD = $PORT_THINK
+cat <<EOF > ~/.config/hypr/monitors_ids.lua
+-- Auto-generado por monitors.sh — no editar manualmente
+AOC      = "$PORT_AOC"
+ASUS     = "$PORT_ASUS"
+NZXT     = "$PORT_NZXT"
+THINKPAD = "$PORT_THINK"
 EOF
 
 

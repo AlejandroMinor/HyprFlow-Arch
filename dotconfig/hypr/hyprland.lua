@@ -15,7 +15,8 @@
 ------------------
 
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
-require("monitors")
+-- For horizontal layout: require("monitors_horizontal")
+require("monitors_vertical")
 
 
 ---------------------

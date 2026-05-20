@@ -1,6 +1,6 @@
--- monitors.lua
+-- monitors_vertical.lua
 -- Layout: AOC (vertical) -> NZXT -> ASUS (vertical) -> THINKPAD
--- IDs detectados por monitors.sh y guardados en monitors_ids.lua
+-- Port IDs are detected by monitors.sh and saved to monitors_ids.lua
 
 local ok = pcall(require, "monitors_ids")
 if not ok then

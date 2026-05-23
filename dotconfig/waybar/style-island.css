@@ -1,0 +1,288 @@
+/* Island style — floating pills with theme-aware colors and accent glow */
+
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 14px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: alpha(@background, 0.03);
+    border-radius: 12px;
+    transition: all 0.3s ease-in-out;
+}
+
+window#waybar.hidden {
+    margin-top: -50px;
+    opacity: 0;
+}
+
+#custom-hymission,
+#custom-launcher,
+#cpu, #memory, #disk,
+#tray, #custom-vpn,
+#network, #pulseaudio, #battery,
+#custom-swaync, #clock, #custom-power,
+#custom-magic-trackpad-battery, #custom-mouse-battery,
+#custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector,
+#custom-updates, #custom-g733-battery, #custom-mute-indicator,
+#custom-power-hub, #language, #submap {
+    background: alpha(@color0, 0.85);
+    margin: 5px 3px;
+    padding: 0 10px;
+    border-radius: 8px;
+    color: @foreground;
+    box-shadow: 0 0 6px alpha(@color5, 0.25);
+}
+
+@keyframes blink-privacy-icon {
+    0%   { color: @color1; }
+    100% { color: alpha(@color1, 0.1); }
+}
+
+#privacy-info {
+    background: alpha(@color0, 0.85);
+    margin: 5px 3px;
+    padding: 0 8px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px alpha(@color5, 0.25);
+}
+
+#privacy,
+#custom-privacy-camera, #custom-separator {
+    background: transparent;
+    margin: 0;
+    padding: 0 3px;
+    border: none;
+    box-shadow: none;
+    animation: blink-privacy-icon 1s linear infinite alternate;
+}
+
+#custom-separator-wrap {
+    background: transparent;
+    padding: 0 3px;
+}
+
+#media {
+    background: alpha(@color0, 0.85);
+    margin: 5px 3px;
+    padding: 0 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px alpha(@color5, 0.25);
+}
+
+#custom-media-wrap {
+    color: @color5;
+    padding: 0 2px;
+}
+
+#mpris {
+    background: transparent;
+    padding: 0 6px;
+    margin: 0;
+}
+
+#custom-cava {
+    background: transparent;
+    padding: 0 0 0 4px;
+    margin: 0;
+    font-size: 11px;
+}
+
+#custom-cava.empty {
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+    border: none;
+    background: transparent;
+}
+
+#clock, #mpris {
+    color: @color5;
+    font-weight: bold;
+}
+
+#mpris.paused {
+    color: alpha(@color5, 0.4);
+}
+
+#custom-launcher {
+    background: transparent;
+    box-shadow: none;
+    font-size: 18px;
+    color: @color2;
+}
+
+#custom-power {
+    color: @color1;
+    padding: 0 10px 0 8px;
+}
+
+#tray {
+    padding: 0 6px;
+}
+
+@keyframes blink {
+    to { background-color: alpha(@color1, 0.2); }
+}
+
+#battery.critical:not(.charging) {
+    background-color: @color1;
+    color: @color0;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+#custom-vpn {
+    padding: 0 10px 0 8px;
+}
+
+#custom-vpn.vpn-status-active  { color: @color6; }
+#custom-vpn.vpn-status-warning  { color: @color1; }
+
+#custom-mute-indicator          { color: @foreground; font-size: 16px; }
+#custom-mute-indicator.muted_active { color: @color1; font-size: 16px; }
+
+#battery.charging, #battery.plugged { color: @color6; }
+
+#battery.warning:not(.charging),
+#custom-magic-trackpad-battery.warning,
+#custom-mouse-battery.warning,
+#custom-keyboard-battery.warning { color: @color3; }
+
+#battery.critical:not(.charging),
+#custom-magic-trackpad-battery.critical,
+#custom-mouse-battery.critical,
+#custom-keyboard-battery.critical { color: @color1; }
+
+#workspaces {
+    background: alpha(@color0, 0.85);
+    margin: 5px 3px;
+    padding: 0 5px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px alpha(@color5, 0.25);
+}
+
+#workspaces button {
+    background: transparent;
+    color: alpha(@foreground, 0.3);
+    border-radius: 1.5rem;
+    margin: 0.3rem 0.1rem;
+    padding: 0 4px;
+    font-size: 12px;
+    min-height: 24px;
+    min-width: 18px;
+    transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+#workspaces button:not(.empty) {
+    background: alpha(@color5, 0.15);
+    color: @foreground;
+}
+
+#workspaces button.visible {
+    background: alpha(@color5, 0.25);
+    color: @foreground;
+    min-width: 22px;
+}
+
+#workspaces button.empty {
+    background: transparent;
+    color: alpha(@foreground, 0.15);
+    min-width: 12px;
+}
+
+#workspaces button.special {
+    background: alpha(@color4, 0.4);
+    color: @foreground;
+    min-width: 22px;
+}
+
+#workspaces button.active {
+    background: @color5;
+    color: @color0;
+    min-width: 45px;
+    border-radius: 1rem;
+    font-weight: bold;
+    box-shadow: 0 0 10px alpha(@color5, 0.6);
+}
+
+#workspaces button:hover {
+    background: alpha(@color5, 0.7);
+    color: @color0;
+    min-width: 45px;
+}
+
+#temperature,
+#temperature.desktop {
+    background: linear-gradient(135deg, alpha(@color5, 0.12), alpha(@color0, 0.88));
+    margin: 5px 3px;
+    padding: 0 10px;
+    border-radius: 18px;
+    border: 1px solid alpha(@color5, 0.18);
+    color: @color6;
+    box-shadow: 0 0 10px alpha(@color5, 0.2);
+}
+
+#temperature.critical,
+#temperature.desktop.critical {
+    color: @color1;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+#custom-power-hub.critical {
+    animation: blink-privacy-icon 1s linear infinite alternate;
+}
+
+#custom-system-tools-wrap {
+    background: alpha(@color0, 0.85);
+    margin: 5px 3px;
+    padding: 0 11px 0 8px;
+    border-radius: 8px;
+    color: @color4;
+    box-shadow: 0 0 6px alpha(@color5, 0.25);
+}
+
+#custom-hardware-wrap  { color: @color3; }
+#custom-theme-selector { color: @color2; }
+#language              { color: @color5; }
+
+/* Per-module accent colors */
+#cpu        { color: @color1; }
+#memory     { color: @color2; }
+#disk       { color: @color3; }
+#network    { color: @color6; }
+#pulseaudio { color: @color2; }
+#clock      { color: @color5; font-weight: bold; }
+#tray       { color: @foreground; }
+#custom-swaync   { color: @color4; }
+#custom-updates  { color: @color3; }
+#custom-power    { color: @color1; }
+
+#submap {
+    color: @color6;
+    font-weight: bold;
+}
+
+#submap.winctl {
+    animation: submap-winctl 1s ease-in-out infinite;
+    background: alpha(@color6, 0.40);
+}
+
+#submap.screenshot {
+    animation: submap-screenshot 1s ease-in-out infinite;
+    background: alpha(@color2, 0.40);
+}
+
+@keyframes submap-winctl {
+    0%   { color: @color6; }
+    50%  { color: alpha(@color6, 0.3); }
+    100% { color: @color6; }
+}
+
+@keyframes submap-screenshot {
+    0%   { color: @color2; }
+    50%  { color: alpha(@color2, 0.3); }
+    100% { color: @color2; }
+}

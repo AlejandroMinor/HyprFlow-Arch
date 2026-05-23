@@ -35,9 +35,10 @@ WALLUST_CACHE="$HOME_DIR/.cache/wallust/colors"
 mkdir -p -m 755 "$WALLUST_CACHE"
 
 if [ "$ACTION" == "generate" ]; then
-    WP_PATH=$(sed -n 's/^wallpaper[[:space:]]*=[[:space:]]*//p' "$HOME_DIR/.config/waypaper/config.ini" | sed "s|^~|$HOME_DIR|")
+    FOCUSED=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused==true) | .name')
+    WP_PATH=$(awww query 2>/dev/null | grep "^: ${FOCUSED}:" | grep -oP 'image: \K.*')
 
-    if [ ! -f "$WP_PATH" ]; then
+    if [ -z "$WP_PATH" ] || [ ! -f "$WP_PATH" ]; then
         [ "$NOTIFY" = true ] && notify-send -u critical "Error" "Wallpaper not found"
         exit 1
     fi

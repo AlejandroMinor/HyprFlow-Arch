@@ -260,12 +260,6 @@ hl.config({
     },
 })
 
-hl.gesture({
-    fingers = 3,
-    direction = "horizontal",
-    action = "workspace"
-})
-
 -- Example per-device config
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
 hl.device({
@@ -280,6 +274,13 @@ hl.device({
 
 -- See https://wiki.hypr.land/Configuring/Basics/Binds/
 require("keybindings")
+
+
+---------------------
+---- GESTURES ----
+---------------------
+
+require("gestures")
 
 
 --------------------------------

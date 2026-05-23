@@ -6,8 +6,8 @@ rofi.template = "colors-rofi.rasi"
 rofi.target = "~/.cache/wallust/colors/colors-rofi.rasi"
 rofi.pywal = true
 
-hyprland.template = "colors-hyprland.conf"
-hyprland.target = "~/.cache/wallust/colors/colors-hyprland.conf"
+hyprland.template = "colors-hyprland.lua"
+hyprland.target = "~/.config/hypr/colors.lua"
 hyprland.pywal = true
 
 waybar.template = "colors-waybar.css"

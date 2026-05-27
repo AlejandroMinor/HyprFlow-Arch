@@ -14,7 +14,7 @@ local menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/r
 --  SYSTEM & HELP
 -- =======================================================
 
-hl.bind(mainMod .. " + X",         hl.dsp.exec_cmd("hyprctl dispatch hymission:toggle"),         { description = "Mission Control (Hymission)" })
+hl.bind(mainMod .. " + X",         hl.plugin.hymission.toggle,                                   { description = "Mission Control (Hymission)" })
 hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/bin/help-binds.sh"),                { description = "View Keybind Guide" })
 hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal),                                    { description = "Open Terminal (Kitty)" })
 hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("[float; size 900 600; center] kitty"),       { description = "Open Floating Kitty" })

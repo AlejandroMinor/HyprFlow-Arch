@@ -139,8 +139,8 @@ window#waybar.hidden {
 
 #custom-vpn { padding: 0 10px 0 8px; }
 
-#custom-vpn.vpn-status-active  { color: @color6; }
-#custom-vpn.vpn-status-warning  { color: @color1; }
+#custom-vpn.vpn-status-active  { color: #9ece6a; }
+#custom-vpn.vpn-status-warning { color: #f7768e; }
 
 #custom-mute-indicator              { color: @foreground; font-size: 16px; }
 #custom-mute-indicator.muted_active { color: @color1; font-size: 16px; }

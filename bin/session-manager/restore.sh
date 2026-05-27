@@ -29,7 +29,7 @@ jq -c '.[]' "$TEMPLATE_FILE" | while read -r i; do
     BEFORE_ADDRS=$(hyprctl clients -j | jq -r --arg ic "$INIT_CLASS" \
         '.[] | select(.initialClass == $ic) | .address' | tr '\n' ',')
 
-    hyprctl dispatch exec "$CMD"
+    setsid nohup bash -c "$CMD" >/dev/null 2>&1 &
 
     NEW_ADDR=""
     for attempt in $(seq 1 10); do
@@ -41,12 +41,12 @@ jq -c '.[]' "$TEMPLATE_FILE" | while read -r i; do
                 fi
             done | tail -1)
         if [ -n "$NEW_ADDR" ]; then
-            hyprctl dispatch movetoworkspacesilent "$WS_TARGET,address:$NEW_ADDR"
+            hyprctl dispatch "hl.dsp.window.move({workspace='$WS_TARGET', follow=false, window='address:$NEW_ADDR'})"
 
             if [ "$FLOATING" = "true" ]; then
-                hyprctl dispatch setfloating "address:$NEW_ADDR"
-                hyprctl dispatch movewindowpixel "exact $POS_X $POS_Y,address:$NEW_ADDR"
-                hyprctl dispatch resizewindowpixel "exact $SIZE_W $SIZE_H,address:$NEW_ADDR"
+                hyprctl dispatch "hl.dsp.window.float({action='enable', window='address:$NEW_ADDR'})"
+                hyprctl dispatch "hl.dsp.window.move({x=$POS_X, y=$POS_Y, window='address:$NEW_ADDR'})"
+                hyprctl dispatch "hl.dsp.window.resize({x=$SIZE_W, y=$SIZE_H, window='address:$NEW_ADDR'})"
             fi
 
             echo "✅ $INIT_CLASS → $WS_TARGET ($NEW_ADDR) floating=$FLOATING"

@@ -9,9 +9,9 @@ os.makedirs(TEMPLATE_DIR, exist_ok=True)
 
 def get_full_command(pid):
     try:
-        with open(f"/proc/{pid}/cmdline", 'r') as f:
-            parts = f.read().split('\0')
-            parts = [p for p in parts if p.strip()]
+        with open(f"/proc/{pid}/cmdline", 'rb') as f:
+            parts = f.read().split(b'\0')
+            parts = [p.decode('utf-8', errors='replace') for p in parts if p.strip()]
             return ' '.join(parts)
     except (FileNotFoundError, PermissionError):
         return None

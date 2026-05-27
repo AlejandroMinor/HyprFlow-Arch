@@ -323,16 +323,23 @@ hl.config({
         sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
 
         touchpad = {
-            natural_scroll = false,
+            natural_scroll         = true,
+            disable_while_typing   = true,
+            clickfinger_behavior   = true,
         },
     },
 })
 
--- Example per-device config
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
 hl.device({
-    name        = "epic-mouse-v1",
-    sensitivity = -0.5,
+    name        = "logitech-mx-master-3s",
+    sensitivity = 0.3,
+})
+
+hl.device({
+    name          = "apple-inc.-magic-trackpad",
+    sensitivity   = -0.1,
+    accel_profile = "adaptive",
 })
 
 

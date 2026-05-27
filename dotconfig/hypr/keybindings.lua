@@ -125,8 +125,8 @@ hl.bind(mainMod .. " + A",         hl.dsp.window.bring_to_top(),                
 -- =======================================================
 
 hl.bind(mainMod .. " + Tab",         hl.dsp.window.cycle_next())
-hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.exec_cmd("hyprctl dispatch cyclenext prev"))
-hl.bind(mainMod .. " + Escape",      hl.dsp.exec_cmd("hyprctl dispatch focuscurrentorlast"))
+hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.window.cycle_next({ next = false }))
+hl.bind(mainMod .. " + Escape",      hl.dsp.focus({ last = true }))
 
 -- Arrow keys
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))

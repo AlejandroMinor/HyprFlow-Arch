@@ -72,7 +72,7 @@ sudo pacman -S cpio cmake fzf rtkit hyprland waybar yazi kitty awww brightnessct
 
 **AUR (requires `yay` or another helper):**
 ```bash
-yay -S wlogout eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin paru zsh-fzf-tab oh-my-zsh-git
+yay -S wlogout eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin paru fzf-tab oh-my-zsh-git
 ```
 
 ### 2. Clone and install

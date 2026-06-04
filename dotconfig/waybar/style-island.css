@@ -214,8 +214,7 @@ window#waybar.hidden {
     min-width: 45px;
 }
 
-#temperature,
-#temperature.desktop {
+#temperature {
     background: linear-gradient(135deg, alpha(@color5, 0.12), alpha(@color0, 0.88));
     margin: 5px 3px;
     padding: 0 10px;
@@ -225,8 +224,7 @@ window#waybar.hidden {
     box-shadow: 0 0 10px alpha(@color5, 0.2);
 }
 
-#temperature.critical,
-#temperature.desktop.critical {
+#temperature.critical {
     color: @color1;
     animation: blink 0.5s linear infinite alternate;
 }

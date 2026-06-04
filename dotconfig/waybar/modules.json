@@ -264,7 +264,6 @@
         "temperature",
         "memory",
         "disk",
-        "temperature#desktop",
         "network"
     ]
 },
@@ -287,7 +286,8 @@
 
 "temperature": {
     "interval": 10,
-    "hwmon-path": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon6/temp1_input",
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
     "critical-threshold": 80,
     "format-critical": "<span color='#f7768e'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
     "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
@@ -295,16 +295,6 @@
     "tooltip": false
 },
 
-
-"temperature#desktop": {
-    "interval": 10,
-    "hwmon-path": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon3/temp1_input",
-    "critical-threshold": 80,
-    "format-critical": "<span color='#f7768e'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
-    "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
-    "format-icons": ["", ""],
-    "tooltip": false
-},
 
 "custom/power-hub": {
     "format": "󱠵",

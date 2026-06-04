@@ -36,7 +36,7 @@
         "scroll-step": 5,
         "format": "{icon} {volume}%",
         "format-muted": "{icon} {volume}%",
-        "on-click": "hyprctl dispatch exec \"[workspace special:sinkswitch] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\"",
+        "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 450 150; center] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\")'",
         "on-click-right": "pavucontrol",
         "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "format-icons": {
@@ -131,7 +131,7 @@
         "interval": 60,
         "format": "󰃭 {:%d/%m %H:%M}",
         "tooltip-format": "{:%Y-%m-%d}",
-        "on-click": "hyprctl dispatch exec \"[workspace special:cal-popup] kitty --class cal-popup -e bash -c 'cal; read -n1'\""
+        "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 200 200; center] kitty --class cal-popup -e bash -c \\\"cal; read -n1\\\"\")'"
     },
 
     "tray": {
@@ -218,7 +218,7 @@
 "custom/theme-selector": {
     "format": "",
     "tooltip": false,
-    "on-click": "hyprctl dispatch exec \"[float] kitty --class kitty-theme-picker -e ~/.local/bin/theme-picker.sh\"",
+    "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 420 260; center] kitty --class kitty-theme-picker -e ~/.local/bin/theme-picker.sh\")'",
     "on-click-right": "waypaper",
     "on-click-middle": "waypaper --random"
 },
@@ -248,7 +248,7 @@
 "custom/hymission": {
     "format": "󰾍",
     "tooltip": false,
-    "on-click": "hyprctl dispatch hymission:open"
+    "on-click": "hyprctl dispatch hl.plugin.hymission.open"
 },
 
 "group/hardware": {

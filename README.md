@@ -149,7 +149,6 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 |--------|-------------|
 | `help-binds.sh` | Shows all keybindings in a visual interface |
 | `hyprland-group-all.sh` | Groups all windows in the current workspace |
-| `kb-layout-toggle.sh` | Toggles keyboard layout |
 | `sinkswitch` | Quick audio output switcher |
 
 **Included submodules:**

@@ -185,7 +185,7 @@
         "format-en": "EN",
         "format-es": "ES",
         "tooltip": false,
-        "on-click": "kb-layout-toggle"
+        "on-click": "hyprctl switchxkblayout all next"
     },
 
     "hyprland/submap": {

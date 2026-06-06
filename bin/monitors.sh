@@ -125,7 +125,7 @@ generate() {
     local n; n="$(jq 'length' <<<"$profile")"
     local i
     for ((i=0; i<n; i++)); do
-        local desc bar port wbid logical mode transform scale w h archetype fw portrait
+        local desc bar port logical mode transform scale w h archetype fw portrait
         desc="$(jq -r ".[$i].description" <<<"$profile")"
         bar="$(jq -r ".[$i].bar" <<<"$profile")"
         [ "$bar" = "none" ] && continue
@@ -133,10 +133,6 @@ generate() {
         [ -z "$port" ] && continue
         archetype="$(jq -c --arg t "$bar" '.[$t] // empty' "$BARS_TEMPLATE")"
         [ -z "$archetype" ] && { warn "bar type '$bar' not in bars.json; skipping"; continue; }
-        # Waybar matches the *identifier* = "make model serial" (keeps the trailing
-        # space when serial is empty), NOT hyprctl's trimmed .description.
-        wbid="$(printf '%s' "$detected" | jq -r --arg d "$desc" \
-            'first(.[] | select(.description==$d)) | "\(.make) \(.model) \(.serial)"')"
         mode="$(jq -r ".[$i].mode" <<<"$profile")"
         transform="$(jq -r ".[$i] | (.transform // (if .orientation == \"v\" then 3 else 0 end))" <<<"$profile")"
         scale="$(jq -r ".[$i].scale" <<<"$profile")"
@@ -150,7 +146,7 @@ generate() {
         fw=$((logical - 120)); [ "$fw" -lt 400 ] && fw=$logical
 
         local barjson
-        barjson="$(jq -c --arg out "$wbid" --argjson w "$fw" \
+        barjson="$(jq -c --arg out "$port" --argjson w "$fw" \
             'del(._comment) | .output = [$out] | (if has("width") then . else .width = $w end)' \
             <<<"$archetype")"
         bars="$(jq --argjson b "$barjson" '. + [$b]' <<<"$bars")"
@@ -205,8 +201,8 @@ cmd_apply() {
         msg "Waybar (re)started"
     fi
 
-    [ "$lua_changed" -eq 0 ] && [ "$wb_changed" -eq 0 ] && msg "no changes"
-    [ "$used_default" -eq 1 ] && notify "Using default layout. Run 'monitors.sh setup' to customize."
+    [ "$lua_changed" -eq 0 ] && [ "$wb_changed" -eq 0 ] && msg "no changes" || true
+    [ "$used_default" -eq 1 ] && notify "Using default layout. Run 'monitors.sh setup' to customize." || true
 }
 
 ask() {

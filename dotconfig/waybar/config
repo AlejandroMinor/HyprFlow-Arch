@@ -1,43 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────────
+// FALLBACK config — this is NOT the source of truth.
+//
+// At runtime monitors.sh (setup/apply) regenerates ~/.config/waybar/config with
+// one bar per monitor, matched by monitor identifier. Edit bar layouts in
+// bars.json and module behaviour in modules.json — NOT here.
+//
+// This single, output-less bar (shown on every monitor) only exists so Waybar
+// still comes up with a usable bar if monitors.sh never runs.
+// ─────────────────────────────────────────────────────────────────────────
 [
-     {
-        "output": ["DP-2"],
+    {
         "include": ["~/.config/waybar/modules.json"],
         "layer": "top",
         "exclusive": true,
-        "width": 2300,
         "margin-top": 10,
         "margin-left": 15,
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
         "modules-center": ["group/media"],
         "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
-    },
-
-    {
-        "output": ["eDP-1"],
-        "include": ["~/.config/waybar/modules.json"],
-        "layer": "top",
-        "exclusive": true,
-        "width": 1800,
-        "margin-top": 10,
-        "margin-left": 15,
-        "margin-right": 15,
-        "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
-        "modules-center": ["group/media"],
-        "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
-	},
-    {
-        "name": "minimal-bar", 
-	    "output": ["DVI-I-1", "DVI-I-2", "HDMI-A-1", "DP-1"],
-        "include": ["~/.config/waybar/modules.json"],
-        "layer": "top",
-        "exclusive": true,
-        "width": 50,
-        "margin-top": 5,
-	"margin-bottom": -3,
-        "modules-center": ["hyprland/workspaces"]
     }
-
 ]
-
-

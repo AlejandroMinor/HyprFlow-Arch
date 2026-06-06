@@ -72,6 +72,10 @@ copy_configs() {
     echo "󰆐 Copying xdg-desktop-portal configuration..."
     mkdir -p "$CONFIG_DEST/xdg-desktop-portal"
     cp -rf "$REPO_PATH/dotconfig/xdg-desktop-portal"/* "$CONFIG_DEST/xdg-desktop-portal/"
+
+    echo "󰚌 Copying fastfetch configuration..."
+    mkdir -p "$CONFIG_DEST/fastfetch"
+    cp -rf "$REPO_PATH/dotconfig/fastfetch"/* "$CONFIG_DEST/fastfetch/"
 }
 
 setup_rofi() {

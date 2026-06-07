@@ -156,6 +156,8 @@ generate() {
 
 cmd_apply() {
     need jq
+    exec 9>/tmp/monitors-apply.lock
+    flock -n 9 || { msg "already running, skipping"; return 0; }
     local detected sig profile used_default=0
     detected="$(detect_json)"
     sig="$(printf '%s' "$detected" | sig_of_descriptions)"
@@ -196,7 +198,7 @@ cmd_apply() {
     fi
 
     if [ "$wb_changed" -eq 1 ] || ! pgrep -x waybar >/dev/null 2>&1; then
-        killall waybar >/dev/null 2>&1 || true
+        killall -w waybar >/dev/null 2>&1 || true
         setsid waybar >/dev/null 2>&1 < /dev/null &
         msg "Waybar (re)started"
     fi

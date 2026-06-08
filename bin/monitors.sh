@@ -156,8 +156,6 @@ generate() {
 
 cmd_apply() {
     need jq
-    exec 9>/tmp/monitors-apply.lock
-    flock -n 9 || { msg "already running, skipping"; return 0; }
     local detected sig profile used_default=0
     detected="$(detect_json)"
     sig="$(printf '%s' "$detected" | sig_of_descriptions)"
@@ -284,6 +282,10 @@ cmd_setup() {
 case "${1:-apply}" in
     list)  cmd_list ;;
     setup) cmd_setup ;;
-    apply) cmd_apply ;;
+    apply)
+        exec 9>/tmp/monitors-apply.lock
+        flock -n 9 || { msg "already running, skipping"; exit 0; }
+        cmd_apply
+        ;;
     *) warn "usage: monitors.sh [list|setup|apply]"; exit 1 ;;
 esac

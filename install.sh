@@ -9,14 +9,16 @@ BIN_FILES_PATH="$HOME/.local/bin"
 CONFIG_DEST="$HOME/.config"
 
 SKIP_THEME=false
+SKIP_MONITORS=false
 for arg in "$@"; do
     case "$arg" in
-        --skip-theme) SKIP_THEME=true ;;
+        --skip-theme)    SKIP_THEME=true ;;
+        --skip-monitors) SKIP_MONITORS=true ;;
     esac
 done
 
-TOTAL_STEPS=6
-[ "$SKIP_THEME" = true ] && TOTAL_STEPS=5
+TOTAL_STEPS=7
+[ "$SKIP_THEME" = true ] && TOTAL_STEPS=$((TOTAL_STEPS - 1))
 CURRENT_STEP=0
 
 # ─────────────────────────────────────────
@@ -70,6 +72,10 @@ copy_configs() {
     echo "󰆐 Copying xdg-desktop-portal configuration..."
     mkdir -p "$CONFIG_DEST/xdg-desktop-portal"
     cp -rf "$REPO_PATH/dotconfig/xdg-desktop-portal"/* "$CONFIG_DEST/xdg-desktop-portal/"
+
+    echo "󰚌 Copying fastfetch configuration..."
+    mkdir -p "$CONFIG_DEST/fastfetch"
+    cp -rf "$REPO_PATH/dotconfig/fastfetch"/* "$CONFIG_DEST/fastfetch/"
 }
 
 setup_rofi() {
@@ -111,6 +117,17 @@ apply_theme() {
     fi
 }
 
+setup_monitors() {
+    progress "MONITORS"
+    if [ "$SKIP_MONITORS" = true ]; then
+        echo "󰍹 Applying monitor layout (saved profile / default)..."
+        "$REPO_PATH/bin/monitors.sh" apply 2>/dev/null || true
+    else
+        echo "󰍹 Configuring monitors (run with --skip-monitors to skip)..."
+        "$REPO_PATH/bin/monitors.sh" setup || "$REPO_PATH/bin/monitors.sh" apply || true
+    fi
+}
+
 reload_hyprland() {
     progress "RELOAD"
     echo "󰑓 Reloading Hyprpm..."
@@ -136,10 +153,11 @@ if [ "$SKIP_THEME" = false ]; then
     apply_theme
 fi
 
-killall -SIGUSR2 waybar 2>/dev/null || true
 
 reload_hyprland
+setup_monitors
+killall waybar 2>/dev/null || true
+sleep 0.5
+setsid waybar >/dev/null 2>&1 < /dev/null &
 
 printf "\n\033[1;32m󰄬 Installation complete!\033[0m\n"
-echo "󰉋 Repository: $REPO_PATH"
-echo "󱂵 Home:        $HOME"

@@ -1,0 +1,25 @@
+{
+  "_comment": "Bar archetypes used by monitors.sh to generate ~/.config/waybar/config. Edit module assignments / margins / layer here freely. monitors.sh only injects each bar's `output` (the monitor identifier) and, for bars without an explicit `width`, a width that fits the monitor. The bar type per monitor (full / minimal / none) is chosen in the monitor profile via `monitors.sh setup`.",
+
+  "full": {
+    "include": ["~/.config/waybar/modules.json"],
+    "layer": "top",
+    "exclusive": true,
+    "margin-top": 10,
+    "margin-left": 15,
+    "margin-right": 15,
+    "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
+    "modules-center": ["group/media"],
+    "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
+  },
+
+  "minimal": {
+    "include": ["~/.config/waybar/modules.json"],
+    "layer": "top",
+    "exclusive": true,
+    "width": 50,
+    "margin-top": 5,
+    "margin-bottom": -3,
+    "modules-center": ["hyprland/workspaces"]
+  }
+}

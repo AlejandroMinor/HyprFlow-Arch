@@ -36,7 +36,7 @@
         "scroll-step": 5,
         "format": "{icon} {volume}%",
         "format-muted": "{icon} {volume}%",
-        "on-click": "hyprctl dispatch exec \"[workspace special:sinkswitch] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\"",
+        "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 450 150; center] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\")'",
         "on-click-right": "pavucontrol",
         "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "format-icons": {
@@ -131,7 +131,7 @@
         "interval": 60,
         "format": "󰃭 {:%d/%m %H:%M}",
         "tooltip-format": "{:%Y-%m-%d}",
-        "on-click": "hyprctl dispatch exec \"[workspace special:cal-popup] kitty --class cal-popup -e bash -c 'cal; read -n1'\""
+        "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 200 200; center] kitty --class cal-popup -e bash -c \\\"cal; read -n1\\\"\")'"
     },
 
     "tray": {
@@ -185,7 +185,7 @@
         "format-en": "EN",
         "format-es": "ES",
         "tooltip": false,
-        "on-click": "kb-layout-toggle"
+        "on-click": "hyprctl switchxkblayout all next"
     },
 
     "hyprland/submap": {
@@ -218,7 +218,7 @@
 "custom/theme-selector": {
     "format": "",
     "tooltip": false,
-    "on-click": "hyprctl dispatch exec \"[float] kitty --class kitty-theme-picker -e ~/.local/bin/theme-picker.sh\"",
+    "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 420 260; center] kitty --class kitty-theme-picker -e ~/.local/bin/theme-picker.sh\")'",
     "on-click-right": "waypaper",
     "on-click-middle": "waypaper --random"
 },
@@ -248,7 +248,7 @@
 "custom/hymission": {
     "format": "󰾍",
     "tooltip": false,
-    "on-click": "hyprctl dispatch hymission:open"
+    "on-click": "hyprctl dispatch hl.plugin.hymission.open"
 },
 
 "group/hardware": {
@@ -264,7 +264,6 @@
         "temperature",
         "memory",
         "disk",
-        "temperature#desktop",
         "network"
     ]
 },
@@ -287,7 +286,8 @@
 
 "temperature": {
     "interval": 10,
-    "hwmon-path": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon6/temp1_input",
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
     "critical-threshold": 80,
     "format-critical": "<span color='#f7768e'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
     "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
@@ -295,16 +295,6 @@
     "tooltip": false
 },
 
-
-"temperature#desktop": {
-    "interval": 10,
-    "hwmon-path": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon3/temp1_input",
-    "critical-threshold": 80,
-    "format-critical": "<span color='#f7768e'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
-    "format": "<span color='#7dcfff'>{icon}</span> <span color='#F1F1F1'>{temperatureC}°C</span>",
-    "format-icons": ["", ""],
-    "tooltip": false
-},
 
 "custom/power-hub": {
     "format": "󱠵",

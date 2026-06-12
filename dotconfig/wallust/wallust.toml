@@ -21,3 +21,7 @@ colors-rofi-sh.pywal = true
 cava.template = "colors-cava.conf"
 cava.target = "~/.config/cava/themes/wallust"
 cava.pywal = true
+
+kitty.template = "colors-kitty.conf"
+kitty.target = "~/.config/kitty/current-theme.conf"
+kitty.pywal = true

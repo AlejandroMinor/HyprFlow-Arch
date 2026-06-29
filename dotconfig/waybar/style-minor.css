@@ -150,7 +150,11 @@ window#waybar.hidden {
 #battery.critical:not(.charging),
 #custom-magic-trackpad-battery.critical,
 #custom-mouse-battery.critical,
-#custom-keyboard-battery.critical { color: #f7768e; }
+#custom-keyboard-battery.critical,
+#custom-g733-battery.critical {
+    color: #f7768e;
+    animation: blink 0.5s linear infinite alternate;
+}
 
 #workspaces {
     background: alpha(@color0, 0.8);

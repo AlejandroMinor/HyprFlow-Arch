@@ -59,7 +59,19 @@ set_permissions() {
 copy_configs() {
     progress "CONFIG FILES"
     echo "󰆐 Copying configuration files..."
+
+    local mon_active="$CONFIG_DEST/hypr/monitors_active.lua"
+    local waybar_cfg="$CONFIG_DEST/waybar/config"
+    local mon_backup="" wb_backup=""
+    if [ "$SKIP_MONITORS" = true ]; then
+        [ -f "$mon_active" ]  && mon_backup="$(cat "$mon_active")"
+        [ -f "$waybar_cfg" ]  && wb_backup="$(cat "$waybar_cfg")"
+    fi
+
     cp -rf "$REPO_PATH/dotconfig"/* "$CONFIG_DEST/"
+
+    [ -n "$mon_backup" ] && printf '%s' "$mon_backup" > "$mon_active"
+    [ -n "$wb_backup"  ] && printf '%s' "$wb_backup"  > "$waybar_cfg"
 
     echo "󰆐 Copying eww configuration..."
     mkdir -p "$CONFIG_DEST/eww"

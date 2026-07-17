@@ -38,7 +38,8 @@ window#waybar.hidden {
 }
 
 @keyframes blink {
-    to { background-color: alpha(@color1, 0.35); box-shadow: 0 0 14px alpha(@color1, 0.6); }
+    0%   { color: #f7768e; }
+    100% { color: alpha(#f7768e, 0.25); }
 }
 
 @keyframes blink-privacy-icon {

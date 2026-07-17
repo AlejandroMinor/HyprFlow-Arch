@@ -357,8 +357,9 @@ hl.device({
 
 hl.device({
     name          = "apple-inc.-magic-trackpad",
-    sensitivity   = -0.1,
+    sensitivity   = -0.3,
     accel_profile = "adaptive",
+    natural_scroll = true,
 })
 
 

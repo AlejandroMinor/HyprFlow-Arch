@@ -28,7 +28,8 @@ window#waybar.hidden {
 #custom-magic-trackpad-battery, #custom-mouse-battery,
 #custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector,
 #custom-updates, #custom-g733-battery, #custom-mute-indicator,
-#custom-power-hub, #language, #submap {
+#custom-power-hub, #language, #submap,
+#custom-claude-usage {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
     padding: 0 10px;
@@ -240,6 +241,12 @@ window#waybar.hidden {
 #custom-hardware-wrap  { color: @color3; }
 #custom-theme-selector { color: @color2; }
 #language              { color: @color5; }
+
+#custom-claude-usage.low      { color: @color4; }
+#custom-claude-usage.mid      { color: #e0af68; }
+#custom-claude-usage.high     { color: #ff9e64; }
+#custom-claude-usage.critical { color: #f7768e; animation: blink 0.5s linear infinite alternate; }
+#custom-claude-usage.error    { color: alpha(@foreground, 0.4); }
 
 #submap {
     color: @color6;

@@ -1,5 +1,5 @@
 @import '../../.cache/wallust/colors/colors-waybar.css';
 
 /* Switch styles by changing this import:
-   style-minor.css | style-island.css | style-glass.css */
-@import 'style-glass.css';
+   style-minor.css | style-island.css | style-glass.css | style-clusters.css */
+@import 'style-clusters.css';

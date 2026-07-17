@@ -10,10 +10,11 @@
     "margin-right": 15,
     "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
     "modules-center": ["group/media"],
-    "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
+    "modules-right": ["group/system-tools", "custom/claude-usage", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
   },
 
   "minimal": {
+    "name": "minimal",
     "include": ["~/.config/waybar/modules.json"],
     "layer": "top",
     "exclusive": true,

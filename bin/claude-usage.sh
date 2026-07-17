@@ -1,0 +1,1 @@
+../modules/waybar-claude-usage/claude-usage.sh

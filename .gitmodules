@@ -7,3 +7,6 @@
 [submodule "modules/sinkswitch"]
 	path = modules/sinkswitch
 	url = https://github.com/AlejandroMinor/sinkswitch.git
+[submodule "modules/waybar-claude-usage"]
+	path = modules/waybar-claude-usage
+	url = https://github.com/AlejandroMinor/waybar-claude-usage.git

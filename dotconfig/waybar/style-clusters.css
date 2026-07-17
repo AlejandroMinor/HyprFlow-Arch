@@ -42,8 +42,8 @@ window#waybar.hidden {
 }
 
 @keyframes blink-privacy-icon {
-    0%   { color: @color1; }
-    100% { color: alpha(@color1, 0.1); }
+    0%   { color: #f7768e; }
+    100% { color: rgba(247, 118, 142, 0.1); }
 }
 
 /* ---- los 3 clusteres ---- */

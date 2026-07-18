@@ -1,0 +1,35 @@
+/**
+ * HyprFlow launcher — "centered" variant (list + centered icon/name,
+ * no button). Default launcher theme, bound to Super+D / Super+Space.
+ * Requires: rofi-wayland >= 1.7.4, JetBrainsMono Nerd Font
+ * Launch: rofi -show drun -theme ~/.config/rofi/hyprflow/launcher-centered.rasi
+ * Blur: in hyprland config → layerrule = blur, rofi
+ */
+
+@import "launcher-base.rasi"
+
+entry {
+    placeholder: "Search…";
+}
+
+/* ── Right column: centered icon + name, no button ───────── */
+infobox {
+    padding:  28px;
+    spacing:  14px;
+    children: [ dummy-top, icon-current-entry, textbox-current-entry, dummy-bottom ];
+}
+
+dummy-top    { expand: true; }
+dummy-bottom { expand: true; }
+
+icon-current-entry {
+    expand:           false;
+    size:             140px;
+    horizontal-align: 0.5;
+}
+
+textbox-current-entry {
+    expand:           false;
+    horizontal-align: 0.5;
+    font:             "JetBrainsMono Nerd Font Bold 22";
+}

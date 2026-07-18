@@ -1,0 +1,15 @@
+/**
+ * Generates dotconfig/rofi/hyprflow/colors.rasi (see wallust.toml).
+ */
+* {{
+    foreground: {foreground};
+    muted:      {color8};
+    accent:     {color1};
+    active:     {color6};
+    bg-solid:   {background};
+
+    bg-window:  {background}61;
+    bg-input:   {background}8C;
+    sel-bg:     {color1}3D;
+    separator:  {foreground}14;
+}}

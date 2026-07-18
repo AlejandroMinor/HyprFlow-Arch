@@ -234,6 +234,9 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 - `modules/apple-magic-trackpad-battery` — trackpad battery script
 - `modules/sinkswitch` — audio output switching utility
 
+**Rofi theme (`dotconfig/rofi/hyprflow/`):**
+Custom launcher with real transparency and dynamic colors from `wallust`. Two variants share a common `launcher-base.rasi`: `launcher-centered.rasi` (icon + name centered, no button) is bound to `Super + Space` / `Super + D`; `launcher.rasi` (icon/name card with an "Open" button) is what the waybar launcher icon opens. Power menu is `wlogout` (`dotconfig/wlogout/`), triggered from the waybar power button — also wired to `wallust` for dynamic colors.
+
 ## Post-Installation
 
 ### Zsh + Oh My Zsh (optional)

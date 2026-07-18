@@ -1,0 +1,15 @@
+/**
+ * Static fallback palette. Wallust regenerates this file (see wallust.toml).
+ */
+* {
+    foreground: #F2E9F4;
+    muted:      #9B8FA6;
+    accent:     #FF2E88;   /* selection / prompt / button */
+    active:     #4DD8E6;   /* secondary accents */
+    bg-solid:   #140C1C;   /* text on accent */
+
+    bg-window:  #140C1C61;  /* 61 hex ≈ 38% alpha */
+    bg-input:   #0D0A128C;
+    sel-bg:     #FF2E883D;
+    separator:  #F2E9F414;
+}

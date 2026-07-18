@@ -7,7 +7,7 @@
 local mainMod     = "SUPER"
 local terminal    = "kitty"
 local fileManager = "kitty --class yazi-kitty -e yazi"
-local menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/launchers/type-3/style-1.rasi"
+local menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
 
 
 -- =======================================================

@@ -177,5 +177,8 @@ hl.window_rule({ match = { tag = "opaque" }, opaque = true })
 
 -- See https://wiki.hypr.land/Configuring/Basics/Window-Rules/#layer-rules
 
-hl.layer_rule({ name = "rofi-blur",  match = { namespace = "^(rofi)$" }, blur = true })
-hl.layer_rule({ name = "waybar-blur", match = { namespace = "waybar" },   blur = true, ignore_alpha = 0.01 })
+hl.layer_rule({ name = "rofi-blur",    match = { namespace = "^(rofi)$" }, blur = true, ignore_alpha = 0.01 })
+hl.layer_rule({ name = "waybar-blur",  match = { namespace = "waybar" },   blur = true, ignore_alpha = 0.01 })
+-- wlogout's GTK layer-shell surface reports namespace "logout_dialog", not "wlogout"
+-- (check with `hyprctl layers` if porting this rule to another GTK app)
+hl.layer_rule({ name = "wlogout-blur", match = { namespace = "logout_dialog" }, blur = true, ignore_alpha = 0.01 })

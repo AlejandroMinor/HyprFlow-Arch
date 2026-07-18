@@ -1,5 +1,5 @@
 -- gestures.lua
-local menu = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/launchers/type-3/style-1.rasi"
+local menu = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
 
 -- 3-finger swipe UP -> Open app launcher (Rofi)
 hl.gesture({ fingers = 3, direction = "up",         action = function() hl.exec_cmd('sh -c "pkill -x rofi || ' .. menu .. '"') end })

@@ -1,0 +1,7 @@
+@define-color bg_color     {background};
+@define-color fg_color     {foreground};
+@define-color border_color {color4};
+@define-color red          {color1};
+@define-color green        {color2};
+@define-color yellow       {color3};
+@define-color magenta      {color5};

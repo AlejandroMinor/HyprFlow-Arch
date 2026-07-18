@@ -1,0 +1,56 @@
+/**
+ * HyprFlow launcher — "1d" design (list + selected app card, with an
+ * "Open" button). Original variant, kept for reference; not bound to any
+ * keybind — launcher-centered.rasi is the default.
+ * Requires: rofi-wayland >= 1.7.4, JetBrainsMono Nerd Font
+ * Launch: rofi -show drun -theme ~/.config/rofi/hyprflow/launcher.rasi
+ * Blur: in hyprland config → layerrule = blur, rofi
+ */
+
+@import "launcher-base.rasi"
+
+entry {
+    placeholder: "Search…";
+}
+
+/* ── Right column: selected app card ─────────────────────── */
+infobox {
+    padding:  28px;
+    spacing:  14px;
+    children: [ icon-current-entry, textbox-current-entry, dummy, openrow ];
+}
+
+icon-current-entry {
+    expand:           false;
+    size:             96px;
+    horizontal-align: 0;
+}
+
+textbox-current-entry {
+    expand: false;
+    font:   "JetBrainsMono Nerd Font Bold 16";
+}
+
+dummy {
+    expand: true;
+}
+
+/* row so the button doesn't stretch to full width */
+openrow {
+    orientation: horizontal;
+    expand:      false;
+    children:    [ textbox-open, dummy2 ];
+}
+dummy2 { expand: true; }
+
+textbox-open {
+    expand:           false;
+    str:              " ↵ Open ";
+    padding:          8px 14px;
+    border-radius:    8px;
+    border:           1.5px;
+    border-color:     @foreground;
+    background-color: @accent;
+    text-color:       @foreground;
+    font:             "JetBrainsMono Nerd Font Bold 10";
+}

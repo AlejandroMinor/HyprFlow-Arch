@@ -1,0 +1,102 @@
+/**
+ * HyprFlow launcher — shared base (list + search column).
+ * Imported by launcher.rasi and launcher-centered.rasi, which each only
+ * add their own `entry { placeholder: ...; }` and `infobox` section.
+ */
+
+configuration {
+    modi:                "drun";
+    show-icons:          true;
+    display-drun:        "";
+    drun-display-format: "{name}";
+    font:                "JetBrainsMono Nerd Font 11";
+    hover-select:        true;
+    me-select-entry:     "MouseSecondary";
+    me-accept-entry:     "MousePrimary";
+}
+
+@import "colors.rasi"
+
+* {
+    background-color: transparent;
+    text-color:       @foreground;
+}
+
+window {
+    transparency:     "real";
+    location:         center;
+    width:            820px;
+    height:           480px;
+    border-radius:    14px;
+    background-color: @bg-window;
+    children:         [ mainbox ];
+}
+
+mainbox {
+    orientation: horizontal;
+    children:    [ listbox, infobox ];
+}
+
+/* ── Left column: search + compact list ────────────────── */
+listbox {
+    width:    42%;
+    padding:  16px;
+    spacing:  10px;
+    border:   0px 1px 0px 0px;
+    border-color: @separator;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    padding:          8px 12px;
+    border-radius:    8px;
+    background-color: @bg-input;
+    children:         [ textbox-prompt, entry ];
+    spacing:          8px;
+}
+
+textbox-prompt {
+    expand:         false;
+    str:            "";
+    text-color:     @accent;
+    vertical-align: 0.5;
+}
+
+entry {
+    placeholder-color: @muted;
+    cursor:            text;
+    vertical-align:    0.5;
+}
+
+listview {
+    columns:      1;
+    lines:        8;
+    spacing:      4px;
+    scrollbar:    false;
+    cycle:        true;
+    fixed-height: true;
+}
+
+element {
+    padding:       8px 10px;
+    spacing:       10px;
+    border-radius: 8px;
+    cursor:        pointer;
+}
+
+element selected.normal {
+    background-color: @sel-bg;
+    text-color:       @foreground;
+}
+
+element-icon {
+    size:           24px;
+    vertical-align: 0.5;
+    cursor:         inherit;
+}
+
+element-text {
+    vertical-align: 0.5;
+    cursor:         inherit;
+    text-color:     inherit;
+}

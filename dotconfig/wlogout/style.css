@@ -1,24 +1,15 @@
-/* Tokyo Night Theme para wlogout */
-
-/* Variables de color */
-@define-color bg_color rgba(26, 27, 38, 0.85);
-@define-color border_color #7aa2f7;
-@define-color hover_bg rgba(122, 162, 247, 0.2);
-@define-color red #f7768e;
-@define-color green #9ece6a;
-@define-color yellow #e0af68;
-@define-color magenta #bb9af7;
+@import url("colors.css");
 
 window {
-    background-color: rgba(15, 17, 26, 0.4);
+    background-color: alpha(@bg_color, 0.4);
 }
 
 button {
-    background-color: @bg_color;
-    color: #c0caf5;
+    background-color: alpha(@bg_color, 0.65);
+    color: @fg_color;
     border-style: solid;
     border-width: 2px;
-    border-color: rgba(122, 162, 247, 0.1);
+    border-color: alpha(@border_color, 0.1);
     border-radius: 20px;
     margin: 20px;
     background-repeat: no-repeat;
@@ -32,14 +23,13 @@ button {
 button:focus,
 button:active,
 button:hover {
-    background-color: @hover_bg;
+    background-color: alpha(@border_color, 0.2);
     border-color: @border_color;
     color: @border_color;
     outline-style: none;
-    box-shadow: 0 0 15px rgba(122, 162, 247, 0.5);
+    box-shadow: 0 0 15px alpha(@border_color, 0.5);
 }
 
-/* Iconos dinámicos - Rutas estándar de Arch Linux */
 #lock {
     background-image: image(url("/usr/share/wlogout/icons/lock.png"), url("/usr/local/share/wlogout/icons/lock.png"));
 }
@@ -64,7 +54,6 @@ button:hover {
     background-image: image(url("/usr/share/wlogout/icons/reboot.png"), url("/usr/local/share/wlogout/icons/reboot.png"));
 }
 
-/* Acentos por acción al hacer hover */
 #shutdown:hover {
     border-color: @red;
     color: @red;

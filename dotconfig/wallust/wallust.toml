@@ -6,6 +6,10 @@ rofi.template = "colors-rofi.rasi"
 rofi.target = "~/.cache/wallust/colors/colors-rofi.rasi"
 rofi.pywal = true
 
+rofi-hyprflow.template = "colors-rofi-hyprflow.rasi"
+rofi-hyprflow.target = "~/.config/rofi/hyprflow/colors.rasi"
+rofi-hyprflow.pywal = true
+
 hyprland.template = "colors-hyprland.lua"
 hyprland.target = "~/.config/hypr/colors.lua"
 hyprland.pywal = true
@@ -25,3 +29,7 @@ cava.pywal = true
 kitty.template = "colors-kitty.conf"
 kitty.target = "~/.config/kitty/current-theme.conf"
 kitty.pywal = true
+
+wlogout.template = "colors-wlogout.css"
+wlogout.target = "~/.config/wlogout/colors.css"
+wlogout.pywal = true

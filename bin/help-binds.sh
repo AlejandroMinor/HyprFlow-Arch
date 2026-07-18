@@ -5,7 +5,7 @@ source ~/.cache/wallust/colors/colors-rofi-sh.conf
 
 pkill -x rofi && exit 0
 
-THEME="$HOME/.config/rofi/launchers/type-2/style-1.rasi"
+THEME="$HOME/.config/rofi/hyprflow/list.rasi"
 
 hyprctl binds -j | jq -r '
   def bit($n): ((. / $n) | floor) % 2 == 1;
@@ -37,5 +37,4 @@ rofi -dmenu \
     -markup-rows \
     -p "Keybindings" \
     -theme "$THEME" \
-    -theme-str 'window {width: 900px;} listview {columns: 1;}' \
-    -theme-str "element selected.normal { border: 0px 0px 0px 4px; border-color: ${color2}; background-color: ${color0}; }"
+    -theme-str 'window {width: 900px;} listview {lines: 12;}'

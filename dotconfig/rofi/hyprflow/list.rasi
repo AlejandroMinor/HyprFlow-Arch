@@ -1,0 +1,85 @@
+/**
+ * HyprFlow — minimal single-column list/prompt.
+ * Used by help-binds.sh (keybindings list) and session-manager/save.sh
+ * (layout name prompt). Override width/listview via -theme-str per use.
+ */
+
+configuration {
+    show-icons:   false;
+    font:         "JetBrainsMono Nerd Font 11";
+    hover-select: true;
+}
+
+@import "colors.rasi"
+
+* {
+    background-color: transparent;
+    text-color:       @foreground;
+}
+
+window {
+    transparency:     "real";
+    location:         center;
+    width:            600px;
+    border-radius:    14px;
+    background-color: @bg-window;
+    padding:          20px;
+    children:         [ mainbox ];
+}
+
+mainbox {
+    spacing:  10px;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    padding:          8px 12px;
+    border-radius:    8px;
+    background-color: @bg-input;
+    children:         [ textbox-prompt, entry ];
+    spacing:          8px;
+}
+
+textbox-prompt {
+    expand:         false;
+    text-color:     @accent;
+    vertical-align: 0.5;
+}
+
+entry {
+    placeholder-color: @muted;
+    cursor:            text;
+    vertical-align:    0.5;
+}
+
+listview {
+    columns:      1;
+    lines:        8;
+    spacing:      4px;
+    scrollbar:    false;
+    cycle:        true;
+    fixed-height: false;
+}
+
+element {
+    padding:       8px 10px;
+    border-radius: 8px;
+    cursor:        pointer;
+}
+
+element-text {
+    vertical-align: 0.5;
+    cursor:         inherit;
+    text-color:     inherit;
+}
+
+element selected.normal {
+    background-color: @sel-bg;
+    border:           0px 0px 0px 4px;
+    border-color:     @accent;
+    text-color:       @foreground;
+}
+
+element normal.normal {
+    text-color: @foreground;
+}

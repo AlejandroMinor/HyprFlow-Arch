@@ -233,8 +233,10 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 - `modules/rofi-collection` — collection of Rofi themes, applets, and launchers
 - `modules/apple-magic-trackpad-battery` — trackpad battery script
 - `modules/sinkswitch` — audio output switching utility
+- `modules/waybar-claude-usage` — Claude Code rate-limit indicator for Waybar (`custom/claude-usage`); requires the Claude Code CLI logged in. Optional — to remove it, delete `custom/claude-usage` from `bars.json`'s `modules-right` (without the submodule, the module just shows nothing).
 
-**Rofi theme (`dotconfig/rofi/hyprflow/`):**
+### Rofi theme (`dotconfig/rofi/hyprflow/`)
+
 Custom launcher with real transparency and dynamic colors from `wallust`. Two variants share a common `launcher-base.rasi`: `launcher-centered.rasi` (icon + name centered, no button) is bound to `Super + Space` / `Super + D`; `launcher.rasi` (icon/name card with an "Open" button) is what the waybar launcher icon opens. Power menu is `wlogout` (`dotconfig/wlogout/`), triggered from the waybar power button — also wired to `wallust` for dynamic colors.
 
 ## Post-Installation
@@ -303,7 +305,7 @@ theme-picker.sh
 Or manually restore the default theme:
 
 ```bash
-wallust cs ~/HyprFlow-Arch/wallust/themes/minor-default.json
+wallust cs ~/HyprFlow-Arch/dotconfig/wallust/themes/minor-default.json
 ~/HyprFlow-Arch/bin/wallust-theme-manager.sh --restore-default --notify
 ```
 

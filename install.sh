@@ -149,6 +149,32 @@ reload_hyprland() {
     hyprctl reload
 }
 
+restart_waybar() {
+    killall waybar 2>/dev/null || true
+    # waybar spawns cava but never reaps it.
+    killall cava 2>/dev/null || true
+    sleep 0.5
+
+    # Never 'setsid waybar &': that inherits this script's environment, which
+    # may carry a sandbox's GTK_PATH and kill waybar on startup. hyprctl runs it
+    # from the compositor instead. With hyprlang-lua, 'exec waybar' parses as
+    # Lua and fails, hence the lua form first.
+    if command -v hyprctl >/dev/null 2>&1; then
+        if hyprctl dispatch 'hl.dsp.exec_cmd("waybar")' 2>/dev/null | grep -q '^ok'; then
+            return 0
+        fi
+        if hyprctl dispatch exec waybar 2>/dev/null | grep -q '^ok'; then
+            return 0
+        fi
+    fi
+
+    # No Hyprland to hand: at least strip the sandbox variables.
+    env -u GTK_PATH -u LOCPATH -u GTK_EXE_PREFIX -u GDK_PIXBUF_MODULEDIR \
+        -u GDK_PIXBUF_MODULE_FILE -u GIO_MODULE_DIR -u GTK_IM_MODULE_FILE \
+        -u GSETTINGS_SCHEMA_DIR -u SNAP -u SNAP_NAME -u SNAP_LIBRARY_PATH \
+        setsid waybar >/dev/null 2>&1 < /dev/null &
+}
+
 # ─────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────
@@ -168,8 +194,6 @@ fi
 
 reload_hyprland
 setup_monitors
-killall waybar 2>/dev/null || true
-sleep 0.5
-setsid waybar >/dev/null 2>&1 < /dev/null &
+restart_waybar
 
 printf "\n\033[1;32m󰄬 Installation complete!\033[0m\n"

@@ -14,7 +14,7 @@ hl.gesture({ fingers = 3, direction = "down",        action = "special", workspa
 hl.gesture({ 
     fingers = 4, 
     direction = "up",          
-    action = function() hl.plugin.hymission.toggle() end 
+    action = function() if hl.plugin.hymission then hl.plugin.hymission.toggle() end end
 })
 
 -- 4-finger swipe DOWN -> Swap with master

@@ -70,7 +70,7 @@ A typical desktop layout left to right:
 
 **Official repositories:**
 ```bash
-sudo pacman -S cpio cmake fzf rtkit hyprland hyprlock waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq imagemagick pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
+sudo pacman -S cpio cmake fzf rtkit hyprland hyprlock waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq imagemagick gtk4 gtk4-layer-shell python-gobject pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
 ```
 
 **AUR (requires `yay` or another helper):**
@@ -227,6 +227,7 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 |--------|-------------|
 | `wallust-theme-manager.sh` | Generates dynamic color palettes and applies themes |
 | `hyprlock-flow.sh` | Locks the screen, rebuilding the layout for the current monitors first (see [Lockscreen](#lockscreen)) |
+| `master-pick.py` | Numbers every window in the workspace and swaps the one you press to master (`Super + Shift + Return`) |
 | `theme-picker.sh` | Interactive theme selector with pre-designed color palettes |
 
 **Monitors & Layout**

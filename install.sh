@@ -17,7 +17,7 @@ for arg in "$@"; do
     esac
 done
 
-TOTAL_STEPS=8
+TOTAL_STEPS=9
 [ "$SKIP_THEME" = true ] && TOTAL_STEPS=$((TOTAL_STEPS - 1))
 CURRENT_STEP=0
 
@@ -31,6 +31,8 @@ progress() {
     local percent=$(( CURRENT_STEP * 100 / TOTAL_STEPS ))
     local width=36
     local filled=$(( CURRENT_STEP * width / TOTAL_STEPS ))
+    [ "$percent" -gt 100 ] && percent=100
+    [ "$filled" -gt "$width" ] && filled=$width
     local empty=$(( width - filled ))
     local filled_str="" empty_str=""
     for ((i=0; i<filled; i++)); do filled_str+="█"; done
@@ -42,6 +44,30 @@ progress() {
 # ─────────────────────────────────────────
 # FUNCTIONS
 # ─────────────────────────────────────────
+
+# A clone without --recursive leaves modules/* empty and the setup steps fail
+# halfway through with a raw cp error. Warn up front instead.
+check_submodules() {
+    local gitmodules="$REPO_PATH/.gitmodules"
+    [ -f "$gitmodules" ] || return 0
+
+    local missing=() path
+    while IFS= read -r path; do
+        [ -n "$path" ] || continue
+        # .git is the checkout marker; the folder itself exists either way and
+        # setup steps write into it.
+        [ -e "$REPO_PATH/$path/.git" ] || missing+=("$path")
+    done < <(awk -F= '/^[[:space:]]*path[[:space:]]*=/ {
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2
+    }' "$gitmodules")
+
+    [ ${#missing[@]} -eq 0 ] && return 0
+
+    local list
+    list="$(printf '%s, ' "${missing[@]}")"
+    printf "\n\033[1;33m󰀦 Missing submodules:\033[0m %s\n" "${list%, }"
+    printf "   run: \033[1mgit submodule update --init --recursive\033[0m\n"
+}
 
 set_permissions() {
     progress "PERMISSIONS"
@@ -220,6 +246,8 @@ restart_waybar() {
 
 echo "󰣇 Installing HyprFlow-Arch..."
 mkdir -p "$BIN_FILES_PATH" "$CONFIG_DEST" "$HOME/Pictures/Screenshots"
+
+check_submodules
 
 set_permissions
 copy_configs

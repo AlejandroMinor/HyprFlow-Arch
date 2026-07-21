@@ -1,27 +1,21 @@
 #!/bin/bash
 # help-binds.sh — Keybinds de Hyprland en rofi
+#
+# Lee las descripciones directamente de keybindings.lua (vía help-binds-parse.py)
+# en vez de usar `hyprctl binds -j`: en Hyprland 0.56 esa salida es JSON
+# inválido para cualquier bind registrado vía la API nativa de Lua
+# (dispatcher "__lua"), que es como está todo este config desde la
+# migración a Lua.
 
 source ~/.cache/wallust/colors/colors-rofi-sh.conf
 
 pkill -x rofi && exit 0
 
 THEME="$HOME/.config/rofi/hyprflow/list.rasi"
+SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+KEYBINDS_LUA="$SCRIPT_DIR/../dotconfig/hypr/keybindings.lua"
 
-hyprctl binds -j | jq -r '
-  def bit($n): ((. / $n) | floor) % 2 == 1;
-  [ .[] | select(.description != "") ]
-  | sort_by(.submap)
-  | .[]
-  | (.modmask | [
-      (if bit(64) then "SUPER" else empty end),
-      (if bit(8)  then "ALT"   else empty end),
-      (if bit(4)  then "CTRL"  else empty end),
-      (if bit(1)  then "SHIFT" else empty end)
-    ] | join(" + ")) as $mods
-  | (if $mods == "" then .key else $mods + " + " + .key end)
-    + "\t" + .description
-    + "\t" + .submap
-' | \
+python3 "$SCRIPT_DIR/help-binds-parse.py" "$KEYBINDS_LUA" | \
 awk -F'\t' -v accent="$color15" -v muted="$color8" '
 function esc(s) {
     gsub(/&/, "\\&amp;", s); gsub(/</, "\\&lt;", s); gsub(/>/, "\\&gt;", s)

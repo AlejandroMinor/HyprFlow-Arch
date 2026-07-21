@@ -264,11 +264,11 @@ hl.config({
 hl.config({
     plugin = {
         hyprfocus = {
-            mode                 = "slide",
-            fade_opacity         = 0.99,
-            bounce_strength      = 0.99,
-            slide_height         = 8,
-            only_on_monitor_change = true,
+            keyboard_focus_animation = "slide",
+            mouse_focus_animation    = "slide",
+            fade_opacity             = 0.99,
+            slide_height             = 8,
+            only_on_monitor_change   = true,
         },
 
         hymission = {

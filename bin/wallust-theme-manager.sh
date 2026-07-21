@@ -53,6 +53,14 @@ fi
 hyprctl reload > /dev/null
 killall -SIGUSR2 waybar 2>/dev/null
 
+# Rebuild the lockscreen backdrop now rather than on the next lock. Blurring the
+# band takes a couple of seconds, so this runs detached and the wallpaper change
+# stays instant -- but it waits for the build inside that detached process, so
+# the config it writes points at the finished backdrop rather than the raw
+# wallpaper.
+LOCKSCREEN_GEOMETRY="$HOME_DIR/.config/hypr/hyprlock/geometry.sh"
+[ -x "$LOCKSCREEN_GEOMETRY" ] && setsid "$LOCKSCREEN_GEOMETRY" --wait-backdrop >/dev/null 2>&1 &
+
 if [ "$NOTIFY" = true ]; then
     notify-send -i "color-management" "Theme Manager" "Sync complete."
 fi

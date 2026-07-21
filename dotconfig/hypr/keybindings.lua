@@ -14,7 +14,7 @@ local menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/r
 --  SYSTEM & HELP
 -- =======================================================
 
-hl.bind(mainMod .. " + X",         hl.plugin.hymission.toggle,                                   { description = "Mission Control (Hymission)" })
+hl.bind(mainMod .. " + X",         function() if hl.plugin.hymission then hl.plugin.hymission.toggle() end end, { description = "Mission Control (Hymission)" })
 hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/bin/help-binds.sh"),                { description = "View Keybind Guide" })
 hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal),                                    { description = "Open Terminal (Kitty)" })
 hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("[float; size 900 600; center] kitty"),       { description = "Open Floating Kitty" })
@@ -23,6 +23,7 @@ hl.bind(mainMod .. " + SPACE",         hl.dsp.exec_cmd('sh -c "pkill -x rofi || 
 hl.bind(mainMod .. " + E",         hl.dsp.exec_cmd(fileManager),                                 { description = "Open File Manager" })
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("[float; size 1000 700; center] " .. fileManager), { description = "Open Floating File Manager" })
 hl.bind(mainMod .. " + Q",         hl.dsp.window.close(),                                        { description = "Close Active Window" })
+hl.bind(mainMod .. " + L",         hl.dsp.exec_cmd("~/.local/bin/hyprlock-flow.sh"),             { description = "Lock Screen" })
 
 
 -- =======================================================
@@ -286,6 +287,7 @@ hl.bind(mainMod .. " + SHIFT + mouse_up",   set_zoom(-0.1), { repeating = true }
 -- =======================================================
 
 hl.bind(mainMod .. " + Return",    hl.dsp.layout("swapwithmaster master"), { description = "Swap with Master" })
+hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("master-pick.py --notify"), { description = "Pick Window to Send to Master" })
 hl.bind("mouse:277",               hl.dsp.layout("swapwithmaster master"))
 hl.bind(mainMod .. " + S",         hl.dsp.layout("focusmaster auto"),      { description = "Focus Master" })
 hl.bind(mainMod .. " + U",         hl.dsp.layout("orientationnext"),       { description = "Rotate Master" })

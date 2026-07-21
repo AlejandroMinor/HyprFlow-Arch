@@ -30,6 +30,7 @@ Complete **Hyprland + Arch Linux** configuration optimized for technical product
 - [Hardware & Peripherals](#hardware--peripherals)
 - [Installation](#installation)
 - [Monitor Setup](#monitor-setup)
+- [Lockscreen](#lockscreen)
 - [Included Scripts](#included-scripts)
 - [Post-Installation](#post-installation)
 - [Hyprland Plugins](#hyprland-plugins)
@@ -69,7 +70,7 @@ A typical desktop layout left to right:
 
 **Official repositories:**
 ```bash
-sudo pacman -S cpio cmake fzf rtkit hyprland hyprlock waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
+sudo pacman -S cpio cmake fzf rtkit hyprland hyprlock waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq imagemagick gtk4 gtk4-layer-shell python-gobject pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
 ```
 
 **AUR (requires `yay` or another helper):**
@@ -189,6 +190,33 @@ By default `install.sh` runs `monitors.sh setup` (the wizard). Use
 `install.sh --skip-monitors` for an unattended install — monitors are still configured
 from the saved profile / default, just without prompting.
 
+## Lockscreen
+
+`hyprlock`, bound to `Super + L` and to the wlogout Lock button: oversized clock
+bottom-left, a glass bar with the avatar and password field, and a now-playing
+card bottom-right. Colours follow `wallust`. Battery and keyboard layout appear
+only when they are worth showing.
+
+Track details are shown **only for dedicated music apps** — a lockscreen is
+visible to passers-by, so everything else reports just its name and icon.
+Playback is read-only and driven by the media keys, which keep working under the
+lock via the `locked = true` binds in `keybindings.lua`.
+
+### Layout
+
+`hyprlock.conf` holds no coordinates. `dotconfig/hypr/hyprlock/geometry.sh` runs
+before each lock and writes them, so the layout follows whatever monitor is
+attached. Edit that script, never the generated `hyprlock-geometry.conf` — its
+header documents the rules.
+
+Content goes on the monitor holding workspace 1; the rest are blurred out.
+Set `HYPRLOCK_MONITOR` in Hyprland's environment to pin a different one.
+
+The avatar is `~/.config/hypr/avatar.png` — the installer seeds it with
+`assets/avatar.png`. Replace it with any square image and it is never
+overwritten; delete it and the Arch glyph is drawn in the current palette
+instead.
+
 ## Included Scripts
 
 All scripts in `bin/` are available globally in `~/.local/bin` after installation.
@@ -198,6 +226,8 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 | Script | Description |
 |--------|-------------|
 | `wallust-theme-manager.sh` | Generates dynamic color palettes and applies themes |
+| `hyprlock-flow.sh` | Locks the screen, rebuilding the layout for the current monitors first (see [Lockscreen](#lockscreen)) |
+| `master-pick.py` | Numbers every window in the workspace and swaps the one you press to master (`Super + Shift + Return`) |
 | `theme-picker.sh` | Interactive theme selector with pre-designed color palettes |
 
 **Monitors & Layout**

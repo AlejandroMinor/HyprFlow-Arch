@@ -178,7 +178,9 @@
         "exec": "claude-usage.sh",
         "return-type": "json",
         "interval": 300,
-        "tooltip": true
+        "tooltip": true,
+        "signal": 9,
+        "on-click": "claude-usage.sh --refresh; pkill -RTMIN+9 waybar"
     },
 
     "mpris": {

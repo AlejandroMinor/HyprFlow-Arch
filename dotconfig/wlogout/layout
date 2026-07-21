@@ -1,6 +1,6 @@
 {
     "label" : "lock",
-    "action" : "hyprlock",
+    "action" : "~/.local/bin/hyprlock-flow.sh",
     "text" : "Lock",
     "keybind" : "l"
 }

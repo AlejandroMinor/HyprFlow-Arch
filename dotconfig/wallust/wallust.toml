@@ -33,3 +33,7 @@ kitty.pywal = true
 wlogout.template = "colors-wlogout.css"
 wlogout.target = "~/.config/wlogout/colors.css"
 wlogout.pywal = true
+
+hyprlock.template = "hyprlock-theme.conf"
+hyprlock.target = "~/.config/hypr/hyprlock-theme.conf"
+hyprlock.pywal = true

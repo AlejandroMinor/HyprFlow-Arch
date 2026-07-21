@@ -17,7 +17,7 @@ for arg in "$@"; do
     esac
 done
 
-TOTAL_STEPS=7
+TOTAL_STEPS=8
 [ "$SKIP_THEME" = true ] && TOTAL_STEPS=$((TOTAL_STEPS - 1))
 CURRENT_STEP=0
 
@@ -110,6 +110,21 @@ setup_rofi() {
     if [ -d "$rofi_custom" ]; then
         cp -rf "$rofi_custom"/* "$CONFIG_DEST/rofi/"
     fi
+}
+
+setup_runcat() {
+    progress "RUNCAT"
+    # config.json lives inside the submodule, so edits there don't survive a
+    # `git submodule update` or fresh clone. Keep the editable copy here and
+    # reapply it on every install.
+    echo "󰄛 Applying runcat-text config..."
+    cp -f "$REPO_PATH/dotconfig/waybar/runcat-config.json" "$REPO_PATH/modules/runcat-text/config.json"
+
+    echo "󰛖 Installing runcat-text font..."
+    local font_dir="$HOME/.local/share/fonts"
+    mkdir -p "$font_dir"
+    cp -f "$REPO_PATH/modules/runcat-text/runcat.ttf" "$font_dir/"
+    fc-cache -f "$font_dir"
 }
 
 create_symlinks() {
@@ -209,6 +224,7 @@ mkdir -p "$BIN_FILES_PATH" "$CONFIG_DEST" "$HOME/Pictures/Screenshots"
 set_permissions
 copy_configs
 setup_rofi
+setup_runcat
 create_symlinks
 
 if [ "$SKIP_THEME" = false ]; then

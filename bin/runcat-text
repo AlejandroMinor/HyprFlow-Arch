@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# main.py looks up config.json next to its own resolved file path, which
+# breaks if it's exec'd through this script's unresolved symlink in
+# ~/.local/bin, so resolve the real path before handing it to python.
+dir="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+exec python3 "$dir/../modules/runcat-text/main.py"

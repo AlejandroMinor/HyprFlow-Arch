@@ -70,7 +70,7 @@ A typical desktop layout left to right:
 
 **Official repositories:**
 ```bash
-sudo pacman -S cpio cmake fzf rtkit hyprland hyprlock waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq imagemagick gtk4 gtk4-layer-shell python-gobject pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
+sudo pacman -S cpio cmake fzf rtkit hyprland hyprlock waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq imagemagick gtk4 gtk4-layer-shell python python-gobject pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
 ```
 
 **AUR (requires `yay` or another helper):**
@@ -264,6 +264,7 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 - `modules/apple-magic-trackpad-battery` — trackpad battery script
 - `modules/sinkswitch` — audio output switching utility
 - `modules/waybar-claude-usage` — Claude Code rate-limit indicator for Waybar (`custom/claude-usage`); requires the Claude Code CLI logged in. Optional — to remove it, delete `custom/claude-usage` from `bars.json`'s `modules-right` (without the submodule, the module just shows nothing).
+- `modules/runcat-text` — running cat animation for Waybar that speeds up with CPU usage, used as the `custom/hardware-wrap` icon that opens the hardware drawer (cpu/temperature/memory/disk/network) in `group/hardware`; requires `python`. Its tunable settings (icons, CPU thresholds, FPS) live in `dotconfig/waybar/runcat-config.json` — `install.sh` copies it over the submodule's own `config.json` on every install so edits there aren't lost to a `git submodule update` or a fresh clone. `install.sh` also installs `runcat.ttf` to `~/.local/share/fonts`.
 
 ### Rofi theme (`dotconfig/rofi/hyprflow/`)
 

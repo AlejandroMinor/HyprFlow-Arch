@@ -10,3 +10,6 @@
 [submodule "modules/waybar-claude-usage"]
 	path = modules/waybar-claude-usage
 	url = https://github.com/AlejandroMinor/waybar-claude-usage.git
+[submodule "modules/runcat-text"]
+	path = modules/runcat-text
+	url = https://github.com/bzglve/runcat-text

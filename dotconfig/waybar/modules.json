@@ -278,7 +278,8 @@
 },
 
 "custom/hardware-wrap": {
-	"format": "󰌢 ",
+	"exec": "runcat-text",
+	"return-type": "json",
 	"tooltip": false
 },
 

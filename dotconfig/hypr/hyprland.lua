@@ -317,7 +317,7 @@ hl.config({
             hide_bar_animation_alpha_end       = 0,
             bar_single_mission_control         = 0,
             show_focus_indicator               = 0,
-
+            close_button_enabled               = 1,
             debug_logs                         = 0,
             debug_surface_logs                 = 0,
         },

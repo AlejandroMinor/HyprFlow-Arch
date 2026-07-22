@@ -146,10 +146,11 @@ setup_runcat() {
     echo "󰄛 Applying runcat-text config..."
     cp -f "$REPO_PATH/dotconfig/waybar/runcat-config.json" "$REPO_PATH/modules/runcat-text/config.json"
 
-    echo "󰛖 Installing runcat-text font..."
+    echo "󰛖 Installing runcat-text fonts..."
     local font_dir="$HOME/.local/share/fonts"
     mkdir -p "$font_dir"
     cp -f "$REPO_PATH/modules/runcat-text/runcat.ttf" "$font_dir/"
+    cp -f "$REPO_PATH/dotconfig/waybar/runcat-chicken.ttf" "$font_dir/"
     fc-cache -f "$font_dir"
 }
 

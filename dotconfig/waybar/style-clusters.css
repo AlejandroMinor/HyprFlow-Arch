@@ -1,3 +1,5 @@
+@import 'runcat-runner.css';
+
 /* Neon Clusters: glowing .modules-left/center/right boxes. */
 
 * {
@@ -115,7 +117,6 @@ window#waybar.minimal #workspaces {
 #network             { color: @color5; }
 #pulseaudio          { color: @color2; }
 #battery             { color: @color2; }
-#custom-hardware-wrap { font-family: 'runcat'; font-size: 18px; color: @color3; }
 #custom-theme-selector { color: @color2; }
 #custom-system-tools-wrap { color: @color4; padding: 0 9px 0 6px; }
 #language { color: @color5; }
@@ -125,10 +126,6 @@ window#waybar.minimal #workspaces {
 #custom-claude-usage.high     { color: #ff9e64; }
 #custom-claude-usage.critical { color: #f7768e; animation: blink 0.7s linear infinite alternate; }
 #custom-claude-usage.error    { color: alpha(@foreground, 0.4); }
-
-#custom-hardware-wrap.low    { color: @color4; }
-#custom-hardware-wrap.medium { color: #e0af68; }
-#custom-hardware-wrap.high   { color: #f7768e; }
 
 #tray { padding: 0 6px; }
 

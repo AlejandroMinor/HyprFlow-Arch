@@ -1,3 +1,5 @@
+@import 'runcat-runner.css';
+
 /* Minor — original style */
 
 * {
@@ -238,7 +240,6 @@ window#waybar.hidden {
     color: @color4;
 }
 
-#custom-hardware-wrap  { font-family: 'runcat'; font-size: 18px; color: @color3; }
 #custom-theme-selector { color: @color2; }
 #language              { color: @color5; }
 
@@ -247,10 +248,6 @@ window#waybar.hidden {
 #custom-claude-usage.high     { color: #ff9e64; }
 #custom-claude-usage.critical { color: #f7768e; animation: blink 0.5s linear infinite alternate; }
 #custom-claude-usage.error    { color: alpha(@foreground, 0.4); }
-
-#custom-hardware-wrap.low    { color: @color4; }
-#custom-hardware-wrap.medium { color: #e0af68; }
-#custom-hardware-wrap.high   { color: #f7768e; }
 
 #submap {
     color: @color6;

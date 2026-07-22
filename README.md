@@ -229,6 +229,7 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 | `hyprlock-flow.sh` | Locks the screen, rebuilding the layout for the current monitors first (see [Lockscreen](#lockscreen)) |
 | `master-pick.py` | Numbers every window in the workspace and swaps the one you press to master (`Super + Shift + Return`) |
 | `theme-picker.sh` | Interactive theme selector with pre-designed color palettes |
+| `pet-picker.sh` | Interactive picker to switch the waybar runcat runner (cat / chicken) |
 
 **Monitors & Layout**
 
@@ -264,7 +265,26 @@ All scripts in `bin/` are available globally in `~/.local/bin` after installatio
 - `modules/apple-magic-trackpad-battery` — trackpad battery script
 - `modules/sinkswitch` — audio output switching utility
 - `modules/waybar-claude-usage` — Claude Code rate-limit indicator for Waybar (`custom/claude-usage`); requires the Claude Code CLI logged in. Optional — to remove it, delete `custom/claude-usage` from `bars.json`'s `modules-right` (without the submodule, the module just shows nothing).
-- `modules/runcat-text` — running cat animation for Waybar that speeds up with CPU usage, used as the `custom/hardware-wrap` icon that opens the hardware drawer (cpu/temperature/memory/disk/network) in `group/hardware`; requires `python`. Its tunable settings (icons, CPU thresholds, FPS) live in `dotconfig/waybar/runcat-config.json` — `install.sh` copies it over the submodule's own `config.json` on every install so edits there aren't lost to a `git submodule update` or a fresh clone. `install.sh` also installs `runcat.ttf` to `~/.local/share/fonts`.
+- `modules/runcat-text` — running cat animation for Waybar that speeds up with CPU usage, used as the `custom/hardware-wrap` icon that opens the hardware drawer (cpu/temperature/memory/disk/network) in `group/hardware`; requires `python`. Its tunable settings (icons, CPU thresholds, FPS) live in `dotconfig/waybar/runcat-config.json` — `install.sh` copies it over the submodule's own `config.json` on every install so edits there aren't lost to a `git submodule update` or a fresh clone. `install.sh` also installs the runner fonts (`runcat.ttf` and `runcat-chicken.ttf`) to `~/.local/share/fonts`.
+
+#### Switching the runner (cat / chicken)
+
+Two runner fonts ship in the repo, both installed by `install.sh`:
+
+- **Cat** — `modules/runcat-text/runcat.ttf` (upstream default), font family `runcat`
+- **Chicken** — `dotconfig/waybar/runcat-chicken.ttf` (traced from the [RunCat Neo runner gallery](https://runcat-dev.github.io/RunnerGallery/)), font family `runcat-chicken`
+
+Both use the same icon codepoints (`U+E900`–`U+E904`), so `dotconfig/waybar/runcat-config.json` doesn't change between them. All 4 `style-*.css` variants `@import` a single shared file, `dotconfig/waybar/runcat-runner.css` — that's the only file that decides which one is active. Run `pet-picker.sh` (an `fzf` picker, same UX as `theme-picker.sh`) to switch interactively, or edit that file directly:
+
+```css
+/* Cat */
+#custom-hardware-wrap { font-family: 'runcat'; font-size: 24px; color: @color3; }
+```
+
+```css
+/* Chicken */
+#custom-hardware-wrap { font-family: 'runcat-chicken'; font-size: 18px; color: @color3; }
+```
 
 ### Rofi theme (`dotconfig/rofi/hyprflow/`)
 

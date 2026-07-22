@@ -1,0 +1,6 @@
+/* Runner used by #custom-hardware-wrap. Switch here, applies to every style-*.css. */
+#custom-hardware-wrap        { font-family: 'runcat'; font-size: 24px; color: @color3; }
+/* #custom-hardware-wrap        { font-family: 'runcat-chicken'; font-size: 18px; color: @color3; } */
+#custom-hardware-wrap.low    { color: @color4; }
+#custom-hardware-wrap.medium { color: #e0af68; }
+#custom-hardware-wrap.high   { color: #f7768e; }

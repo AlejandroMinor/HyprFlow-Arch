@@ -51,7 +51,9 @@ elif [ "$ACTION" == "default" ]; then
 fi
 
 hyprctl reload > /dev/null
-killall -SIGUSR2 waybar 2>/dev/null
+sleep 0.5
+killall waybar 2>/dev/null
+waybar &
 
 # Rebuild the lockscreen backdrop now rather than on the next lock. Blurring the
 # band takes a couple of seconds, so this runs detached and the wallpaper change

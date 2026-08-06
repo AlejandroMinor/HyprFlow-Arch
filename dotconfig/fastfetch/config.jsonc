@@ -2,9 +2,10 @@
     "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
     "logo": {
         "type": "file",
-        "source": "~/.config/fastfetch/skull.txt",
+        "source": "~/.config/fastfetch/ascii_art/skull.txt",
         "color": {
-            "1": "magenta"
+            "1": "magenta",
+            "2": "magenta"
         },
         "padding": {
             "top": 2,
@@ -26,107 +27,103 @@
         },
         {
             "type": "os",
-            "key": "╭─   OS"
+            "key": "   OS"
         },
         {
             "type": "host",
-            "key": "├─   Host"
+            "key": "   Host"
         },
         {
             "type": "kernel",
-            "key": "├─   Kernel"
+            "key": "   Kernel"
         },
         {
             "type": "uptime",
-            "key": "├─   Uptime"
+            "key": "   Uptime"
         },
         {
             "type": "packages",
-            "key": "╰─   Packages"
+            "key": "   Packages"
         },
         {
             "type": "shell",
-            "key": "╭─   Shell"
+            "key": "   Shell"
         },
         {
             "type": "wm",
-            "key": "├─   WM"
+            "key": "   WM"
         },
         {
             "type": "terminal",
-            "key": "├─   Terminal"
+            "key": "   Terminal"
         },
         {
             "type": "terminalfont",
-            "key": "├─   Term Font"
+            "key": "   Term Font"
         },
         {
             "type": "display",
-            "key": "├─   Display"
+            "key": "   Display"
         },
         {
             "type": "locale",
-            "key": "╰─   Locale"
+            "key": "   Locale"
         },
         {
             "type": "theme",
-            "key": "╭─   Theme"
+            "key": "   Theme"
         },
         {
             "type": "icons",
-            "key": "├─   Icons"
+            "key": "   Icons"
         },
         {
             "type": "font",
-            "key": "├─   Font"
+            "key": "   Font"
         },
         {
             "type": "cursor",
-            "key": "╰─   Cursor"
+            "key": "   Cursor"
         },
         {
             "type": "cpu",
-            "key": "╭─   CPU"
+            "key": "   CPU"
         },
         {
             "type": "gpu",
-            "key": "├─   GPU"
+            "key": "   GPU"
         },
         {
             "type": "memory",
-            "key": "├─   Memory"
+            "key": "   Memory"
         },
         {
             "type": "swap",
-            "key": "├─   Swap"
+            "key": "   Swap"
         },
         {
             "type": "disk",
-            "key": "├─   Disk"
+            "key": "   Disk"
         },
         {
             "type": "sound",
-            "key": "├─   Sound"
+            "key": "   Sound"
         },
         {
             "type": "bluetooth",
-            "key": "├─   Bluetooth"
+            "key": "   Bluetooth"
         },
         {
             "type": "battery",
-            "key": "╰─   Battery"
+            "key": "   Battery"
         },
         {
             "type": "localip",
-            "key": "╭─   Local IP"
+            "key": "   Local IP"
         },
         {
             "type": "wifi",
-            "key": "├─   WiFi"
-        },
-        {
-            "type": "dns",
-            "key": "╰─   DNS"
+            "key": "   WiFi"
         },
         "break",
         {

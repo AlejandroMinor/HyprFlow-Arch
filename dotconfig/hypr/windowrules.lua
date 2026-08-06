@@ -119,7 +119,7 @@ hl.window_rule({
 hl.window_rule({
     name    = "kitty-transparent",
     match   = { class = "^(kitty)$" },
-    opacity = "0.7 override 0.7 override",
+    opacity = "0.85 override 0.85 override",
 })
 
 hl.window_rule({

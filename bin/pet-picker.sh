@@ -54,7 +54,11 @@ main() {
     fi
 
     if apply_runner "$font_family"; then
-        killall -SIGUSR2 waybar 2>/dev/null || true
+        # SIGUSR2 only refreshes module data, not the CSS stylesheet (see
+        # wallust-theme-manager.sh) — font-family needs a full restart.
+        sleep 0.5
+        killall waybar 2>/dev/null
+        waybar &
         notify-send -i "preferences-desktop-theme" "Pet Picker" "Applied runner: $name"
     else
         notify-send -i "dialog-error" "Pet Picker" "Failed to apply runner: $name"

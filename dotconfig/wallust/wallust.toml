@@ -1,5 +1,6 @@
-[colors]
-palette = "harddark"
+color_space = "salience"
+palette = "saliencedark16"
+check_contrast = true
 
 [templates]
 rofi.template = "colors-rofi.rasi"

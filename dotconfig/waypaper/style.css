@@ -1,5 +1,5 @@
 window {
-    background-color: transparent;
+    background-image: linear-gradient(180deg, #1A1B26 0%, #16161E 100%);
     color: #C0CAF5;
     font-family: "JetBrainsMono Nerd Font";
     font-size: 13px;
@@ -11,23 +11,29 @@ box > button {
     color: #C0CAF5;
     border: 1px solid rgba(192, 202, 245, 0.08);
     border-radius: 8px;
-    padding: 5px 14px;
+    padding: 6px 14px;
+    min-height: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     transition: all 0.18s ease;
 }
 
 box > button:hover {
     background-image: linear-gradient(180deg, rgba(84, 92, 126, 0.8) 0%, rgba(65, 72, 104, 0.85) 100%);
-    color: #F1F1F1;
-    border-color: rgba(122, 162, 247, 0.4);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.3);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45),
-                0 0 0 1px rgba(122, 162, 247, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 box > button:active {
     background-image: linear-gradient(180deg, rgba(26, 27, 38, 0.9) 0%, rgba(55, 60, 88, 0.85) 100%);
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+box > button:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.35);
 }
 
 /* ── Search entry ─────────────────────────────────────────── */
@@ -36,57 +42,32 @@ entry {
     color: #C0CAF5;
     border: 1px solid rgba(192, 202, 245, 0.1);
     border-radius: 8px;
-    padding: 5px 12px;
+    padding: 6px 12px;
+    min-height: 20px;
+    min-width: 200px;
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
-    caret-color: #7AA2F7;
+    caret-color: #FFFFFF;
 }
 
 entry:focus {
     background-color: rgba(26, 27, 38, 0.85);
-    border-color: rgba(122, 162, 247, 0.6);
+    border-color: rgba(255, 255, 255, 0.45);
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.25),
-                0 0 0 2px rgba(122, 162, 247, 0.12),
-                0 0 14px rgba(122, 162, 247, 0.07);
-    color: #F1F1F1;
+                0 0 0 2px rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    outline: none;
+}
+
+entry selection {
+    background-color: rgba(255, 255, 255, 0.22);
+    color: #FFFFFF;
+}
+
+box > entry {
+    min-width: 62px;
 }
 
 /* ── Wallpaper grid ───────────────────────────────────────── */
-grid {
-    background: transparent;
-    padding: 2px;
-}
-
-grid button {
-    background: transparent;
-    border: 1px solid rgba(192, 202, 245, 0.06);
-    border-radius: 0;
-    padding: 0;
-    margin: 1px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-    transition: all 0.18s ease;
-}
-
-grid button:hover {
-    border-color: rgba(122, 162, 247, 0.55);
-    box-shadow: 0 0 0 1px rgba(122, 162, 247, 0.2),
-                0 8px 24px rgba(0, 0, 0, 0.6);
-}
-
-grid button image {
-    border-radius: 0;
-}
-
-/* ── Selected wallpaper ──────────────────────────────────── */
-.highlighted-button {
-    border: 2px solid rgba(255, 255, 255, 0.85);
-    border-radius: 0;
-    background: rgba(255, 255, 255, 0.04);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15),
-                0 0 18px rgba(255, 255, 255, 0.08),
-                0 8px 24px rgba(0, 0, 0, 0.55);
-}
-
-/* ── Scroll area ─────────────────────────────────────────── */
 scrolledwindow {
     background: transparent;
     border: none;
@@ -97,24 +78,83 @@ scrolledwindow overshoot {
     background: transparent;
 }
 
+grid {
+    background: transparent;
+    padding: 14px;
+}
+
+grid button {
+    background-color: rgba(255, 255, 255, 0.035);
+    border: 3px solid rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    padding: 0;
+    margin: 7px;
+    outline: none;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+    transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+grid button image {
+    opacity: 0.7;
+    transition: opacity 0.18s ease;
+}
+
+grid button:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.42);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+}
+
+grid button:hover image {
+    opacity: 0.92;
+}
+
+grid button:active image {
+    opacity: 1;
+}
+
+/* ── Selected wallpaper ──────────────────────────────────── */
+.highlighted-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #FFFFFF;
+    box-shadow: 0 0 0 1px rgba(16, 17, 26, 0.95),
+                0 0 20px rgba(255, 255, 255, 0.22),
+                0 10px 28px rgba(0, 0, 0, 0.6);
+}
+
+.highlighted-button image {
+    opacity: 1;
+}
+
+.highlighted-button:hover {
+    border-color: #FFFFFF;
+    box-shadow: 0 0 0 1px rgba(16, 17, 26, 0.95),
+                0 0 26px rgba(255, 255, 255, 0.32),
+                0 12px 32px rgba(0, 0, 0, 0.65);
+}
+
+/* ── Scroll area ─────────────────────────────────────────── */
 scrollbar {
     background: transparent;
     border: none;
+    margin: 2px;
 }
 
 scrollbar slider {
-    background-color: rgba(192, 202, 245, 0.1);
+    background-color: rgba(255, 255, 255, 0.14);
+    border: none;
     border-radius: 99px;
-    min-width: 4px;
-    min-height: 4px;
+    min-width: 5px;
+    min-height: 28px;
+    transition: background-color 0.18s ease;
 }
 
 scrollbar slider:hover {
-    background-color: rgba(122, 162, 247, 0.38);
+    background-color: rgba(255, 255, 255, 0.35);
 }
 
 scrollbar slider:active {
-    background-color: rgba(122, 162, 247, 0.6);
+    background-color: rgba(255, 255, 255, 0.55);
 }
 
 /* ── Labels ──────────────────────────────────────────────── */
@@ -122,21 +162,43 @@ label {
     color: #C0CAF5;
 }
 
+box > label {
+    color: #565F89;
+    font-size: 12px;
+}
+
 /* ── Combobox ────────────────────────────────────────────── */
 combobox button,
 comboboxtext button {
     background-image: linear-gradient(180deg, rgba(65, 72, 104, 0.55) 0%, rgba(26, 27, 38, 0.75) 100%);
+    color: #C0CAF5;
     border-radius: 8px;
-    padding: 5px 10px;
+    padding: 6px 10px;
+    min-height: 20px;
     border: 1px solid rgba(192, 202, 245, 0.08);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    transition: all 0.18s ease;
+}
+
+combobox button:hover,
+comboboxtext button:hover {
+    background-image: linear-gradient(180deg, rgba(84, 92, 126, 0.8) 0%, rgba(65, 72, 104, 0.85) 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #FFFFFF;
+}
+
+combobox arrow,
+comboboxtext arrow {
+    color: #A9B1D6;
+    min-width: 12px;
+    min-height: 12px;
 }
 
 /* ── Menus ───────────────────────────────────────────────── */
 menu,
 .context-menu {
-    background-color: rgba(22, 22, 32, 0.96);
-    border: 1px solid rgba(192, 202, 245, 0.08);
+    background-color: rgba(22, 22, 32, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 6px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
@@ -144,21 +206,46 @@ menu,
 
 menuitem {
     border-radius: 6px;
-    padding: 5px 12px;
+    padding: 6px 12px;
     color: #A9B1D6;
+    transition: all 0.15s ease;
 }
 
 menuitem:hover {
-    background-image: linear-gradient(90deg, rgba(122, 162, 247, 0.14), rgba(65, 72, 104, 0.55));
-    color: #F1F1F1;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+}
+
+menuitem check {
+    min-width: 14px;
+    min-height: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    background-color: rgba(26, 27, 38, 0.8);
+}
+
+menuitem check:checked {
+    background-color: #FFFFFF;
+    border-color: #FFFFFF;
+    color: #16161E;
+}
+
+separator {
+    background-color: rgba(255, 255, 255, 0.08);
+    min-height: 1px;
 }
 
 /* ── Tooltip ─────────────────────────────────────────────── */
 tooltip {
-    background-color: rgba(22, 22, 32, 0.96);
+    background-color: rgba(22, 22, 32, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+    padding: 5px 9px;
+}
+
+tooltip label {
     color: #C0CAF5;
-    border: 1px solid rgba(122, 162, 247, 0.18);
-    border-radius: 6px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-    padding: 4px 8px;
+    font-size: 12px;
+    padding: 0;
 }

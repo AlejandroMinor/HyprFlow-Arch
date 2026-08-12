@@ -3,13 +3,15 @@
     "logo": {
         "type": "file",
         "source": "~/.config/fastfetch/ascii_art/skull.txt",
+        "height": 18,
+        "preserveAspectRatio": true,
         "color": {
             "1": "magenta",
             "2": "magenta"
         },
         "padding": {
             "top": 2,
-            "right": 3,
+            "right": 0,
             "left": 1
         }
     },
@@ -23,7 +25,7 @@
         "break",
         {
             "type": "title",
-            "format": "    {user-name-colored}{at-symbol-colored}{host-name-colored}"
+            "format": "   {user-name-colored}{at-symbol-colored}{host-name-colored}"
         },
         {
             "type": "os",
@@ -98,16 +100,8 @@
             "key": "   Memory"
         },
         {
-            "type": "swap",
-            "key": "   Swap"
-        },
-        {
             "type": "disk",
             "key": "   Disk"
-        },
-        {
-            "type": "sound",
-            "key": "   Sound"
         },
         {
             "type": "bluetooth",
@@ -128,7 +122,8 @@
         "break",
         {
             "type": "colors",
-            "symbol": "block"
+            "symbol": "block",
+            "paddingLeft": 3
         },
         "break"
     ]

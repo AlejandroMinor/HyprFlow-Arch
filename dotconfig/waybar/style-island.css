@@ -115,7 +115,7 @@ window#waybar.hidden {
     background: transparent;
     box-shadow: none;
     font-size: 18px;
-    color: @color2;
+    color: @color5;
 }
 
 #custom-power {

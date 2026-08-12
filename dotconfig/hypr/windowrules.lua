@@ -66,7 +66,7 @@ hl.window_rule({
     float   = true,
     size    = {800, 540},
     center  = true,
-    opacity = "0.92 override 0.92 override",
+    opacity = "1.0 override 0.92 override",
 })
 
 hl.window_rule({

@@ -3,14 +3,14 @@
 ACTION="generate"
 SKIP_SEQUENCES=""
 NOTIFY=false
-DEFAULT_THEME="minor-default"
+DEFAULT_THEME="synthwave"
 
 show_help() {
     echo "Usage: wallust-theme-manager.sh [OPTIONS]"
     echo ""
     echo "Options:"
     echo "  --generate-palette   Generate palette from current wallpaper (default)."
-    echo "  --restore-default    Restore the static theme (minor-default)."
+    echo "  --restore-default    Restore the static theme (synthwave)."
     echo "  --skip-terminal      Skip injecting colors into active terminals."
     echo "  --notify             Show a notification when done."
     echo "  -h, --help           Show this help."
@@ -46,7 +46,7 @@ if [ "$ACTION" == "generate" ]; then
     wallust run $SKIP_SEQUENCES "$WP_PATH"
 
 elif [ "$ACTION" == "default" ]; then
-    wallust cs $SKIP_SEQUENCES "$HOME_DIR/.config/wallust/themes/minor-default.json"
+    wallust cs $SKIP_SEQUENCES "$HOME_DIR/.config/wallust/themes/synthwave.json"
     killall -SIGUSR1 kitty 2>/dev/null
 fi
 

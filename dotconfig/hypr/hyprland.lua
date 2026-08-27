@@ -253,6 +253,7 @@ hl.config({
     misc = {
         force_default_wallpaper = 0,    -- Set to 0 or 1 to disable the anime mascot wallpapers
         disable_hyprland_logo   = true, -- If true disables the random hyprland logo / anime girl background. :(
+        middle_click_paste      = false, -- Disable pasting the primary selection with the middle mouse button
     },
 })
 
@@ -267,7 +268,7 @@ hl.config({
             keyboard_focus_animation = "slide",
             mouse_focus_animation    = "slide",
             fade_opacity             = 0.99,
-            slide_height             = 8,
+            slide_height             = 28,
             only_on_monitor_change   = true,
         },
 

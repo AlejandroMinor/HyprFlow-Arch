@@ -390,6 +390,7 @@ Currently active plugins:
 | `hyprfocus` | Enhanced window focus animation |
 | `hyprwinwrap` | Embed apps directly as desktop background |
 | `hymission` | macOS-style Mission Control window overview, install via `hyprpm add https://github.com/gfhdhytghd/hymission` |
+| `hyprglass` | Apple-style liquid glass on windows, install via `hyprpm add https://github.com/hyprnux/hyprglass`. Configured in `dotconfig/hypr/hyprland.lua`; only visible on windows with real transparency |
 
 > **Note:** If errors about animations or invalid references appear on startup, the plugins are likely outdated relative to the installed Hyprland version. Run:
 >

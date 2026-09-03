@@ -388,3 +388,58 @@ require("gestures")
 
 -- See https://wiki.hypr.land/Configuring/Basics/Window-Rules/
 require("windowrules")
+
+
+
+--- hyprglass
+
+-- Glass renders below the window surface, so it only shows through windows with
+-- real transparency -- in practice kitty, via background_opacity. Guarded so the
+-- config survives the plugin failing to load after a Hyprland update.
+if hl.plugin.hyprglass then
+    local hg = hl.plugin.hyprglass
+
+    -- colors.lua gives "rgb(...)", hyprglass wants a 0xRRGGBBAA int. Alpha here
+    -- is tint strength, not transparency.
+    local function tint(color, alpha)
+        local rgb = tostring(color):match("(%x%x%x%x%x%x)")
+        if not rgb then return nil end
+        return tonumber(rgb, 16) * 256 + alpha
+    end
+
+    hg.preset("minor", {
+        blur_strength        = 1.5,
+        blur_iterations      = 2,
+        edge_thickness       = 0.12,  -- band holding the whole liquid part, max 0.15
+        refraction_strength  = 5.0,
+        chromatic_aberration = 0.45,
+        lens_distortion      = 0.4,
+        fresnel_strength     = 0.7,
+        specular_strength    = 1.0,
+
+        dark = {
+            tint_color   = tint(color5, 0x40),
+            brightness   = 0.95,
+            contrast     = 1.10,
+            saturation   = 0.95,
+            vibrancy     = 0.40,
+            -- Dark default is 0.4, which kills the bright areas of the wallpaper
+            -- -- the only thing making the glass visible on a dark terminal.
+            adaptive_dim = 0.0,
+        },
+    })
+
+    hg.config({
+        default_theme  = "dark",
+        default_preset = "minor",
+        enabled        = true,
+
+        -- Sets noblur on glassed windows; without it the new_optimizations cache
+        -- hides the effect except while dragging.
+        manage_window_blur = true,
+
+        -- Expensive and fragile (hooks renderLayer), and the liquid band is only
+        -- ~3px on a 46px bar. Rofi keeps its native blur from windowrules.lua.
+        layers = { enabled = false },
+    })
+end

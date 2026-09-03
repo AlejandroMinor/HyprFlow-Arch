@@ -183,3 +183,13 @@ hl.layer_rule({ name = "waybar-blur",  match = { namespace = "waybar" },   blur 
 -- (check with `hyprctl layers` if porting this rule to another GTK app)
 hl.layer_rule({ name = "wlogout-blur", match = { namespace = "logout_dialog" }, blur = true, ignore_alpha = 0.01 })
 hl.layer_rule({ name = "master-pick-blur", match = { namespace = "master-pick" }, blur = true, ignore_alpha = 0.01 })
+
+
+-- =======================================================
+--  HYPRGLASS
+-- =======================================================
+
+-- The plugin is on everywhere; these are the exceptions, where the glass ends up
+-- invisible but still costs GPU.
+hl.window_rule({ name = "glass-off-video",      match = { class = "^(mpv|vlc)$" }, tag = "+hyprglass_disabled" })
+hl.window_rule({ name = "glass-off-bg-term",    match = { class = "kitty-bg" },    tag = "+hyprglass_disabled" })

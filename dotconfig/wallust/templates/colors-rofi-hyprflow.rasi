@@ -3,7 +3,9 @@
  */
 * {{
     foreground: {foreground};
-    muted:      {color8};
+    muted:      {foreground}99;   /* placeholder. Not color8: it resolves to
+                                     near-black on dark palettes, over an
+                                     equally dark bg-input */
     accent:     {color1};
     active:     {color6};
     bg-solid:   {background};

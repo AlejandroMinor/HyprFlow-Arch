@@ -3,7 +3,7 @@
  */
 * {
     foreground: #F2E9F4;
-    muted:      #9B8FA6;
+    muted:      #F2E9F499;
     accent:     #FF2E88;   /* selection / prompt / button */
     active:     #4DD8E6;   /* secondary accents */
     bg-solid:   #140C1C;   /* text on accent */

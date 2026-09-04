@@ -49,26 +49,23 @@ window#waybar.hidden {
     100% { color: rgba(247, 118, 142, 0.1); }
 }
 
-/* ---- los 3 clusteres ---- */
+/* ---- clusteres ---- */
 .modules-left, .modules-right {
-    background: alpha(@color0, 0.55);
+    background: alpha(@color0, 0.40);
     margin: 5px 6px;
     padding: 0 6px;
     border-radius: 12px;
-    border: 2px solid alpha(@color5, 0.4);
+    border: 0px solid alpha(@color5, 0.4);
 }
 
 .modules-center {
-    background: alpha(@color0, 0.6);
+    background: alpha(@color0, 0.40);
     margin: 5px 6px;
     padding: 0 8px;
     border-radius: 12px;
-    border: 2px solid alpha(@color6, 0.5);
+    border: 0px solid alpha(@color6, 0.5);
 }
 
-/* ---- barra minimal ----
-   En la config de tu barra minimal anade:  "name": "minimal"
-   Esto apaga los clusteres vacios y el contorno con glow en esa barra. */
 window#waybar.minimal .modules-left,
 window#waybar.minimal .modules-center,
 window#waybar.minimal .modules-right {
@@ -89,7 +86,6 @@ window#waybar.minimal #workspaces {
     box-shadow: none;
 }
 
-/* ---- modulos: transparentes dentro del cluster ---- */
 #custom-hymission,
 #custom-launcher,
 #cpu, #memory, #disk,
@@ -111,7 +107,6 @@ window#waybar.minimal #workspaces {
     transition: all 0.3s ease-in-out;
 }
 
-/* colores por modulo + hover que "enciende" el texto */
 #cpu, #memory, #disk { color: @color4; }
 #temperature         { color: @color6; }
 #network             { color: @color5; }
@@ -150,7 +145,6 @@ window#waybar.minimal #workspaces {
     padding: 0 14px;
 }
 
-/* ---- workspaces (tu comportamiento, activo con pulso) ---- */
 #workspaces { padding: 0 4px; }
 
 #workspaces button {
@@ -164,9 +158,6 @@ window#waybar.minimal #workspaces {
     min-width: 18px;
     transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1);
 }
-
-
-
 
 
 #workspaces button.urgent {
@@ -190,12 +181,12 @@ window#waybar.minimal #workspaces {
     min-width: 45px;
 }
 
-/* ---- media / cava ---- */
+
 #mpris { background: transparent; padding: 0 6px; margin: 0; border: none; color: @color5; font-weight: bold; }
 #mpris.paused { color: alpha(@color5, 0.4); }
 #custom-cava { background: transparent; padding: 0 0 0 4px; margin: 0; font-size: 11px; color: @color2; }
 
-/* ---- privacidad ---- */
+
 #privacy,
 #custom-privacy-camera, #custom-separator {
     background: transparent;
@@ -207,7 +198,7 @@ window#waybar.minimal #workspaces {
 
 #custom-separator-wrap { background: transparent; padding: 0 3px; border: none; }
 
-/* ---- estados ---- */
+
 #battery.critical:not(.charging) {
     background: alpha(@color1, 0.25);
     color: @color1;
@@ -262,7 +253,6 @@ window#waybar.minimal #workspaces {
     100% { color: @color2; }
 }
 
-/* ---- taskbar (apps abiertas) ---- */
 #taskbar {
     background: transparent;
     padding: 0 4px;

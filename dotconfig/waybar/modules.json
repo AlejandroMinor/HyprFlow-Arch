@@ -204,24 +204,38 @@
         "tooltip": false
     },
 
-    "hyprland/workspaces": {
-	    "all-outputs": false,
-	    "active-only": false,
-	    "on-click": "activate",
-	    "show-special": true,
-	    "format": "{icon}", 
-	    "format-icons": {
-		    "magic": "󰍳", 
-		    "1": "1",
-		    "2": "2",
-		    "3": "3",
-		    "4": "4",
-		    "5": "5",
-		    "6": "6",
-		    "7": "7",
-		    "8": "8",
-		    "9": "9"
-	    }
+    "wlr/taskbar": {
+        "format": "{icon}",
+        "icon-size": 16,
+        "tooltip-format": "{title}",
+        "on-click": "activate",
+        "on-click-middle": "close",
+        "all-outputs": false,
+        "ignore-list": ["rofi", "kitty-theme-picker"]
+    },
+
+    "ext/workspaces": {
+        "all-outputs": false,
+        "active-only": false,
+        "ignore-hidden": false,
+        "on-click": "activate",
+        "sort-by-name": true,
+        "format": "{icon}",
+        "format-icons": {
+            "special:magic": "󰍳",
+            "magic": "󰍳",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "9": "9",
+            "10": "10",
+            "default": "\u2022"
+        }
     },
 
 "custom/theme-selector": {
@@ -339,6 +353,7 @@
     "modules": [
         "custom/system-tools-wrap",
         "custom/updates",
+        "wlr/taskbar",
         "tray",
         "hyprland/language",
         "custom/theme-selector"

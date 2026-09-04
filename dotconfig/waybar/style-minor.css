@@ -167,27 +167,13 @@ window#waybar.hidden {
     transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-#workspaces button:not(.empty) {
-    background: #414868;
-    color: #c0caf5;
-}
 
-#workspaces button.visible {
-    background: #545c7e;
-    color: #c0caf5;
-    min-width: 22px;
-}
 
-#workspaces button.empty {
-    background: transparent;
-    color: rgba(86, 95, 137, 0.3);
-    min-width: 12px;
-}
 
-#workspaces button.special {
-    background: #6a6cce;
-    color: #c0caf5;
-    min-width: 22px;
+
+#workspaces button.urgent {
+    background: #f7768e;
+    color: #1a1b26;
 }
 
 #workspaces button.active {
@@ -264,3 +250,23 @@ window#waybar.hidden {
     50%  { color: alpha(@color2, 0.3); }
     100% { color: @color2; }
 }
+
+/* ---- taskbar (apps abiertas) ---- */
+#taskbar {
+    background: alpha(@color0, 0.8);
+    margin: 5px 3px;
+    padding: 0 5px;
+    border-radius: 8px;
+}
+
+#taskbar button {
+    background: transparent;
+    padding: 0 5px;
+    margin: 0.3rem 0.1rem;
+    border-radius: 1rem;
+    min-width: 24px;
+    transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+#taskbar button.active { background: #414868; }
+#taskbar button:hover  { background: #545c7e; }

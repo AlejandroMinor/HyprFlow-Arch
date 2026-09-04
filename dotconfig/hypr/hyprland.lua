@@ -170,11 +170,15 @@ hl.config({
             color        = 0xee1a1a1a,
         },
 
+        -- Scratchpad (Super+Z): blur what's behind it instead of dimming it.
+        dim_special = 0.0,
+
         blur = {
             enabled   = true,
             size      = 3,
             passes    = 1,
             vibrancy  = 0.1696,
+            special   = true,
         },
     },
 

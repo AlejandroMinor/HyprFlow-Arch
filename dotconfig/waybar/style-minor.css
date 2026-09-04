@@ -260,13 +260,15 @@ window#waybar.hidden {
 }
 
 #taskbar button {
+    min-height: 24px;
+    opacity: 0.25;
     background: transparent;
     padding: 0 5px;
     margin: 0.3rem 0.1rem;
-    border-radius: 1rem;
+    border-radius: 8px;
     min-width: 24px;
     transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-#taskbar button.active { background: #414868; }
-#taskbar button:hover  { background: #545c7e; }
+#taskbar button.active { opacity: 1; background: transparent; }
+#taskbar button:hover  { opacity: 0.8; }

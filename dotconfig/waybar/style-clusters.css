@@ -260,18 +260,21 @@ window#waybar.minimal #workspaces {
 }
 
 #taskbar button {
+    min-height: 24px;
+    opacity: 0.25;
     background: transparent;
     padding: 0 5px;
     margin: 0.3rem 0.1rem;
-    border-radius: 1rem;
+    border-radius: 8px;
     min-width: 24px;
     transition: all 0.3s ease-in-out;
 }
 
 #taskbar button.active {
-    background: alpha(@color5, 0.35);
+    opacity: 1;
+    background: transparent;
 }
 
 #taskbar button:hover {
-    background: alpha(@color5, 0.2);
+    opacity: 0.8;
 }

@@ -73,10 +73,6 @@ window#waybar.hidden {
     border-radius: 8px;
 }
 
-#custom-media-wrap {
-    color: @color5;
-    padding: 0 2px;
-}
 
 #mpris {
     background: transparent;
@@ -91,13 +87,6 @@ window#waybar.hidden {
     font-size: 11px;
 }
 
-#custom-cava.empty {
-    padding: 0;
-    margin: 0;
-    min-width: 0;
-    border: none;
-    background: transparent;
-}
 
 #clock, #mpris {
     color: @color5;

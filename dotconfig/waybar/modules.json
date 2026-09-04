@@ -239,13 +239,9 @@
         "transition-left-to-right": true,
         "click-to-reveal": true
     },
-    "modules": ["custom/media-wrap", "mpris", "custom/cava"]
+    "modules": ["custom/cava", "mpris"]
 },
 
-"custom/media-wrap": {
-    "format": "▶",
-    "tooltip": false
-},
 
 "custom/cava": {
     "exec": "cava-waybar.sh",

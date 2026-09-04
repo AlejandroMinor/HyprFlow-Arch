@@ -3,6 +3,7 @@
 ACTION="generate"
 SKIP_SEQUENCES=""
 NOTIFY=false
+RESTART_WAYBAR=true
 DEFAULT_THEME="synthwave"
 
 show_help() {
@@ -13,6 +14,7 @@ show_help() {
     echo "  --restore-default    Restore the static theme (synthwave)."
     echo "  --skip-terminal      Skip injecting colors into active terminals."
     echo "  --notify             Show a notification when done."
+    echo "  --no-restart         Leave Waybar alone; the caller will restart it."
     echo "  -h, --help           Show this help."
     exit 0
 }
@@ -23,6 +25,7 @@ while [[ "$#" -gt 0 ]]; do
         --restore-default)  ACTION="default" ;;
         --skip-terminal)    SKIP_SEQUENCES="-s" ;;
         --notify)           NOTIFY=true ;;
+        --no-restart)       RESTART_WAYBAR=false ;;
         -h|--help)          show_help ;;
         *) echo "Error: Unknown argument: $1"; show_help ;;
     esac
@@ -52,8 +55,13 @@ fi
 
 hyprctl reload > /dev/null
 sleep 0.5
-killall waybar 2>/dev/null
-waybar &
+if [ "$RESTART_WAYBAR" = true ]; then
+    killall waybar 2>/dev/null
+    # Detached: a bare 'waybar &' inherits this script's stdout and stderr, and
+    # its logs then scribble over whatever called us (install.sh's monitor
+    # wizard, say).
+    setsid waybar >/dev/null 2>&1 < /dev/null &
+fi
 
 # Rebuild the lockscreen backdrop now rather than on the next lock. Blurring the
 # band takes a couple of seconds, so this runs detached and the wallpaper change

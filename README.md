@@ -1,86 +1,12 @@
 # HyprFlow-Arch
 
-Complete **Hyprland + Arch Linux** configuration optimized for technical productivity on desktop, with multi-monitor support, Logitech/Apple peripherals, and automated dynamic theming.
-
-## Compatibility
-
-> **Note:** As of Hyprland 0.55, `.conf` (hyprlang) is deprecated in favor of Lua. This repo targets the Lua format. The last `.conf`-based checkpoint is tagged `pre-lua-migration`.
-
-| Tool | Version |
-|------|---------|
-| Hyprland | 0.55+ |
-| Waybar | 0.15.0 |
-| eww | 0.6.0 |
-| swaync | 0.12.6 |
-| wallust | 3.5.2 |
-| rofi-wayland | 2.0.0 |
-
-## Key Features
-
-- **Automated install** — one script copies configs, creates symlinks, and applies the base theme
-- **Dynamic theming** — color palettes auto-generated with `wallust` on wallpaper change, synced to cava visualizer
-- **Master layout** — main window takes priority, secondary windows stack on the side
-- **3-monitor management** — automatic logical mapping via `monitors.sh`, configurable layout (4 with ThinkPad)
-- **Peripheral battery in Waybar** — mouse, keyboard, trackpad, and headset in real time
-- **Status modules** — VPN, camera, microphone, audio, and DND notifications integrated
-
-## Table of Contents
-
-- [Preview](#preview)
-- [Hardware & Peripherals](#hardware--peripherals)
-- [Installation](#installation)
-- [Monitor Setup](#monitor-setup)
-- [Lockscreen](#lockscreen)
-- [Included Scripts](#included-scripts)
-- [Post-Installation](#post-installation)
-- [Hyprland Plugins](#hyprland-plugins)
-- [Tips](#tips)
-
-## Preview
+Hyprland + Arch Linux desktop config: multi-monitor, dynamic theming from the
+wallpaper, and Waybar modules for peripheral batteries and system status.
 
 ![Desktop](assets/screenshots/desktop.png)
 ![Desktop Alt](assets/screenshots/desktop-alt.png)
 
-## Hardware & Peripherals
-
-Setup designed for the following peripherals, with integrated battery monitoring:
-
-| Peripheral | Model |
-|------------|-------|
-| Mouse | Logitech MX Master 3S |
-| Keyboard | Logitech MX Keys S |
-| Trackpad | Apple Magic Trackpad |
-
-### Monitor Layout
-
-Monitors are managed by the `monitors.sh` wizard (see [Monitor Setup](#monitor-setup)).
-A typical desktop layout left to right:
-
-| Position | Monitor | Resolution |
-|----------|---------|------------|
-| 1 | AOC | 1080p |
-| 2 | NZXT (Primary) | 1440p @ 120Hz |
-| 3 | ASUS | 1080p |
-
-> When connecting the ThinkPad it joins as a 4th monitor (`eDP-1`).
-
-## Installation
-
-### 1. Install dependencies
-
-**Official repositories:**
-```bash
-sudo pacman -S cpio cmake fzf rtkit hyprland hyprlock waybar yazi kitty awww brightnessctl playerctl pipewire wireplumber pipewire-pulse pavucontrol network-manager-applet upower openconnect jq imagemagick gtk4 gtk4-layer-shell python python-gobject pacman-contrib swaync hyprshot hyprpicker rofi-wayland ttf-jetbrains-mono-nerd noto-fonts-cjk wl-clipboard satty gnu-free-fonts gnome-themes-extra xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gnome-disk-utility polkit-gnome cava
-```
-
-**AUR (requires `yay` or another helper):**
-```bash
-yay -S wlogout eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin paru fzf-tab oh-my-zsh-git
-```
-
-### 2. Clone and install
-
-This repo uses **Git submodules** (Rofi themes, trackpad-battery, sinkswitch). Clone with `--recursive`:
+## Quick start
 
 ```bash
 git clone --recursive https://github.com/AlejandroMinor/HyprFlow-Arch.git
@@ -88,256 +14,143 @@ cd HyprFlow-Arch
 bash install.sh
 ```
 
-Available flags:
+That is the whole install. The script checks your packages, submodules and
+Hyprland plugins first, then copies the configs, links the scripts, installs the
+fonts and walks you through your monitors. Anything still missing is printed
+again at the end with the exact command to fix it, so nothing scrolls past.
+
+Add `--with-deps --with-plugins` and it installs those for you too.
+
+Then press `Super + I` for the keybindings.
+
+### Running it again
+
+It is also the sync tool: name a step and only that step runs. `install.sh config`
+is the one you will use most, to push a dotfile change into `~/.config` without
+the checks or the monitor wizard.
 
 ```bash
-bash install.sh --skip-theme      # keep your current theme/colors
-bash install.sh --skip-monitors   # don't launch the monitor wizard; just apply
-                                   # the saved profile / default non-interactively
+install.sh                  # everything
+install.sh config           # dotfiles, scripts and fonts, then reload
+install.sh check            # just tell me what is missing
+install.sh theme            # just recolour
+install.sh monitors         # just the monitor wizard
+install.sh lockscreen       # just rebuild the lockscreen layout
+install.sh zsh              # just install .zshrc
+install.sh config theme     # steps combine
 ```
 
-By default the install runs the monitor wizard (`monitors.sh setup`). Use
-`--skip-monitors` for an unattended install — monitors are still configured via the
-saved profile or a sensible default, just without prompting.
+| Option | Effect |
+|--------|--------|
+| `--with-deps` | Install the missing packages (pacman, then yay or paru) |
+| `--with-plugins` | Install the missing Hyprland plugins (compiles, slow) |
+| `--with-zsh` | Include the zsh step in a full run |
+| `--help` | The list above |
 
-If you already cloned without `--recursive`:
+Cloned without `--recursive`? `install.sh` fetches the submodules itself.
+
+## Requirements
+
+Arch, with Hyprland already running. `install.sh` tells you what you are missing,
+so you can run it first and let it decide.
+
+| Tool | Version |
+|------|---------|
+| Hyprland | 0.56+ |
+| Waybar | 0.15.0 |
+| eww | 0.6.0 |
+| swaync | 0.12.6 |
+| wallust | 3.5.2 |
+| rofi | 2.0.0 |
+
+<details>
+<summary>Full package list</summary>
+
 ```bash
-git submodule update --init --recursive
+sudo pacman -S hyprland hyprlock hyprshot hyprpicker waybar rofi swaync wlogout cava awww kitty yazi satty btop fastfetch gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit brightnessctl playerctl upower openconnect network-manager-applet gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts python python-gobject jq curl imagemagick wl-clipboard fzf cpio cmake pacman-contrib
 ```
-
-The install script handles:
-- Setting execute permissions on all `.sh` and `.py` scripts
-- Copying configuration to `~/.config`
-- Creating symlinks for binaries in `~/.local/bin`
-- Applying the default color palette
-- Reloading Hyprland and plugins
-
-### 3. First steps
-
-Run `help-binds.sh` or press `Super + I` to see all available keybindings:
 
 ```bash
-help-binds.sh
+yay -S eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin
 ```
 
-## Monitor Setup
+These live in the `PACMAN_PKGS` and `AUR_PKGS` arrays at the top of `install.sh`.
 
-Monitors are managed by `monitors.sh`, an interactive wizard that identifies each
-monitor by its **description** (e.g. `NZXTCANVAS27Q...`) instead of the connector name
-(`DP-2`), which changes between reboots and machines. It saves a **profile per set of
-connected monitors** and regenerates the config for **both Hyprland and Waybar** from it.
+</details>
 
-### Commands
+> Hyprland configs here use the Lua format (`.conf`/hyprlang is deprecated since 0.55).
+> The last `.conf` checkpoint is tagged `pre-lua-migration`.
+
+Built around a Logitech MX Master 3S, MX Keys S, and an Apple Magic Trackpad.
+That is what the battery modules read. Everything else works without them.
+
+# Customizing
+
+Everything below is optional. Pick the piece you want to change.
+
+| I want to change… | Go to |
+|-------------------|-------|
+| Which monitor gets which bar, rotation, scale | [Monitors](#monitors) |
+| What is in the bar, and how it looks | [Waybar](#waybar) |
+| Colors, wallpaper, presets | [Theming](#theming) |
+| The lockscreen layout and avatar | [Lockscreen](#lockscreen) |
+| The launcher and power menu | [Rofi](#rofi) |
+| Hyprland plugins | [Plugins](#plugins) |
+| What a given script does | [Scripts](#scripts) |
+
+## Monitors
+
+`monitors.sh` identifies monitors by **description** (`NZXTCANVAS27Q...`) instead of
+connector name (`DP-2`), which changes between reboots. It saves one profile per set
+of connected monitors and regenerates both the Hyprland and Waybar config from it.
 
 | Command | What it does |
 |---------|--------------|
-| `monitors.sh list` | Read-only. Prints each connected monitor's description, port and current mode. |
-| `monitors.sh setup` | Interactive wizard. Per monitor: enable, rotation, scale, Waybar bar type; then order (left → right) and which is primary. Saves the profile and applies it. |
-| `monitors.sh apply` | Non-interactive. Loads the profile matching the current set (or a sane default) and regenerates everything. Used on login and hotplug. |
+| `monitors.sh list` | Print each monitor's description, port, and mode |
+| `monitors.sh setup` | Wizard: enable, rotation, scale, bar type, order, primary |
+| `monitors.sh apply` | Non-interactive: load the matching profile and regenerate |
 
-### What it generates
+It generates these in `~/.config` (not tracked in the repo):
 
-These live in `~/.config` (generated at runtime, not tracked in the repo):
+- `hypr/monitors_active.lua`: `hl.monitor` + workspace rules, positioned left → right
+- `waybar/config`: one bar per monitor, matched by identifier (`make model serial`)
+- `hypr/monitor-profiles.json`: saved profiles
 
-| File | Purpose |
-|------|---------|
-| `hypr/monitors_active.lua` | `hl.monitor` + workspace rules. Positions computed left → right with no gaps. Required from `hyprland.lua`. |
-| `waybar/config` | One bar per monitor. The `output` is matched by the monitor **identifier** (`make model serial`), not the connector name. |
-| `hypr/monitor-profiles.json` | Saved profiles, keyed by the sorted set of monitor descriptions. |
+No daemon. `apply` runs on login and on hotplug (via `hl.on("monitor.added")` in
+`hyprland.lua`), and only reloads if the output actually changed.
 
-### How it stays in sync (dynamic)
+Rotation uses native Hyprland transforms (`0` normal, `1`/`3` portrait, `2` upside
+down, `4-7` mirrored). Portrait swaps width/height automatically.
 
-There is **no background daemon**. `monitors.sh apply` runs:
+## Waybar
 
-1. **On login** — launched from the `hyprland.lua` startup block.
-2. **On hotplug** — `hl.on("monitor.added" / "monitor.removed")` in `hyprland.lua` calls it when you connect/disconnect a monitor.
-3. **Manually** — whenever you run `setup` / `apply`.
-
-`apply` only reloads Hyprland / restarts Waybar if the generated output actually changed, which avoids reload loops.
-
-### Rotation
-
-The wizard asks for a **transform (0-7)** — the native Hyprland values:
-
-| transform | rotation |
-|-----------|----------|
-| 0 | normal |
-| 1 / 3 | 90° / 270° (portrait) |
-| 2 | 180° (upside down) |
-| 4-7 | the same, mirrored |
-
-Portrait transforms (odd numbers) swap width/height automatically for positioning and bar width.
-
-### Editing Waybar
-
-Three layers — edit the right file:
+Three layers. Edit the right one:
 
 | To change… | Edit |
 |------------|------|
-| A module's behaviour / appearance | `waybar/modules.json` |
-| Which modules go in each bar (plus margins / layer) | `waybar/bars.json` (the `full` / `minimal` archetypes) |
-| Which monitor a bar lands on | nothing — `monitors.sh` handles it |
+| A module's behaviour | `waybar/modules.json` |
+| Which modules go in a bar | `waybar/bars.json` (`full` / `minimal` archetypes) |
+| Which monitor a bar lands on | nothing, `monitors.sh` handles it |
 
-Adding a module = define it in `modules.json` **and** place it in `bars.json`, then run
-`monitors.sh apply`. The script does not hardcode bar contents.
+Adding a module means defining it in `modules.json`, placing it in `bars.json`, then
+running `monitors.sh apply`. `dotconfig/waybar/config` is only a fallback for when
+`monitors.sh` has never run.
 
-> `dotconfig/waybar/config` is only a **fallback** (a single bar shown on every monitor),
-> used if `monitors.sh` never runs. The real, per-monitor config is generated.
+**Styles.** Four variants: `style-minor`, `style-island`, `style-glass`,
+`style-clusters`. Switch by changing the single `@import` in `style.css`.
 
-### Install behaviour
+**Runner.** `custom/hardware-wrap` is an animated runner that speeds up with CPU load
+and opens the hardware drawer. Two fonts ship in the repo (cat and chicken, sharing
+codepoints `U+E900`-`U+E904`). Run `pet-picker.sh` to switch, or edit
+`runcat-runner.css`, the one file all four styles import. Tunables (icons, CPU
+thresholds, FPS) live in `runcat-config.json`.
 
-By default `install.sh` runs `monitors.sh setup` (the wizard). Use
-`install.sh --skip-monitors` for an unattended install — monitors are still configured
-from the saved profile / default, just without prompting.
+## Theming
 
-## Lockscreen
+Colors come from `wallust`, regenerated on wallpaper change and pushed to Waybar,
+Hyprland, kitty, rofi, wlogout, hyprlock, and cava.
 
-`hyprlock`, bound to `Super + L` and to the wlogout Lock button: oversized clock
-bottom-left, a glass bar with the avatar and password field, and a now-playing
-card bottom-right. Colours follow `wallust`. Battery and keyboard layout appear
-only when they are worth showing.
-
-Track details are shown **only for dedicated music apps** — a lockscreen is
-visible to passers-by, so everything else reports just its name and icon.
-Playback is read-only and driven by the media keys, which keep working under the
-lock via the `locked = true` binds in `keybindings.lua`.
-
-### Layout
-
-`hyprlock.conf` holds no coordinates. `dotconfig/hypr/hyprlock/geometry.sh` runs
-before each lock and writes them, so the layout follows whatever monitor is
-attached. Edit that script, never the generated `hyprlock-geometry.conf` — its
-header documents the rules.
-
-Content goes on the monitor holding workspace 1; the rest are blurred out.
-Set `HYPRLOCK_MONITOR` in Hyprland's environment to pin a different one.
-
-The avatar is `~/.config/hypr/avatar.png` — the installer seeds it with
-`assets/avatar.png`. Replace it with any square image and it is never
-overwritten; delete it and the Arch glyph is drawn in the current palette
-instead.
-
-## Included Scripts
-
-All scripts in `bin/` are available globally in `~/.local/bin` after installation.
-
-**Theming**
-
-| Script | Description |
-|--------|-------------|
-| `wallust-theme-manager.sh` | Generates dynamic color palettes and applies themes |
-| `hyprlock-flow.sh` | Locks the screen, rebuilding the layout for the current monitors first (see [Lockscreen](#lockscreen)) |
-| `master-pick.py` | Numbers every window in the workspace and swaps the one you press to master (`Super + Shift + Return`) |
-| `theme-picker.sh` | Interactive theme selector with pre-designed color palettes |
-| `pet-picker.sh` | Interactive picker to switch the waybar runcat runner (cat / chicken) |
-
-**Monitors & Layout**
-
-| Script | Description |
-|--------|-------------|
-| `monitors.sh` | Interactive monitor wizard: `list` / `setup` / `apply`. Detects monitors by description and generates `monitors_active.lua` + Waybar config |
-| `session-manager/` | Suite for saving and restoring window layouts (save, load, restore, snapshot) |
-
-**Waybar Status Modules**
-
-| Script | Description |
-|--------|-------------|
-| `mute_indicator.sh` | Microphone status indicator |
-| `vpn_status.sh` | VPN connection status |
-| `peripherals_battery.sh` | Peripheral battery levels (mouse, keyboard) |
-| `g733_battery.sh` | Logitech G733 headset battery |
-| `trackpad-battery` | Apple Magic Trackpad battery |
-| `camera_status.py` | Camera-in-use indicator |
-| `swaync-dnd.sh` | Do Not Disturb control for SwayNC |
-| `battery_alert.py` | Low system battery alert |
-| `cava-waybar.sh` | Cava audio visualizer output for Waybar (hides when silent) |
-
-**Utilities**
-
-| Script | Description |
-|--------|-------------|
-| `help-binds.sh` | Shows all keybindings in a visual interface |
-| `hyprland-group-all.sh` | Groups all windows in the current workspace |
-| `sinkswitch` | Quick audio output switcher |
-
-**Included submodules:**
-- `modules/rofi-collection` — collection of Rofi themes, applets, and launchers
-- `modules/apple-magic-trackpad-battery` — trackpad battery script
-- `modules/sinkswitch` — audio output switching utility
-- `modules/waybar-claude-usage` — Claude Code rate-limit indicator for Waybar (`custom/claude-usage`); requires the Claude Code CLI logged in. Optional — to remove it, delete `custom/claude-usage` from `bars.json`'s `modules-right` (without the submodule, the module just shows nothing).
-- `modules/runcat-text` — running cat animation for Waybar that speeds up with CPU usage, used as the `custom/hardware-wrap` icon that opens the hardware drawer (cpu/temperature/memory/disk/network) in `group/hardware`; requires `python`. Its tunable settings (icons, CPU thresholds, FPS) live in `dotconfig/waybar/runcat-config.json` — `install.sh` copies it over the submodule's own `config.json` on every install so edits there aren't lost to a `git submodule update` or a fresh clone. `install.sh` also installs the runner fonts (`runcat.ttf` and `runcat-chicken.ttf`) to `~/.local/share/fonts`.
-
-#### Switching the runner (cat / chicken)
-
-Two runner fonts ship in the repo, both installed by `install.sh`:
-
-- **Cat** — `modules/runcat-text/runcat.ttf` (upstream default), font family `runcat`
-- **Chicken** — `dotconfig/waybar/runcat-chicken.ttf` (traced from the [RunCat Neo runner gallery](https://runcat-dev.github.io/RunnerGallery/)), font family `runcat-chicken`
-
-Both use the same icon codepoints (`U+E900`–`U+E904`), so `dotconfig/waybar/runcat-config.json` doesn't change between them. All 4 `style-*.css` variants `@import` a single shared file, `dotconfig/waybar/runcat-runner.css` — that's the only file that decides which one is active. Run `pet-picker.sh` (an `fzf` picker, same UX as `theme-picker.sh`) to switch interactively, or edit that file directly:
-
-```css
-/* Cat */
-#custom-hardware-wrap { font-family: 'runcat'; font-size: 24px; color: @color3; }
-```
-
-```css
-/* Chicken */
-#custom-hardware-wrap { font-family: 'runcat-chicken'; font-size: 18px; color: @color3; }
-```
-
-### Rofi theme (`dotconfig/rofi/hyprflow/`)
-
-Custom launcher with real transparency and dynamic colors from `wallust`. Two variants share a common `launcher-base.rasi`: `launcher-centered.rasi` (icon + name centered, no button) is bound to `Super + Space` / `Super + D`; `launcher.rasi` (icon/name card with an "Open" button) is what the waybar launcher icon opens. Power menu is `wlogout` (`dotconfig/wlogout/`), triggered from the waybar power button — also wired to `wallust` for dynamic colors.
-
-## Post-Installation
-
-### Zsh + Oh My Zsh (optional)
-
-A separate script is included if you want to use the same Zsh setup. It backs up your existing `.zshrc` before overwriting.
-
-**Dependencies:**
-```bash
-# Official repos
-sudo pacman -S zsh zsh-autosuggestions zsh-syntax-highlighting zoxide bat
-
-# AUR
-yay -S fzf-tab oh-my-zsh-git
-```
-
-**Install:**
-```bash
-bash install-zsh.sh
-```
-
-Plugins included:
-
-| Plugin | Source | Description |
-|--------|--------|-------------|
-| `git` `sudo` `copypath` `fzf` | Oh My Zsh built-in | Git aliases, sudo escape, clipboard, fzf integration |
-| `zsh-autosuggestions` | Official repos | Command suggestions from history |
-| `zsh-syntax-highlighting` | Official repos | Real-time command highlighting |
-| `fzf-tab` | AUR (`fzf-tab`) | Tab completion with fzf preview using `bat` |
-| `zoxide` | Official repos | Smart `cd` replacement (`z`, `zi`) |
-
-### Dark theme
-To force dark colors for GTK apps:
-
-```bash
-gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-gsettings set org.gnome.desktop.interface icon-theme 'Adwaita'
-```
-
-### Magic Trackpad (optional)
-
-For the trackpad battery module to work correctly, see the full setup guide (permissions, groups, and security options) in the submodule README:
-
-[apple-magic-trackpad-battery/README.md](https://github.com/AlejandroMinor/apple-magic-trackpad-battery-percent-python/blob/main/README.md)
-
-### Theming with Waypaper (recommended)
-
-In `~/.config/waypaper/config.ini`, enable `zen_mode` and set the `post_command` to regenerate the palette on wallpaper change:
+Wire it up in `~/.config/waypaper/config.ini`:
 
 ```ini
 [Settings]
@@ -347,61 +160,144 @@ zen_mode = True
 post_command = bash -c "$HOME/HyprFlow-Arch/bin/wallust-theme-manager.sh --generate-palette --notify"
 ```
 
-To restore or change the color palette, use the interactive theme picker:
+Run `theme-picker.sh` to pick between the wallpaper palette and nine presets
+(Tokyo Night, Catppuccin, Nord, Gruvbox, Dracula, Monochrome, Synthwave, Kanagawa,
+Minor Default).
 
-```bash
-theme-picker.sh
-```
+Cava runs both in the terminal and as the `custom/cava` Waybar module, which hides
+itself when there's no audio. Its palette follows wallust too.
 
-Or manually restore the default theme:
+## Lockscreen
 
-```bash
-wallust cs ~/HyprFlow-Arch/dotconfig/wallust/themes/minor-default.json
-~/HyprFlow-Arch/bin/wallust-theme-manager.sh --restore-default --notify
-```
+`hyprlock`, bound to `Super + L` and the wlogout Lock button: oversized clock, glass
+bar with avatar and password field, now-playing card. Track details show only for
+dedicated music apps, since a lockscreen is visible to passers-by. Media keys keep working
+under the lock.
 
-### Cava audio visualizer
+`hyprlock.conf` holds no coordinates. `dotconfig/hypr/hyprlock/geometry.sh` runs before
+each lock and writes them, so the layout follows whatever monitor is attached. Edit
+that script, never the generated `hyprlock-geometry.conf`.
 
-Cava is integrated in two ways: as a terminal visualizer and as a Waybar center module. Colors sync automatically with the active wallust theme — the palette is regenerated each time wallust runs and saved to `~/.config/cava/themes/wallust`.
+Content lands on the monitor holding workspace 1; the rest are blurred. Override with
+`HYPRLOCK_MONITOR`. The avatar is `~/.config/hypr/avatar.png`. Replace it with any
+square image and it's never overwritten, or delete it for the Arch glyph instead.
 
-**Terminal:**
-```bash
-cava
-```
+## Rofi
 
-**Waybar:** the `custom/cava` module runs `cava-waybar.sh`, which displays block-character bars in the center of the bar next to the media info. It hides automatically when there is no audio.
+`dotconfig/rofi/hyprflow/`: real transparency, wallust colors. Two variants share
+`launcher-base.rasi`: `launcher-centered.rasi` (`Super + Space` / `Super + D`) and
+`launcher.rasi` (the Waybar launcher icon). Power menu is `wlogout`, also themed.
 
-Static themes `solarized_dark` and `tricolor` are available in `~/.config/cava/themes/` as fallbacks.
+## Plugins
 
-## Hyprland Plugins
+| Plugin | Repo | Description |
+|--------|------|-------------|
+| `hyprfocus` | `hyprwm/hyprland-plugins` | Window focus animation |
+| `hymission` | `gfhdhytghd/hymission` | Mission Control-style overview |
+| `hyprglass` | `hyprnux/hyprglass` | Liquid glass on transparent windows |
 
-Install and manage plugins with `hyprpm`:
+`install.sh` reports which of these are missing or disabled. It does not install
+them unless you pass `--with-plugins`, because `hyprpm` compiles each one against
+your running Hyprland, which is slow and can fail. By hand:
 
 ```bash
 hyprpm update
-hyprpm add https://github.com/hyprwm/hyprland-plugins
-hyprpm enable <plugin-name>
+hyprpm add https://github.com/gfhdhytghd/hymission
+hyprpm enable hymission
 ```
 
-Currently active plugins:
+Add a plugin to `PLUGIN_NAMES` and `PLUGIN_REPOS` at the top of `install.sh` and the
+check picks it up.
 
-| Plugin | Description |
+> Animation or invalid-reference errors on startup usually mean the plugins are stale
+> relative to your Hyprland version. Run `hyprpm update`.
+
+## Scripts
+
+Everything in `bin/` lands in `~/.local/bin`.
+
+**Theming & layout**
+
+| Script | Description |
 |--------|-------------|
-| `hyprfocus` | Enhanced window focus animation |
-| `hyprwinwrap` | Embed apps directly as desktop background |
-| `hymission` | macOS-style Mission Control window overview, install via `hyprpm add https://github.com/gfhdhytghd/hymission` |
-| `hyprglass` | Apple-style liquid glass on windows, install via `hyprpm add https://github.com/hyprnux/hyprglass`. Configured in `dotconfig/hypr/hyprland.lua`; only visible on windows with real transparency |
+| `wallust-theme-manager.sh` | Generate and apply color palettes |
+| `theme-picker.sh` | Interactive theme selector |
+| `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
+| `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
+| `master-pick.py` | Number windows and swap one to master (`Super + Shift + Return`) |
+| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` |
+| `hyprland-group-all.sh` | Group every window in the workspace |
+| `session-manager/` | Save and restore window layouts |
 
-> **Note:** If errors about animations or invalid references appear on startup, the plugins are likely outdated relative to the installed Hyprland version. Run:
->
-> ```bash
-> hyprpm update
-> ```
+**Waybar modules**
 
-## Tips
+| Script | Description |
+|--------|-------------|
+| `peripherals_battery.sh` | Mouse and keyboard battery |
+| `trackpad-battery` | Apple Magic Trackpad battery |
+| `g733_battery.sh` | Logitech G733 headset battery |
+| `battery_alert.py` | Low system battery alert |
+| `cava-waybar.sh` | Audio visualizer, hides when silent |
+| `claude-usage.sh` | Claude Code rate-limit indicator |
+| `mute_indicator.sh` | Microphone status |
+| `camera_status.py` | Camera-in-use indicator |
+| `vpn_status.sh` | VPN status |
+| `swaync-dnd.sh` | Do Not Disturb toggle |
 
-- **Waybar + monitors:** If a bar lands on the wrong monitor or doesn't appear, run `monitors.sh list` to see each monitor's exact identifier, then `monitors.sh setup` to rebuild the layout. Waybar matches the monitor **identifier** (`make model serial`), not the connector name.
-- **Monitor mapping:** If you add or change monitors, run `monitors.sh setup` (or `monitors.sh apply` to reuse a saved profile). It also re-applies automatically on login and on monitor hotplug.
-- **Sessions:** `session-manager/save.sh` saves the current layout; `restore.sh` restores it. Both are available as keybindings.
-- **DisplayLink:** Install `displaylink` and `evdi-dkms-git` from AUR (`yay -S displaylink evdi-dkms-git`), then enable the service with `sudo systemctl enable --now displaylink.service`.
-- **Permissions:** If a script won't run, `chmod +x script_name`. `install.sh` sets them automatically.
+**Misc**
+
+| Script | Description |
+|--------|-------------|
+| `help-binds.sh` | Keybinding cheatsheet (`Super + I`) |
+| `fastfetch-random.sh` | fastfetch with a random ascii/image logo |
+| `sinkswitch` | Quick audio output switcher |
+
+## Submodules
+
+| Module | Purpose |
+|--------|---------|
+| `rofi-collection` | Rofi themes and applets |
+| `apple-magic-trackpad-battery` | Trackpad battery reader |
+| `sinkswitch` | Audio output switcher |
+| `waybar-claude-usage` | Claude usage module, needs the Claude Code CLI logged in |
+| `runcat-text` | Animated CPU runner, needs `python` |
+
+The `check` step runs `git submodule update --init --recursive`
+for any that are missing, so a clone without `--recursive` still works. If that
+fails (no network, no git), it says which ones are missing and keeps going: the
+rofi themes and the cat runner font are skipped, and `claude-usage.sh`,
+`sinkswitch` and `trackpad-battery` are not linked into `~/.local/bin`.
+
+To drop the Claude module, remove `custom/claude-usage` from `bars.json`.
+
+The `config` step overwrites `runcat-text/config.json` with the repo's
+`waybar/runcat-config.json`, so edits survive a submodule update.
+
+# Extras
+
+## Optional setup
+
+**Zsh.** `install.sh zsh` (backs up your `.zshrc` first, and asks before
+changing your login shell). Needs
+`zsh zsh-autosuggestions zsh-syntax-highlighting zoxide bat` plus `fzf-tab` and
+`oh-my-zsh-git` from the AUR. Adds git/sudo/copypath/fzf plugins, autosuggestions,
+syntax highlighting, fzf-tab with `bat` preview, and zoxide (`z`, `zi`).
+
+**GTK dark theme**
+
+```bash
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+```
+
+**Magic Trackpad.** Permissions and group setup are in the
+[submodule README](https://github.com/AlejandroMinor/apple-magic-trackpad-battery-percent-python/blob/main/README.md).
+
+**DisplayLink.** `yay -S displaylink evdi-dkms-git` then
+`sudo systemctl enable --now displaylink.service`.
+
+## Troubleshooting
+
+- **Bar on the wrong monitor.** Run `monitors.sh list` to see identifiers, then
+  `monitors.sh setup` to rebuild.
+- **Script won't run.** `chmod +x <script>`. `install.sh` does this automatically.

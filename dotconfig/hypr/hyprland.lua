@@ -266,6 +266,12 @@ hl.config({
 ---- PLUGINS ----
 -----------------
 
+-- Rewrites a wallust color from colors.lua with an explicit alpha.
+local function hymission_color(color, alpha)
+    local rgb = tostring(color):match("(%x%x%x%x%x%x)")
+    return rgb and ("rgba(" .. rgb .. alpha .. ")") or nil
+end
+
 hl.config({
     plugin = {
         hyprfocus = {
@@ -277,6 +283,30 @@ hl.config({
         },
 
         hymission = {
+            backdrop_blur        = 1,
+
+            -- Overview UI colors follow wallust. colors.lua is required at the
+            -- top of this file, so its globals are in scope here. Alphas are the
+            -- plugin's own defaults, kept as-is; only the hue changes.
+            focus_selected_color              = hymission_color(color5,     "f2"),
+            focus_hover_color                 = hymission_color(foreground, "8c"),
+            focus_title_color                 = hymission_color(foreground, "ff"),
+
+            close_button_color                = hymission_color(background, "eb"),
+            -- close_button_hover_color stays at the plugin default red: wallust's
+            -- color1 is not guaranteed to be one, and a destructive affordance
+            -- should not depend on the wallpaper.
+            close_button_glyph_color          = hymission_color(foreground, "fa"),
+
+            workspace_strip_background_color  = hymission_color(background, "3d"),
+            workspace_strip_inactive_color    = hymission_color(background, "2e"),
+            workspace_strip_active_color      = hymission_color(color5,     "3d"),
+            workspace_strip_empty_color       = hymission_color(background, "2e"),
+            workspace_strip_new_color         = hymission_color(background, "42"),
+            workspace_strip_hover_tint_color  = hymission_color(foreground, "0f"),
+            workspace_strip_active_tint_color = hymission_color(color5,     "1a"),
+            workspace_strip_plus_color        = hymission_color(foreground, "e0"),
+
             outer_padding_top    = 92,
             outer_padding_right  = 32,
             outer_padding_bottom = 32,

@@ -59,6 +59,30 @@ hl.bind(mainMod .. " + ALT + K",    hl.dsp.window.move({ into_group = "u" }))
 hl.bind(mainMod .. " + ALT + J",    hl.dsp.window.move({ into_group = "d" }))
 hl.bind(mainMod .. " + ALT + down", hl.dsp.window.move({ out_of_group = true }))
 
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.submap("grouptabs"), { description = "Reorder Group Tabs Mode" })
+
+hl.define_submap("grouptabs", function()
+    hl.bind("h",     hl.dsp.group.move_window({ back = true }), { description = "Move Tab Back" })
+    hl.bind("left",  hl.dsp.group.move_window({ back = true }), { description = "Move Tab Back" })
+    hl.bind("l",     hl.dsp.group.move_window({}),              { description = "Move Tab Forward" })
+    hl.bind("right", hl.dsp.group.move_window({}),               { description = "Move Tab Forward" })
+
+    hl.bind("n", hl.dsp.group.next(), { description = "Next Tab" })
+    hl.bind("p", hl.dsp.group.prev(), { description = "Previous Tab" })
+
+    hl.bind("1", hl.dsp.group.active({ index = 1 }), { description = "Jump to Tab 1" })
+    hl.bind("2", hl.dsp.group.active({ index = 2 }), { description = "Jump to Tab 2" })
+    hl.bind("3", hl.dsp.group.active({ index = 3 }), { description = "Jump to Tab 3" })
+    hl.bind("4", hl.dsp.group.active({ index = 4 }), { description = "Jump to Tab 4" })
+    hl.bind("5", hl.dsp.group.active({ index = 5 }), { description = "Jump to Tab 5" })
+    hl.bind("6", hl.dsp.group.active({ index = 6 }), { description = "Jump to Tab 6" })
+    hl.bind("7", hl.dsp.group.active({ index = 7 }), { description = "Jump to Tab 7" })
+    hl.bind("8", hl.dsp.group.active({ index = 8 }), { description = "Jump to Tab 8" })
+    hl.bind("9", hl.dsp.group.active({ index = 9 }), { description = "Jump to Tab 9" })
+
+    hl.bind("escape", hl.dsp.submap("reset"))
+end)
+
 
 -- =======================================================
 --  SCRATCHPAD

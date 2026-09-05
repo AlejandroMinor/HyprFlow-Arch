@@ -20,7 +20,7 @@ color15    = 'rgb({color15.strip})'
 
 active_border_main  = 'rgba({color5.strip}ee)'
 active_border_fade  = 'rgba({color5.strip}10)'
-inactive_border     = 'rgba({color8.strip}aa)'
+inactive_border     = 'rgba({color8.strip}12)'
 
 group_border_active = 'rgba({color5.strip}ee)'
 group_bar_active    = 'rgba({color5.strip}ff)'

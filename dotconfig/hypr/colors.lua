@@ -21,7 +21,7 @@ color15    = "rgb(FFFFFF)"
 
 active_border_main  = "rgba(7C3AEDee)"
 active_border_fade  = "rgba(7C3AED10)"
-inactive_border     = "rgba(595959aa)"
+inactive_border     = "rgba(59595912)"
 
 group_border_active = "rgba(7C3AEDee)"
 group_bar_active    = "rgba(7C3AEDff)"

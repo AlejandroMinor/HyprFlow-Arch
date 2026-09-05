@@ -104,9 +104,21 @@ hl.env("GTK_THEME",                         "Adwaita-dark")
 hl.env("GTK_ICON_THEME",                    "Adwaita")
 hl.env("GTK_APPLICATION_PREFER_DARK_THEME", "1")
 
--- Nvidia
-hl.env("LIBVA_DRIVER_NAME",                 "nvidia")
-hl.env("__GLX_VENDOR_LIBRARY_NAME",         "nvidia")
+
+local function has_nvidia()
+    local f = io.open("/proc/driver/nvidia/version", "r")
+    if f then f:close(); return true end
+    f = io.open("/sys/module/nvidia/initstate", "r")
+    if f then f:close(); return true end
+    return false
+end
+
+if has_nvidia() then
+    hl.env("LIBVA_DRIVER_NAME",             "nvidia")
+    hl.env("__GLX_VENDOR_LIBRARY_NAME",     "nvidia")
+else
+    hl.env("LIBVA_DRIVER_NAME",             "radeonsi")
+end
 hl.env("ELECTRON_OZONE_PLATFORM_HINT",      "auto")
 
 

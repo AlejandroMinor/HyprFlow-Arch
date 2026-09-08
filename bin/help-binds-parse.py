@@ -91,11 +91,42 @@ def submap_for(pos, spans):
     return ""
 
 
-def main():
-    path = sys.argv[1]
-    with open(path) as f:
-        text = f.read()
+GESTURE_LABELS = {
+    "up": "swipe up",
+    "down": "swipe down",
+    "left": "swipe left",
+    "right": "swipe right",
+    "horizontal": "swipe left/right",
+    "vertical": "swipe up/down",
+    "pinchin": "pinch in",
+    "pinchout": "pinch out",
+    "pinch": "pinch",
+}
 
+
+def parse_gestures(text):
+    """hl.gesture calls -> ("", "N fingers <motion>", description).
+
+    Gestures have no submap, so that column stays empty and they sort first.
+    """
+    results = []
+    for m in re.finditer(r"hl\.gesture\(", text):
+        open_idx = text.index("(", m.start())
+        call_text, _ = extract_call(text, open_idx)
+        inner = call_text[1:-1]
+
+        desc = re.search(r'description\s*=\s*"((?:[^"\\]|\\.)*)"', inner)
+        fingers = re.search(r"fingers\s*=\s*(\d+)", inner)
+        direction = re.search(r'direction\s*=\s*"(\w+)"', inner)
+        if not (desc and fingers and direction):
+            continue
+
+        motion = GESTURE_LABELS.get(direction.group(1), direction.group(1))
+        results.append(("", f"{fingers.group(1)} fingers {motion}", desc.group(1)))
+    return results
+
+
+def parse_binds(text):
     submap_spans = find_submap_spans(text)
     results = []
     for m in re.finditer(r"hl\.bind\(", text):
@@ -109,9 +140,19 @@ def main():
         if not desc_match:
             continue
         submap = submap_for(m.start(), submap_spans)
-        mods = key_label(args[0])
-        description = desc_match.group(1)
-        results.append((submap, mods, description))
+        results.append((submap, key_label(args[0]), desc_match.group(1)))
+    return results
+
+
+def main():
+    # Takes any number of files and runs both extractors over each: a file
+    # without hl.bind or without hl.gesture simply yields nothing for it.
+    results = []
+    for path in sys.argv[1:]:
+        with open(path) as f:
+            text = f.read()
+        results.extend(parse_binds(text))
+        results.extend(parse_gestures(text))
 
     results.sort(key=lambda r: r[0])
     for submap, mods, description in results:

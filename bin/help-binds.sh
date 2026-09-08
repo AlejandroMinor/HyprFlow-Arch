@@ -14,8 +14,9 @@ pkill -x rofi && exit 0
 THEME="$HOME/.config/rofi/hyprflow/list.rasi"
 SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 KEYBINDS_LUA="$SCRIPT_DIR/../dotconfig/hypr/keybindings.lua"
+GESTURES_LUA="$SCRIPT_DIR/../dotconfig/hypr/gestures.lua"
 
-python3 "$SCRIPT_DIR/help-binds-parse.py" "$KEYBINDS_LUA" | \
+python3 "$SCRIPT_DIR/help-binds-parse.py" "$KEYBINDS_LUA" "$GESTURES_LUA" | \
 awk -F'\t' -v accent="$color15" -v muted="$color8" '
 function esc(s) {
     gsub(/&/, "\\&amp;", s); gsub(/</, "\\&lt;", s); gsub(/>/, "\\&gt;", s)

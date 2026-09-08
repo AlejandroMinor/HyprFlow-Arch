@@ -20,8 +20,11 @@ as a net.
 """
 import ctypes
 import json
+import os
+import socket
 import subprocess
 import sys
+import threading
 import time
 
 # Must load before gi imports GTK, or the window comes up as a normal toplevel
@@ -271,7 +274,42 @@ class MasterPick(Gtk.Application):
         win.add_controller(keys)
 
         GLib.timeout_add_seconds(PICK_TIMEOUT_SECONDS, self.close_overlay)
+        self._close_on_workspace_change()
         win.present()
+
+    def _close_on_workspace_change(self):
+        # Layer surfaces outlive workspace switches, so the overlay would sit
+        # there labelling windows that aren't on screen any more. The keyboard
+        # grab doesn't stop the switch either -- it's reachable by mouse.
+        his = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+        if not his:
+            return
+        runtime = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
+        path = os.path.join(runtime, "hypr", his, ".socket2.sock")
+
+        def reader():
+            try:
+                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+                    sock.connect(path)
+                    buf = b""
+                    while True:
+                        chunk = sock.recv(4096)
+                        if not chunk:
+                            return
+                        buf += chunk
+                        while b"\n" in buf:
+                            line, buf = buf.split(b"\n", 1)
+                            # activespecial covers the scratchpad, which
+                            # doesn't emit workspace.
+                            if line.startswith(
+                                (b"workspace>>", b"focusedmon>>", b"activespecial>>")
+                            ):
+                                GLib.idle_add(self.close_overlay)
+                                return
+            except OSError:
+                pass  # no socket: fall back to Escape and the timeout
+
+        threading.Thread(target=reader, daemon=True).start()
 
     def close_overlay(self):
         # Destroy the surface before leaving the loop, so the compositor

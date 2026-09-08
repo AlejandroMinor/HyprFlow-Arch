@@ -484,8 +484,31 @@ if hl.plugin.hyprglass then
         -- hides the effect except while dragging.
         manage_window_blur = true,
 
-        -- Expensive and fragile (hooks renderLayer), and the liquid band is only
-        -- ~3px on a 46px bar. Rofi keeps its native blur from windowrules.lua.
-        layers = { enabled = false },
+        -- Opt-in per namespace below. Off for always-on bars: expensive, and
+        -- the liquid band is only ~3px on a 46px waybar.
+        layers = { enabled = true },
     })
+
+    -- Pushed harder than "minor" because the pill is a fraction of a window's
+    -- size -- below that the effect reads as a flat tinted box. Legibility
+    -- doesn't matter here, it's on screen for a few seconds.
+    hg.preset("master-pick-glass", {
+        inherits             = "minor",
+        blur_strength        = 1.1,
+        edge_thickness       = 0.15,  -- plugin max
+        refraction_strength  = 8.0,
+        chromatic_aberration = 0.85,
+        lens_distortion      = 0.5,
+        fresnel_strength     = 1.0,   -- plugin max
+        -- The real transparency dial: the shader saturates the composite to
+        -- opaque at 1.0 no matter how transparent the pill's own CSS is.
+        glass_opacity        = 0.95,
+        -- Near-zero, unlike "minor": the accent dilutes across a kitty window
+        -- but turns a pill this small solid purple.
+        dark = { tint_color = tint(color5, 0x08) },
+    })
+
+    -- Namespace match is exact, not regex. mask_threshold keeps the pill's
+    -- anti-aliased edge from counting as content.
+    hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.05 })
 end

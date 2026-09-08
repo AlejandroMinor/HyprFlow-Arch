@@ -182,7 +182,10 @@ hl.layer_rule({ name = "waybar-blur",  match = { namespace = "waybar" },   blur 
 -- wlogout's GTK layer-shell surface reports namespace "logout_dialog", not "wlogout"
 -- (check with `hyprctl layers` if porting this rule to another GTK app)
 hl.layer_rule({ name = "wlogout-blur", match = { namespace = "logout_dialog" }, blur = true, ignore_alpha = 0.01 })
-hl.layer_rule({ name = "master-pick-blur", match = { namespace = "master-pick" }, blur = true, ignore_alpha = 0.01 })
+-- Glassed by hyprglass (hg.layer in hyprland.lua), so no native blur here.
+-- Fade because the global layersIn slide has no sensible edge to come from
+-- on a surface anchored to all four.
+hl.layer_rule({ name = "master-pick-anim", match = { namespace = "master-pick" }, animation = "fade" })
 
 
 -- =======================================================

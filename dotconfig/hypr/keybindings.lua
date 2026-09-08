@@ -311,7 +311,9 @@ hl.bind(mainMod .. " + SHIFT + mouse_up",   set_zoom(-0.1), { repeating = true }
 -- =======================================================
 
 hl.bind(mainMod .. " + Return",    hl.dsp.layout("swapwithmaster master"), { description = "Swap with Master" })
-hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("master-pick.py --notify --labels=letters"), { description = "Pick Window to Send to Master" })
+hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("master-pick.py --notify"), { description = "Pick Window to Send to Master" })
+-- "masculine" is º, the key left of 1 on the es layout.
+hl.bind(mainMod .. " + masculine",      hl.dsp.exec_cmd("master-pick.py --notify"), { description = "Pick Window to Send to Master (alt)" })
 hl.bind("mouse:277",               hl.dsp.layout("swapwithmaster master"))
 hl.bind(mainMod .. " + S",         hl.dsp.layout("focusmaster auto"),      { description = "Focus Master" })
 hl.bind(mainMod .. " + U",         hl.dsp.layout("orientationnext"),       { description = "Rotate Master" })

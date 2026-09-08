@@ -227,6 +227,7 @@ Everything in `bin/` lands in `~/.local/bin`.
 | `master-pick.py` | Number windows and swap one to master (`Super + Shift + Return`) |
 | `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` |
 | `hyprland-group-all.sh` | Group every window in the workspace |
+| `close-workspace.sh` | Close every window in the workspace, with confirmation (`Super + Shift + Q`) |
 | `session-manager/` | Save and restore window layouts |
 
 **Waybar modules**

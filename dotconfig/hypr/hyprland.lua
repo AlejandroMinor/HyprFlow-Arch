@@ -48,10 +48,12 @@ end
 ---- MY PROGRAMS ----
 ---------------------
 
--- Set programs that you use
-local terminal    = "kitty"
-local fileManager = "kitty --class yazi-kitty -e yazi"
-local menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
+-- Set programs that you use. Global on purpose: keybindings.lua and gestures.lua
+-- are require()d further down and read them from here, the same way colors.lua
+-- hands its palette to this file. Change a program once, here.
+terminal    = "kitty"
+fileManager = "kitty --class yazi-kitty -e yazi"
+menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
 
 
 -------------------

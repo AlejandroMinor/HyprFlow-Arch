@@ -1,13 +1,9 @@
 -- keybindings.lua
 -- Migrated from keybindings.conf
--- NOTE: terminal, fileManager, menu are redefined here because 'local' variables
--- in hyprland.lua are not visible across require() calls.
--- If you make them global there (remove 'local'), delete these.
+-- terminal, fileManager and menu are globals set in hyprland.lua, which
+-- require()s this file after defining them.
 
-local mainMod     = "SUPER"
-local terminal    = "kitty"
-local fileManager = "kitty --class yazi-kitty -e yazi"
-local menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
+local mainMod = "SUPER"
 
 
 -- =======================================================
@@ -203,30 +199,30 @@ hl.bind(mainMod .. " + R", hl.dsp.submap("winctl"), { description = "Window Cont
 
 hl.define_submap("winctl", function()
     -- Resize (relative delta)
-    hl.bind("right", hl.dsp.window.resize({ x = 10,  y = 0,   relative = true }), { repeating = true })
-    hl.bind("left",  hl.dsp.window.resize({ x = -10, y = 0,   relative = true }), { repeating = true })
-    hl.bind("up",    hl.dsp.window.resize({ x = 0,   y = -10, relative = true }), { repeating = true })
-    hl.bind("down",  hl.dsp.window.resize({ x = 0,   y = 10,  relative = true }), { repeating = true })
-    hl.bind("h",     hl.dsp.window.resize({ x = -10, y = 0,   relative = true }), { repeating = true })
-    hl.bind("l",     hl.dsp.window.resize({ x = 10,  y = 0,   relative = true }), { repeating = true })
-    hl.bind("k",     hl.dsp.window.resize({ x = 0,   y = -10, relative = true }), { repeating = true })
-    hl.bind("j",     hl.dsp.window.resize({ x = 0,   y = 10,  relative = true }), { repeating = true })
+    hl.bind("right", hl.dsp.window.resize({ x = 10,  y = 0,   relative = true }), { repeating = true, description = "Grow Width" })
+    hl.bind("left",  hl.dsp.window.resize({ x = -10, y = 0,   relative = true }), { repeating = true, description = "Shrink Width" })
+    hl.bind("up",    hl.dsp.window.resize({ x = 0,   y = -10, relative = true }), { repeating = true, description = "Shrink Height" })
+    hl.bind("down",  hl.dsp.window.resize({ x = 0,   y = 10,  relative = true }), { repeating = true, description = "Grow Height" })
+    hl.bind("h",     hl.dsp.window.resize({ x = -10, y = 0,   relative = true }), { repeating = true, description = "Shrink Width" })
+    hl.bind("l",     hl.dsp.window.resize({ x = 10,  y = 0,   relative = true }), { repeating = true, description = "Grow Width" })
+    hl.bind("k",     hl.dsp.window.resize({ x = 0,   y = -10, relative = true }), { repeating = true, description = "Shrink Height" })
+    hl.bind("j",     hl.dsp.window.resize({ x = 0,   y = 10,  relative = true }), { repeating = true, description = "Grow Height" })
 
     -- Move (floating)
-    hl.bind("SHIFT + right", hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
-    hl.bind("SHIFT + left",  hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
-    hl.bind("SHIFT + up",    hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
-    hl.bind("SHIFT + down",  hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
-    hl.bind("SHIFT + h",     hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
-    hl.bind("SHIFT + l",     hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
-    hl.bind("SHIFT + k",     hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
-    hl.bind("SHIFT + j",     hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
+    hl.bind("SHIFT + right", hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true, description = "Move Window Right" })
+    hl.bind("SHIFT + left",  hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true, description = "Move Window Left" })
+    hl.bind("SHIFT + up",    hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true, description = "Move Window Up" })
+    hl.bind("SHIFT + down",  hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true, description = "Move Window Down" })
+    hl.bind("SHIFT + h",     hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true, description = "Move Window Left" })
+    hl.bind("SHIFT + l",     hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true, description = "Move Window Right" })
+    hl.bind("SHIFT + k",     hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true, description = "Move Window Up" })
+    hl.bind("SHIFT + j",     hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true, description = "Move Window Down" })
 
     -- Float size presets (absolute)
-    hl.bind("1", hl.dsp.window.resize({ x = 720,  y = 460  }))
-    hl.bind("2", hl.dsp.window.resize({ x = 1100, y = 700  }))
-    hl.bind("3", hl.dsp.window.resize({ x = 1560, y = 950  }))
-    hl.bind("4", hl.dsp.window.resize({ x = 2000, y = 1180 }))
+    hl.bind("1", hl.dsp.window.resize({ x = 720,  y = 460  }), { description = "Size 720x460" })
+    hl.bind("2", hl.dsp.window.resize({ x = 1100, y = 700  }), { description = "Size 1100x700" })
+    hl.bind("3", hl.dsp.window.resize({ x = 1560, y = 950  }), { description = "Size 1560x950" })
+    hl.bind("4", hl.dsp.window.resize({ x = 2000, y = 1180 }), { description = "Size 2000x1180" })
 
     -- Master mfact presets
     local function mfact(val)
@@ -235,14 +231,14 @@ hl.define_submap("winctl", function()
             hl.dispatch(hl.dsp.layout("mfact " .. val))
         end
     end
-    hl.bind("SHIFT + 1", mfact("0.50"))
-    hl.bind("SHIFT + 2", mfact("0.65"))
-    hl.bind("SHIFT + 3", mfact("0.75"))
-    hl.bind("SHIFT + 4", mfact("0.85"))
+    hl.bind("SHIFT + 1", mfact("0.50"), { description = "Master Width 50%" })
+    hl.bind("SHIFT + 2", mfact("0.65"), { description = "Master Width 65%" })
+    hl.bind("SHIFT + 3", mfact("0.75"), { description = "Master Width 75%" })
+    hl.bind("SHIFT + 4", mfact("0.85"), { description = "Master Width 85%" })
 
-    hl.bind("f",         hl.dsp.window.fullscreen({ mode = "maximized" }))
-    hl.bind("SHIFT + f", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
-    hl.bind("c",         hl.dsp.window.center())
+    hl.bind("f",         hl.dsp.window.fullscreen({ mode = "maximized" }),  { description = "Fullscreen" })
+    hl.bind("SHIFT + f", hl.dsp.window.fullscreen({ mode = "fullscreen" }), { description = "Fullscreen (Absolute)" })
+    hl.bind("c",         hl.dsp.window.center(),                            { description = "Center Floating Window" })
     hl.bind("escape",    hl.dsp.submap("reset"))
 end)
 

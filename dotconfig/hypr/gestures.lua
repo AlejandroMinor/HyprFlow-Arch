@@ -4,7 +4,8 @@
 -- setup borrows from. Nothing destructive lives on a gesture: they fire by
 -- accident, and there's no undo. Close, fullscreen and swap-with-master are
 -- on Super+Q, Super+F and Super+Return instead.
-local menu = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
+--
+-- menu is a global set in hyprland.lua, which require()s this file.
 
 local function mission_control()
     if hl.plugin.hymission then hl.plugin.hymission.toggle() end

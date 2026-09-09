@@ -133,16 +133,6 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name    = "updates-float",
-    match   = { class = "^(updates-float)$" },
-    float   = true,
-    size    = {900, 600},
-    center  = true,
-    pin     = true,
-    opacity = "0.85 override 0.85 override",
-})
-
-hl.window_rule({
     name   = "satty-float",
     match  = { class = "^(com\\.gabm\\.satty)$" },
     float  = true,

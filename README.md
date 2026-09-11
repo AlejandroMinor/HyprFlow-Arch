@@ -160,9 +160,20 @@ zen_mode = True
 post_command = bash -c "$HOME/HyprFlow-Arch/bin/wallust-theme-manager.sh --generate-palette --notify"
 ```
 
-Run `theme-picker.sh` to pick between the wallpaper palette and nine presets
-(Tokyo Night, Catppuccin, Nord, Gruvbox, Dracula, Monochrome, Synthwave, Kanagawa,
-Minor Default).
+Run `theme-picker.sh` to pick between the wallpaper palette and eighteen presets:
+
+- **Classic** — pure black background and a high-contrast ANSI palette. This is the
+  default, restored by `wallust-theme-manager.sh --restore-default`.
+- **Nocturne** — dark grey background, desaturated everything, for night work.
+- **Accent Blue / Red / Yellow / Green / Purple** — a shared neutral grey base where
+  a single saturated hue carries the window border, the cursor and the selected
+  states, so the terminal stays readable under any wallpaper.
+- **Solarized Dark** — the Schoonover palette, tuned for uniform luminance so no
+  single color jumps out. Low contrast by design.
+- **Phosphor Amber** — a single amber hue stepped by luminance, VT220 style.
+- **High Contrast** — every text color clears WCAG AAA (7:1) against pure black,
+  for working outdoors or in direct sunlight.
+- Tokyo Night, Catppuccin, Nord, Gruvbox, Dracula, Monochrome, Synthwave, Kanagawa.
 
 Cava runs both in the terminal and as the `custom/cava` Waybar module, which hides
 itself when there's no audio. Its palette follows wallust too.

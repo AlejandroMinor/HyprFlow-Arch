@@ -7,7 +7,16 @@ MANAGER="$HOME/.local/bin/wallust-theme-manager.sh"
 
 SELECTED=$(printf '%s\n' \
     "Wallpaper (Auto)" \
-    "Minor Default" \
+    "Classic" \
+    "Nocturne" \
+    "Accent Blue" \
+    "Accent Red" \
+    "Accent Yellow" \
+    "Accent Green" \
+    "Accent Purple" \
+    "Solarized Dark" \
+    "Phosphor Amber" \
+    "High Contrast" \
     "Tokyo Night" \
     "Catppuccin Mocha" \
     "Nord" \
@@ -41,8 +50,35 @@ case "$SELECTED" in
     "Wallpaper (Auto)")
         "$MANAGER" --generate-palette --notify
         ;;
-    "Minor Default")
-        apply_theme "." "minor-default.json"
+    "Classic")
+        apply_theme "." "classic.json"
+        ;;
+    "Nocturne")
+        apply_theme "." "nocturne.json"
+        ;;
+    "Accent Blue")
+        apply_theme "." "accent-blue.json"
+        ;;
+    "Accent Red")
+        apply_theme "." "accent-red.json"
+        ;;
+    "Accent Yellow")
+        apply_theme "." "accent-yellow.json"
+        ;;
+    "Accent Green")
+        apply_theme "." "accent-green.json"
+        ;;
+    "Accent Purple")
+        apply_theme "." "accent-purple.json"
+        ;;
+    "Solarized Dark")
+        apply_theme "." "solarized-dark.json"
+        ;;
+    "Phosphor Amber")
+        apply_theme "." "phosphor-amber.json"
+        ;;
+    "High Contrast")
+        apply_theme "." "high-contrast.json"
         ;;
     "Tokyo Night")
         apply_theme "tokyo-night" "tokyo-night.json"

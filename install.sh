@@ -198,7 +198,7 @@ install_dependencies() {
 # ── Submodules ───────────────────────────
 
 # A clone without --recursive leaves modules/* empty. That is quiet damage: the
-# rofi fonts never copy, the runcat font never installs, and the symlinks for
+# runcat font never installs, and the symlinks for
 # claude-usage.sh / sinkswitch / trackpad-battery are skipped without a word.
 # So check them out here instead of warning and carrying on regardless.
 missing_submodules() {
@@ -357,17 +357,8 @@ copy_configs() {
 
 setup_rofi() {
     progress "ROFI"
-    echo "󰍉 Copying rofi-collection module..."
+    echo "󰏘 Applying Rofi themes..."
     mkdir -p "$CONFIG_DEST/rofi"
-    cp -rf "$REPO_PATH/modules/rofi-collection"/files/* "$CONFIG_DEST/rofi/" 2>/dev/null || true
-
-    echo "󰛖 Installing rofi fonts..."
-    local font_dir="$HOME/.local/share/fonts"
-    mkdir -p "$font_dir"
-    cp -rf "$REPO_PATH/modules/rofi-collection/fonts"/* "$font_dir/" 2>/dev/null || true
-    fc-cache -f "$font_dir"
-
-    echo "󰏘 Applying custom Rofi themes..."
     local rofi_custom="$REPO_PATH/dotconfig/rofi"
     if [ -d "$rofi_custom" ]; then
         cp -rf "$rofi_custom"/* "$CONFIG_DEST/rofi/"

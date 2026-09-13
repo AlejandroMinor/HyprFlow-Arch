@@ -195,9 +195,10 @@ square image and it's never overwritten, or delete it for the Arch glyph instead
 
 ## Rofi
 
-`dotconfig/rofi/hyprflow/`: real transparency, wallust colors. Two variants share
-`launcher-base.rasi`: `launcher-centered.rasi` (`Super + Space` / `Super + D`) and
-`launcher.rasi` (the Waybar launcher icon). Power menu is `wlogout`, also themed.
+`dotconfig/rofi/hyprflow/`: real transparency, wallust colors.
+`launcher-centered.rasi` is the launcher, reached by `Super + Space`, the
+four-finger pinch gesture and the Waybar launcher icon; it builds on
+`launcher-base.rasi`. Power menu is `wlogout`, also themed.
 
 ## Plugins
 
@@ -268,7 +269,6 @@ Everything in `bin/` lands in `~/.local/bin`.
 
 | Module | Purpose |
 |--------|---------|
-| `rofi-collection` | Rofi themes and applets |
 | `apple-magic-trackpad-battery` | Trackpad battery reader |
 | `sinkswitch` | Audio output switcher |
 | `waybar-claude-usage` | Claude usage module, needs the Claude Code CLI logged in |

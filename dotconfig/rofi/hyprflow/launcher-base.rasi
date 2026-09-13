@@ -1,14 +1,21 @@
 /**
  * HyprFlow launcher — shared base (list + search column).
- * Imported by launcher.rasi and launcher-centered.rasi, which each only
- * add their own `entry { placeholder: ...; }` and `infobox` section.
+ * Imported by launcher-centered.rasi, which only adds its own
+ * `entry { placeholder: ...; }` and `infobox` section.
  */
 
 configuration {
-    modi:                "drun";
+    /* No `modi` here: the -modes flag on the launch command always wins over
+       the theme's configuration block, so declaring it here only misleads. */
     show-icons:          true;
-    display-drun:        "";
     drun-display-format: "{name}";
+
+    /* Tab labels for the mode-switcher. Every mode passed via -modes needs one
+       here, or its tab renders blank. */
+    display-drun:        " Apps";
+    display-window:      " Windows";
+    display-run:         " Commands";
+    display-ssh:         " SSH";
     font:                "JetBrainsMono Nerd Font 11";
     hover-select:        true;
     me-select-entry:     "MouseSecondary";
@@ -44,7 +51,28 @@ listbox {
     spacing:  10px;
     border:   0px 1px 0px 0px;
     border-color: @separator;
-    children: [ inputbar, listview ];
+    children: [ inputbar, mode-switcher, listview ];
+}
+
+/* ── Mode tabs ─────────────────────────────────────────── */
+/* Labels come from the display-* keys above. Sized to fit four tabs inside
+   the 42%-wide left column; the active one is filled, the rest are muted. */
+mode-switcher {
+    expand:  false;
+    spacing: 4px;
+}
+
+button {
+    padding:       5px 8px;
+    border-radius: 8px;
+    cursor:        pointer;
+    font:          "JetBrainsMono Nerd Font 9";
+    text-color:    @muted;
+}
+
+button selected {
+    background-color: @sel-bg;
+    text-color:       @foreground;
 }
 
 inputbar {
@@ -68,29 +96,38 @@ entry {
     vertical-align:    0.5;
 }
 
+/* fixed-height must stay false: window mode renders two lines per entry
+   (class + title), and a forced row height clips the second one. */
 listview {
     columns:      1;
-    lines:        8;
+    lines:        6;
     spacing:      4px;
     scrollbar:    false;
     cycle:        true;
-    fixed-height: true;
+    fixed-height: false;
 }
 
+/* 14px of vertical padding, not 8: gives the two-line window-mode entries
+   (class + title) room to breathe. */
 element {
-    padding:       8px 10px;
+    padding:       14px 10px;
     spacing:       10px;
     border-radius: 8px;
     cursor:        pointer;
 }
 
-element selected.normal {
+/* `selected` with no state suffix, not `selected.normal`: window mode tags the
+   currently-focused window as `active`, so that row would otherwise render
+   unhighlighted when selected. */
+element selected {
     background-color: @sel-bg;
     text-color:       @foreground;
 }
 
+/* 34px, not 24: the icon sets the row height, and window mode needs room for
+   two lines of text (class + title). At 24 the second line got clipped. */
 element-icon {
-    size:           24px;
+    size:           34px;
     vertical-align: 0.5;
     cursor:         inherit;
 }

@@ -53,7 +53,7 @@ end
 -- hands its palette to this file. Change a program once, here.
 terminal    = "kitty"
 fileManager = "kitty --class yazi-kitty -e yazi"
-menu        = "rofi -show drun -modes 'drun,window,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
+menu        = "rofi -show drun -modes 'drun,window,ssh,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
 
 
 -------------------

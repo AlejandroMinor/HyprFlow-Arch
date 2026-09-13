@@ -1,6 +1,7 @@
 /**
- * HyprFlow launcher — "centered" variant (list + centered icon/name,
- * no button). Default launcher theme, bound to Super+D / Super+Space.
+ * HyprFlow launcher — list + centered icon/name, no button. The only
+ * launcher theme: bound to Super+Space, the 4-finger pinch gesture and
+ * the Waybar launcher icon.
  * Requires: rofi-wayland >= 1.7.4, JetBrainsMono Nerd Font
  * Launch: rofi -show drun -theme ~/.config/rofi/hyprflow/launcher-centered.rasi
  * Blur: in hyprland config → layerrule = blur, rofi
@@ -16,20 +17,29 @@ entry {
 infobox {
     padding:  28px;
     spacing:  14px;
-    children: [ dummy-top, icon-current-entry, textbox-current-entry, dummy-bottom ];
+    children: [ dummy-top, icon-current-entry, textbox-current-entry ];
 }
 
-dummy-top    { expand: true; }
-dummy-bottom { expand: true; }
+/* Only a top spacer: the textbox below takes every remaining pixel, so a long
+   two-line entry grows downward instead of being clipped. */
+dummy-top { expand: true; }
 
+/* 110px, down from 140: frees vertical room for the second line of
+   window-format underneath. */
 icon-current-entry {
     expand:           false;
-    size:             140px;
+    size:             110px;
     horizontal-align: 0.5;
 }
 
+/* expand so it owns every pixel under the icon and can grow downward instead of
+   being clipped; without it the textbox is only as wide as its text and
+   horizontal-align has nothing to center within.
+   15px rather than 22 because this same textbox serves every mode, and ssh
+   hosts and window titles run far longer than an app name. */
 textbox-current-entry {
-    expand:           false;
+    expand:           true;
     horizontal-align: 0.5;
-    font:             "JetBrainsMono Nerd Font Bold 22";
+    vertical-align:   0.0;
+    font:             "JetBrainsMono Nerd Font Bold 15";
 }

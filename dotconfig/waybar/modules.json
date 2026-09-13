@@ -141,7 +141,7 @@
 
     "custom/launcher": {
         "format": " ",
-        "on-click": "rofi -show drun -theme ~/.config/rofi/hyprflow/launcher.rasi",
+        "on-click": "pkill -x rofi || rofi -show drun -modes 'drun,window,ssh,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi",
         "on-click-right": "killall rofi"
     },
 

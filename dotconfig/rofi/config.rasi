@@ -1,0 +1,50 @@
+/**
+ * HyprFlow rofi configuration. Installed to ~/.config/rofi/config.rasi, which
+ * is where rofi looks by default.
+ *
+ * Only the keys HyprFlow actually depends on live here. Everything else stays
+ * at rofi's own defaults on purpose.
+ */
+
+configuration {
+    /* Default set; the -modes flag on the launch command overrides it. */
+    modi:                "drun,window,ssh,run";
+
+    show-icons:          true;
+    /* Papirus is not installed. Adwaita is, and it inherits hicolor, where most
+       app icons live. */
+    icon-theme:          "Adwaita";
+
+    /* fuzzy so "vsc" finds Visual Studio Code; sort ranks by relevance. */
+    matching:            "fuzzy";
+    sort:                true;
+    cycle:               true;
+
+    /* Used by the ssh and run modes to spawn a terminal. */
+    terminal:            "kitty";
+
+    drun-display-format: "{name}";
+    drun-match-fields:   "name,generic,exec,categories,keywords";
+
+    /* Class on top, window title small and dimmed underneath.
+       Known cost of the newline: rofi draws a trailing ellipsis on every
+       two-line entry, even short ones, in the list and the info panel. It is
+       not width truncation, and no setting turns it off (-ellipsize-mode only
+       offers start, middle and end). Single-line entries such as ssh hosts
+       don't get it.
+       No {w}: Hyprland workspaces are not exposed to rofi, so it renders empty
+       and leaves a dangling dash on every row. */
+    window-format:       "{c}\n<span size='small' alpha='55%'>{t}</span>";
+    window-match-fields: "title,class";
+    /* window-thumbnail needs XComposite; under Wayland it does nothing. */
+    window-thumbnail:    false;
+
+    /* Shift+Enter in run mode: execute inside the terminal instead of
+       launching blind, which is what makes the mode useful at all. */
+    run-shell-command:   "{terminal} -e {cmd}";
+
+    ssh-client:          "ssh";
+    ssh-command:         "{terminal} -e {ssh-client} {host} [-p {port}]";
+    parse-hosts:         true;
+    parse-known-hosts:   true;
+}

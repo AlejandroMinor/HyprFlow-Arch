@@ -233,6 +233,7 @@ Everything in `bin/` lands in `~/.local/bin`.
 |--------|-------------|
 | `wallust-theme-manager.sh` | Generate and apply color palettes |
 | `theme-picker.sh` | Interactive theme selector |
+| `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
 | `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
 | `master-pick.py` | Number windows and swap one to master (`Super + Shift + Return`) |
@@ -293,6 +294,35 @@ changing your login shell). Needs
 `zsh zsh-autosuggestions zsh-syntax-highlighting zoxide bat` plus `fzf-tab` and
 `oh-my-zsh-git` from the AUR. Adds git/sudo/copypath/fzf plugins, autosuggestions,
 syntax highlighting, fzf-tab with `bat` preview, and zoxide (`z`, `zi`).
+
+**RGB lighting.** With [OpenRGB](https://openrgb.org) the case lighting follows
+the theme: a wallpaper sets it to the image's dominant vivid hue, a preset to its
+accent colour, always at full saturation since LEDs wash dim tones out to white.
+Without OpenRGB or its server, `rgb-sync.sh` does nothing.
+
+First check that OpenRGB sees your hardware. If an ARGB strip or fan only lights
+up partly, open the `openrgb` GUI, resize its zone and save.
+
+```bash
+sudo pacman -S openrgb
+openrgb -l
+```
+
+Then run OpenRGB as a system server. It runs as root because some controllers,
+such as NVMe drives, only answer to root; the drop-in binds it to `127.0.0.1`
+instead of the whole LAN.
+
+```bash
+sudo mkdir -p /etc/systemd/system/openrgb.service.d /etc/openrgb
+sudo cp ~/HyprFlow-Arch/system/openrgb.service.d/override.conf /etc/systemd/system/openrgb.service.d/
+# Only if you resized zones in the GUI: the root server reads /etc/openrgb.
+sudo cp ~/.config/OpenRGB/sizes.ors /etc/openrgb/
+sudo systemctl daemon-reload
+sudo systemctl enable --now openrgb
+```
+
+The colour applies on the next wallpaper or theme change, or right away with
+`rgb-sync.sh`.
 
 **GTK dark theme**
 

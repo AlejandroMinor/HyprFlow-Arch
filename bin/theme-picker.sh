@@ -43,6 +43,7 @@ apply_theme() {
     wallust cs "$THEMES_DIR/$json"
     hyprctl reload > /dev/null
     killall -SIGUSR2 waybar 2>/dev/null
+    setsid rgb-sync.sh >/dev/null 2>&1 < /dev/null &
     notify-send -i "color-management" "Theme Picker" "Applied theme: $SELECTED"
 }
 

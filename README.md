@@ -204,7 +204,6 @@ four-finger pinch gesture and the Waybar launcher icon; it builds on
 
 | Plugin | Repo | Description |
 |--------|------|-------------|
-| `hyprfocus` | `hyprwm/hyprland-plugins` | Window focus animation |
 | `hymission` | `gfhdhytghd/hymission` | Mission Control-style overview |
 | `hyprglass` | `hyprnux/hyprglass` | Liquid glass on transparent windows |
 

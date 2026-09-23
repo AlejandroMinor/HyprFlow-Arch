@@ -99,9 +99,8 @@ AUR_PKGS=(
 )
 
 # Hyprland plugins, in the order they are reported.
-PLUGIN_NAMES=(hyprfocus hymission hyprglass)
+PLUGIN_NAMES=(hymission hyprglass)
 declare -A PLUGIN_REPOS=(
-    [hyprfocus]="https://github.com/hyprwm/hyprland-plugins"
     [hymission]="https://github.com/gfhdhytghd/hymission"
     [hyprglass]="https://github.com/hyprnux/hyprglass"
 )

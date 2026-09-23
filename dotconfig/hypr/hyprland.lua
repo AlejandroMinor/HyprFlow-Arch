@@ -288,14 +288,6 @@ end
 
 hl.config({
     plugin = {
-        hyprfocus = {
-            keyboard_focus_animation = "slide",
-            mouse_focus_animation    = "slide",
-            fade_opacity             = 0.99,
-            slide_height             = 28,
-            only_on_monitor_change   = true,
-        },
-
         hymission = {
             backdrop_blur        = 1,
 

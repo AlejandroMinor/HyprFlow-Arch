@@ -82,7 +82,7 @@ CURRENT_STEP=0
 # Packages this config needs. Checked with `pacman -T`, which understands
 # provides, so rofi satisfying rofi-wayland counts as installed.
 PACMAN_PKGS=(
-    hyprland hyprlock hyprshot hyprpicker
+    hyprland hyprlock hyprshot hyprpicker hyprpm
     waybar rofi swaync wlogout cava awww
     kitty yazi satty btop fastfetch gnome-disk-utility
     pipewire pipewire-pulse wireplumber pavucontrol rtkit

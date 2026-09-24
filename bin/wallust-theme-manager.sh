@@ -47,6 +47,7 @@ if [ "$ACTION" == "generate" ]; then
     fi
 
     wallust run $SKIP_SEQUENCES "$WP_PATH"
+    RGB_ARG="$WP_PATH"
 
 elif [ "$ACTION" == "default" ]; then
     wallust cs $SKIP_SEQUENCES "$HOME_DIR/.config/wallust/themes/$DEFAULT_THEME.json"
@@ -54,6 +55,7 @@ elif [ "$ACTION" == "default" ]; then
 fi
 
 hyprctl reload > /dev/null
+setsid rgb-sync.sh ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1 < /dev/null &
 sleep 0.5
 if [ "$RESTART_WAYBAR" = true ]; then
     killall waybar 2>/dev/null

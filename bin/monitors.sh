@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# monitors.sh — monitor wizard + profiles (Hyprland + Waybar). Subcommands: list | setup | apply
+# monitors.sh: monitor wizard + profiles (Hyprland + Waybar). Subcommands: list | setup | apply | mirror
 
 set -uo pipefail
 
@@ -7,6 +7,7 @@ CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 HYPR_DIR="$CFG/hypr"
 WAYBAR_DIR="$CFG/waybar"
 PROFILES="$HYPR_DIR/monitor-profiles.json"
+UNMIRRORED="$HYPR_DIR/monitor-profiles.unmirrored.json"
 ACTIVE_LUA="$HYPR_DIR/monitors_active.lua"
 WAYBAR_CFG="$WAYBAR_DIR/config"
 BARS_TEMPLATE="$WAYBAR_DIR/bars.json"
@@ -61,6 +62,41 @@ port_for_desc() {
     jq -r --arg d "$1" '.[] | select(.description == $d) | .name' | head -n1
 }
 
+# Turn a profile (stdin) into a mirror profile: every monitor clones $1 (a
+# description). All monitors get the largest resolution they have in common,
+# each at the refresh rate closest to the one it had.
+mirrorize() {
+    local src="$1" detected
+    detected="$(detect_json)"
+    jq --arg src "$src" --argjson det "$detected" '
+        def res: split("@")[0];
+        def hz: (split("@")[1] // "60" | tonumber);
+        def absv: if . < 0 then -. else . end;
+        def modes($d): [ $det[] | select(.description == $d) | .availableModes[] | sub("Hz$"; "") ];
+        . as $p
+        | ([ $p[] | [ modes(.description)[] | res ] | unique ]
+           | if length == 0 then [] else reduce .[1:][] as $r (.[0]; . - (. - $r)) end
+           | sort_by(split("x") | map(tonumber) | .[0] * .[1]) | last) as $common
+        | map(
+            .mode as $cur
+            | (if $common then
+                  ([ modes(.description)[] | select(res == $common) ]
+                   | sort_by((hz - ($cur | hz)) | absv) | first)
+               else null end) as $m
+            | (if $m then .mode = ($m | sub("\\.0+$"; "")) else . end)
+            | if .description == $src then .primary = true | del(.mirror)
+              else .primary = false | .transform = 0 | .mirror = $src end
+          )'
+}
+
+save_profile() {
+    local sig="$1" entries="$2" file="${3:-$PROFILES}"
+    mkdir -p "$HYPR_DIR"
+    [ -f "$file" ] || echo '{}' > "$file"
+    local merged; merged="$(jq --arg s "$sig" --argjson e "$entries" '.[$s] = $e' "$file")"
+    printf '%s\n' "$merged" > "$file"
+}
+
 generate() {
     local out_lua="$1" out_waybar="$2"
     local profile detected
@@ -84,6 +120,18 @@ generate() {
             primary="$(jq -r ".[$i].primary" <<<"$profile")"
             port="$(printf '%s' "$detected" | port_for_desc "$desc")"
             [ -z "$port" ] && continue
+
+            # optional "mirror": description of the source monitor -> clone it
+            local mirror_desc mirror_port
+            mirror_desc="$(jq -r ".[$i].mirror // empty" <<<"$profile")"
+            if [ -n "$mirror_desc" ]; then
+                mirror_port="$(printf '%s' "$detected" | port_for_desc "$mirror_desc")"
+                if [ -n "$mirror_port" ]; then
+                    printf -- 'hl.monitor({ output = "%s", mode = "%s", position = "auto", scale = %s, mirror = "%s" })\n' \
+                        "$port" "$mode" "$scale" "$mirror_port"
+                    continue
+                fi
+            fi
 
             w="${mode%x*}"
             h="${mode#*x}"; h="${h%@*}"
@@ -129,6 +177,7 @@ generate() {
         desc="$(jq -r ".[$i].description" <<<"$profile")"
         bar="$(jq -r ".[$i].bar" <<<"$profile")"
         [ "$bar" = "none" ] && continue
+        [ -n "$(jq -r ".[$i].mirror // empty" <<<"$profile")" ] && continue
         port="$(printf '%s' "$detected" | port_for_desc "$desc")"
         [ -z "$port" ] && continue
         archetype="$(jq -c --arg t "$bar" '.[$t] // empty' "$BARS_TEMPLATE")"
@@ -197,7 +246,8 @@ cmd_apply() {
 
     if [ "$wb_changed" -eq 1 ] || ! pgrep -x waybar >/dev/null 2>&1; then
         killall -w waybar >/dev/null 2>&1 || true
-        setsid waybar >/dev/null 2>&1 < /dev/null &
+        # 9>&- : don't let Waybar (and its children) inherit the apply lock
+        setsid waybar >/dev/null 2>&1 < /dev/null 9>&- &
         msg "Waybar (re)started"
     fi
 
@@ -270,22 +320,81 @@ cmd_setup() {
     entries="$(jq --argjson p "$prim" 'to_entries | map(.value.primary = (.key == $p)) | map(.value)' <<<"$entries")"
 
     local sig; sig="$(printf '%s' "$detected" | sig_of_descriptions)"
-    mkdir -p "$HYPR_DIR"
-    [ -f "$PROFILES" ] || echo '{}' > "$PROFILES"
-    local merged; merged="$(jq --arg s "$sig" --argjson e "$entries" '.[$s] = $e' "$PROFILES")"
-    printf '%s\n' "$merged" > "$PROFILES"
+    if [ "$cnt" -gt 1 ]; then
+        printf '\n\033[1mMirror\033[0m (every monitor clones the primary, same resolution):\n'
+        local mir; mir="$(ask "  Mirror mode? [y/N]: " "n")"
+        case "$mir" in [yY]*)
+            save_profile "$sig" "$entries" "$UNMIRRORED"
+            entries="$(mirrorize "$(jq -r '.[] | select(.primary) | .description' <<<"$entries")" <<<"$entries")"
+            ;;
+        esac
+    fi
+
+    save_profile "$sig" "$entries"
     msg "profile saved for: $sig"
 
     cmd_apply
 }
 
+cmd_mirror() {
+    need jq
+    local action="${1:-toggle}" src="${2:-}"
+    local detected sig profile
+    detected="$(detect_json)"
+    sig="$(printf '%s' "$detected" | sig_of_descriptions)"
+    [ "$(jq 'length' <<<"$detected")" -lt 2 ] && { warn "mirror needs at least 2 monitors"; exit 1; }
+
+    if [ -f "$PROFILES" ] && jq -e --arg s "$sig" 'has($s)' "$PROFILES" >/dev/null 2>&1; then
+        profile="$(jq -c --arg s "$sig" '.[$s]' "$PROFILES")"
+    else
+        profile="$(default_profile)"
+    fi
+
+    local mirrored=0
+    jq -e 'any(.[]; .mirror)' <<<"$profile" >/dev/null && mirrored=1
+    if [ "$action" = "toggle" ]; then
+        [ "$mirrored" -eq 1 ] && action=off || action=on
+    fi
+
+    case "$action" in
+        on)
+            # source: argument (description or port), else the primary monitor
+            if [ -n "$src" ]; then
+                local d; d="$(jq -r --arg s "$src" '.[] | select(.name == $s or .description == $s) | .description' <<<"$detected" | head -n1)"
+                [ -z "$d" ] && { warn "unknown monitor: $src"; exit 1; }
+                src="$d"
+            else
+                src="$(jq -r '(map(select(.primary))[0] // .[0]).description' <<<"$profile")"
+            fi
+            # remember the extended layout so `mirror off` can restore it
+            [ "$mirrored" -eq 0 ] && save_profile "$sig" "$profile" "$UNMIRRORED"
+            profile="$(mirrorize "$src" <<<"$profile")"
+            msg "mirroring onto: $src"
+            ;;
+        off)
+            if [ -f "$UNMIRRORED" ] && jq -e --arg s "$sig" 'has($s)' "$UNMIRRORED" >/dev/null 2>&1; then
+                profile="$(jq -c --arg s "$sig" '.[$s]' "$UNMIRRORED")"
+            else
+                profile="$(default_profile)"
+            fi
+            msg "mirror off: back to extended layout"
+            ;;
+        *) warn "usage: monitors.sh mirror [on [MONITOR]|off|toggle]"; exit 1 ;;
+    esac
+
+    save_profile "$sig" "$profile"
+    cmd_apply
+}
+
+take_lock() {
+    exec 9>/tmp/monitors-apply.lock
+    flock -n 9 || { msg "already running, skipping"; exit 0; }
+}
+
 case "${1:-apply}" in
     list)  cmd_list ;;
     setup) cmd_setup ;;
-    apply)
-        exec 9>/tmp/monitors-apply.lock
-        flock -n 9 || { msg "already running, skipping"; exit 0; }
-        cmd_apply
-        ;;
-    *) warn "usage: monitors.sh [list|setup|apply]"; exit 1 ;;
+    apply)  take_lock; cmd_apply ;;
+    mirror) take_lock; cmd_mirror "${2:-toggle}" "${3:-}" ;;
+    *) warn "usage: monitors.sh [list|setup|apply|mirror [on [MONITOR]|off|toggle]]"; exit 1 ;;
 esac

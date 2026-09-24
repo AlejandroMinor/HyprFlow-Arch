@@ -107,20 +107,49 @@ of connected monitors and regenerates both the Hyprland and Waybar config from i
 | Command | What it does |
 |---------|--------------|
 | `monitors.sh list` | Print each monitor's description, port, and mode |
-| `monitors.sh setup` | Wizard: enable, rotation, scale, bar type, order, primary |
+| `monitors.sh setup` | Wizard: enable, rotation, scale, bar type, order, primary, mirror |
 | `monitors.sh apply` | Non-interactive: load the matching profile and regenerate |
+| `monitors.sh mirror [on [MONITOR]\|off\|toggle]` | Clone every monitor onto one (default: primary), or restore the extended layout |
 
 It generates these in `~/.config` (not tracked in the repo):
 
 - `hypr/monitors_active.lua`: `hl.monitor` + workspace rules, positioned left → right
 - `waybar/config`: one bar per monitor, matched by identifier (`make model serial`)
 - `hypr/monitor-profiles.json`: saved profiles
+- `hypr/monitor-profiles.unmirrored.json`: the extended layout `mirror off` restores
 
 No daemon. `apply` runs on login and on hotplug (via `hl.on("monitor.added")` in
 `hyprland.lua`), and only reloads if the output actually changed.
 
 Rotation uses native Hyprland transforms (`0` normal, `1`/`3` portrait, `2` upside
-down, `4-7` mirrored). Portrait swaps width/height automatically.
+down, `4-7` flipped). Portrait swaps width/height automatically.
+
+### Mirror mode
+
+Clone every monitor onto one, e.g. to show the laptop on a TV:
+
+```sh
+monitors.sh mirror                # toggle between mirror and extended
+monitors.sh mirror on             # clone the primary monitor
+monitors.sh mirror on eDP-1       # clone a specific monitor, by port…
+monitors.sh mirror on "AMZ FireTV"  # …or by description
+monitors.sh mirror off            # back to the extended layout
+```
+
+`mirror on`:
+
+1. Saves the current extended layout to `hypr/monitor-profiles.unmirrored.json`.
+2. Picks the largest resolution every monitor supports, each at the refresh rate closest to its current one. A 4K TV mirroring a 1080p laptop runs at 1080p.
+3. Clones the source onto the rest. Mirrored monitors get no workspaces and no bar.
+4. Saves it as the profile for this set of monitors and reloads Hyprland + Waybar.
+
+`mirror off` restores the saved extended layout (or the default one if there is none). Because the result is a regular profile, unplugging and replugging the same monitors brings the mirror back. `setup` also offers it at the end (`Mirror mode? [y/N]`), cloning onto the monitor you picked as primary.
+
+In `monitor-profiles.json`, a mirrored monitor is an entry with a `mirror` key holding the source's description:
+
+```json
+{ "description": "AMZ FireTV", "mode": "1920x1080@60", "mirror": "Lenovo Group Limited 0x40A9", ... }
+```
 
 ## Waybar
 
@@ -236,7 +265,7 @@ Everything in `bin/` lands in `~/.local/bin`.
 | `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
 | `master-pick.py` | Number windows and swap one to master (`Super + Shift + Return`) |
-| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` |
+| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` |
 | `hyprland-group-all.sh` | Group every window in the workspace |
 | `close-workspace.sh` | Close every window in the workspace, with confirmation (`Super + Shift + Q`) |
 | `session-manager/` | Save and restore window layouts |

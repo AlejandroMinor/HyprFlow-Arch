@@ -69,6 +69,15 @@ hl.window_rule({
     opacity = "1.0 override 0.92 override",
 })
 
+-- Size comes from the app itself (a share of the focused monitor), so the
+-- window also fits the 1080-wide portrait screens.
+hl.window_rule({
+    name   = "wallframe",
+    match  = { class = "^(io.github.AlejandroMinor.wallframe)$" },
+    float  = true,
+    center = true,
+})
+
 hl.window_rule({
     name   = "spotify-mini",
     match  = { class = "^(Spotify)$" },

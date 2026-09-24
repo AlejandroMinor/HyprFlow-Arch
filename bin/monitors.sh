@@ -302,11 +302,33 @@ cmd_setup() {
             continue ;;
         esac
 
-        # Refresh rates offered at the preferred resolution, fastest first. The
+        # Resolution: the preferred one by default. A TV often prefers 4K at
+        # 30 Hz, where 1080p at 60 Hz plays far better, so offer the rest too,
+        # largest first, each with every rate it offers (fastest first).
+        local res resolutions rates k choice def
+        res="${mode%@*}"
+        mapfile -t resolutions < <(jq -r ".[$i].availableModes[] | sub(\"Hz\$\"; \"\")" <<<"$detected" \
+            | awk -F@ '{ sub(/\.0+$/, "", $2); if (!(($1, $2) in seen)) { seen[$1, $2]; rates[$1] = rates[$1] " " $2 } }
+                       END { for (r in rates) { split(r, d, "x"); printf "%d %s%s\n", d[1] * d[2], r, rates[r] } }' \
+            | sort -k1,1nr | while read -r _ r list; do
+                  printf '%s %s\n' "$r" "$(tr ' ' '\n' <<<"$list" | sort -rnu | paste -sd/ | sed 's|/| / |g')"
+              done)
+        if [ ${#resolutions[@]} -gt 1 ]; then
+            def=1
+            printf '    Resolution (refresh rates):\n'
+            for k in "${!resolutions[@]}"; do
+                [ "${resolutions[k]%% *}" = "$res" ] && def=$((k + 1))
+                printf '      %2d) %-10s %s Hz\n' "$((k + 1))" "${resolutions[k]%% *}" "${resolutions[k]#* }"
+            done
+            choice="$(ask "  Resolution [1-${#resolutions[@]}] (default $def, preferred): " "$def")"
+            case "$choice" in ''|*[!0-9]*) choice=$def ;; esac
+            { [ "$choice" -ge 1 ] && [ "$choice" -le ${#resolutions[@]} ]; } || choice=$def
+            res="${resolutions[choice - 1]%% *}"
+        fi
+
+        # Refresh rates offered at that resolution, fastest first. The
         # preferred mode is often 60 Hz even on high refresh panels, so default
         # to the fastest instead, and only accept a rate from this list.
-        local res rates k choice
-        res="${mode%@*}"
         mapfile -t rates < <(jq -r --arg r "$res@" ".[$i].availableModes[]
             | select(startswith(\$r)) | sub(\"Hz\$\"; \"\") | split(\"@\")[1]
             | sub(\"\\\\.0+\$\"; \"\")" <<<"$detected" | sort -rnu)

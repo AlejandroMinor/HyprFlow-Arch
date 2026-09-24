@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# monitors.sh: monitor wizard + profiles (Hyprland + Waybar). Subcommands: list | setup | apply | mirror
+# monitors.sh: monitor wizard + profiles (Hyprland + Waybar). Subcommands: list | setup | apply | mirror | solo
 
 set -uo pipefail
 
@@ -8,6 +8,7 @@ HYPR_DIR="$CFG/hypr"
 WAYBAR_DIR="$CFG/waybar"
 PROFILES="$HYPR_DIR/monitor-profiles.json"
 UNMIRRORED="$HYPR_DIR/monitor-profiles.unmirrored.json"
+UNSOLOED="$HYPR_DIR/monitor-profiles.unsoloed.json"
 ACTIVE_LUA="$HYPR_DIR/monitors_active.lua"
 WAYBAR_CFG="$WAYBAR_DIR/config"
 BARS_TEMPLATE="$WAYBAR_DIR/bars.json"
@@ -27,12 +28,13 @@ clean_mode() { sed -E 's/Hz$//; s/@([0-9]+)\.[0-9]+$/@\1/'; }
 cmd_list() {
     need jq
     {
-        # CURRENT is what the monitor runs now; PREFERRED is what it advertises
-        # as native, often 60 Hz even on high refresh panels.
+        # CURRENT is what the monitor runs now ("off" when disabled, since
+        # hyprctl keeps reporting its last mode); PREFERRED is what it
+        # advertises as native, often 60 Hz even on high refresh panels.
         printf 'IDX|DESCRIPTION (identifier)|PORT|CURRENT|PREFERRED\n'
         detect_json | jq -r '
             to_entries[] | .value as $m |
-            "\(.key)|\($m.description)|\($m.name)|\($m.width)x\($m.height)@\($m.refreshRate * 100 | round / 100)Hz|\($m.availableModes[0] // "?")"
+            "\(.key)|\($m.description)|\($m.name)|\(if $m.disabled then "off" else "\($m.width)x\($m.height)@\($m.refreshRate * 100 | round / 100)Hz" end)|\($m.availableModes[0] // "?")"
         '
     } | column -t -s '|'
     printf '\nUse the DESCRIPTION column verbatim in Waybar / profiles.\n'
@@ -123,6 +125,13 @@ generate() {
             port="$(printf '%s' "$detected" | port_for_desc "$desc")"
             [ -z "$port" ] && continue
 
+            # "disabled": switch it off explicitly. Leaving it out of the file
+            # is not enough, Hyprland turns on any monitor it has no rule for.
+            if [ "$(jq -r ".[$i].disabled // false" <<<"$profile")" = "true" ]; then
+                printf -- 'hl.monitor({ output = "%s", disabled = true })\n' "$port"
+                continue
+            fi
+
             # optional "mirror": description of the source monitor -> clone it
             local mirror_desc mirror_port
             mirror_desc="$(jq -r ".[$i].mirror // empty" <<<"$profile")"
@@ -180,6 +189,7 @@ generate() {
         bar="$(jq -r ".[$i].bar" <<<"$profile")"
         [ "$bar" = "none" ] && continue
         [ -n "$(jq -r ".[$i].mirror // empty" <<<"$profile")" ] && continue
+        [ "$(jq -r ".[$i].disabled // false" <<<"$profile")" = "true" ] && continue
         port="$(printf '%s' "$detected" | port_for_desc "$desc")"
         [ -z "$port" ] && continue
         archetype="$(jq -c --arg t "$bar" '.[$t] // empty' "$BARS_TEMPLATE")"
@@ -275,7 +285,7 @@ cmd_setup() {
     cmd_list
     printf '\n'
 
-    local entries='[]'
+    local entries='[]' disabled='[]'
     local i
     for ((i=0; i<n; i++)); do
         local desc port mode scale en trans bar
@@ -286,7 +296,11 @@ cmd_setup() {
 
         printf '\n\033[1m── %s (%s) ──\033[0m\n' "$desc" "$port"
         en="$(ask "  Enable this monitor? [Y/n]: " "y")"
-        case "$en" in [nN]*) printf '  → disabled\n'; continue ;; esac
+        case "$en" in [nN]*)
+            printf '  → disabled\n'
+            disabled="$(jq --arg desc "$desc" '. + [{description:$desc, disabled:true, bar:"none"}]' <<<"$disabled")"
+            continue ;;
+        esac
 
         # Refresh rates offered at the preferred resolution, fastest first. The
         # preferred mode is often 60 Hz even on high refresh panels, so default
@@ -352,6 +366,7 @@ cmd_setup() {
         esac
     fi
 
+    entries="$(jq -c -n --argjson e "$entries" --argjson d "$disabled" '$e + $d')"
     save_profile "$sig" "$entries"
     msg "profile saved for: $sig"
 
@@ -408,6 +423,67 @@ cmd_mirror() {
     cmd_apply
 }
 
+# solo on [MONITOR [MODE]]: only that monitor stays on (the TV, say; the
+# primary one when none is given), optionally in another mode; the rest are
+# switched off. Like mirror,
+# the previous layout is kept aside for `solo off`, and hotplug keeps honouring
+# the solo profile while it is active.
+cmd_solo() {
+    need jq
+    local action="${1:-toggle}" target="${2:-}" mode="${3:-}"
+    local detected sig profile
+    detected="$(detect_json)"
+    sig="$(printf '%s' "$detected" | sig_of_descriptions)"
+
+    if [ -f "$PROFILES" ] && jq -e --arg s "$sig" 'has($s)' "$PROFILES" >/dev/null 2>&1; then
+        profile="$(jq -c --arg s "$sig" '.[$s]' "$PROFILES")"
+    else
+        profile="$(default_profile)"
+    fi
+
+    local solo=0
+    jq -e 'any(.[]; .solo)' <<<"$profile" >/dev/null && solo=1
+    if [ "$action" = "toggle" ]; then
+        [ "$solo" -eq 1 ] && action=off || action=on
+    fi
+
+    case "$action" in
+        on)
+            # No monitor given: keep the primary one, as mirror does.
+            [ -z "$target" ] && target="$(jq -r '(map(select(.primary))[0] // .[0]).description' <<<"$profile")"
+            local d; d="$(jq -r --arg s "$target" '.[] | select(.name == $s or .description == $s) | .description' <<<"$detected" | head -n1)"
+            [ -z "$d" ] && { warn "unknown monitor: $target"; exit 1; }
+            if [ -n "$mode" ] && ! jq -e --arg d "$d" --arg m "$mode" '
+                    .[] | select(.description == $d) | .availableModes
+                    | map(sub("Hz$"; "")) | any(. == $m or startswith($m + "."))' <<<"$detected" >/dev/null; then
+                warn "$d does not offer $mode"; exit 1
+            fi
+            [ "$solo" -eq 0 ] && save_profile "$sig" "$profile" "$UNSOLOED"
+            # A monitor missing from the profile (a TV plugged in after setup)
+            # comes in from the default layout.
+            profile="$(jq -c --arg d "$d" --argjson def "$(default_profile)" '
+                (if any(.[]; .description == $d) then . else . + [$def[] | select(.description == $d)] end)
+                | map(if .description == $d
+                      then del(.disabled, .mirror) | .primary = true | .solo = true | .bar = (if .bar == "none" or .bar == null then "full" else .bar end)
+                      else {description, disabled: true, bar: "none"} end)' <<<"$profile")"
+            [ -n "$mode" ] && profile="$(jq -c --arg d "$d" --arg m "$mode" 'map(if .description == $d then .mode = $m else . end)' <<<"$profile")"
+            msg "solo on: $d"
+            ;;
+        off)
+            if [ -f "$UNSOLOED" ] && jq -e --arg s "$sig" 'has($s)' "$UNSOLOED" >/dev/null 2>&1; then
+                profile="$(jq -c --arg s "$sig" '.[$s]' "$UNSOLOED")"
+            else
+                profile="$(default_profile)"
+            fi
+            msg "solo off: back to the previous layout"
+            ;;
+        *) warn "usage: monitors.sh solo [on [MONITOR [MODE]]|off|toggle]"; exit 1 ;;
+    esac
+
+    save_profile "$sig" "$profile"
+    cmd_apply
+}
+
 take_lock() {
     exec 9>/tmp/monitors-apply.lock
     flock -n 9 || { msg "already running, skipping"; exit 0; }
@@ -418,5 +494,6 @@ case "${1:-apply}" in
     setup) cmd_setup ;;
     apply)  take_lock; cmd_apply ;;
     mirror) take_lock; cmd_mirror "${2:-toggle}" "${3:-}" ;;
-    *) warn "usage: monitors.sh [list|setup|apply|mirror [on [MONITOR]|off|toggle]]"; exit 1 ;;
+    solo)   take_lock; cmd_solo "${2:-toggle}" "${3:-}" "${4:-}" ;;
+    *) warn "usage: monitors.sh [list|setup|apply|mirror [on [MONITOR]|off|toggle]|solo [on [MONITOR [MODE]]|off|toggle]]"; exit 1 ;;
 esac

@@ -5,6 +5,7 @@
 #   rgb-sync.sh IMAGE   take the dominant vivid hue of the wallpaper
 #   rgb-sync.sh         take it from the wallust palette (static themes)
 #   rgb-sync.sh --last  re-apply the last colour sent (session start)
+#   rgb-sync.sh --reset back to the factory rainbow; --last undoes it
 #
 # Talks to the OpenRGB server on localhost (openrgb.service, see
 # system/openrgb.service.d/). Without it the CLI rescans the hardware on every
@@ -92,7 +93,30 @@ palette_colour() {
     fi
 }
 
+# Puts every device on its rainbow effect, or its colour cycle when it has no
+# rainbow (mice usually). Modes are read from the server rather than assumed,
+# since device numbers and mode sets differ from one machine to the next. The
+# cached colour is left alone, so --last brings the theme back.
+reset_to_factory() {
+    local args=()
+    mapfile -t args < <(openrgb -l 2>/dev/null | awk '
+        /^[0-9]+:/ { dev = $1; sub(":", "", dev) }
+        /^ *Modes:/ {
+            mode = ""
+            if ($0 ~ /Rainbow/) mode = "rainbow"
+            else if ($0 ~ /Spectrum Cycle/) mode = "spectrum cycle"
+            if (mode != "") print "-d\n" dev "\n-m\n" mode
+        }')
+    [ ${#args[@]} -gt 0 ] && openrgb "${args[@]}" >/dev/null 2>&1
+}
+
 command -v openrgb >/dev/null 2>&1 || exit 0
+
+if [ "$1" = "--reset" ]; then
+    (exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
+    reset_to_factory
+    exit 0
+fi
 
 case "$1" in
     --last) led=$(cat "$LAST" 2>/dev/null) || led=$(palette_colour) ;;

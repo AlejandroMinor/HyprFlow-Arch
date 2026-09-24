@@ -27,10 +27,12 @@ clean_mode() { sed -E 's/Hz$//; s/@([0-9]+)\.[0-9]+$/@\1/'; }
 cmd_list() {
     need jq
     {
-        printf 'IDX|DESCRIPTION (identifier)|PORT|MODE\n'
+        # CURRENT is what the monitor runs now; PREFERRED is what it advertises
+        # as native, often 60 Hz even on high refresh panels.
+        printf 'IDX|DESCRIPTION (identifier)|PORT|CURRENT|PREFERRED\n'
         detect_json | jq -r '
-            to_entries[] |
-            "\(.key)|\(.value.description)|\(.value.name)|\(.value.availableModes[0] // "?")"
+            to_entries[] | .value as $m |
+            "\(.key)|\($m.description)|\($m.name)|\($m.width)x\($m.height)@\($m.refreshRate * 100 | round / 100)Hz|\($m.availableModes[0] // "?")"
         '
     } | column -t -s '|'
     printf '\nUse the DESCRIPTION column verbatim in Waybar / profiles.\n'
@@ -285,6 +287,26 @@ cmd_setup() {
         printf '\n\033[1m── %s (%s) ──\033[0m\n' "$desc" "$port"
         en="$(ask "  Enable this monitor? [Y/n]: " "y")"
         case "$en" in [nN]*) printf '  → disabled\n'; continue ;; esac
+
+        # Refresh rates offered at the preferred resolution, fastest first. The
+        # preferred mode is often 60 Hz even on high refresh panels, so default
+        # to the fastest instead, and only accept a rate from this list.
+        local res rates k choice
+        res="${mode%@*}"
+        mapfile -t rates < <(jq -r --arg r "$res@" ".[$i].availableModes[]
+            | select(startswith(\$r)) | sub(\"Hz\$\"; \"\") | split(\"@\")[1]
+            | sub(\"\\\\.0+\$\"; \"\")" <<<"$detected" | sort -rnu)
+        if [ ${#rates[@]} -gt 1 ]; then
+            printf '    Refresh rate at %s:' "$res"
+            for k in "${!rates[@]}"; do printf '  %d) %s Hz' "$((k + 1))" "${rates[k]}"; done
+            printf '\n'
+            choice="$(ask "  Refresh [1-${#rates[@]}] (default 1): " "1")"
+            case "$choice" in ''|*[!0-9]*) choice=1 ;; esac
+            { [ "$choice" -ge 1 ] && [ "$choice" -le ${#rates[@]} ]; } || choice=1
+        else
+            choice=1
+        fi
+        [ ${#rates[@]} -gt 0 ] && mode="$res@${rates[choice - 1]}"
 
         printf '    Rotation: 0=normal  1=90°(portrait)  2=180°(flipped)  3=270°(portrait)\n'
         printf '              4-7 = mirrored (4=normal, 5=90°, 6=180°, 7=270°)\n'

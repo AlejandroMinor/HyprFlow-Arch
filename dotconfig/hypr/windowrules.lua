@@ -84,6 +84,15 @@ hl.window_rule({
     fullscreen = true,
 })
 
+-- Steam's dialogs (friends, settings, login) open floating wherever XWayland
+-- puts them. Only floating ones match, so the tiled client and the fullscreen
+-- Big Picture window are left alone.
+hl.window_rule({
+    name   = "steam-dialogs-center",
+    match  = { class = "^(steam)$", float = true },
+    center = true,
+})
+
 hl.window_rule({
     name   = "xdg-file-picker",
     match  = { class = "^(xdg-desktop-portal-gtk)$" },

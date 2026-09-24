@@ -77,6 +77,13 @@ hl.window_rule({
     center = true,
 })
 
+-- Steam never requests fullscreen for Big Picture under XWayland
+hl.window_rule({
+    name       = "steam-big-picture-fullscreen",
+    match      = { class = "^(steam)$", title = "^(Steam Big Picture Mode)$" },
+    fullscreen = true,
+})
+
 hl.window_rule({
     name   = "xdg-file-picker",
     match  = { class = "^(xdg-desktop-portal-gtk)$" },

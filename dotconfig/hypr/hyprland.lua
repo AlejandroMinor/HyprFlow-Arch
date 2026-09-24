@@ -275,6 +275,12 @@ hl.config({
     },
 })
 
+hl.config({
+    cursor = {
+        inactive_timeout = 10,
+    },
+})
+
 
 -----------------
 ---- PLUGINS ----

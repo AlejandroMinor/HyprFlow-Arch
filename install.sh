@@ -86,6 +86,7 @@ PACMAN_PKGS=(
     waybar rofi swaync wlogout cava awww
     kitty yazi satty btop fastfetch gnome-disk-utility
     pipewire pipewire-pulse wireplumber pavucontrol rtkit
+    bluez bluez-utils blueman
     brightnessctl playerctl upower openconnect network-manager-applet
     gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland

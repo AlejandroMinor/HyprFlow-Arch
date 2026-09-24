@@ -78,6 +78,10 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("eww open activate-linux")
     hl.exec_cmd("rgb-sync.sh --last")
     hl.exec_cmd("nm-applet --indicator")
+    -- Bluetooth agent: shows the pairing and authorization prompts of any device
+    -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ
+    -- cancels those requests. Also adds a tray icon.
+    hl.exec_cmd("blueman-applet")
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
     hl.exec_cmd("hyprpm reload -n")
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")

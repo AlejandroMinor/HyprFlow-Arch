@@ -67,7 +67,7 @@ so you can run it first and let it decide.
 <summary>Full package list</summary>
 
 ```bash
-sudo pacman -S hyprland hyprlock hyprshot hyprpicker hyprpm waybar rofi swaync wlogout cava awww kitty yazi satty btop fastfetch gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit brightnessctl playerctl upower openconnect network-manager-applet gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts python python-gobject jq curl imagemagick wl-clipboard fzf cpio cmake pacman-contrib
+sudo pacman -S hyprland hyprlock hyprshot hyprpicker hyprpm waybar rofi swaync wlogout cava awww kitty yazi satty btop fastfetch gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit bluez bluez-utils blueman brightnessctl playerctl upower openconnect network-manager-applet gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts python python-gobject python-pillow jq curl imagemagick wl-clipboard fzf cpio cmake pacman-contrib
 ```
 
 ```bash
@@ -77,6 +77,14 @@ yay -S eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin
 These live in the `PACMAN_PKGS` and `AUR_PKGS` arrays at the top of `install.sh`.
 
 </details>
+
+`install.sh` does not enable system services. Bluetooth needs its daemon running:
+
+```bash
+sudo systemctl enable --now bluetooth
+```
+
+Pairing prompts come from `blueman-applet`, which Hyprland starts at login. Without it BlueZ has nobody to ask and cancels the request, so a device like a DualShock connects for a few seconds and drops.
 
 > Hyprland configs here use the Lua format (`.conf`/hyprlang is deprecated since 0.55).
 > The last `.conf` checkpoint is tagged `pre-lua-migration`.

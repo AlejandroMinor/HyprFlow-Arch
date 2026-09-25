@@ -106,6 +106,14 @@ Everything below is optional. Pick the piece you want to change.
 | Hyprland plugins | [Plugins](#plugins) |
 | What a given script does | [Scripts](#scripts) |
 
+**Per machine extras.** For things only one machine needs (mounting a games drive, an app to autostart, a device specific setting), create `~/.config/hypr/local.lua`. `hyprland.lua` loads it when it exists and it is not part of the repo, so `install.sh config` never overwrites it:
+
+```lua
+hl.on("hyprland.start", function ()
+    hl.exec_cmd("udisksctl mount -b /dev/disk/by-label/Games")
+end)
+```
+
 ## Monitors
 
 `monitors.sh` identifies monitors by **description** (`NZXTCANVAS27Q...`) instead of

@@ -517,3 +517,12 @@ if hl.plugin.hyprglass then
     -- anti-aliased edge from counting as content.
     hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.05 })
 end
+
+---------------
+---- LOCAL ----
+---------------
+
+-- Per machine extras, outside the repo: ~/.config/hypr/local.lua is loaded if
+-- it exists (mounting a games drive, a device only this machine has, ...).
+-- install.sh never writes it.
+pcall(require, "local")

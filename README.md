@@ -114,10 +114,11 @@ of connected monitors and regenerates both the Hyprland and Waybar config from i
 
 | Command | What it does |
 |---------|--------------|
-| `monitors.sh list` | Print each monitor's description, port, and mode |
-| `monitors.sh setup` | Wizard: enable, rotation, scale, bar type, order, primary, mirror |
+| `monitors.sh list` | Print each monitor's description, port, current mode (`off` when disabled) and preferred mode |
+| `monitors.sh setup` | Wizard: enable, resolution, refresh rate, rotation, scale, bar type, order, primary, mirror |
 | `monitors.sh apply` | Non-interactive: load the matching profile and regenerate |
 | `monitors.sh mirror [on [MONITOR]\|off\|toggle]` | Clone every monitor onto one (default: primary), or restore the extended layout |
+| `monitors.sh solo [on [MONITOR [MODE]]\|off\|toggle]` | Keep one monitor on and switch the rest off (default: primary), or restore the layout |
 
 It generates these in `~/.config` (not tracked in the repo):
 
@@ -125,12 +126,15 @@ It generates these in `~/.config` (not tracked in the repo):
 - `waybar/config`: one bar per monitor, matched by identifier (`make model serial`)
 - `hypr/monitor-profiles.json`: saved profiles
 - `hypr/monitor-profiles.unmirrored.json`: the extended layout `mirror off` restores
+- `hypr/monitor-solo.json`: the screen solo mode keeps on, while it is active
 
 No daemon. `apply` runs on login and on hotplug (via `hl.on("monitor.added")` in
 `hyprland.lua`), and only reloads if the output actually changed.
 
 Rotation uses native Hyprland transforms (`0` normal, `1`/`3` portrait, `2` upside
 down, `4-7` flipped). Portrait swaps width/height automatically.
+
+`setup` asks for the resolution first, defaulting to the preferred one and listing the rest largest first, each with every refresh rate it offers. A TV often prefers 4K at 30 Hz, where 1080p at 60 Hz plays far better. Then it lists the refresh rates at that resolution, fastest first, and defaults to the fastest: many high refresh panels advertise 60 Hz as their preferred mode. Only resolutions and rates from those lists are accepted.
 
 ### Mirror mode
 
@@ -158,6 +162,22 @@ In `monitor-profiles.json`, a mirrored monitor is an entry with a `mirror` key h
 ```json
 { "description": "AMZ FireTV", "mode": "1920x1080@60", "mirror": "Lenovo Group Limited 0x40A9", ... }
 ```
+
+### Solo mode
+
+Keep a single screen on and switch the others off, e.g. to play on the TV with the monitors dark:
+
+```sh
+monitors.sh solo                            # toggle
+monitors.sh solo on                         # keep the primary monitor
+monitors.sh solo on HDMI-A-1                # a specific one, by port or description
+monitors.sh solo on HDMI-A-1 3840x2160@120  # and switch it to another mode
+monitors.sh solo off                        # back to the previous layout
+```
+
+Unlike mirror, solo is not saved as a profile: `solo on` records the screen in `hypr/monitor-solo.json`, and while that file exists every `apply` (a reload, a hotplug) keeps only that screen on, whatever else is connected. That matters because a switched off DisplayPort monitor goes to sleep after a few seconds and reports itself disconnected, which changes the set of connected monitors; keyed on the set, solo would fall back to another layout and wake everything up. `solo off` removes the file and restores the saved profile. The remaining screen becomes the primary one with every workspace; a mode is only accepted if the monitor offers it. A monitor that is not in the profile yet, like a TV plugged in after `setup`, joins with its default settings.
+
+Switched off monitors are written as `disabled = true`. Leaving a monitor out of the file is not enough: Hyprland turns on any monitor it has no rule for. The same applies to monitors you decline in `setup`.
 
 ## Waybar
 
@@ -274,7 +294,7 @@ Everything in `bin/` lands in `~/.local/bin`.
 | `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
 | `master-pick.py` | Number windows and swap one to master (`Super + Shift + Return`) |
-| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` |
+| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo` |
 | `hyprland-group-all.sh` | Group every window in the workspace |
 | `close-workspace.sh` | Close every window in the workspace, with confirmation (`Super + Shift + Q`) |
 | `session-manager/` | Save and restore window layouts |
@@ -379,3 +399,5 @@ gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 - **Bar on the wrong monitor.** Run `monitors.sh list` to see identifiers, then
   `monitors.sh setup` to rebuild.
 - **Script won't run.** `chmod +x <script>`. `install.sh` does this automatically.
+- **Swapped a monitor on the same port and it kept the old one's rotation.** Hyprland only notices a new screen after a real disconnect: unplug, wait about five seconds, plug the new one in. Profiles belong to the set of connected monitors (by make, model and serial), so the new set gets the default layout until you run `monitors.sh setup` for it.
+- **Screens flicker to default modes for a moment when leaving solo or game mode.** A switched off DisplayPort monitor sleeps and wakes every few seconds, reporting itself disconnected meanwhile; if it drops right as the layout is restored, Hyprland falls back for a few seconds and then settles. Turning off the monitor's deep sleep (often called Deep Sleep or DP Auto Sleep in its menu) avoids it.

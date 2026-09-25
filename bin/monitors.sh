@@ -8,10 +8,11 @@ HYPR_DIR="$CFG/hypr"
 WAYBAR_DIR="$CFG/waybar"
 PROFILES="$HYPR_DIR/monitor-profiles.json"
 UNMIRRORED="$HYPR_DIR/monitor-profiles.unmirrored.json"
-UNSOLOED="$HYPR_DIR/monitor-profiles.unsoloed.json"
+SOLO_STATE="$HYPR_DIR/monitor-solo.json"
 ACTIVE_LUA="$HYPR_DIR/monitors_active.lua"
 WAYBAR_CFG="$WAYBAR_DIR/config"
 BARS_TEMPLATE="$WAYBAR_DIR/bars.json"
+GAME_MODE_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow/game-mode"
 
 msg()  { printf '\033[1;34m󰍹 monitors:\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m󰍹 monitors:\033[0m %s\n' "$*" >&2; }
@@ -61,6 +62,13 @@ default_profile() {
 }
 
 sig_of_descriptions() { jq -r '[.[].description] | sort | join("|")'; }
+
+# True unless the kernel reports the connector as disconnected (or cannot say).
+port_connected() {
+    local st
+    st="$(cat /sys/class/drm/card*-"$1"/status 2>/dev/null | head -n1)"
+    [ "${st:-connected}" = "connected" ]
+}
 
 port_for_desc() {
     jq -r --arg d "$1" '.[] | select(.description == $d) | .name' | head -n1
@@ -124,6 +132,15 @@ generate() {
             primary="$(jq -r ".[$i].primary" <<<"$profile")"
             port="$(printf '%s' "$detected" | port_for_desc "$desc")"
             [ -z "$port" ] && continue
+
+            # A monitor Hyprland still lists can be gone at the connector: a
+            # switched off DisplayPort screen reports itself disconnected once
+            # it sleeps. Enabling it then fails the whole commit and every
+            # screen falls back to its default mode, so leave it out; the
+            # hotplug apply adds it when it wakes up.
+            if [ "$(jq -r ".[$i].disabled // false" <<<"$profile")" != "true" ] && ! port_connected "$port"; then
+                continue
+            fi
 
             # "disabled": switch it off explicitly. Leaving it out of the file
             # is not enough, Hyprland turns on any monitor it has no rule for.
@@ -215,13 +232,61 @@ generate() {
     printf '%s\n' "$bars" | jq '.' > "$out_waybar"
 }
 
+# Moves every workspace that sits on the wrong monitor back to the one its
+# rule names. Hyprland moves a monitor's workspaces elsewhere when it goes off
+# (solo, mirror, unplug) and leaves them there when it comes back. Focus ends
+# where it was. Only monitors that are on are used as targets.
+restore_workspaces() {
+    local rules workspaces enabled focused ws mon cur moved=0
+    rules="$(grep -oE 'workspace = "[0-9]+", monitor = "[^"]+"' "$ACTIVE_LUA" \
+        | sed -E 's/workspace = "([0-9]+)", monitor = "([^"]+)"/\1 \2/')"
+    [ -z "$rules" ] && return 0
+    workspaces="$(hyprctl workspaces -j)"
+    enabled="$(hyprctl monitors -j | jq -r '.[].name')"
+    focused="$(hyprctl activeworkspace -j | jq -r '.id')"
+    while read -r ws mon; do
+        grep -qx "$mon" <<<"$enabled" || continue
+        cur="$(jq -r --argjson w "$ws" '.[] | select(.id == $w) | .monitor' <<<"$workspaces")"
+        { [ -z "$cur" ] || [ "$cur" = "$mon" ]; } && continue
+        hyprctl dispatch "hl.dsp.focus({ workspace = $ws })" >/dev/null
+        hyprctl dispatch "hl.dsp.workspace.move({ monitor = \"$mon\" })" >/dev/null
+        moved=1
+    done <<<"$rules"
+    [ "$moved" -eq 1 ] && hyprctl dispatch "hl.dsp.focus({ workspace = $focused })" >/dev/null
+    return 0
+}
+
+# The solo layout for the monitors detected now: the solo screen as recorded,
+# every other one switched off, whatever set is connected at the moment.
+solo_profile() {
+    jq -c --slurpfile st "$SOLO_STATE" '
+        ($st[0].entry) as $e
+        | [$e] + [ .[] | select(.description != $e.description) | {description, disabled: true, bar: "none"} ]
+    ' <<<"$1"
+}
+
+# cmd_apply [PROFILE]: without an argument, the profile comes from solo mode
+# while it is on, else from the saved one for the connected set.
 cmd_apply() {
     need jq
-    local detected sig profile used_default=0
+    local detected sig profile="${1:-}" used_default=0
     detected="$(detect_json)"
     sig="$(printf '%s' "$detected" | sig_of_descriptions)"
 
-    if [ -f "$PROFILES" ] && jq -e --arg s "$sig" 'has($s)' "$PROFILES" >/dev/null 2>&1; then
+    # Solo mode is a state, not a profile. A switched off DisplayPort monitor
+    # reports itself disconnected once it goes to sleep, which changes the
+    # connected set; keying solo on the set would then fall back to another
+    # layout and wake everything up. While the solo screen is connected, it
+    # stays the only one on.
+    if [ -z "$profile" ] && [ -f "$SOLO_STATE" ] && jq -e --slurpfile st "$SOLO_STATE" \
+            'any(.[]; .description == $st[0].entry.description)' <<<"$detected" >/dev/null 2>&1; then
+        profile="$(solo_profile "$detected")"
+        msg "solo on: $(jq -r '.entry.description' "$SOLO_STATE")"
+    fi
+
+    if [ -n "$profile" ]; then
+        :
+    elif [ -f "$PROFILES" ] && jq -e --arg s "$sig" 'has($s)' "$PROFILES" >/dev/null 2>&1; then
         profile="$(jq -c --arg s "$sig" '.[$s]' "$PROFILES")"
         msg "profile found for this monitor set"
     else
@@ -246,6 +311,14 @@ cmd_apply() {
         mv "$tmp_lua" "$ACTIVE_LUA"
         msg "layout changed; reloading Hyprland…"
         hyprctl reload >/dev/null 2>&1 || true
+        # A monitor switched back on (solo off, mirror off, a replug) comes up
+        # without its wallpaper: awww does not repaint it by itself. Detached
+        # and a moment later, once the daemon has seen the new output.
+        if command -v awww >/dev/null 2>&1; then
+            setsid sh -c 'sleep 1; awww restore' >/dev/null 2>&1 < /dev/null 9>&- &
+        fi
+        # Same wait for the workspaces: the monitors must be on to take them.
+        ( sleep 1; restore_workspaces ) >/dev/null 2>&1 < /dev/null 9>&- &
     else
         rm -f "$tmp_lua"
     fi
@@ -256,7 +329,10 @@ cmd_apply() {
         rm -f "$tmp_wb"
     fi
 
-    if [ "$wb_changed" -eq 1 ] || ! pgrep -x waybar >/dev/null 2>&1; then
+    # game-mode.sh hides Waybar and brings it back itself when it ends.
+    if [ -f "$GAME_MODE_STATE" ]; then
+        msg "game mode on: leaving Waybar hidden"
+    elif [ "$wb_changed" -eq 1 ] || ! pgrep -x waybar >/dev/null 2>&1; then
         killall -w waybar >/dev/null 2>&1 || true
         # 9>&- : don't let Waybar (and its children) inherit the apply lock
         setsid waybar >/dev/null 2>&1 < /dev/null 9>&- &
@@ -447,9 +523,8 @@ cmd_mirror() {
 
 # solo on [MONITOR [MODE]]: only that monitor stays on (the TV, say; the
 # primary one when none is given), optionally in another mode; the rest are
-# switched off. Like mirror,
-# the previous layout is kept aside for `solo off`, and hotplug keeps honouring
-# the solo profile while it is active.
+# switched off. The saved profiles are left alone: solo lives in its own state
+# file, which apply honours for as long as it exists. solo off removes it.
 cmd_solo() {
     need jq
     local action="${1:-toggle}" target="${2:-}" mode="${3:-}"
@@ -457,20 +532,17 @@ cmd_solo() {
     detected="$(detect_json)"
     sig="$(printf '%s' "$detected" | sig_of_descriptions)"
 
-    if [ -f "$PROFILES" ] && jq -e --arg s "$sig" 'has($s)' "$PROFILES" >/dev/null 2>&1; then
-        profile="$(jq -c --arg s "$sig" '.[$s]' "$PROFILES")"
-    else
-        profile="$(default_profile)"
-    fi
-
-    local solo=0
-    jq -e 'any(.[]; .solo)' <<<"$profile" >/dev/null && solo=1
     if [ "$action" = "toggle" ]; then
-        [ "$solo" -eq 1 ] && action=off || action=on
+        [ -f "$SOLO_STATE" ] && action=off || action=on
     fi
 
     case "$action" in
         on)
+            if [ -f "$PROFILES" ] && jq -e --arg s "$sig" 'has($s)' "$PROFILES" >/dev/null 2>&1; then
+                profile="$(jq -c --arg s "$sig" '.[$s]' "$PROFILES")"
+            else
+                profile="$(default_profile)"
+            fi
             # No monitor given: keep the primary one, as mirror does.
             [ -z "$target" ] && target="$(jq -r '(map(select(.primary))[0] // .[0]).description' <<<"$profile")"
             local d; d="$(jq -r --arg s "$target" '.[] | select(.name == $s or .description == $s) | .description' <<<"$detected" | head -n1)"
@@ -480,35 +552,45 @@ cmd_solo() {
                     | map(sub("Hz$"; "")) | any(. == $m or startswith($m + "."))' <<<"$detected" >/dev/null; then
                 warn "$d does not offer $mode"; exit 1
             fi
-            [ "$solo" -eq 0 ] && save_profile "$sig" "$profile" "$UNSOLOED"
-            # A monitor missing from the profile (a TV plugged in after setup)
-            # comes in from the default layout.
-            profile="$(jq -c --arg d "$d" --argjson def "$(default_profile)" '
-                (if any(.[]; .description == $d) then . else . + [$def[] | select(.description == $d)] end)
-                | map(if .description == $d
-                      then del(.disabled, .mirror) | .primary = true | .solo = true | .bar = (if .bar == "none" or .bar == null then "full" else .bar end)
-                      else {description, disabled: true, bar: "none"} end)' <<<"$profile")"
-            [ -n "$mode" ] && profile="$(jq -c --arg d "$d" --arg m "$mode" 'map(if .description == $d then .mode = $m else . end)' <<<"$profile")"
-            msg "solo on: $d"
+            # Its settings from the profile; a monitor missing from it (a TV
+            # plugged in after setup) comes from the default layout.
+            local entry
+            entry="$(jq -c --arg d "$d" --argjson def "$(default_profile)" '
+                ([ .[] | select(.description == $d) ] + [ $def[] | select(.description == $d) ])[0]
+                | del(.disabled, .mirror) | .primary = true
+                | .bar = (if .bar == "none" or .bar == null then "full" else .bar end)' <<<"$profile")"
+            [ -n "$mode" ] && entry="$(jq -c --arg m "$mode" '.mode = $m' <<<"$entry")"
+            mkdir -p "$HYPR_DIR"
+            jq -n --argjson e "$entry" --arg s "$sig" '{entry: $e, sig: $s}' > "$SOLO_STATE"
+            cmd_apply
             ;;
         off)
-            if [ -f "$UNSOLOED" ] && jq -e --arg s "$sig" 'has($s)' "$UNSOLOED" >/dev/null 2>&1; then
-                profile="$(jq -c --arg s "$sig" '.[$s]' "$UNSOLOED")"
+            [ -f "$SOLO_STATE" ] || { msg "solo is already off"; return 0; }
+            # Restore the layout of the set that was connected when solo began,
+            # even if a monitor is still asleep and missing: generate skips it,
+            # and the hotplug apply places it once it shows up again.
+            local was; was="$(jq -r '.sig' "$SOLO_STATE")"
+            rm -f "$SOLO_STATE"
+            if [ -f "$PROFILES" ] && jq -e --arg s "$was" 'has($s)' "$PROFILES" >/dev/null 2>&1; then
+                profile="$(jq -c --arg s "$was" '.[$s]' "$PROFILES")"
             else
-                profile="$(default_profile)"
+                profile=""
             fi
             msg "solo off: back to the previous layout"
+            cmd_apply "$profile"
             ;;
         *) warn "usage: monitors.sh solo [on [MONITOR [MODE]]|off|toggle]"; exit 1 ;;
     esac
-
-    save_profile "$sig" "$profile"
-    cmd_apply
 }
 
+# Waits for a running apply instead of skipping. At login several run at once
+# (the startup one plus a hotplug per monitor that wakes late); skipping lost
+# the last one, which is the only one that saw every monitor, and left the
+# default layout in place. Each waits, then reads the monitors connected by
+# then; no loop, since apply only reloads when the output changed.
 take_lock() {
     exec 9>/tmp/monitors-apply.lock
-    flock -n 9 || { msg "already running, skipping"; exit 0; }
+    flock -w 30 9 || { warn "another run is stuck, skipping"; exit 0; }
 }
 
 case "${1:-apply}" in

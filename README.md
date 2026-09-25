@@ -67,7 +67,7 @@ so you can run it first and let it decide.
 <summary>Full package list</summary>
 
 ```bash
-sudo pacman -S hyprland hyprlock hyprshot hyprpicker hyprpm waybar rofi swaync wlogout cava awww kitty yazi satty btop fastfetch gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit bluez bluez-utils blueman brightnessctl playerctl upower openconnect network-manager-applet gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts python python-gobject python-pillow jq curl imagemagick wl-clipboard fzf cpio cmake pacman-contrib
+sudo pacman -S hyprland hyprlock hyprshot hyprpicker hyprpm waybar rofi swaync wlogout cava awww kitty yazi satty btop fastfetch gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit bluez bluez-utils blueman brightnessctl playerctl upower openconnect network-manager-applet gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts python python-gobject python-pillow jq curl imagemagick wl-clipboard fzf cpio cmake pacman-contrib noto-fonts-emoji
 ```
 
 ```bash

@@ -92,7 +92,7 @@ PACMAN_PKGS=(
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
     ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts
     python python-gobject python-pillow jq curl imagemagick wl-clipboard fzf
-    cpio cmake pacman-contrib
+    cpio cmake pacman-contrib noto-fonts-emoji
 )
 
 AUR_PKGS=(

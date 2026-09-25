@@ -6,6 +6,7 @@
 #   rgb-sync.sh         take it from the wallust palette (static themes)
 #   rgb-sync.sh --last  re-apply the last colour sent (session start)
 #   rgb-sync.sh --reset back to the factory rainbow; --last undoes it
+#   rgb-sync.sh --off   every LED off (game mode); --last undoes it
 #
 # Talks to the OpenRGB server on localhost (openrgb.service, see
 # system/openrgb.service.d/). Without it the CLI rescans the hardware on every
@@ -110,13 +111,27 @@ reset_to_factory() {
     [ ${#args[@]} -gt 0 ] && openrgb "${args[@]}" >/dev/null 2>&1
 }
 
+# Switches every LED off: the device's Off mode, or static black when it has
+# none. Like the reset, it leaves the cached colour for --last.
+lights_off() {
+    local args=()
+    mapfile -t args < <(openrgb -l 2>/dev/null | awk '
+        /^[0-9]+:/ { dev = $1; sub(":", "", dev) }
+        /^ *Modes:/ {
+            if ($0 ~ / \[?Off\]? /) print "-d\n" dev "\n-m\noff"
+            else print "-d\n" dev "\n-m\nstatic\n-c\n000000"
+        }')
+    [ ${#args[@]} -gt 0 ] && openrgb "${args[@]}" >/dev/null 2>&1
+}
+
 command -v openrgb >/dev/null 2>&1 || exit 0
 
-if [ "$1" = "--reset" ]; then
-    (exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
-    reset_to_factory
-    exit 0
-fi
+case "$1" in
+    --reset|--off)
+        (exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
+        if [ "$1" = "--reset" ]; then reset_to_factory; else lights_off; fi
+        exit 0 ;;
+esac
 
 case "$1" in
     --last) led=$(cat "$LAST" 2>/dev/null) || led=$(palette_colour) ;;

@@ -336,7 +336,8 @@ install_plugins() {
 set_permissions() {
     progress "PERMISSIONS"
     echo "󰒓 Setting execute permissions on scripts..."
-    find "$REPO_PATH/bin" -type f -exec chmod +x {} \;
+    # lib/ too: Waybar and the keybindings run those directly.
+    find "$REPO_PATH/bin" "$REPO_PATH/lib" -type f ! -path '*/__pycache__/*' -exec chmod +x {} \;
     # Lockscreen helpers ship inside dotconfig, not bin, because only
     # hyprlock-flow.sh is meant to be invoked directly.
     find "$REPO_PATH/dotconfig/hypr/hyprlock" -type f -name '*.sh' -exec chmod +x {} \; 2>/dev/null || true
@@ -346,7 +347,7 @@ set_permissions() {
         if [ -n "$target" ] && [ -f "$target" ]; then
             chmod +x "$target"
         fi
-    done < <(find "$REPO_PATH/bin" -maxdepth 1 -type l -print0)
+    done < <(find "$REPO_PATH/bin" "$REPO_PATH/lib" -maxdepth 1 -type l -print0)
 }
 
 copy_configs() {

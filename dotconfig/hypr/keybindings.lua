@@ -265,10 +265,11 @@ hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true })
 -- =======================================================
 
 -- Volume
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { repeating = true, description = "Volume Up" })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { repeating = true, description = "Volume Down" })
-hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { repeating = true, description = "Mute Audio" })
-hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { repeating = true, description = "Mute Microphone" })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh up"),       { repeating = true, description = "Volume Up" })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh down"),     { repeating = true, description = "Volume Down" })
+-- Toggles do not repeat: holding the key would flip mute on and off at random.
+hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh mute"),     { description = "Mute Audio" })
+hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh mic-mute"), { description = "Mute Microphone" })
 hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("brightnessctl s 10%+"), { repeating = true, description = "Brightness Up" })
 hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl s 10%-"), { repeating = true, description = "Brightness Down" })
 

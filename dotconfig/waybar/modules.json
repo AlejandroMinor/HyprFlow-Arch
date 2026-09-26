@@ -32,10 +32,11 @@
         ]
     },
     "pulseaudio": {
-        "tooltip": false,
+        "tooltip": true,
+        "tooltip-format": "{desc}\nClick: output  ·  right click: mixer  ·  middle: mute",
         "scroll-step": 5,
         "format": "{icon} {volume}%",
-        "format-muted": "{icon} {volume}%",
+        "format-muted": "<span color='#f7768e'>󰖁 </span> {volume}%",
         "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 450 150; center] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\")'",
         "on-click-right": "pavucontrol",
         "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
@@ -46,6 +47,17 @@
                 "<span color='#7aa2f7'> </span>"
             ]
         }
+    },
+    "pulseaudio#mic": {
+        "format": "{format_source}",
+        "format-source": "<span color='#7aa2f7'>󰍬</span> {volume}%",
+        "format-source-muted": "<span color='#f7768e'>󰍭</span> off",
+        "tooltip": true,
+        "tooltip-format": "Microphone\nClick: mute  ·  scroll: volume  ·  right click: inputs",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+        "on-click-right": "pavucontrol -t 4",
+        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SOURCE@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 5%-"
     },
 
 	"custom/mute-indicator": {
@@ -341,7 +353,8 @@
     },
     "modules": [
         "custom/mute-indicator",
-        "pulseaudio"
+        "pulseaudio",
+        "pulseaudio#mic"
     ]
 }
 

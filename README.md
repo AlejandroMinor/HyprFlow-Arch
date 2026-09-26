@@ -244,6 +244,12 @@ Adding a module means defining it in `modules.json`, placing it in `bars.json`, 
 running `monitors.sh apply`. `dotconfig/waybar/config` is only a fallback for when
 `monitors.sh` has never run.
 
+**Audio.** The speaker icon is always there: struck through when the output is
+muted, with a microphone badge next to it while the mic is muted, so a muted mic
+is never a surprise in a call. Its tooltip names both devices and their volume.
+Click it for the drawer: output volume (click to switch output, right click for
+the mixer) and the microphone (click to mute, scroll for its volume).
+
 **Styles.** Four variants: `style-minor`, `style-island`, `style-glass`,
 `style-clusters`. Switch by changing the single `@import` in `style.css`.
 
@@ -362,7 +368,8 @@ each one by its full path:
 | Script | Called by | Description |
 |--------|-----------|-------------|
 | `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower in one module: click for all of them, right click for the headset lights, notifications when one runs low |
-| `mute_indicator.py` | Waybar | Output mute indicator |
+| `mute_indicator.py` | Waybar | Audio at a glance: output muted, and a badge while the microphone is muted |
+| `volume.sh` | Volume keys | Change volume or mute, with a transient notification showing the level |
 | `camera_status.py` | Waybar | Camera-in-use indicator |
 | `vpn_status.py` | Waybar | VPN status |
 | `cava_waybar.py` | Waybar | Audio visualizer, dims to a baseline when silent |

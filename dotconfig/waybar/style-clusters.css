@@ -215,6 +215,7 @@ window#waybar.minimal #workspaces {
 #custom-vpn.vpn-status-warning { color: #f7768e; }
 
 #custom-mute-indicator              { color: @foreground; font-size: 16px; }
+#custom-mute-indicator.mic-muted    { color: @color3; font-size: 16px; }
 #custom-mute-indicator.muted_active { color: @color1; font-size: 16px; }
 
 #temperature.critical { color: @color1; animation: blink 0.7s linear infinite alternate; }

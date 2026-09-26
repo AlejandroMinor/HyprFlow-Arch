@@ -382,25 +382,19 @@ copy_configs() {
 
 setup_runcat() {
     progress "RUNCAT"
-    # config.json lives inside the submodule, so edits there don't survive a
-    # `git submodule update` or fresh clone. Keep the editable copy here and
-    # reapply it on every install.
-    local font_dir="$HOME/.local/share/fonts"
-    mkdir -p "$font_dir"
-
-    # The chicken runner lives in this repo, so it installs either way.
-    cp -f "$REPO_PATH/dotconfig/waybar/runcat-chicken.ttf" "$font_dir/"
-
-    if [ -d "$REPO_PATH/modules/runcat-text" ]; then
-        echo "󰄛 Applying runcat-text config..."
-        cp -f "$REPO_PATH/dotconfig/waybar/runcat-config.json" "$REPO_PATH/modules/runcat-text/config.json"
-
-        echo "󰛖 Installing runcat-text fonts..."
-        cp -f "$REPO_PATH/modules/runcat-text/runcat.ttf" "$font_dir/"
-    else
-        printf "\033[1;33m%s runcat-text submodule missing, installing the chicken runner only.\033[0m\n" "󰀦"
+    # The runners are fonts (cat, chicken) shipped by the runcat-text
+    # submodule, along with its config.json.
+    local font_dir="$HOME/.local/share/fonts" font
+    if [ ! -d "$REPO_PATH/modules/runcat-text" ]; then
+        printf "\033[1;33m%s runcat-text submodule missing, skipping the runner fonts.\033[0m\n" "󰀦"
+        return 0
     fi
 
+    echo "󰛖 Installing the runner fonts..."
+    mkdir -p "$font_dir"
+    for font in "$REPO_PATH/modules/runcat-text"/*.ttf; do
+        cp -f "$font" "$font_dir/"
+    done
     fc-cache -f "$font_dir"
 }
 

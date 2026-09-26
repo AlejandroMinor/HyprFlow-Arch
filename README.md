@@ -254,10 +254,12 @@ the mixer) and the microphone (click to mute, scroll for its volume).
 `style-clusters`. Switch by changing the single `@import` in `style.css`.
 
 **Runner.** `custom/hardware-wrap` is an animated runner that speeds up with CPU load
-and opens the hardware drawer. Two fonts ship in the repo (cat and chicken, sharing
-codepoints `U+E900`-`U+E904`). Run `pet-picker.sh` to switch, or edit
-`runcat-runner.css`, the one file all four styles import. Tunables (icons, CPU
-thresholds, FPS) live in `runcat-config.json`.
+and opens the hardware drawer. It comes from the
+[runcat-text](https://github.com/AlejandroMinor/runcat-text) submodule, which ships
+two runner fonts (cat and chicken, sharing codepoints `U+E900`-`U+E904`). Run
+`pet-picker.sh` to switch, or edit `runcat-runner.css`, the one file all four
+styles import. Tunables (icons, CPU thresholds, FPS) live in the submodule's
+`config.json`.
 
 ## Theming
 
@@ -391,18 +393,15 @@ each one by its full path:
 | `apple-magic-trackpad-battery` | Trackpad battery reader |
 | `sinkswitch` | Audio output switcher |
 | `waybar-claude-usage` | Claude usage module, needs the Claude Code CLI logged in |
-| `runcat-text` | Animated CPU runner, needs `python` |
+| `runcat-text` | Animated CPU runner (cat or chicken), needs `python` |
 
 The `check` step runs `git submodule update --init --recursive`
 for any that are missing, so a clone without `--recursive` still works. If that
 fails (no network, no git), it says which ones are missing and keeps going: the
-cat runner font is skipped, and `claude-usage.sh`,
+runner fonts are skipped, and `claude-usage.sh`,
 `sinkswitch` and `trackpad-battery` are not linked into `~/.local/bin`.
 
 To drop the Claude module, remove `custom/claude-usage` from `bars.json`.
-
-The `config` step overwrites `runcat-text/config.json` with the repo's
-`waybar/runcat-config.json`, so edits survive a submodule update.
 
 # Extras
 

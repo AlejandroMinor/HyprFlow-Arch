@@ -50,7 +50,7 @@
 
 	"custom/mute-indicator": {
     // Continuous: prints again only when PipeWire reports a change.
-    "exec": "mute_indicator.sh",
+    "exec": "mute_indicator.py",
     "return-type": "json"
 },
 
@@ -117,7 +117,7 @@
     "custom/vpn": {
     // Continuous: prints again only when a network interface comes or goes.
     "format": "{}",
-    "exec": "vpn_status.sh",
+    "exec": "vpn_status.py",
     "return-type": "json"
 },
 

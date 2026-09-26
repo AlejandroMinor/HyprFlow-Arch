@@ -25,3 +25,22 @@ def hub():
 @pytest.fixture(scope="session")
 def camera():
     return load_script("camera_status.py")
+
+
+@pytest.fixture(scope="session")
+def mute():
+    return load_script("mute_indicator.py")
+
+
+@pytest.fixture(scope="session")
+def vpn():
+    return load_script("vpn_status.py")
+
+
+@pytest.fixture(scope="session")
+def waybar_module():
+    spec = importlib.util.spec_from_file_location(
+        "waybar_module", BIN.parent / "lib" / "waybar_module.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module

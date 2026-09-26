@@ -7,11 +7,13 @@ scanning every process every two seconds.
 """
 
 import ctypes
-import json
 import os
-import signal
 import struct
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
+from waybar_module import WaybarModule  # noqa: E402
 
 IN_OPEN = 0x00000020
 IN_CLOSE_WRITE = 0x00000008
@@ -83,32 +85,23 @@ def video_event(data):
     return False
 
 
-PR_SET_PDEATHSIG = 1
+class CameraStatus(WaybarModule):
+    def state(self):
+        return state()
 
-
-def main():
-    # Waybar does not stop its continuous modules when it exits; have the
-    # kernel end this one with it, or every Waybar restart leaves a copy.
-    libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
-    last = None
-
-    def emit():
-        nonlocal last
-        out = json.dumps(state())
-        if out != last:
-            last = out
-            print(out, flush=True)
-
-    fd = libc.inotify_init1(0)
-    if fd < 0:
-        sys.exit("inotify is not available")
-    watch(fd)
-    emit()
-    while True:
-        if video_event(os.read(fd, 4096)):
-            watch(fd)  # new device nodes need their own watch
-        emit()
+    def events(self):
+        fd = libc.inotify_init1(0)
+        if fd < 0:
+            sys.exit("inotify is not available")
+        watch(fd)
+        try:
+            while True:
+                if video_event(os.read(fd, 4096)):
+                    watch(fd)  # new device nodes need their own watch
+                yield
+        finally:
+            os.close(fd)
 
 
 if __name__ == "__main__":
-    main()
+    CameraStatus().run()

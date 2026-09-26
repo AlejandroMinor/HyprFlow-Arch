@@ -468,9 +468,9 @@ if hl.plugin.hyprglass then
     hg.preset("minor", {
         blur_strength        = 1.5,
         blur_iterations      = 2,
-        edge_thickness       = 0.12,  -- band holding the whole liquid part, max 0.15
-        refraction_strength  = 5.0,
-        chromatic_aberration = 0.45,
+        edge_thickness       = 0.06,  -- band holding the whole liquid part, max 0.15
+        refraction_strength  = 4.0,
+        chromatic_aberration = 0.25,
         lens_distortion      = 0.4,
         fresnel_strength     = 0.7,
         specular_strength    = 1.0,
@@ -523,6 +523,7 @@ if hl.plugin.hyprglass then
     -- Namespace match is exact, not regex. mask_threshold keeps the pill's
     -- anti-aliased edge from counting as content.
     hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.05 })
+    hg.layer("rofi",        { preset = "minor",             mask_threshold = 0.05 })
 end
 
 

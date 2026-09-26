@@ -7,7 +7,8 @@ set -uo pipefail
 
 battery_dir=
 
-for path in /sys/class/power_supply/BAT*; do
+# POWER_SUPPLY lets the tests point this at a fake battery.
+for path in "${POWER_SUPPLY:-/sys/class/power_supply}"/BAT*; do
     [ -e "$path" ] || continue
     battery_dir=$path
     break

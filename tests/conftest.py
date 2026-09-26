@@ -48,6 +48,16 @@ def session():
 
 
 @pytest.fixture(scope="session")
+def help_binds():
+    return load_script("help-binds-parse.py")
+
+
+@pytest.fixture(scope="session")
+def pick():
+    return load_script("master-pick.py")
+
+
+@pytest.fixture(scope="session")
 def pad():
     return load_script("pad-listener.py")
 

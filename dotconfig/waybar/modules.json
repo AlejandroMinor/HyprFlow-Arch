@@ -301,12 +301,10 @@
 
 "custom/battery-hub": {
     // Every battery (laptop, mice, keyboards, controllers, headsets) from UPower.
-    // Click switches between the compact and the full view; right click turns
-    // the headset lights on or off. SIGRTMIN+10 refreshes it.
+    // Continuous: redraws on UPower's own signals. Click switches between the
+    // compact and the full view; right click turns the headset lights on or off.
     "exec": "battery-hub.py",
     "return-type": "json",
-    "interval": 60,
-    "signal": 10,
     "on-click": "battery-hub.py --toggle",
     "on-click-right": "battery-hub.py --lights",
     "tooltip": true

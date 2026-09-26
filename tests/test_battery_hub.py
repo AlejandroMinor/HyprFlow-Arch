@@ -243,7 +243,7 @@ def test_hook_gets_name_percent_and_level(hub, tmp_path, monkeypatch):
 
 # ---- ViewState -----------------------------------------------------------------
 
-def test_view_toggles_and_refreshes_waybar(hub, tmp_path, monkeypatch):
+def test_view_toggles_and_tells_the_running_module(hub, tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(hub.subprocess, "run", lambda cmd, *a, **k: calls.append(cmd))
     view = hub.ViewState(str(tmp_path / "expanded"))
@@ -252,4 +252,25 @@ def test_view_toggles_and_refreshes_waybar(hub, tmp_path, monkeypatch):
     assert view.expanded
     view.toggle()
     assert not view.expanded
-    assert calls == [["pkill", f"-RTMIN+{hub.SIGNAL}", "-x", "waybar"]] * 2
+    assert calls == [["pkill", "-USR1", "-f", r"battery-hub\.py$"]] * 2
+
+
+def test_toggle_pattern_spares_the_toggle_run_itself(hub):
+    import re
+    pattern = r"battery-hub\.py$"
+    assert re.search(pattern, "python3 /home/u/.local/bin/battery-hub.py")
+    assert not re.search(pattern, "python3 /home/u/.local/bin/battery-hub.py --toggle")
+
+
+# ---- BatteryHubModule --------------------------------------------------------
+
+def test_module_state_reads_notifies_and_renders(hub, tmp_path, monkeypatch):
+    sent = []
+    monkeypatch.setattr(hub.subprocess, "run", lambda cmd, *a, **k: sent.append(cmd))
+    monkeypatch.setattr(hub, "ViewState", lambda: type("V", (), {"expanded": False})())
+    module = hub.BatteryHubModule(sources=[FakeSource([hub.Device("Pad", "P", 15)])])
+    module.notifier = hub.LowBatteryNotifier(state=str(tmp_path / "n.json"),
+                                             hook=str(tmp_path / "no-hook"))
+    state = module.state()
+    assert state["text"] == "P 15%" and state["class"] == "critical"
+    assert sent and sent[0][0] == "notify-send"

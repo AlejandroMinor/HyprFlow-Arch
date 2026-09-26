@@ -19,29 +19,40 @@ desktop notification, again after a recharge. For anything personal on top
 it runs with the device name, the percentage and the level. It lives outside
 the repo.
 
-    battery-hub.py            print the module JSON (Waybar exec)
-    battery-hub.py --toggle   switch view and refresh the module (on-click)
+    battery-hub.py            the module (Waybar exec, continuous: no interval)
+    battery-hub.py --toggle   switch view; the running module redraws (on-click)
     battery-hub.py --lights   headset lights on/off via headsetcontrol (on-click-right)
+
+It updates on events (Observer): UPower signals a device added, removed or
+changed, and the module redraws at once instead of Waybar polling it every
+minute. Only headsetcontrol, which has no events, is polled, and only when
+installed.
 
 Layout: Device is the model; UPowerSource and HeadsetControlSource are
 adapters that turn each source's format into Devices (add a source by writing
-another class with read()); Batteries gathers them; BatteryHub presents them.
+another class with read()); Batteries gathers them; BatteryHub presents them;
+BatteryHubModule plugs it all into lib/waybar_module.py.
 """
 
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Protocol
 
 import gi
 
 gi.require_version("Gio", "2.0")
-from gi.repository import Gio, GLib  # noqa: E402
+from gi.repository import Gio, GLib, GLibUnix  # noqa: E402
 
-SIGNAL = 10    # Waybar "signal": the module refreshes on SIGRTMIN+10
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
+from waybar_module import WaybarModule  # noqa: E402
+
+HEADSET_POLL = 60  # seconds; headsetcontrol reports no events
 RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
 EXPANDED = os.path.join(RUNTIME, "battery-hub-expanded")
 NOTIFIED = os.path.join(RUNTIME, "battery-hub-notified.json")
@@ -370,15 +381,53 @@ class ViewState:
         return os.path.exists(self.path)
 
     def toggle(self):
-        """Flips the view and asks Waybar to rerun the module right away."""
+        """Flips the view and tells the running module to redraw (SIGUSR1).
+        The pattern matches the module, not this --toggle run."""
         if self.expanded:
             os.remove(self.path)
         else:
             open(self.path, "w").close()
-        subprocess.run(["pkill", f"-RTMIN+{SIGNAL}", "-x", "waybar"])
+        subprocess.run(["pkill", "-USR1", "-f", r"battery-hub\.py$"])
 
 
 SOURCES = [UPowerSource(), HeadsetControlSource()]
+
+
+class BatteryHubModule(WaybarModule):
+    """The Waybar module: redraws whenever UPower says something changed
+    (Observer), when the view is toggled, and every HEADSET_POLL seconds if
+    headsetcontrol is around."""
+
+    def __init__(self, sources=SOURCES):
+        super().__init__()
+        self.sources = sources
+        self.notifier = LowBatteryNotifier()
+
+    def state(self):
+        laptop, peripherals = Batteries(self.sources).collect()
+        self.notifier.notify(([laptop] if laptop else []) + peripherals)
+        return BatteryHub(laptop, peripherals, ViewState().expanded, Palette()).render()
+
+    def events(self):
+        changed = []
+
+        def mark(*_):
+            changed.append(True)
+            return True  # keep GLib timers and signal handlers installed
+
+        bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)
+        # Every UPower signal: DeviceAdded/DeviceRemoved on the daemon and
+        # PropertiesChanged on each device (percentage, charging...).
+        bus.signal_subscribe(UPOWER, None, None, None, None, Gio.DBusSignalFlags.NONE, mark)
+        GLibUnix.signal_add(GLib.PRIORITY_DEFAULT, signal.SIGUSR1, mark)  # --toggle
+        if shutil.which("headsetcontrol"):
+            GLib.timeout_add_seconds(HEADSET_POLL, mark)
+        context = GLib.MainContext.default()
+        while True:
+            context.iteration(True)
+            if changed:
+                changed.clear()
+                yield
 
 
 def main():
@@ -388,10 +437,7 @@ def main():
     if "--lights" in sys.argv:
         HeadsetLights().toggle()
         return
-    laptop, peripherals = Batteries(SOURCES).collect()
-    LowBatteryNotifier().notify(([laptop] if laptop else []) + peripherals)
-    hub = BatteryHub(laptop, peripherals, ViewState().expanded, Palette())
-    print(json.dumps(hub.render()))
+    BatteryHubModule().run()
 
 
 if __name__ == "__main__":

@@ -311,10 +311,8 @@ Everything in `bin/` lands in `~/.local/bin`.
 
 | Script | Description |
 |--------|-------------|
-| `peripherals_battery.sh` | Mouse and keyboard battery |
+| `battery-hub.py` | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower in one module: click for all of them, right click for the headset lights, notifications when one runs low |
 | `trackpad-battery` | Apple Magic Trackpad battery |
-| `g733_battery.sh` | Logitech G733 headset battery |
-| `battery_alert.py` | Low system battery alert |
 | `cava-waybar.sh` | Audio visualizer, hides when silent |
 | `claude-usage.sh` | Claude Code rate-limit indicator |
 | `mute_indicator.sh` | Microphone status |
@@ -389,6 +387,13 @@ sudo systemctl enable --now openrgb
 The colour applies on the next wallpaper or theme change, or right away with
 `rgb-sync.sh`.
 
+**Battery notifications.** `battery-hub.py` sends a desktop notification when a device drops below 35 % and an urgent one below 20 %, once per level. To get them somewhere else too (a phone message, say), make `~/.config/hyprflow/battery-hook` executable; it runs with the device name, the percentage and the level (`warning` or `critical`), and stays out of the repo:
+
+```sh
+#!/bin/sh
+my-phone-notifier "$1 is at $2%"
+```
+
 **GTK dark theme**
 
 ```bash
@@ -409,3 +414,13 @@ gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 - **Script won't run.** `chmod +x <script>`. `install.sh` does this automatically.
 - **Swapped a monitor on the same port and it kept the old one's rotation.** Hyprland only notices a new screen after a real disconnect: unplug, wait about five seconds, plug the new one in. Profiles belong to the set of connected monitors (by make, model and serial), so the new set gets the default layout until you run `monitors.sh setup` for it.
 - **Screens flicker to default modes for a moment when leaving solo or game mode.** A switched off DisplayPort monitor sleeps and wakes every few seconds, reporting itself disconnected meanwhile; if it drops right as the layout is restored, Hyprland falls back for a few seconds and then settles. Turning off the monitor's deep sleep (often called Deep Sleep or DP Auto Sleep in its menu) avoids it.
+
+## Tests
+
+The Python scripts under `bin/` have unit tests in `tests/`, run with pytest. They use no real devices or services, so they run anywhere:
+
+```bash
+python -m venv --system-site-packages .venv   # sees python-gobject from the system
+.venv/bin/pip install pytest
+.venv/bin/pytest
+```

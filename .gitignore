@@ -1,1 +1,25 @@
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Backups and leftovers
+*.bak
+*.bak-*
+*.orig
+*.tmp
+*.log
+
+# AI assistant settings (per machine)
+.claude/
+.superpowers/

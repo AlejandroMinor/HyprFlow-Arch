@@ -26,11 +26,8 @@ window#waybar.hidden {
 #cpu, #memory, #disk,
 #tray, #custom-vpn,
 #network, #pulseaudio, #battery,
-#custom-swaync, #clock, #custom-power,
-#custom-magic-trackpad-battery, #custom-mouse-battery,
-#custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector,
-#custom-updates, #custom-g733-battery, #custom-mute-indicator,
-#custom-power-hub, #language, #submap,
+#custom-swaync, #clock, #custom-power, #custom-hardware-wrap, #custom-theme-selector,
+#custom-updates, #custom-mute-indicator, #custom-battery-hub, #language, #submap,
 #custom-claude-usage {
     background: alpha(@color0, 0.8);
     margin: 5px 3px;
@@ -134,16 +131,9 @@ window#waybar.hidden {
 
 #battery.charging, #battery.plugged { color: #9ece6a; }
 
-#battery.warning:not(.charging),
-#custom-magic-trackpad-battery.warning,
-#custom-mouse-battery.warning,
-#custom-keyboard-battery.warning { color: #e0af68; }
+#battery.warning:not(.charging) { color: #e0af68; }
 
-#battery.critical:not(.charging),
-#custom-magic-trackpad-battery.critical,
-#custom-mouse-battery.critical,
-#custom-keyboard-battery.critical,
-#custom-g733-battery.critical {
+#battery.critical:not(.charging) {
     color: #f7768e;
     animation: blink 0.5s linear infinite alternate;
 }
@@ -203,9 +193,6 @@ window#waybar.hidden {
     animation: blink 0.5s linear infinite alternate;
 }
 
-#custom-power-hub.critical {
-    animation: blink-privacy-icon 1s linear infinite alternate;
-}
 
 #custom-system-tools-wrap {
     background: alpha(@color0, 0.8);
@@ -272,3 +259,8 @@ window#waybar.hidden {
 
 #taskbar button.active { opacity: 1; background: transparent; }
 #taskbar button:hover  { opacity: 0.8; }
+
+/* battery-hub: the lowest battery sets the class */
+#custom-battery-hub.warning  { color: #e0af68; }
+#custom-battery-hub.critical { animation: blink-privacy-icon 1s linear infinite alternate; }
+#custom-battery-hub.charging { color: #9ece6a; }

@@ -91,11 +91,8 @@ window#waybar.minimal #workspaces {
 #cpu, #memory, #disk,
 #tray, #custom-vpn,
 #network, #pulseaudio, #battery,
-#custom-swaync, #clock, #custom-power,
-#custom-magic-trackpad-battery, #custom-mouse-battery,
-#custom-keyboard-battery, #custom-hardware-wrap, #custom-theme-selector,
-#custom-updates, #custom-g733-battery, #custom-mute-indicator,
-#custom-power-hub, #language, #submap,
+#custom-swaync, #clock, #custom-power, #custom-hardware-wrap, #custom-theme-selector,
+#custom-updates, #custom-mute-indicator, #custom-battery-hub, #language, #submap,
 #custom-claude-usage, #media, #privacy-info,
 #custom-system-tools-wrap, #temperature, #workspaces {
     background: transparent;
@@ -209,15 +206,9 @@ window#waybar.minimal #workspaces {
 
 #battery.charging, #battery.plugged { color: @color6; }
 
-#battery.warning:not(.charging),
-#custom-magic-trackpad-battery.warning,
-#custom-mouse-battery.warning,
-#custom-keyboard-battery.warning { color: @color3; }
+#battery.warning:not(.charging) { color: @color3; }
 
-#battery.critical:not(.charging),
-#custom-magic-trackpad-battery.critical,
-#custom-mouse-battery.critical,
-#custom-keyboard-battery.critical { color: @color1; }
+#battery.critical:not(.charging) { color: @color1; }
 
 #custom-vpn { padding: 0 10px 0 8px; }
 #custom-vpn.vpn-status-active  { color: #9ece6a; }
@@ -227,7 +218,6 @@ window#waybar.minimal #workspaces {
 #custom-mute-indicator.muted_active { color: @color1; font-size: 16px; }
 
 #temperature.critical { color: @color1; animation: blink 0.7s linear infinite alternate; }
-#custom-power-hub.critical { animation: blink-privacy-icon 1s linear infinite alternate; }
 
 #submap { color: @color6; font-weight: bold; }
 
@@ -278,3 +268,8 @@ window#waybar.minimal #workspaces {
 #taskbar button:hover {
     opacity: 0.8;
 }
+
+/* battery-hub: the lowest battery sets the class */
+#custom-battery-hub.warning  { color: @color3; }
+#custom-battery-hub.critical { animation: blink-privacy-icon 1s linear infinite alternate; }
+#custom-battery-hub.charging { color: @color6; }

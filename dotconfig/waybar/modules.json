@@ -90,41 +90,10 @@
         "tooltip": true
     },
 
-    "custom/magic-trackpad-battery": {
-	"exec": "trackpad-battery",
-	"return-type": "json",
-	"interval": 60,
-	"format": "{}",
-	"tooltip": true,
-	"markup": true
-    },
-
-    "custom/mouse-battery": {
-        "format": "{}",
-        "exec": "peripherals_battery.sh mouse",
-        "return-type": "json",
-        "interval": 60,
-        "tooltip": true
-    },
-
-    "custom/keyboard-battery": {
-        "format": "{}",
-        "exec": "peripherals_battery.sh keyboard",
-        "return-type": "json",
-        "interval": 60,
-        "tooltip": true
-    },
 
 
-    "custom/g733-battery": {
-    "format": "{}",
-    "exec": "g733_battery.sh",
-    "on-click": "headsetcontrol -l 0",
-    "on-click-right": "headsetcontrol -l 1",
-    "return-type": "json",
-    "interval": 60,
-    "tooltip": true
-    },
+
+
 
     "clock": {
         "tooltip": true,
@@ -321,31 +290,19 @@
 },
 
 
-"custom/power-hub": {
-    "format": "󱠵",
-    "exec": "battery_alert.py",
+
+
+"custom/battery-hub": {
+    // Every battery (laptop, mice, keyboards, controllers, headsets) from UPower.
+    // Click switches between the compact and the full view; right click turns
+    // the headset lights on or off. SIGRTMIN+10 refreshes it.
+    "exec": "battery-hub.py",
     "return-type": "json",
-    "interval": 3600,
-    "tooltip": false,
-    "markup": true
-},
-
-
-"group/batteries": {
-    "orientation": "horizontal",
-    "drawer": {
-        "transition-duration": 300,
-        "transition-left-to-right": false,
-        "click-to-reveal": true
-    },
-    "modules": [
-        "custom/power-hub",
-        "battery",
-        "custom/mouse-battery",
-        "custom/keyboard-battery",
-        "custom/magic-trackpad-battery",
-        "custom/g733-battery"
-    ]
+    "interval": 60,
+    "signal": 10,
+    "on-click": "battery-hub.py --toggle",
+    "on-click-right": "battery-hub.py --lights",
+    "tooltip": true
 },
 
 "group/system-tools": {

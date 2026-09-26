@@ -18,6 +18,6 @@
         "margin-right": 15,
         "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/hymission", "group/hardware"],
         "modules-center": ["group/media"],
-        "modules-right": ["group/system-tools", "group/privacy-info", "group/batteries", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
+        "modules-right": ["group/system-tools", "group/privacy-info", "custom/battery-hub", "hyprland/submap", "group/audio", "custom/vpn", "custom/swaync", "clock", "custom/power"]
     }
 ]

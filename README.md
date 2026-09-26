@@ -61,14 +61,31 @@ Cloned without `--recursive`? `install.sh` fetches the submodules itself.
 Arch, with Hyprland already running. `install.sh` tells you what you are missing,
 so you can run it first and let it decide.
 
-| Tool | Version |
-|------|---------|
-| Hyprland | 0.56+ |
-| Waybar | 0.15.0 |
-| eww | 0.6.0 |
-| swaync | 0.12.6 |
-| wallust | 3.5.2 |
-| rofi | 2.0.0 |
+Tested is what this setup runs on today. A minimum is given only where something
+here needs it, with the reason in Notes; older versions of the rest may work but
+are untested.
+
+| Tool | Tested | Minimum | Notes |
+|------|--------|---------|-----------------|
+| Hyprland | 0.56.2 | 0.55 | the config is Lua (`hl.*`), and scripts dispatch Lua through `hyprctl` |
+| hyprlock | 0.9.6 | | |
+| Waybar | 0.15.0 | | |
+| rofi | 2.0.0 | 2.0 | native Wayland; before 2.0 that was the separate rofi-wayland fork |
+| swaync | 0.12.6 | | |
+| wallust | 3.5.2 | 3.0 | `wallust cs` for the static themes and the v3 template syntax |
+| kitty | 0.48.2 | | |
+| eww | 0.6.0 | | |
+| PipeWire / WirePlumber | 1.6.8 / 0.5.17 | | `wpctl` drives volume and mute |
+| Python | 3.14.7 | 3.10 | `X \| None` type unions in the scripts |
+| GTK 4 + gtk4-layer-shell | 4.22 / 1.3.0 | 1.0 | master-pick's overlay |
+| headsetcontrol (optional) | 4.0.0 | | USB headset battery and lights |
+| python-evdev (optional) | 2.0.0 | | the controller combo for game mode |
+
+Hyprland plugins (hyprglass, hymission) are built by `hyprpm` against the running
+Hyprland, so they follow its version.
+
+No kernel has a driver for the Logi Bolt receiver yet (checked on 7.2), so
+battery-hub reads it directly; see [Logitech Bolt receiver](#optional-setup).
 
 <details>
 <summary>Full package list</summary>
@@ -93,11 +110,9 @@ sudo systemctl enable --now bluetooth
 
 Pairing prompts come from `blueman-applet`, which Hyprland starts at login. Without it BlueZ has nobody to ask and cancels the request, so a device like a DualShock connects for a few seconds and drops.
 
-> Hyprland configs here use the Lua format (`.conf`/hyprlang is deprecated since 0.55).
-> The last `.conf` checkpoint is tagged `pre-lua-migration`.
-
-Built around a Logitech MX Master 3S, MX Keys S, and an Apple Magic Trackpad.
-That is what the battery modules read. Everything else works without them.
+Built around a Logitech MX Master 3S and MX Keys Mini (over Bluetooth or a Logi
+Bolt receiver) and an Apple Magic Trackpad. The battery module shows them, and any
+other device UPower or headsetcontrol reports; everything else works without them.
 
 # Customizing
 
@@ -485,10 +500,15 @@ signalled). Over Bluetooth instead, UPower already reports them.
 
 ## Tests
 
-The Python scripts under `bin/` have unit tests in `tests/`, run with pytest. They use no real devices or services, so they run anywhere:
+Every script in `bin/` and `lib/`, Python and Bash alike, has tests in `tests/`, run with pytest. They use no real devices or services: the commands a script calls (hyprctl, wpctl, openrgb...) are fakes that log what they were asked, so the tests run anywhere without touching the screens, the sound or the lights:
 
 ```bash
 python -m venv --system-site-packages .venv   # sees python-gobject from the system
 .venv/bin/pip install pytest
 .venv/bin/pytest
 ```
+
+## Older versions
+
+The Hyprland config here is Lua, the format since Hyprland 0.55 (`.conf`/hyprlang
+is deprecated). The last `.conf` version is tagged `pre-lua-migration`.

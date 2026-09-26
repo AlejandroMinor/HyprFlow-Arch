@@ -38,6 +38,10 @@ FAKES = {
     "hyprpm": "",
     "killall": "",
     "fc-cache": "",
+    "notify-send": "",
+    "rgb-sync.sh": "",
+    # Writes one of the cached palette files, as a real run writes them all.
+    "wallust": 'mkdir -p "$HOME/.cache/wallust/colors"; echo fresh > "$HOME/.cache/wallust/colors/colors-waybar.css"',
 }
 
 
@@ -167,3 +171,33 @@ def test_config_never_touches_the_real_session(env):
     calls = log(env)
     assert "hyprctl reload" in calls
     assert "killall waybar" in calls
+
+
+GENERATED = ["hypr/colors.lua", "rofi/hyprflow/colors.rasi", "wlogout/colors.css",
+             "cava/themes/wallust", "hypr/monitors_active.lua", "waybar/config"]
+
+
+def test_config_keeps_what_was_generated_on_this_machine(env):
+    config = Path(env["HOME"]) / ".config"
+    for path in GENERATED:
+        (config / path).parent.mkdir(parents=True, exist_ok=True)
+        (config / path).write_text("mine\n")
+    run(env, "config")
+    assert {p: (config / p).read_text() for p in GENERATED} == {p: "mine\n" for p in GENERATED}
+
+
+def test_a_fresh_config_gets_the_repo_starting_copies(env):
+    run(env, "config")
+    config = Path(env["HOME"]) / ".config"
+    for path in GENERATED:
+        assert (config / path).read_bytes() == (REPO / "dotconfig" / path).read_bytes(), path
+
+
+def test_theme_keeps_the_palette_wallust_just_wrote(env):
+    result = run(env, "config", "theme")
+    assert result.returncode == 0, result.stdout + result.stderr
+    cache = Path(env["HOME"]) / ".cache" / "wallust" / "colors"
+    assert (cache / "colors-waybar.css").read_text() == "fresh\n"
+    # What wallust did not write is filled in from the repo.
+    assert (cache / "colors-rofi-sh.conf").read_bytes() == \
+        (REPO / "dotconfig" / "wallust" / "colors" / "colors-rofi-sh.conf").read_bytes()

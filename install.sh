@@ -70,7 +70,7 @@ fi
 # One per progress() call in the functions each step runs. Keep in sync.
 TOTAL_STEPS=0
 want check      && TOTAL_STEPS=$((TOTAL_STEPS + 3))   # deps, submodules, plugins
-want config     && TOTAL_STEPS=$((TOTAL_STEPS + 5))   # permissions, files, rofi, runcat, binaries
+want config     && TOTAL_STEPS=$((TOTAL_STEPS + 4))   # permissions, files, runcat, binaries
 want theme      && TOTAL_STEPS=$((TOTAL_STEPS + 1))
 want lockscreen && TOTAL_STEPS=$((TOTAL_STEPS + 1))
 want monitors   && TOTAL_STEPS=$((TOTAL_STEPS + 1))
@@ -354,47 +354,30 @@ copy_configs() {
     progress "CONFIG FILES"
     echo "󰆐 Copying configuration files..."
 
-    local mon_active="$CONFIG_DEST/hypr/monitors_active.lua"
-    local waybar_cfg="$CONFIG_DEST/waybar/config"
-    # Both are generated per monitor set, and the repo ships single-bar
-    # fallbacks that would overwrite them. Hold on to yours unless the monitors
-    # step is going to regenerate them anyway.
-    local mon_backup="" wb_backup=""
-    if ! want monitors; then
-        [ -f "$mon_active" ]  && mon_backup="$(cat "$mon_active")"
-        [ -f "$waybar_cfg" ]  && wb_backup="$(cat "$waybar_cfg")"
-    fi
+    # The repo ships starting copies of files that are generated on your
+    # machine afterwards; copying over them would undo that. Yours are kept:
+    #   - the wallust palette (wallust.toml targets), until the theme step
+    #     writes a new one anyway
+    #   - the monitor layout and Waybar bars, unless the monitors step is
+    #     about to regenerate them
+    local generated=(
+        hypr/colors.lua rofi/hyprflow/colors.rasi wlogout/colors.css cava/themes/wallust
+    )
+    want monitors || generated+=(hypr/monitors_active.lua waybar/config)
+
+    local keep path
+    keep="$(mktemp -d)"
+    for path in "${generated[@]}"; do
+        if [ -f "$CONFIG_DEST/$path" ]; then
+            mkdir -p "$keep/$(dirname "$path")"
+            cp -f "$CONFIG_DEST/$path" "$keep/$path"
+        fi
+    done
 
     cp -rf "$REPO_PATH/dotconfig"/* "$CONFIG_DEST/"
 
-    [ -n "$mon_backup" ] && printf '%s' "$mon_backup" > "$mon_active"
-    [ -n "$wb_backup"  ] && printf '%s' "$wb_backup"  > "$waybar_cfg"
-
-    echo "󰆐 Copying eww configuration..."
-    mkdir -p "$CONFIG_DEST/eww"
-    cp -rf "$REPO_PATH/dotconfig/eww"/* "$CONFIG_DEST/eww/"
-
-    echo "󰄛 Copying kitty configuration..."
-    mkdir -p "$CONFIG_DEST/kitty"
-    cp -rf "$REPO_PATH/dotconfig/kitty"/* "$CONFIG_DEST/kitty/" 2>/dev/null || true
-
-    echo "󰆐 Copying xdg-desktop-portal configuration..."
-    mkdir -p "$CONFIG_DEST/xdg-desktop-portal"
-    cp -rf "$REPO_PATH/dotconfig/xdg-desktop-portal"/* "$CONFIG_DEST/xdg-desktop-portal/"
-
-    echo "󰚌 Copying fastfetch configuration..."
-    mkdir -p "$CONFIG_DEST/fastfetch"
-    cp -rf "$REPO_PATH/dotconfig/fastfetch"/* "$CONFIG_DEST/fastfetch/"
-}
-
-setup_rofi() {
-    progress "ROFI"
-    echo "󰏘 Applying Rofi themes..."
-    mkdir -p "$CONFIG_DEST/rofi"
-    local rofi_custom="$REPO_PATH/dotconfig/rofi"
-    if [ -d "$rofi_custom" ]; then
-        cp -rf "$rofi_custom"/* "$CONFIG_DEST/rofi/"
-    fi
+    cp -rf "$keep"/. "$CONFIG_DEST/"
+    rm -rf "$keep"
 }
 
 setup_runcat() {
@@ -469,11 +452,10 @@ apply_theme() {
     # --no-restart: we bounce Waybar once at the end, not once per step.
     "$REPO_PATH/bin/wallust-theme-manager.sh" --restore-default --notify --no-restart 2>/dev/null || true
 
-    echo "󰆐 Copying color templates to wallust cache..."
-    local colors_src="$REPO_PATH/dotconfig/wallust/colors"
-    if [ -d "$colors_src" ]; then
-        cp "$colors_src"/* "$HOME/.cache/wallust/colors/" 2>/dev/null || true
-    fi
+    # Fallback for a wallust that failed: the repo's copies fill in only what
+    # it did not write, so they never replace a fresh palette.
+    mkdir -p "$HOME/.cache/wallust/colors"
+    cp -n "$REPO_PATH/dotconfig/wallust/colors"/* "$HOME/.cache/wallust/colors/" 2>/dev/null || true
 }
 
 setup_lockscreen() {
@@ -592,7 +574,6 @@ fi
 if want config; then
     set_permissions
     copy_configs
-    setup_rofi
     setup_runcat
     create_symlinks
 fi

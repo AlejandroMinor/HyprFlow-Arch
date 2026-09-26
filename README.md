@@ -32,7 +32,9 @@ Then press `Super + I` for the keybindings.
 
 It is also the sync tool: name a step and only that step runs. `install.sh config`
 is the one you will use most, to push a dotfile change into `~/.config` without
-the checks or the monitor wizard.
+the checks or the monitor wizard. It leaves alone what your machine generated
+after the first install: the wallust palette, the monitor layout and the Waybar
+bars.
 
 ```bash
 install.sh                  # everything
@@ -382,7 +384,7 @@ each one by its full path:
 The `check` step runs `git submodule update --init --recursive`
 for any that are missing, so a clone without `--recursive` still works. If that
 fails (no network, no git), it says which ones are missing and keeps going: the
-rofi themes and the cat runner font are skipped, and `claude-usage.sh`,
+cat runner font is skipped, and `claude-usage.sh`,
 `sinkswitch` and `trackpad-battery` are not linked into `~/.local/bin`.
 
 To drop the Claude module, remove `custom/claude-usage` from `bars.json`.

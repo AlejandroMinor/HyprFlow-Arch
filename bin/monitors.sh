@@ -12,6 +12,7 @@ SOLO_STATE="$HYPR_DIR/monitor-solo.json"
 ACTIVE_LUA="$HYPR_DIR/monitors_active.lua"
 WAYBAR_CFG="$WAYBAR_DIR/config"
 BARS_TEMPLATE="$WAYBAR_DIR/bars.json"
+LIB="$(dirname "$(readlink -f "$0")")/../lib"
 GAME_MODE_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow/game-mode"
 
 msg()  { printf '\033[1;34m󰍹 monitors:\033[0m %s\n' "$*"; }
@@ -333,9 +334,8 @@ cmd_apply() {
     if [ -f "$GAME_MODE_STATE" ]; then
         msg "game mode on: leaving Waybar hidden"
     elif [ "$wb_changed" -eq 1 ] || ! pgrep -x waybar >/dev/null 2>&1; then
-        killall -w waybar >/dev/null 2>&1 || true
-        # 9>&- : don't let Waybar (and its children) inherit the apply lock
-        setsid waybar >/dev/null 2>&1 < /dev/null 9>&- &
+        # 9>&- : the helper must not hold the apply lock either
+        "$LIB/waybar-restart.sh" 9>&-
         msg "Waybar (re)started"
     fi
 

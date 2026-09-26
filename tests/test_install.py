@@ -170,7 +170,8 @@ def test_config_never_touches_the_real_session(env):
     run(env, "config")
     calls = log(env)
     assert "hyprctl reload" in calls
-    assert "killall waybar" in calls
+    assert "killall -w waybar" in calls
+    assert "hyprctl dispatch hl.dsp.exec_cmd(\"waybar\")" in calls
 
 
 GENERATED = ["hypr/colors.lua", "rofi/hyprflow/colors.rasi", "wlogout/colors.css",

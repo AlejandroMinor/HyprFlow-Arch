@@ -47,6 +47,7 @@ FAKES = {
     "setsid": 'exec "$@"',
     "monitors.sh": 'exit "${FAKE_SOLO_FAIL:-0}"',
     "rgb-sync.sh": "",
+    "waybar-restart.sh": "",   # lives in lib/, next to bin/
 }
 
 
@@ -59,9 +60,11 @@ class GameMode:
         fakes = root / "fakebin"
         bindir.mkdir()
         fakes.mkdir()
+        (root / "lib").mkdir()
         shutil.copy(REPO / "bin" / "game-mode.sh", bindir)
         for name, body in FAKES.items():
-            where = bindir if name.endswith(".sh") else fakes
+            where = {"waybar-restart.sh": root / "lib"}.get(
+                name, bindir if name.endswith(".sh") else fakes)
             script = where / name
             script.write_text(f'#!/bin/bash\necho "{name} $*" >> "$T/log"\n{body}\n')
             script.chmod(0o755)
@@ -218,7 +221,7 @@ def test_off_puts_everything_back(gm):
     assert "swaync-client -df" in log
     assert "rgb-sync.sh --last" in log
     assert gm.sink() == "alsa_output.usb-headset"
-    assert any('exec_cmd(\\"waybar\\")' in line or "waybar" in line for line in gm.called("hyprctl eval"))
+    assert "waybar-restart.sh " in log
 
 
 def test_off_keeps_do_not_disturb_if_it_was_on_before(gm):

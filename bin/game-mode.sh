@@ -206,7 +206,7 @@ cmd_off() {
     [ "$dnd" = "true" ] || swaync-client -df >/dev/null 2>&1 || true
     [ "$GAME_RGB" = "1" ] && rgb_sync --last
     [ -n "$sink_prev" ] && pactl set-default-sink "$sink_prev" 2>/dev/null
-    pgrep -x waybar >/dev/null || spawn "waybar"
+    pgrep -x waybar >/dev/null || "$(dirname "$(readlink -f "$0")")/../lib/waybar-restart.sh"
 
     msg "off"
 }

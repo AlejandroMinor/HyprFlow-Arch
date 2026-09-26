@@ -35,7 +35,7 @@ done
 HOME_DIR="${HOME:-$(getent passwd "$(whoami)" | cut -d: -f6)}"
 
 WALLUST_CACHE="$HOME_DIR/.cache/wallust/colors"
-mkdir -p -m 755 "$WALLUST_CACHE"
+mkdir -p "$WALLUST_CACHE"
 
 if [ "$ACTION" == "generate" ]; then
     FOCUSED=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused==true) | .name')
@@ -58,11 +58,7 @@ hyprctl reload > /dev/null
 setsid rgb-sync.sh ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1 < /dev/null &
 sleep 0.5
 if [ "$RESTART_WAYBAR" = true ]; then
-    killall waybar 2>/dev/null
-    # Detached: a bare 'waybar &' inherits this script's stdout and stderr, and
-    # its logs then scribble over whatever called us (install.sh's monitor
-    # wizard, say).
-    setsid waybar >/dev/null 2>&1 < /dev/null &
+    "$(dirname "$(readlink -f "$0")")/../lib/waybar-restart.sh"
 fi
 
 # Rebuild the lockscreen backdrop now rather than on the next lock. Blurring the

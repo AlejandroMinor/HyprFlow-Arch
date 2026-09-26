@@ -3,8 +3,9 @@
 Hyprland + Arch Linux desktop config: multi-monitor, dynamic theming from the
 wallpaper, and Waybar modules for peripheral batteries and system status.
 
-![Desktop](assets/screenshots/desktop.png)
-![Desktop Alt](assets/screenshots/desktop-alt.png)
+![Desktop](assets/screenshots/desktop.webp)
+![Master layout with master-pick](assets/screenshots/master-pick.webp)
+![Floating windows](assets/screenshots/floating.webp)
 
 ## Quick start
 
@@ -304,6 +305,8 @@ square image and it's never overwritten, or delete it for the Arch glyph instead
 `launcher-centered.rasi` is the launcher, reached by `Super + Space`, the
 four-finger pinch gesture and the Waybar launcher icon; it builds on
 `launcher-base.rasi`. Power menu is `wlogout`, also themed.
+
+![Rofi launcher](assets/screenshots/rofi.webp)
 
 ## Plugins
 

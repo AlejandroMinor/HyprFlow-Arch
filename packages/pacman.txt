@@ -1,0 +1,74 @@
+# Packages from the official repos. install.sh reads this file; one package per
+# line, anything after # is a comment.
+
+# Compositor and lock screen
+hyprland
+hyprpm               # builds the Hyprland plugins (hyprglass, hymission)
+hyprlock
+cpio                 # hyprpm needs it to build plugins
+cmake                # hyprpm needs it to build plugins
+
+# Bar, launcher, notifications, power menu
+waybar
+rofi
+swaync
+libnotify            # notify-send, used by most scripts
+
+# Wallpaper and look
+awww                 # wallpaper daemon
+gnome-themes-extra   # Adwaita-dark for GTK 3
+qt5ct                # dark Qt 5 apps
+qt6ct                # dark Qt 6 apps, pinentry included
+ttf-jetbrains-mono-nerd
+noto-fonts-cjk
+noto-fonts-emoji
+gnu-free-fonts
+imagemagick          # lockscreen avatar and backdrop
+
+# Terminal and everyday tools
+kitty
+yazi                 # file manager
+satty                # screenshot editor
+hyprshot             # screenshots
+hyprpicker           # colour picker
+wl-clipboard
+btop
+fastfetch
+fzf                  # theme and pet pickers
+gnome-disk-utility
+
+# Audio
+pipewire
+pipewire-pulse
+wireplumber          # wpctl: volume and mute
+pavucontrol          # mixer, right click on the volume module
+rtkit
+cava                 # visualizer in the bar
+headsetcontrol       # USB headset battery and lights
+
+# Bluetooth, network, power
+bluez
+bluez-utils
+blueman              # pairing prompts (controllers)
+network-manager-applet
+openconnect          # VPN, watched by the VPN module
+upower               # every battery in battery-hub
+brightnessctl
+playerctl            # media keys, lockscreen music
+
+# Desktop plumbing
+polkit-gnome
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+xdg-desktop-portal-hyprland
+gtk4
+gtk4-layer-shell     # master-pick overlay
+pacman-contrib
+
+# Scripts
+python
+python-gobject       # D-Bus and GLib in the Python modules
+python-pillow        # dominant wallpaper colour for the RGB lighting
+python-evdev         # controller combo for game mode
+jq
+curl                 # lockscreen cover art

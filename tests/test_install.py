@@ -223,3 +223,28 @@ def test_config_ships_dark_qt_and_the_pinentry_choice(env):
         assert f"stylesheets={sheet}" in text
         assert Path(sheet).exists()
     assert (config / "pinentry" / "preexec").exists()
+
+
+def test_the_package_files_are_the_list_install_sh_checks(env):
+    """install.sh reads packages/*.txt, comments and blank lines aside."""
+    missing(env, "wallust", "qt6ct")
+    result = run(env, "check")
+    assert "qt6ct" in result.stdout and "wallust" in result.stdout
+    calls = [line for line in log(env) if line.startswith("pacman -T")]
+    listed = set(calls[0].split()[2:]) | set(calls[1].split()[2:])
+    for name in ("pacman.txt", "aur.txt"):
+        for line in (REPO / "packages" / name).read_text().splitlines():
+            package = line.split("#")[0].strip()
+            if package:
+                assert package in listed, package
+
+
+def test_the_readme_copy_and_paste_lines_match_the_package_files():
+    """The README lists the packages in full, to copy and paste from anywhere;
+    this keeps that copy in step with packages/*.txt."""
+    readme = (REPO / "README.md").read_text()
+    for name, command in (("pacman.txt", "sudo pacman -S --needed "), ("aur.txt", "yay -S --needed ")):
+        wanted = [line.split("#")[0].strip() for line in (REPO / "packages" / name).read_text().splitlines()]
+        wanted = [package for package in wanted if package]
+        line = next(line for line in readme.splitlines() if line.startswith(command))
+        assert line[len(command):].split() == wanted, f"README out of step with packages/{name}"

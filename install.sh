@@ -80,25 +80,12 @@ if want config || want theme || want lockscreen; then
 fi
 CURRENT_STEP=0
 
-# Packages this config needs. Checked with `pacman -T`, which understands
-# provides, so rofi satisfying rofi-wayland counts as installed.
-PACMAN_PKGS=(
-    hyprland hyprlock hyprshot hyprpicker hyprpm
-    waybar rofi swaync wlogout cava awww
-    kitty yazi satty btop fastfetch gnome-disk-utility
-    pipewire pipewire-pulse wireplumber pavucontrol rtkit
-    bluez bluez-utils blueman
-    brightnessctl playerctl upower openconnect network-manager-applet
-    gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify qt5ct qt6ct
-    xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
-    ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts
-    python python-gobject python-pillow python-evdev jq curl imagemagick wl-clipboard fzf
-    cpio cmake pacman-contrib noto-fonts-emoji
-)
-
-AUR_PKGS=(
-    eww-git waypaper-git wallust headsetcontrol bibata-cursor-theme-bin
-)
+# Packages this config needs, in packages/: one per line, # starts a comment.
+# Checked with `pacman -T`, which understands provides, so rofi satisfying
+# rofi-wayland counts as installed.
+read_packages() { sed 's/#.*//' "$REPO_PATH/packages/$1" | xargs; }
+read -ra PACMAN_PKGS <<<"$(read_packages pacman.txt)"
+read -ra AUR_PKGS    <<<"$(read_packages aur.txt)"
 
 # Hyprland plugins, in the order they are reported.
 PLUGIN_NAMES=(hymission hyprglass)

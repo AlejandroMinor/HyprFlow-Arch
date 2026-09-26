@@ -5,13 +5,15 @@ SKIP_SEQUENCES=""
 NOTIFY=false
 RESTART_WAYBAR=true
 DEFAULT_THEME="classic"
+THEME=""
 
 show_help() {
     echo "Usage: wallust-theme-manager.sh [OPTIONS]"
     echo ""
     echo "Options:"
     echo "  --generate-palette   Generate palette from current wallpaper (default)."
-    echo "  --restore-default    Restore the static theme ($DEFAULT_THEME)."
+    echo "  --theme NAME         Apply the static theme NAME (themes/NAME.json)."
+    echo "  --restore-default    Same as --theme $DEFAULT_THEME."
     echo "  --skip-terminal      Skip injecting colors into active terminals."
     echo "  --notify             Show a notification when done."
     echo "  --no-restart         Leave Waybar alone; the caller will restart it."
@@ -22,7 +24,8 @@ show_help() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --generate-palette) ACTION="generate" ;;
-        --restore-default)  ACTION="default" ;;
+        --theme)            ACTION="theme"; THEME="${2:-}"; shift ;;
+        --restore-default)  ACTION="theme"; THEME="$DEFAULT_THEME" ;;
         --skip-terminal)    SKIP_SEQUENCES="-s" ;;
         --notify)           NOTIFY=true ;;
         --no-restart)       RESTART_WAYBAR=false ;;
@@ -49,8 +52,13 @@ if [ "$ACTION" == "generate" ]; then
     wallust run $SKIP_SEQUENCES "$WP_PATH"
     RGB_ARG="$WP_PATH"
 
-elif [ "$ACTION" == "default" ]; then
-    wallust cs $SKIP_SEQUENCES "$HOME_DIR/.config/wallust/themes/$DEFAULT_THEME.json"
+elif [ "$ACTION" == "theme" ]; then
+    THEME_FILE="$HOME_DIR/.config/wallust/themes/$THEME.json"
+    if [ ! -f "$THEME_FILE" ]; then
+        echo "Error: no theme '$THEME' ($THEME_FILE)" >&2
+        exit 1
+    fi
+    wallust cs $SKIP_SEQUENCES "$THEME_FILE"
     killall -SIGUSR1 kitty 2>/dev/null
 fi
 

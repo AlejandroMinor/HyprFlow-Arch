@@ -36,7 +36,7 @@ main() {
         --border=rounded \
         --layout=reverse \
         --no-info \
-        --color='bg+:#1a1b26,bg:#0f0f0f,hl:#7aa2f7,fg:#c0caf5,hl+:#bb9af7,prompt:#7aa2f7,pointer:#f7768e')
+        --color="$("$(dirname "$(readlink -f "$0")")/../lib/fzf-colors.sh")")
 
     [ -z "$name" ] && exit 0
 

@@ -265,7 +265,7 @@ Wire it up in `~/.config/waypaper/config.ini`:
 backend = awww
 fill = fill
 zen_mode = True
-post_command = bash -c "$HOME/HyprFlow-Arch/bin/wallust-theme-manager.sh --generate-palette --notify"
+post_command = bash -c "$HOME/.local/bin/wallust-theme-manager.sh --generate-palette --notify"
 ```
 
 Run `theme-picker.sh` to pick between the wallpaper palette and eighteen presets:
@@ -283,8 +283,13 @@ Run `theme-picker.sh` to pick between the wallpaper palette and eighteen presets
   for working outdoors or in direct sunlight.
 - Tokyo Night, Catppuccin, Nord, Gruvbox, Dracula, Monochrome, Synthwave, Kanagawa.
 
+The list is read from `~/.config/wallust/themes/`: drop another wallust theme JSON
+there and it shows up in the picker. Without the picker,
+`wallust-theme-manager.sh --theme nord` applies one directly.
+
 Cava runs both in the terminal and as the `custom/cava` Waybar module, which dims
-to a faint baseline when there's no audio. Its palette follows wallust too.
+to a faint baseline when there's no audio. Its palette follows wallust too, and so
+do the fzf pickers (`theme-picker.sh`, `pet-picker.sh`).
 
 ## Lockscreen
 

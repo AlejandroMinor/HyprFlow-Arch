@@ -28,7 +28,7 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace", descri
 hl.gesture({ fingers = 4, direction = "pinchin",  action = function() hl.exec_cmd('sh -c "pkill -x rofi || ' .. menu .. '"') end, description = "App Launcher" })
 
 -- Pinch OUT -> show desktop, same as macOS.
-hl.gesture({ fingers = 4, direction = "pinchout", action = function() hl.exec_cmd("~/.local/bin/hyprland-show-desktop.sh") end, description = "Show Desktop" })
+hl.gesture({ fingers = 4, direction = "pinchout", action = function() hl.exec_cmd("~/.local/lib/hyprflow/hyprland-show-desktop.sh") end, description = "Show Desktop" })
 
 -- Pinch zoom (macOS style, continuous)
 hl.gesture({ fingers = 2, direction = "pinch", action = "cursorZoom", zoom_level = 1, mode = "live", description = "Zoom" })

@@ -21,8 +21,8 @@ A module fills in two steps (Template Method):
 
     VpnStatus().run()
 
-This lives outside bin/ so install.sh does not link it into ~/.local/bin;
-the scripts load it from the repo (see bin/*.py headers).
+It lives in lib/ with the modules, off PATH: install.sh links lib/ into
+~/.local/lib/hyprflow, and the modules import it from their own folder.
 """
 
 import ctypes

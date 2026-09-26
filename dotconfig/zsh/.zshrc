@@ -28,4 +28,4 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # fastfetch with random ascii art on every new terminal
-fastfetch-random.sh
+~/.local/lib/hyprflow/fastfetch-random.sh

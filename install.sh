@@ -6,6 +6,7 @@
 
 REPO_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN_FILES_PATH="$HOME/.local/bin"
+LIB_FILES_PATH="$HOME/.local/lib/hyprflow"
 CONFIG_DEST="$HOME/.config"
 
 WITH_DEPS=false
@@ -423,21 +424,42 @@ create_symlinks() {
     progress "BINARIES"
     echo "󰌹 Creating symbolic links for binaries..."
     local broken=()
-    for file in "$REPO_PATH/bin"/*; do
+    # bin/ holds the commands you run, so it goes on PATH. lib/ holds what only
+    # Waybar, the keybindings or other scripts call; it is linked off PATH and
+    # the configs call it by its full path.
+    link_dir "$REPO_PATH/bin" "$BIN_FILES_PATH"
+    link_dir "$REPO_PATH/lib" "$LIB_FILES_PATH"
+
+    # Scripts that moved from bin/ to lib/ leave dangling links behind in
+    # ~/.local/bin. Remove those, and only those that point into this repo.
+    local link
+    for link in "$BIN_FILES_PATH"/*; do
+        [ -L "$link" ] && [ ! -e "$link" ] || continue
+        [[ "$(readlink "$link")" == "$REPO_PATH"/* ]] && rm -f "$link"
+    done
+
+    if [ ${#broken[@]} -gt 0 ]; then
+        printf "\033[1;33m%s Skipped, submodule missing: %s\033[0m\n" "󰀦" "${broken[*]}"
+    fi
+}
+
+# link_dir SRC DEST: links every entry of SRC into DEST. Uses the caller's
+# `broken` array for links whose submodule is not checked out.
+link_dir() {
+    local file
+    mkdir -p "$2"
+    for file in "$1"/*; do
+        case "$(basename "$file")" in __pycache__) continue ;; esac
         # Directories too: session-manager/ is invoked as
-        # ~/.local/bin/session-manager/save.sh from the keybindings.
+        # ~/.local/lib/hyprflow/session-manager/save.sh from the keybindings.
         if [ -f "$file" ] || [ -d "$file" ]; then
-            ln -sfn "$file" "$BIN_FILES_PATH/$(basename "$file")"
+            ln -sfn "$file" "$2/$(basename "$file")"
         elif [ -L "$file" ]; then
             # -f follows the link, so a dangling one lands here: its submodule
             # is not checked out. Say so instead of skipping in silence.
             broken+=("$(basename "$file")")
         fi
     done
-
-    if [ ${#broken[@]} -gt 0 ]; then
-        printf "\033[1;33m%s Skipped, submodule missing: %s\033[0m\n" "󰀦" "${broken[*]}"
-    fi
 }
 
 apply_theme() {

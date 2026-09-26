@@ -1,4 +1,4 @@
-"""Tests for bin/camera_status.py. /dev and /proc are faked, and inotify
+"""Tests for lib/camera_status.py. /dev and /proc are faked, and inotify
 events are built by hand, so no camera or running process is needed."""
 
 import json

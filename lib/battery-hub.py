@@ -49,7 +49,7 @@ import gi
 gi.require_version("Gio", "2.0")
 from gi.repository import Gio, GLib, GLibUnix  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from waybar_module import WaybarModule  # noqa: E402
 
 HEADSET_POLL = 60  # seconds; headsetcontrol reports no events

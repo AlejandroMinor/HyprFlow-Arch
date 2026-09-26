@@ -11,15 +11,15 @@ local mainMod = "SUPER"
 -- =======================================================
 
 hl.bind(mainMod .. " + X",         function() if hl.plugin.hymission then hl.plugin.hymission.toggle() end end, { description = "Mission Control (Hymission)" })
-hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/bin/help-binds.sh"),                { description = "View Keybind Guide" })
+hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/help-binds.sh"),                { description = "View Keybind Guide" })
 hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal),                                    { description = "Open Terminal (Kitty)" })
 hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("[float; size 900 600; center] kitty"),       { description = "Open Floating Kitty" })
 hl.bind(mainMod .. " + SPACE",         hl.dsp.exec_cmd('sh -c "pkill -x rofi || ' .. menu .. '"'),  { description = "Open App Launcher" })
-hl.bind(mainMod .. " + D",         hl.dsp.exec_cmd("~/.local/bin/hyprland-show-desktop.sh"),    { description = "Show Desktop" })
+hl.bind(mainMod .. " + D",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprland-show-desktop.sh"),    { description = "Show Desktop" })
 hl.bind(mainMod .. " + E",         hl.dsp.exec_cmd(fileManager),                                 { description = "Open File Manager" })
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("[float; size 1000 700; center] " .. fileManager), { description = "Open Floating File Manager" })
 hl.bind(mainMod .. " + Q",         hl.dsp.window.close(),                                        { description = "Close Active Window" })
-hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd("close-workspace.sh"),                        { description = "Close All Windows in Workspace" })
+hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd("~/.local/lib/hyprflow/close-workspace.sh"),                        { description = "Close All Windows in Workspace" })
 hl.bind(mainMod .. " + L",         hl.dsp.exec_cmd("~/.local/bin/hyprlock-flow.sh"),             { description = "Lock Screen" })
 
 
@@ -45,7 +45,7 @@ end, { description = "Mini Window (1200x800)" })
 -- =======================================================
 
 hl.bind(mainMod .. " + G",         hl.dsp.group.toggle(),                                    { description = "Toggle Group" })
-hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.local/bin/hyprland-group-all.sh"),      { description = "Group All Windows in Workspace" })
+hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprland-group-all.sh"),      { description = "Group All Windows in Workspace" })
 
 hl.bind("ALT + Tab",         hl.dsp.group.next(), { description = "Next Tab" })
 hl.bind("ALT + SHIFT + Tab", hl.dsp.group.prev(), { description = "Previous Tab" })
@@ -308,9 +308,9 @@ hl.bind(mainMod .. " + SHIFT + mouse_up",   set_zoom(-0.1), { repeating = true }
 -- =======================================================
 
 hl.bind(mainMod .. " + Return",    hl.dsp.layout("swapwithmaster master"), { description = "Swap with Master" })
-hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("master-pick.py --notify"), { description = "Pick Window to Send to Master" })
+hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("~/.local/lib/hyprflow/master-pick.py --notify"), { description = "Pick Window to Send to Master" })
 -- "masculine" is º, the key left of 1 on the es layout.
-hl.bind(mainMod .. " + masculine",      hl.dsp.exec_cmd("master-pick.py --notify"), { description = "Pick Window to Send to Master (alt)" })
+hl.bind(mainMod .. " + masculine",      hl.dsp.exec_cmd("~/.local/lib/hyprflow/master-pick.py --notify"), { description = "Pick Window to Send to Master (alt)" })
 hl.bind("mouse:277",               hl.dsp.layout("swapwithmaster master"))
 hl.bind(mainMod .. " + S",         hl.dsp.layout("focusmaster auto"),      { description = "Focus Master" })
 hl.bind(mainMod .. " + U",         hl.dsp.layout("orientationnext"),       { description = "Rotate Master" })
@@ -322,7 +322,7 @@ hl.bind(mainMod .. " + SHIFT + Y", hl.dsp.layout("removemaster"),          { des
 --  SESSION & LAYOUT MANAGEMENT
 -- =======================================================
 
-hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("~/.local/bin/session-manager/save.sh logout"), { description = "Save & Exit" })
-hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("~/.local/bin/session-manager/save.sh custom"), { description = "Save Layout Template" })
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.local/bin/session-manager/load.sh"),        { description = "Load Layout" })
+hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager/save.sh logout"), { description = "Save & Exit" })
+hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager/save.sh custom"), { description = "Save Layout Template" })
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager/load.sh"),        { description = "Load Layout" })
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exit(),                                                  { description = "Force Exit" })

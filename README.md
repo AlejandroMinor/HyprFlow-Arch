@@ -294,42 +294,40 @@ check picks it up.
 
 ## Scripts
 
-Everything in `bin/` lands in `~/.local/bin`.
-
-**Theming & layout**
+**Commands.** Everything in `bin/` lands in `~/.local/bin`, on your `PATH`:
 
 | Script | Description |
 |--------|-------------|
+| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo` |
 | `wallust-theme-manager.sh` | Generate and apply color palettes |
 | `theme-picker.sh` | Interactive theme selector |
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
 | `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
-| `master-pick.py` | Number windows and swap one to master (`Super + Shift + Return`) |
-| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo` |
-| `hyprland-group-all.sh` | Group every window in the workspace |
-| `close-workspace.sh` | Close every window in the workspace, with confirmation (`Super + Shift + Q`) |
-| `session-manager/` | Save and restore window layouts |
-
-**Waybar modules**
-
-| Script | Description |
-|--------|-------------|
-| `battery-hub.py` | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower in one module: click for all of them, right click for the headset lights, notifications when one runs low |
-| `trackpad-battery` | Apple Magic Trackpad battery |
-| `cava-waybar.sh` | Audio visualizer, hides when silent |
-| `claude-usage.sh` | Claude Code rate-limit indicator |
-| `mute_indicator.py` | Output mute indicator |
-| `camera_status.py` | Camera-in-use indicator |
-| `vpn_status.py` | VPN status |
-
-**Misc**
-
-| Script | Description |
-|--------|-------------|
-| `help-binds.sh` | Keybinding cheatsheet (`Super + I`) |
-| `fastfetch-random.sh` | fastfetch with a random ascii/image logo |
 | `sinkswitch` | Quick audio output switcher |
+| `claude-usage.sh` | Claude Code rate-limit indicator (Waybar module) |
+| `trackpad-battery` | Apple Magic Trackpad battery |
+
+**Internal.** `lib/` holds what only Waybar, the keybindings or other scripts
+call. It lands in `~/.local/lib/hyprflow`, off your `PATH`, and the configs call
+each one by its full path:
+
+| Script | Called by | Description |
+|--------|-----------|-------------|
+| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower in one module: click for all of them, right click for the headset lights, notifications when one runs low |
+| `mute_indicator.py` | Waybar | Output mute indicator |
+| `camera_status.py` | Waybar | Camera-in-use indicator |
+| `vpn_status.py` | Waybar | VPN status |
+| `cava-waybar.sh` | Waybar | Audio visualizer, hides when silent |
+| `runcat-text` | Waybar | Animated CPU runner |
+| `waybar_module.py` | the modules above | Shared base for the event driven modules |
+| `help-binds.sh` | `Super + I` | Keybinding cheatsheet |
+| `master-pick.py` | `Super + Shift + Return` | Number windows and swap one to master |
+| `close-workspace.sh` | `Super + Shift + Q` | Close every window in the workspace, with confirmation |
+| `hyprland-group-all.sh` | `Super + Shift + G` | Group every window in the workspace |
+| `hyprland-show-desktop.sh` | `Super + D` | Show the desktop |
+| `session-manager/` | `Super + M` / `W` | Save and restore window layouts |
+| `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
 
 ## Submodules
 

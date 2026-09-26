@@ -1,4 +1,4 @@
-"""Tests for bin/battery-hub.py. Nothing here talks to UPower, headsetcontrol,
+"""Tests for lib/battery-hub.py. Nothing here talks to UPower, headsetcontrol,
 notify-send or Waybar: the adapters get fake input and the rest gets Devices."""
 
 import json
@@ -258,8 +258,8 @@ def test_view_toggles_and_tells_the_running_module(hub, tmp_path, monkeypatch):
 def test_toggle_pattern_spares_the_toggle_run_itself(hub):
     import re
     pattern = r"battery-hub\.py$"
-    assert re.search(pattern, "python3 /home/u/.local/bin/battery-hub.py")
-    assert not re.search(pattern, "python3 /home/u/.local/bin/battery-hub.py --toggle")
+    assert re.search(pattern, "python3 /home/u/.local/lib/hyprflow/battery-hub.py")
+    assert not re.search(pattern, "python3 /home/u/.local/lib/hyprflow/battery-hub.py --toggle")
 
 
 # ---- BatteryHubModule --------------------------------------------------------

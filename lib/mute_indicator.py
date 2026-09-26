@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from waybar_module import WaybarModule, lines  # noqa: E402
 
 SINK = "@DEFAULT_AUDIO_SINK@"

@@ -1,4 +1,4 @@
-"""Tests for bin/mute_indicator.py: wpctl and pactl are faked."""
+"""Tests for lib/mute_indicator.py: wpctl and pactl are faked."""
 
 import pytest
 

@@ -1,4 +1,4 @@
-"""Tests for bin/vpn_status.py: pgrep and ip monitor are faked."""
+"""Tests for lib/vpn_status.py: pgrep and ip monitor are faked."""
 
 import pytest
 

@@ -50,7 +50,7 @@
 
 	"custom/mute-indicator": {
     // Continuous: prints again only when PipeWire reports a change.
-    "exec": "mute_indicator.py",
+    "exec": "~/.local/lib/hyprflow/mute_indicator.py",
     "return-type": "json"
 },
 
@@ -85,7 +85,7 @@
      "custom/privacy-camera": {
     // Continuous: prints again only when a camera device is opened or closed.
     "format": "{}",
-    "exec": "camera_status.py",
+    "exec": "~/.local/lib/hyprflow/camera_status.py",
     "return-type": "json",
     "tooltip": true
 },
@@ -117,7 +117,7 @@
     "custom/vpn": {
     // Continuous: prints again only when a network interface comes or goes.
     "format": "{}",
-    "exec": "vpn_status.py",
+    "exec": "~/.local/lib/hyprflow/vpn_status.py",
     "return-type": "json"
 },
 
@@ -239,7 +239,7 @@
 
 
 "custom/cava": {
-    "exec": "cava-waybar.sh",
+    "exec": "~/.local/lib/hyprflow/cava-waybar.sh",
     "return-type": "json",
     "format": "{}",
     "tooltip": false
@@ -269,7 +269,7 @@
 },
 
 "custom/hardware-wrap": {
-	"exec": "runcat-text",
+	"exec": "~/.local/lib/hyprflow/runcat-text",
 	"return-type": "json",
 	"tooltip": false
 },
@@ -303,10 +303,10 @@
     // Every battery (laptop, mice, keyboards, controllers, headsets) from UPower.
     // Continuous: redraws on UPower's own signals. Click switches between the
     // compact and the full view; right click turns the headset lights on or off.
-    "exec": "battery-hub.py",
+    "exec": "~/.local/lib/hyprflow/battery-hub.py",
     "return-type": "json",
-    "on-click": "battery-hub.py --toggle",
-    "on-click-right": "battery-hub.py --lights",
+    "on-click": "~/.local/lib/hyprflow/battery-hub.py --toggle",
+    "on-click-right": "~/.local/lib/hyprflow/battery-hub.py --lights",
     "tooltip": true
 },
 

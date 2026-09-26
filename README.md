@@ -314,6 +314,15 @@ Cava runs both in the terminal and as the `custom/cava` Waybar module, which dim
 to a faint baseline when there's no audio. Its palette follows wallust too, and so
 do the fzf pickers (`theme-picker.sh`, `pet-picker.sh`).
 
+**Dark apps.** Each toolkit takes its theme from a different place, and all of
+them are set up dark:
+
+| Apps | Set by |
+|------|--------|
+| GTK 4, libadwaita, GTK 3 | the theme step, through `gsettings` (`prefer-dark`, `Adwaita-dark`) |
+| Qt 5 and 6 | `qt5ct`/`qt6ct`: Fusion with a dark palette, plus `qss/hyprflow.qss` for rounded buttons and inputs |
+| GPG's passphrase prompt | `pinentry/preexec`: the Qt prompt instead of the GTK 2 one, which has no dark theme |
+
 ## Lockscreen
 
 `hyprlock`, bound to `Super + L` and the wlogout Lock button: oversized clock, glass
@@ -462,13 +471,6 @@ The colour applies on the next wallpaper or theme change, or right away with
 ```sh
 #!/bin/sh
 my-phone-notifier "$1 is at $2%"
-```
-
-**GTK dark theme**
-
-```bash
-gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 ```
 
 **Logitech Bolt receiver.** A mouse or keyboard paired to a Logi Bolt receiver

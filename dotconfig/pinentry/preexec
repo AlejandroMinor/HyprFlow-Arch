@@ -1,0 +1,5 @@
+# Sourced by /usr/bin/pinentry (Arch's wrapper) before it picks a backend.
+# Hyprland makes it try GNOME, then GTK 2, which has no dark theme here and
+# shows GPG's passphrase prompt in white. The Qt one follows qt6ct instead,
+# dark like the rest; without it installed, the wrapper carries on as usual.
+command -v pinentry-qt >/dev/null 2>&1 && exec pinentry-qt "$@"

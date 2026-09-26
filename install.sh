@@ -89,7 +89,7 @@ PACMAN_PKGS=(
     pipewire pipewire-pulse wireplumber pavucontrol rtkit
     bluez bluez-utils blueman
     brightnessctl playerctl upower openconnect network-manager-applet
-    gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify
+    gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify qt5ct qt6ct
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
     ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts
     python python-gobject python-pillow python-evdev jq curl imagemagick wl-clipboard fzf
@@ -378,6 +378,13 @@ copy_configs() {
 
     cp -rf "$keep"/. "$CONFIG_DEST/"
     rm -rf "$keep"
+
+    # qt5ct/qt6ct want the stylesheet as an absolute path; the repo says ~.
+    local qt
+    for qt in qt5ct qt6ct; do
+        [ -f "$CONFIG_DEST/$qt/$qt.conf" ] &&
+            sed -i "s|^stylesheets=~/|stylesheets=$HOME/|" "$CONFIG_DEST/$qt/$qt.conf"
+    done
 }
 
 setup_runcat() {
@@ -449,6 +456,14 @@ apply_theme() {
     # it did not write, so they never replace a fresh palette.
     mkdir -p "$HOME/.cache/wallust/colors"
     cp -n "$REPO_PATH/dotconfig/wallust/colors"/* "$HOME/.cache/wallust/colors/" 2>/dev/null || true
+
+    # Dark GTK apps: GTK 4 and libadwaita read color-scheme, GTK 3 the theme.
+    # Qt (qt6ct/qt5ct) and pinentry come in with the config step.
+    if command -v gsettings >/dev/null 2>&1; then
+        echo "󰔎 Dark mode for GTK apps..."
+        gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
+        gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' 2>/dev/null || true
+    fi
 }
 
 setup_lockscreen() {

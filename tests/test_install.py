@@ -40,6 +40,7 @@ FAKES = {
     "fc-cache": "",
     "notify-send": "",
     "rgb-sync.sh": "",
+    "gsettings": "",
     # Writes one of the cached palette files, as a real run writes them all.
     "wallust": 'mkdir -p "$HOME/.cache/wallust/colors"; echo fresh > "$HOME/.cache/wallust/colors/colors-waybar.css"',
 }
@@ -202,3 +203,23 @@ def test_theme_keeps_the_palette_wallust_just_wrote(env):
     # What wallust did not write is filled in from the repo.
     assert (cache / "colors-rofi-sh.conf").read_bytes() == \
         (REPO / "dotconfig" / "wallust" / "colors" / "colors-rofi-sh.conf").read_bytes()
+
+
+def test_theme_turns_gtk_apps_dark(env):
+    run(env, "config", "theme")
+    calls = log(env)
+    assert "gsettings set org.gnome.desktop.interface color-scheme prefer-dark" in calls
+    assert "gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark" in calls
+
+
+def test_config_ships_dark_qt_and_the_pinentry_choice(env):
+    run(env, "config")
+    config = Path(env["HOME"]) / ".config"
+    for version in (5, 6):
+        text = (config / f"qt{version}ct" / f"qt{version}ct.conf").read_text()
+        assert "style=Fusion" in text and "colors/darker.conf" in text
+        # qt*ct needs the stylesheet path absolute; the repo writes it with ~.
+        sheet = f"{env['HOME']}/.config/qt{version}ct/qss/hyprflow.qss"
+        assert f"stylesheets={sheet}" in text
+        assert Path(sheet).exists()
+    assert (config / "pinentry" / "preexec").exists()

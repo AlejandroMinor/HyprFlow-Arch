@@ -322,7 +322,7 @@ hl.bind(mainMod .. " + SHIFT + Y", hl.dsp.layout("removemaster"),          { des
 --  SESSION & LAYOUT MANAGEMENT
 -- =======================================================
 
-hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager/save.sh logout"), { description = "Save & Exit" })
-hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager/save.sh custom"), { description = "Save Layout Template" })
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager/load.sh"),        { description = "Load Layout" })
+hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py logout"), { description = "Save & Exit" })
+hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py save"), { description = "Save Layout" })
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py load"),        { description = "Open Saved Layout" })
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exit(),                                                  { description = "Force Exit" })

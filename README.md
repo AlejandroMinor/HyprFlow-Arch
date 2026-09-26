@@ -373,7 +373,7 @@ each one by its full path:
 | `close-workspace.sh` | `Super + Shift + Q` | Close every window in the workspace, with confirmation |
 | `hyprland-group-all.sh` | `Super + Shift + G` | Group every window in the workspace |
 | `hyprland-show-desktop.sh` | `Super + D` | Show the desktop |
-| `session-manager/` | `Super + M` / `W` | Save and restore window layouts |
+| `session-manager.py` | `Super + W` / `Shift + W` / `M` | Save window layouts and reopen them from a menu; `Super + M` saves the session and logs out |
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
 

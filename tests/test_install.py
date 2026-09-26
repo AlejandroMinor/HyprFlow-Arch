@@ -151,7 +151,7 @@ def test_config_links_bin_on_path_and_lib_off_it(env):
     bin_links = {p.name for p in (home / ".local" / "bin").iterdir()}
     lib_links = {p.name for p in (home / ".local" / "lib" / "hyprflow").iterdir()}
     assert "monitors.sh" in bin_links
-    assert "battery-hub.py" in lib_links and "session-manager" in lib_links
+    assert "battery-hub.py" in lib_links and "session-manager.py" in lib_links
     assert "battery-hub.py" not in bin_links
     assert "__pycache__" not in lib_links
 

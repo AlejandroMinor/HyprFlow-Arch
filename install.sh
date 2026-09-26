@@ -434,8 +434,7 @@ link_dir() {
     mkdir -p "$2"
     for file in "$1"/*; do
         case "$(basename "$file")" in __pycache__) continue ;; esac
-        # Directories too: session-manager/ is invoked as
-        # ~/.local/lib/hyprflow/session-manager/save.sh from the keybindings.
+        # Directories too, linked whole, should a script ever need one.
         if [ -f "$file" ] || [ -d "$file" ]; then
             ln -sfn "$file" "$2/$(basename "$file")"
         elif [ -L "$file" ]; then

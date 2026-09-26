@@ -43,6 +43,11 @@ def cava():
 
 
 @pytest.fixture(scope="session")
+def session():
+    return load_script("session-manager.py")
+
+
+@pytest.fixture(scope="session")
 def pad():
     return load_script("pad-listener.py")
 

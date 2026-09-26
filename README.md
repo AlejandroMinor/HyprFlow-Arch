@@ -281,8 +281,8 @@ Run `theme-picker.sh` to pick between the wallpaper palette and eighteen presets
   for working outdoors or in direct sunlight.
 - Tokyo Night, Catppuccin, Nord, Gruvbox, Dracula, Monochrome, Synthwave, Kanagawa.
 
-Cava runs both in the terminal and as the `custom/cava` Waybar module, which hides
-itself when there's no audio. Its palette follows wallust too.
+Cava runs both in the terminal and as the `custom/cava` Waybar module, which dims
+to a faint baseline when there's no audio. Its palette follows wallust too.
 
 ## Lockscreen
 
@@ -358,7 +358,7 @@ each one by its full path:
 | `mute_indicator.py` | Waybar | Output mute indicator |
 | `camera_status.py` | Waybar | Camera-in-use indicator |
 | `vpn_status.py` | Waybar | VPN status |
-| `cava-waybar.sh` | Waybar | Audio visualizer, hides when silent |
+| `cava_waybar.py` | Waybar | Audio visualizer, dims to a baseline when silent |
 | `runcat-text` | Waybar | Animated CPU runner |
 | `waybar_module.py` | the modules above | Shared base for the event driven modules |
 | `help-binds.sh` | `Super + I` | Keybinding cheatsheet |

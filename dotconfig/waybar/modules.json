@@ -239,7 +239,7 @@
 
 
 "custom/cava": {
-    "exec": "~/.local/lib/hyprflow/cava-waybar.sh",
+    "exec": "~/.local/lib/hyprflow/cava_waybar.py",
     "return-type": "json",
     "format": "{}",
     "tooltip": false

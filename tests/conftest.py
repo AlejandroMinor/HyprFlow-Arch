@@ -38,6 +38,11 @@ def vpn():
 
 
 @pytest.fixture(scope="session")
+def cava():
+    return load_script("cava_waybar.py")
+
+
+@pytest.fixture(scope="session")
 def pad():
     return load_script("pad-listener.py")
 

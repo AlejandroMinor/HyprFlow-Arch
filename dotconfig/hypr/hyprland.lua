@@ -62,21 +62,12 @@ menu        = "rofi -show drun -modes 'drun,window,ssh,run' -theme ~/.config/rof
 
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
 
--- Autostart necessary processes (like notifications daemons, status bars, etc.)
--- Or execute your favorite apps at launch like this:
---
--- hl.on("hyprland.start", function () 
---   hl.exec_cmd(terminal)
---   hl.exec_cmd("nm-applet")
---   hl.exec_cmd("waybar & hyprpaper & firefox")
--- end)
-
 hl.on("hyprland.start", function ()
-    -- Detects monitors, generates the layout + Waybar config, and starts Waybar.
     -- A shutdown in game mode (power cut, Steam's power menu) leaves its state
     -- behind; a fresh session always starts on the normal desktop. No-op when
     -- game mode is off.
     hl.exec_cmd("game-mode.sh off")
+    -- Detects monitors, generates the layout + Waybar config, and starts Waybar.
     hl.exec_cmd("monitors.sh apply")
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("eww open activate-linux")

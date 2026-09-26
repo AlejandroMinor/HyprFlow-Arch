@@ -49,18 +49,6 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name             = "background-terminal",
-    match            = { class = "kitty-bg" },
-    monitor          = "DVI-I-1",
-    float            = true,
-    pin              = true,
-    no_focus         = true,
-    no_initial_focus = true,
-    border_size      = 0,
-    opacity          = "1.0 override 1.0 override",
-})
-
-hl.window_rule({
     name    = "waypaper-minimal",
     match   = { class = "^(waypaper)$" },
     float   = true,
@@ -210,4 +198,3 @@ hl.layer_rule({ name = "master-pick-anim", match = { namespace = "master-pick" }
 -- The plugin is on everywhere; these are the exceptions, where the glass ends up
 -- invisible but still costs GPU.
 hl.window_rule({ name = "glass-off-video",      match = { class = "^(mpv|vlc)$" }, tag = "+hyprglass_disabled" })
-hl.window_rule({ name = "glass-off-bg-term",    match = { class = "kitty-bg" },    tag = "+hyprglass_disabled" })

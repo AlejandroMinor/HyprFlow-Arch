@@ -163,15 +163,45 @@ check_dependencies() {
         return 0
     fi
 
-    [ ${#MISSING_PACMAN[@]} -gt 0 ] && echo "󰀦 Missing from the repos: ${MISSING_PACMAN[*]}"
-    [ ${#MISSING_AUR[@]} -gt 0 ]    && echo "󰀦 Missing from the AUR: ${MISSING_AUR[*]}"
+    missing_banner
 
-    if [ "$WITH_DEPS" != true ]; then
-        echo "   Re-run with --with-deps to install them; listed again at the end."
+    # `check` on its own only reports; the steps after it would copy a config
+    # onto a system that cannot fully run it, so those wait for an answer.
+    if ! want config && ! want theme && ! want lockscreen && ! want monitors && ! want zsh; then
+        echo "   Re-run with --with-deps to install them."
         return 0
     fi
 
-    install_dependencies
+    if [ "$WITH_DEPS" = true ] || ask "Install them now?" y; then
+        install_dependencies
+        [ ${#MISSING_PACMAN[@]} -eq 0 ] && [ ${#MISSING_AUR[@]} -eq 0 ] && return 0
+        missing_banner
+    fi
+
+    if ! ask "Continue the install without them?" n; then
+        printf "\n\033[1;31m󰅙 Install stopped. Nothing was copied.\033[0m\n"
+        exit 1
+    fi
+}
+
+missing_banner() {
+    printf "\n\033[1;41;97m  󰀦 MISSING PACKAGES  \033[0m\n\n"
+    [ ${#MISSING_PACMAN[@]} -gt 0 ] &&
+        printf "   \033[1;31mrepos:\033[0m %s\n" "${MISSING_PACMAN[*]}"
+    [ ${#MISSING_AUR[@]} -gt 0 ] &&
+        printf "   \033[1;31mAUR:\033[0m   %s\n" "${MISSING_AUR[*]}"
+    echo
+}
+
+# ask QUESTION DEFAULT(y|n). Without a terminal to answer from there is nobody
+# to confirm, so it answers no: better stop than install a half working setup.
+ask() {
+    local reply hint="[y/N]"
+    [ "$2" = y ] && hint="[Y/n]"
+    [ -t 0 ] || return 1
+    read -r -p "   $1 $hint " reply
+    reply="${reply:-$2}"
+    [[ "$reply" =~ ^[YySs] ]]
 }
 
 install_dependencies() {

@@ -19,7 +19,11 @@ Hyprland plugins first, then copies the configs, links the scripts, installs the
 fonts and walks you through your monitors. Anything still missing is printed
 again at the end with the exact command to fix it, so nothing scrolls past.
 
-Add `--with-deps --with-plugins` and it installs those for you too.
+If packages are missing it asks before going on: install them now, and if some
+still fail, whether to continue without them. Answering no stops the install
+before anything is copied (and so does running it without a terminal).
+
+Add `--with-deps --with-plugins` and it installs those without asking.
 
 Then press `Super + I` for the keybindings.
 

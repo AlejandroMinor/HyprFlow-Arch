@@ -73,6 +73,10 @@ menu        = "rofi -show drun -modes 'drun,window,ssh,run' -theme ~/.config/rof
 
 hl.on("hyprland.start", function ()
     -- Detects monitors, generates the layout + Waybar config, and starts Waybar.
+    -- A shutdown in game mode (power cut, Steam's power menu) leaves its state
+    -- behind; a fresh session always starts on the normal desktop. No-op when
+    -- game mode is off.
+    hl.exec_cmd("game-mode.sh off")
     hl.exec_cmd("monitors.sh apply")
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("eww open activate-linux")
@@ -82,6 +86,9 @@ hl.on("hyprland.start", function ()
     -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ
     -- cancels those requests. Also adds a tray icon.
     hl.exec_cmd("blueman-applet")
+    -- Hold PS + Options on a controller to toggle game mode (Hyprland itself
+    -- does not read gamepads).
+    hl.exec_cmd("~/.local/lib/hyprflow/pad-listener.py")
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
     hl.exec_cmd("hyprpm reload -n")
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
@@ -517,6 +524,42 @@ if hl.plugin.hyprglass then
     -- anti-aliased edge from counting as content.
     hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.05 })
 end
+
+
+-------------------
+---- GAME MODE ----
+-------------------
+
+-- While game-mode.sh is on its state file exists, and every load of this
+-- config (a reload, monitors.sh, a hotplug) keeps the game settings instead of
+-- quietly undoing them. game-mode.sh off removes the file and reloads.
+do
+    local state_home = os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state")
+    local f = io.open(state_home .. "/hyprflow/game-mode", "r")
+    if f then
+        local state = f:read("*a")
+        f:close()
+        hl.config({
+            animations = { enabled = false },
+            decoration = { blur = { enabled = false }, shadow = { enabled = false } },
+            -- 2 = fullscreen only; always on flickers on the desktop
+            misc       = { vrr = tonumber(state:match("vrr=(%d)")) or 0 },
+        })
+    end
+
+    -- Closing Big Picture from the controller ends game mode. game-mode.sh
+    -- checks it is still on and that Steam did not just reopen the window.
+    -- Guarded so reloads do not stack handlers.
+    if not _G.__hyprflow_game_hooks then
+        _G.__hyprflow_game_hooks = true
+        hl.on("window.close", function (w)
+            if w and w.title == "Steam Big Picture Mode" then
+                hl.exec_cmd("game-mode.sh bigpicture-closed")
+            end
+        end)
+    end
+end
+
 
 ---------------
 ---- LOCAL ----

@@ -92,7 +92,7 @@ PACMAN_PKGS=(
     gtk4 gtk4-layer-shell gnome-themes-extra polkit-gnome libnotify
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
     ttf-jetbrains-mono-nerd noto-fonts-cjk gnu-free-fonts
-    python python-gobject python-pillow jq curl imagemagick wl-clipboard fzf
+    python python-gobject python-pillow python-evdev jq curl imagemagick wl-clipboard fzf
     cpio cmake pacman-contrib noto-fonts-emoji
 )
 

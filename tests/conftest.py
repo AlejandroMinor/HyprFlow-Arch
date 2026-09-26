@@ -20,3 +20,8 @@ def load_script(filename):
 @pytest.fixture(scope="session")
 def hub():
     return load_script("battery-hub.py")
+
+
+@pytest.fixture(scope="session")
+def camera():
+    return load_script("camera_status.py")

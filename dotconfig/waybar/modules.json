@@ -49,10 +49,10 @@
     },
 
 	"custom/mute-indicator": {
-		"exec": "mute_indicator.sh",
-		"return-type": "json",
-		"interval": 1
-	},
+    // Continuous: prints again only when PipeWire reports a change.
+    "exec": "mute_indicator.sh",
+    "return-type": "json"
+},
 
     "network": {
         "tooltip": false,
@@ -83,12 +83,12 @@
     },
 
      "custom/privacy-camera": {
-        "format": "{}",
-        "exec": "camera_status.py",
-        "return-type": "json",
-        "interval": 2,
-        "tooltip": true
-    },
+    // Continuous: prints again only when a camera device is opened or closed.
+    "format": "{}",
+    "exec": "camera_status.py",
+    "return-type": "json",
+    "tooltip": true
+},
 
 
 
@@ -115,20 +115,27 @@
     },
 
     "custom/vpn": {
-        "format": "{}",
-        "exec": "vpn_status.sh",
-        "interval": 5,
-        "return-type": "json"
-    },
+    // Continuous: prints again only when a network interface comes or goes.
+    "format": "{}",
+    "exec": "vpn_status.sh",
+    "return-type": "json"
+},
 
     "custom/swaync": {
-        "format": "{}",
-        "exec": "swaync-dnd.sh",
-        "interval": 1,
-        "on-click": "swaync-client -t",
-        "on-click-right": "swaync-client -d && pkill -RTMIN+8 waybar",
-        "signal": 8
+    // swaync pushes its state (unread count, do not disturb) as it changes.
+    "exec": "swaync-client -swb",
+    "return-type": "json",
+    "format": "{icon} {text}",
+    "format-icons": {
+        "notification": "\uf0f3", "none": "\uf0f3",
+        "inhibited-notification": "\uf0f3", "inhibited-none": "\uf0f3",
+        "dnd-notification": "\uf1f6", "dnd-none": "\uf1f6",
+        "dnd-inhibited-notification": "\uf1f6", "dnd-inhibited-none": "\uf1f6"
     },
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+},
 
     "custom/updates": {
         "format": " {}",

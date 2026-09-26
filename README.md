@@ -315,10 +315,9 @@ Everything in `bin/` lands in `~/.local/bin`.
 | `trackpad-battery` | Apple Magic Trackpad battery |
 | `cava-waybar.sh` | Audio visualizer, hides when silent |
 | `claude-usage.sh` | Claude Code rate-limit indicator |
-| `mute_indicator.sh` | Microphone status |
+| `mute_indicator.sh` | Output mute indicator |
 | `camera_status.py` | Camera-in-use indicator |
 | `vpn_status.sh` | VPN status |
-| `swaync-dnd.sh` | Do Not Disturb toggle |
 
 **Misc**
 

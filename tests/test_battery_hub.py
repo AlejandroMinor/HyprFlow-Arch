@@ -274,3 +274,237 @@ def test_module_state_reads_notifies_and_renders(hub, tmp_path, monkeypatch):
     state = module.state()
     assert state["text"] == "P 15%" and state["class"] == "critical"
     assert sent and sent[0][0] == "notify-send"
+
+
+# HidppSource: devices behind a Logitech Bolt receiver, over a fake HID++
+
+class FakeHidpp:
+    """Answers HID++ requests from a table per slot:
+    {slot: {"features": {feature_id: index}, (index, function): params}}.
+    Missing entries answer None, as an empty slot or a sleeping device."""
+
+    def __init__(self, slots):
+        self.slots = slots
+
+    def request(self, device, feature, function, *params):
+        slot = self.slots.get(device)
+        if slot is None:
+            return None
+        if feature == 0 and function == 0:          # root: getFeature(id)
+            index = slot["features"].get((params[0] << 8) | params[1])
+            return [index or 0, 0, 0]
+        if (feature, function) == (slot.get("name_index"), 1):   # name chunk at offset
+            return list(slot["name"][params[0]:params[0] + 16].encode())
+        return slot.get((feature, function))
+
+
+def bolt_device(name, kind, status, feature=0x1004):
+    return {"features": {feature: 5, 0x0005: 3}, "name_index": 3, "name": name,
+            (5, 1 if feature == 0x1004 else 0): status,
+            (3, 0): [len(name)], (3, 2): [kind]}
+
+
+def test_hidpp_reads_every_paired_device(hub):
+    hidpp = FakeHidpp({
+        1: bolt_device("MX Master 3S", 3, [85, 4, 0, 0]),
+        2: bolt_device("MX Keys Mini", 0, [60, 4, 1, 1]),
+    })
+    devices = hub.HidppSource().devices(hidpp)
+    assert [(d.name, d.icon, d.percent, d.charging) for d in devices] == [
+        ("MX Master 3S", hub.ICONS[5], 85, False),
+        ("MX Keys Mini", hub.ICONS[6], 60, True),
+    ]
+
+
+def test_hidpp_skips_empty_or_sleeping_slots(hub):
+    assert hub.HidppSource().devices(FakeHidpp({})) == []
+
+
+def test_hidpp_coarse_levels_become_a_percentage(hub):
+    hidpp = FakeHidpp({1: bolt_device("Old Mouse", 3, [0, 2, 0, 0])})   # "low" only
+    assert hub.HidppSource().devices(hidpp)[0].percent == 20
+
+
+def test_hidpp_falls_back_to_battery_status(hub):
+    hidpp = FakeHidpp({1: bolt_device("K380", 0, [40, 20, 1], feature=0x1000)})
+    device = hub.HidppSource().devices(hidpp)[0]
+    assert (device.percent, device.charging) == (40, True)
+
+
+def test_hidpp_names_unknown_devices(hub):
+    slot = {"features": {0x1004: 5}, (5, 1): [70, 4, 0, 0]}
+    device = hub.HidppSource().devices(FakeHidpp({1: slot}))[0]
+    assert (device.name, device.icon) == ("Logitech device", hub.OTHER_ICON)
+
+
+def hidraw(root, name, product, descriptor):
+    device = root / name / "device"
+    device.mkdir(parents=True)
+    (device / "uevent").write_text(f"DRIVER=hid-generic\nHID_ID=0003:0000046D:{product}\n")
+    (device / "report_descriptor").write_bytes(descriptor)
+
+
+def test_hidpp_finds_the_receivers_vendor_interface(hub, tmp_path):
+    hidraw(tmp_path, "hidraw4", "0000C548", b"\x05\x01\x09\x06")     # keyboard interface
+    hidraw(tmp_path, "hidraw6", "0000C548", b"\x06\x00\xff\x09\x01")  # HID++
+    hidraw(tmp_path, "hidraw9", "00000AB5", b"\x06\x00\xff")          # a headset, not a Bolt
+    assert hub.HidppSource(sysfs=tmp_path).node() == hub.Path("/dev/hidraw6")
+
+
+def test_hidpp_without_a_receiver_or_access_reads_nothing(hub, tmp_path):
+    assert hub.HidppSource(sysfs=tmp_path).read() == []
+
+
+def test_hidpp_asks_the_receiver_at_most_every_poll(hub, monkeypatch):
+    now = [0.0]
+    source = hub.HidppSource(clock=lambda: now[0])
+    calls = []
+    monkeypatch.setattr(source, "node", lambda: calls.append(1) or None)
+    source.read_at, source.cache = 0.0, ["cached"]
+    now[0] = hub.HIDPP_POLL - 1
+    assert source.read() == ["cached"] and calls == []
+    now[0] = hub.HIDPP_POLL + 1
+    source.read()
+    assert calls == [1]
+
+
+def test_hidraw_transport_matches_its_answer_and_skips_noise(hub):
+    import os
+    read_end, write_end = os.pipe()
+
+    transport = hub.HidrawTransport(read_end)
+    written = []
+    real_write = hub.os.write
+    hub.os.write = lambda fd, data: written.append(bytes(data)) or len(data)
+    try:
+        call = (1 << 4) | transport.SWID
+        real_write(write_end, bytes([0x11, 2, 0x41, 0x00, 1, 2, 3] + [0] * 13))   # unasked notification
+        real_write(write_end, bytes([0x11, 1, 5, call, 85, 4, 0, 0] + [0] * 12))  # our answer
+        answer = transport.request(1, 5, 1)
+    finally:
+        hub.os.write = real_write
+        os.close(read_end), os.close(write_end)
+    assert written == [bytes([0x10, 1, 5, call, 0, 0, 0])]
+    assert list(answer[:4]) == [85, 4, 0, 0]
+
+
+def test_hidraw_transport_error_replies_mean_no_answer(hub):
+    import os
+    read_end, write_end = os.pipe()
+    transport = hub.HidrawTransport(read_end)
+    real_write = hub.os.write
+    hub.os.write = lambda fd, data: len(data)
+    try:
+        real_write(write_end, bytes([0x10, 3, 0x8F, 0x00, 0x1A, 0x09, 0x00]))   # device not connected
+        assert transport.request(3, 0, 0, 0x10, 0x04) is None
+    finally:
+        hub.os.write = real_write
+        os.close(read_end), os.close(write_end)
+
+
+def test_hidpp_a_dozing_device_keeps_its_last_reading(hub):
+    source = hub.HidppSource()
+    awake = bolt_device("MX Keys Mini", 0, [75, 8, 0, 0])
+    assert source.devices(FakeHidpp({2: awake}))[0].percent == 75
+    dozing = dict(awake)
+    del dozing[(5, 1)]                      # paired, but the status does not come back
+    assert [(d.name, d.percent) for d in source.devices(FakeHidpp({2: dozing}))] == [("MX Keys Mini", 75)]
+    assert source.devices(FakeHidpp({})) == []   # unpaired: gone for good
+
+
+@pytest.mark.parametrize("report, delay", [
+    (bytes([0x10, 2, 0x41, 0x04, 0xB3, 0x69, 0x40]), 5),        # MX Keys Mini connected
+    (bytes([0x11, 1, 0x08, 0x00, 55, 4, 1, 0] + [0] * 12), 1),  # unified battery event
+    (bytes([0x11, 1, 0x08, 0x1A, 55, 4, 1, 0] + [0] * 12), None),  # our own answer
+    (bytes([0x10, 3, 0x8F, 0x00, 0x1A, 0x09, 0x00]), None),     # an error
+    (bytes([0x02, 1, 0, 0]), None),                              # not HID++ at all
+])
+def test_hidpp_reacts_only_to_unasked_reports(hub, report, delay):
+    assert hub.HidppSource.refresh_delay(report) == delay
+
+
+def test_hidpp_invalidate_makes_the_next_read_ask_again(hub, monkeypatch):
+    source = hub.HidppSource(clock=lambda: 0.0)
+    source.read_at, source.cache = 0.0, ["cached"]
+    asked = []
+    monkeypatch.setattr(source, "node", lambda: asked.append(1) or None)
+    source.invalidate()
+    source.read()
+    assert asked == [1]
+
+
+class SlowHidpp(FakeHidpp):
+    """A FakeHidpp whose battery answers take `delay` seconds on a fake clock."""
+
+    def __init__(self, slots, clock, delay):
+        super().__init__(slots)
+        self.clock, self.delay = clock, delay
+
+    def request(self, device, feature, function, *params):
+        if (feature, function) == (5, 1):
+            self.clock[0] += self.delay
+        return super().request(device, feature, function, *params)
+
+
+def keyboard(percent, charging=0):
+    return bolt_device("MX Keys Mini", 0, [percent, 8, charging, 0])
+
+
+def test_hidpp_a_sharp_drop_is_held_back_until_it_repeats(hub):
+    source = hub.HidppSource(clock=lambda: 0.0)
+    assert source.devices(FakeHidpp({1: keyboard(60)}))[0].percent == 60
+    # 60 -> 15 at once: the bar keeps 60 and a re-read is asked for.
+    assert source.devices(FakeHidpp({1: keyboard(15)}))[0].percent == 60
+    assert source.recheck
+    # Back to 60 on the re-read: it was a glitch.
+    assert source.devices(FakeHidpp({1: keyboard(60)}))[0].percent == 60
+    assert not source.recheck
+
+
+def test_hidpp_a_real_drop_is_taken_when_it_repeats(hub):
+    source = hub.HidppSource(clock=lambda: 0.0)
+    source.devices(FakeHidpp({1: keyboard(60)}))
+    source.devices(FakeHidpp({1: keyboard(15)}))
+    assert source.devices(FakeHidpp({1: keyboard(15)}))[0].percent == 15
+
+
+def test_hidpp_a_drop_while_charging_or_small_is_taken_at_once(hub):
+    source = hub.HidppSource(clock=lambda: 0.0)
+    source.devices(FakeHidpp({1: keyboard(60)}))
+    assert source.devices(FakeHidpp({1: keyboard(50)}))[0].percent == 50
+    assert source.devices(FakeHidpp({1: keyboard(20, charging=1)}))[0].percent == 20
+
+
+def test_hidpp_a_slow_answer_is_not_trusted(hub):
+    now = [0.0]
+    source = hub.HidppSource(clock=lambda: now[0])
+    source.devices(FakeHidpp({1: keyboard(60)}))
+    # Asleep: 0.8 s to answer. Keep the last reading, read again soon.
+    slow = SlowHidpp({1: keyboard(15)}, now, 0.8)
+    assert source.devices(slow)[0].percent == 60 and source.recheck
+    # Awake now: fast answer, taken.
+    assert source.devices(FakeHidpp({1: keyboard(58)}))[0].percent == 58
+
+
+def test_hidpp_a_first_slow_reading_waits_for_the_recheck(hub):
+    now = [0.0]
+    source = hub.HidppSource(clock=lambda: now[0])
+    assert source.devices(SlowHidpp({1: keyboard(15)}, now, 0.8)) == []
+    assert source.recheck
+    assert source.devices(FakeHidpp({1: keyboard(60)}))[0].percent == 60
+
+
+def test_the_module_lets_every_source_watch_its_own_events(hub, monkeypatch):
+    watched = []
+
+    class Watching(FakeSource):
+        def watch(self, changed):
+            watched.append(changed)
+
+    monkeypatch.setattr(hub.GLibUnix, "signal_add", lambda *a: None)
+    module = hub.BatteryHubModule(sources=[Watching([]), FakeSource([])])
+    events = module.events()
+    monkeypatch.setattr(hub.GLib.MainContext, "default", lambda: type(
+        "Ctx", (), {"iteration": lambda self, block: watched[0]()})())
+    next(events)
+    assert len(watched) == 1

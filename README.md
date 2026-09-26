@@ -369,7 +369,7 @@ each one by its full path:
 
 | Script | Called by | Description |
 |--------|-----------|-------------|
-| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower in one module: click for all of them, right click for the headset lights, notifications when one runs low |
+| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol and Logitech Bolt receivers in one module: click for all of them, right click for the headset lights, notifications when one runs low |
 | `mute_indicator.py` | Waybar | Audio at a glance: output muted, and a badge while the microphone is muted |
 | `volume.sh` | Volume keys | Change volume or mute, with a transient notification showing the level |
 | `camera_status.py` | Waybar | Camera-in-use indicator |
@@ -455,6 +455,19 @@ my-phone-notifier "$1 is at $2%"
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 ```
+
+**Logitech Bolt receiver.** A mouse or keyboard paired to a Logi Bolt receiver
+never reaches UPower: the kernel has no driver for the Bolt. `battery-hub.py`
+asks the receiver itself, which needs read access to it, once:
+
+```bash
+sudo cp ~/HyprFlow-Arch/system/udev/42-logitech-bolt.rules /etc/udev/rules.d/
+sudo udevadm control --reload && sudo udevadm trigger -s hidraw
+```
+
+The rule gives the logged in user access to the receiver only. Its devices then
+show up in the battery module within five minutes (they are polled, not
+signalled). Over Bluetooth instead, UPower already reports them.
 
 **Magic Trackpad.** Permissions and group setup are in the
 [submodule README](https://github.com/AlejandroMinor/apple-magic-trackpad-battery-percent-python/blob/main/README.md).

@@ -1,0 +1,5 @@
+# Lets the logged in user read the Logitech Bolt receiver (046d:c548), so
+# battery-hub.py can ask it for the batteries of the mouse and keyboard
+# paired to it: the kernel has no driver for the Bolt, so they never reach
+# UPower. uaccess grants the seat's user only, not every account.
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c548", TAG+="uaccess"

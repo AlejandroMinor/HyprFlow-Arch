@@ -3,8 +3,10 @@
 
 Asks UPower for all devices with a battery (laptop, mice, keyboards,
 trackpads, controllers, Bluetooth headsets, phones...) instead of matching
-model names, and adds USB headsets UPower cannot see through headsetcontrol
-(the Logitech G733, say), when it is installed.
+model names, and adds what UPower cannot see: USB headsets through
+headsetcontrol (the Logitech G733, say), when it is installed, and devices
+behind a Logitech Bolt receiver, which the kernel has no driver for, by
+asking the receiver itself over HID++.
 
 Two views, switched by clicking the module (--toggle):
   compact   the laptop battery, or on a desktop the lowest peripheral; a
@@ -25,21 +27,23 @@ the repo.
 
 It updates on events (Observer): UPower signals a device added, removed or
 changed, and the module redraws at once instead of Waybar polling it every
-minute. Only headsetcontrol, which has no events, is polled, and only when
-installed.
+minute. Only headsetcontrol and the Bolt receiver, which have no events, are
+polled, and only when present.
 
-Layout: Device is the model; UPowerSource and HeadsetControlSource are
-adapters that turn each source's format into Devices (add a source by writing
+Layout: Device is the model; UPowerSource, HeadsetControlSource and
+HidppSource are adapters that turn each source's format into Devices (add a source by writing
 another class with read()); Batteries gathers them; BatteryHub presents them;
 BatteryHubModule plugs it all into lib/waybar_module.py.
 """
 
 import json
 import os
+import select
 import shutil
 import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -53,6 +57,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from waybar_module import WaybarModule  # noqa: E402
 
 HEADSET_POLL = 60  # seconds; headsetcontrol reports no events
+HIDPP_POLL = 300   # seconds; batteries behind a Logitech receiver last weeks
 RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
 EXPANDED = os.path.join(RUNTIME, "battery-hub-expanded")
 NOTIFIED = os.path.join(RUNTIME, "battery-hub-notified.json")
@@ -134,6 +139,10 @@ class BatterySource(Protocol):
 
     def read(self) -> list[Device]: ...
 
+    def watch(self, changed) -> None:
+        """Calls changed() whenever the batteries may have changed (Observer);
+        each source knows its own events, the module does not."""
+
 
 class UPowerSource:
     """Adapter for UPower (D-Bus): the laptop and every peripheral the kernel
@@ -152,6 +161,12 @@ class UPowerSource:
             if device:
                 devices.append(device)
         return devices
+
+    def watch(self, changed):
+        # Every UPower signal: DeviceAdded/DeviceRemoved on the daemon and
+        # PropertiesChanged on each device (percentage, charging...).
+        bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)
+        bus.signal_subscribe(UPOWER, None, None, None, None, Gio.DBusSignalFlags.NONE, changed)
 
     @staticmethod
     def to_device(props):
@@ -194,6 +209,250 @@ class HeadsetControlSource:
             devices.append(Device(headset.get("product", "Headset"), ICONS[17], level,
                                   battery.get("status") == "BATTERY_CHARGING"))
         return devices
+
+    def watch(self, changed):
+        # headsetcontrol has no events: poll, and only when it is installed.
+        if shutil.which("headsetcontrol"):
+            GLib.timeout_add_seconds(HEADSET_POLL, changed)
+
+
+class HidrawTransport:
+    """HID++ requests to a Logitech receiver through its hidraw node. A
+    request is a short report; the answer is matched by device, feature and
+    a software id, skipping the notifications the receiver sends unasked."""
+
+    SWID = 0x0A
+    # Seconds. An awake device answers in milliseconds; a sleeping one needs
+    # this long to wake up; an empty slot never answers.
+    TIMEOUT = 1.0
+
+    def __init__(self, fd):
+        self.fd = fd
+
+    def request(self, device, feature, function, *params):
+        """The answer's parameters, or None for an error or no answer (an
+        empty slot, a device switched off or asleep)."""
+        call = (function << 4) | self.SWID
+        os.write(self.fd, bytes([0x10, device, feature, call, *params, 0, 0, 0][:7]))
+        deadline = time.monotonic() + self.TIMEOUT
+        while (left := deadline - time.monotonic()) > 0:
+            if not select.select([self.fd], [], [], left)[0]:
+                return None
+            reply = os.read(self.fd, 20)
+            if len(reply) < 4 or reply[1] != device:
+                continue
+            if reply[2] == 0x8F or (reply[2] == 0xFF and reply[3] == feature):  # HID++ 1.0 / 2.0 error
+                return None
+            if reply[2] == feature and reply[3] == call:
+                return reply[4:]
+        return None
+
+
+class HidppSource:
+    """Adapter for devices paired to a Logitech Bolt receiver. The kernel's
+    hid-logitech-dj does not know the Bolt, so no battery reaches UPower;
+    the receiver still answers HID++ 2.0, and devices report a percentage
+    through their UNIFIED_BATTERY feature (or the older BATTERY_STATUS).
+
+    Reading /dev/hidrawN needs the udev rule in system/ (see the README).
+    The receiver is asked at most every HIDPP_POLL seconds; in between the
+    last reading is returned, since the module redraws on every UPower event."""
+
+    RECEIVERS = {"0000C548"}                  # Logi Bolt
+    ROOT, DEVICE_NAME, BATTERY_STATUS, UNIFIED_BATTERY = 0x0000, 0x0005, 0x1000, 0x1004
+    SLOTS = range(1, 7)
+    KIND_ICONS = {0: ICONS[6], 3: ICONS[5], 4: ICONS[14], 5: ICONS[5]}  # keyboard, mouse, trackpad, trackball
+    LEVEL_PERCENT = ((8, 100), (4, 50), (2, 20), (1, 5))                # full, good, low, critical
+
+    CONNECT_DELAY = 5  # seconds; a device reports a stand-in charge right after connecting
+    CHANGE_DELAY = 1
+    CONFIRM_DELAY = 5  # seconds before reading again a reading not trusted yet
+    SLOW = 0.2         # seconds; an awake device answers in tens of milliseconds
+    DROP = 20          # points; a real battery does not lose this many between polls
+
+    def __init__(self, sysfs="/sys/class/hidraw", clock=time.monotonic):
+        self.sysfs = Path(sysfs)
+        self.clock = clock
+        self.cache, self.read_at = [], None
+        self.last = {}     # slot -> Device, for a paired device that dozes off
+        self.suspect = {}  # slot -> percent read once but not trusted yet
+        self.recheck = False
+        self.changed = None
+
+    def node(self):
+        """The receiver's HID++ interface: the hidraw whose report
+        descriptor opens with the vendor usage page 0xFF00."""
+        for entry in sorted(self.sysfs.glob("hidraw*")):
+            try:
+                uevent = (entry / "device" / "uevent").read_text()
+                descriptor = (entry / "device" / "report_descriptor").read_bytes()
+            except OSError:
+                continue
+            product = next((line.split(":")[-1] for line in uevent.splitlines()
+                            if line.startswith("HID_ID=")), "")
+            if product in self.RECEIVERS and descriptor.startswith(b"\x06\x00\xff"):
+                return Path("/dev") / entry.name
+        return None
+
+    @staticmethod
+    def refresh_delay(report):
+        """Seconds to wait before reading again, for a report the receiver
+        sent unasked; None for anything else. Answers to our own requests
+        carry a software id and are ignored, or they would loop."""
+        if len(report) < 4 or report[0] not in (0x10, 0x11) or report[2] in (0x8F, 0xFF):
+            return None
+        if report[2] in (0x40, 0x41):               # device disconnected / connected
+            return HidppSource.CONNECT_DELAY
+        if report[2] < 0x40 and report[3] & 0x0F == 0:  # a feature's own event (battery...)
+            return HidppSource.CHANGE_DELAY
+        return None
+
+    def invalidate(self):
+        """The next read asks the receiver instead of returning the cache."""
+        self.read_at = None
+
+    def read(self):
+        if self.read_at is not None and self.clock() - self.read_at < HIDPP_POLL:
+            return self.cache
+        node = self.node()
+        if node is None or not os.access(node, os.R_OK | os.W_OK):
+            return []
+        try:
+            fd = os.open(node, os.O_RDWR)
+        except OSError:
+            return []
+        try:
+            self.cache = self.devices(HidrawTransport(fd))
+        except OSError:
+            self.cache = []
+        finally:
+            os.close(fd)
+        self.read_at = self.clock()
+        if self.recheck and self.changed:
+            GLib.timeout_add_seconds(self.CONFIRM_DELAY, self.refresh)
+        return self.cache
+
+    def refresh(self, *_):
+        """Read the receiver again now: a one shot GLib callback."""
+        self.invalidate()
+        if self.changed:
+            self.changed()
+        return False
+
+    def watch(self, changed):
+        """The receiver's own reports as events: a device connecting or a
+        battery changing triggers a read a moment later. Polled every
+        HIDPP_POLL seconds as a fallback."""
+        node = self.node()
+        if node is None:
+            return
+        self.changed = changed
+        GLib.timeout_add_seconds(HIDPP_POLL, changed)
+        try:
+            fd = os.open(node, os.O_RDONLY | os.O_NONBLOCK)
+        except OSError:
+            return
+
+        def on_report(*_):
+            try:
+                report = os.read(fd, 20)
+            except BlockingIOError:
+                return True
+            except OSError:  # receiver unplugged
+                return False
+            delay = self.refresh_delay(report)
+            if delay is not None:
+                GLib.timeout_add_seconds(delay, self.refresh)
+            return True
+
+        GLib.io_add_watch(GLib.IOChannel.unix_new(fd), GLib.PRIORITY_DEFAULT,
+                          GLib.IOCondition.IN | GLib.IOCondition.HUP, on_report)
+
+    def devices(self, hidpp):
+        """Every paired device. One that is paired but does not answer this
+        time (asleep, or waking up too slowly) keeps its last reading instead
+        of dropping out of the bar."""
+        found = []
+        self.recheck = False
+        for slot in self.SLOTS:
+            started = self.clock()
+            battery = self.battery(hidpp, slot)
+            slow = self.clock() - started > self.SLOW
+            if battery is None:
+                if slot in self.last and self.paired(hidpp, slot):
+                    found.append(self.last[slot])
+                continue
+            if not self.trusted(slot, *battery, slow):
+                self.recheck = True
+                if slot in self.last:
+                    found.append(self.last[slot])
+                continue
+            name, kind = self.identity(hidpp, slot)
+            self.last[slot] = Device(name, self.KIND_ICONS.get(kind, OTHER_ICON), *battery)
+            found.append(self.last[slot])
+        return found
+
+    def trusted(self, slot, percent, charging, slow):
+        """Whether a reading can be shown. Not yet when the device answered
+        slowly (it was asleep, and a device that just woke can report a stand
+        in charge) or when it fell sharply without charging: such a reading
+        is held back and read again a moment later, and it is only taken
+        when it repeats."""
+        last = self.last.get(slot)
+        dropped = last is not None and not charging and last.percent - percent > self.DROP
+        if not (slow or dropped):
+            self.suspect.pop(slot, None)
+            return True
+        repeated = self.suspect.get(slot) is not None and abs(self.suspect[slot] - percent) <= 2
+        if repeated and not slow:
+            self.suspect.pop(slot, None)
+            return True
+        self.suspect[slot] = percent
+        return False
+
+    def paired(self, hidpp, slot):
+        """The receiver still answers for the slot: a device is paired there."""
+        return self.feature(hidpp, slot, self.UNIFIED_BATTERY) is not None \
+            or self.feature(hidpp, slot, self.BATTERY_STATUS) is not None
+
+    def feature(self, hidpp, slot, feature_id):
+        """The index a device gives a feature, or None without it."""
+        answer = hidpp.request(slot, self.ROOT, 0, feature_id >> 8, feature_id & 0xFF)
+        return answer[0] if answer and answer[0] else None
+
+    def battery(self, hidpp, slot):
+        """(percent, charging), or None when the slot is empty or asleep."""
+        index = self.feature(hidpp, slot, self.UNIFIED_BATTERY)
+        if index is not None:
+            status = hidpp.request(slot, index, 1)
+            if status is None:
+                return None
+            percent, levels, charging = status[0], status[1], status[2]
+            if not percent:  # a device that only reports coarse levels
+                percent = next((p for bit, p in self.LEVEL_PERCENT if levels & bit), 0)
+            return percent, charging in (1, 2, 3)
+        index = self.feature(hidpp, slot, self.BATTERY_STATUS)
+        if index is not None:
+            status = hidpp.request(slot, index, 0)
+            if status is not None:
+                return status[0], status[2] in (1, 2, 3)
+        return None
+
+    def identity(self, hidpp, slot):
+        """(name, kind) from the DEVICE_NAME feature; kind 0 is a keyboard,
+        3 a mouse. A device without it is just "Logitech device"."""
+        index = self.feature(hidpp, slot, self.DEVICE_NAME)
+        if index is None:
+            return "Logitech device", None
+        length = (hidpp.request(slot, index, 0) or [0])[0]
+        name = b""
+        while len(name) < length:
+            chunk = hidpp.request(slot, index, 1, len(name))
+            if not chunk:
+                break
+            name += bytes(chunk[: length - len(name)])
+        kind = hidpp.request(slot, index, 2)
+        return name.decode(errors="replace").strip("\0 ") or "Logitech device", kind[0] if kind else None
 
 
 class Batteries:
@@ -390,13 +649,13 @@ class ViewState:
         subprocess.run(["pkill", "-USR1", "-f", r"battery-hub\.py$"])
 
 
-SOURCES = [UPowerSource(), HeadsetControlSource()]
+SOURCES = [UPowerSource(), HeadsetControlSource(), HidppSource()]
 
 
 class BatteryHubModule(WaybarModule):
-    """The Waybar module: redraws whenever UPower says something changed
-    (Observer), when the view is toggled, and every HEADSET_POLL seconds if
-    headsetcontrol is around."""
+    """The Waybar module: redraws whenever a source says something changed
+    (Observer: each source watches its own events) and when the view is
+    toggled."""
 
     def __init__(self, sources=SOURCES):
         super().__init__()
@@ -415,13 +674,11 @@ class BatteryHubModule(WaybarModule):
             changed.append(True)
             return True  # keep GLib timers and signal handlers installed
 
-        bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)
-        # Every UPower signal: DeviceAdded/DeviceRemoved on the daemon and
-        # PropertiesChanged on each device (percentage, charging...).
-        bus.signal_subscribe(UPOWER, None, None, None, None, Gio.DBusSignalFlags.NONE, mark)
+        for source in self.sources:
+            watch = getattr(source, "watch", None)
+            if watch:
+                watch(mark)
         GLibUnix.signal_add(GLib.PRIORITY_DEFAULT, signal.SIGUSR1, mark)  # --toggle
-        if shutil.which("headsetcontrol"):
-            GLib.timeout_add_seconds(HEADSET_POLL, mark)
         context = GLib.MainContext.default()
         while True:
             context.iteration(True)

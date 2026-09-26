@@ -467,7 +467,7 @@ if hl.plugin.hyprglass then
         specular_strength    = 1.0,
 
         dark = {
-            tint_color   = tint(color5, 0x40),
+            tint_color   = tint(color5, 0x18),
             brightness   = 0.95,
             contrast     = 1.10,
             saturation   = 0.95,

@@ -60,6 +60,11 @@ def pick():
 
 
 @pytest.fixture(scope="session")
+def mons():
+    return load_script("monitors.py")
+
+
+@pytest.fixture(scope="session")
 def pad():
     return load_script("pad-listener.py")
 

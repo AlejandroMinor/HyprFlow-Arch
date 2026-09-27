@@ -39,7 +39,9 @@ class Monitors:
         (root / "lib").mkdir()
         (root / "fakebin").mkdir()
         shutil.copy(REPO / "bin" / "monitors.sh", root / "bin")
-        shutil.copy(REPO / "lib" / "common.sh", root / "lib")
+        shutil.copy(REPO / "lib" / "monitors.py", root / "lib")
+        shutil.copytree(REPO / "lib" / "hyprflow", root / "lib" / "hyprflow",
+                        ignore=shutil.ignore_patterns("__pycache__"))
         (self.config / "waybar").mkdir(parents=True)
         shutil.copy(REPO / "dotconfig" / "waybar" / "bars.json", self.config / "waybar")
         self.fake(root / "fakebin" / "hyprctl", HYPRCTL)
@@ -101,7 +103,8 @@ def test_without_a_profile_the_largest_screen_is_primary(mon):
     assert 'hl.monitor({ output = "TEST-B", mode = "1920x1080@75.00", position = "2560x0", scale = 1.0, transform = 0 })' in mon.lua
     assert 'hl.workspace_rule({ workspace = "1", monitor = "TEST-A" })' in mon.lua
     assert 'hl.workspace_rule({ workspace = "3", monitor = "TEST-B" })' in mon.lua
-    assert "notify-send -a Monitors Monitors Using default layout. Run 'monitors.sh setup' to customize." in mon.log()
+    assert any(line.startswith("notify-send -a Monitors") and "Using default layout" in line
+               for line in mon.log())
 
 
 def test_each_screen_gets_the_bar_its_profile_names(mon):

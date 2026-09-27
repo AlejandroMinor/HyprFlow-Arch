@@ -1,7 +1,6 @@
 # Packages from the AUR, installed with yay or paru. Same format as pacman.txt.
 
 wallust              # palettes from the wallpaper, and the static themes
-eww-git              # Activate Linux widget
 waypaper-git         # wallpaper picker
 wlogout              # power menu
 fzf-tab              # tab completion in the zsh step's .zshrc

@@ -20,7 +20,6 @@ as a net.
 """
 import ctypes
 import os
-import socket
 import sys
 import threading
 import time
@@ -274,31 +273,14 @@ class MasterPick(Gtk.Application):
         # Layer surfaces outlive workspace switches, so the overlay would sit
         # there labelling windows that aren't on screen any more. The keyboard
         # grab doesn't stop the switch either -- it's reachable by mouse.
-        his = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
-        if not his:
-            return
-        runtime = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
-        path = os.path.join(runtime, "hypr", his, ".socket2.sock")
-
         def reader():
             try:
-                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
-                    sock.connect(path)
-                    buf = b""
-                    while True:
-                        chunk = sock.recv(4096)
-                        if not chunk:
-                            return
-                        buf += chunk
-                        while b"\n" in buf:
-                            line, buf = buf.split(b"\n", 1)
-                            # activespecial covers the scratchpad, which
-                            # doesn't emit workspace.
-                            if line.startswith(
-                                (b"workspace>>", b"focusedmon>>", b"activespecial>>")
-                            ):
-                                GLib.idle_add(self.close_overlay)
-                                return
+                for line in hyprctl.events():
+                    # activespecial covers the scratchpad, which
+                    # doesn't emit workspace.
+                    if line.startswith(("workspace>>", "focusedmon>>", "activespecial>>")):
+                        GLib.idle_add(self.close_overlay)
+                        return
             except OSError:
                 pass  # no socket: fall back to Escape and the timeout
 

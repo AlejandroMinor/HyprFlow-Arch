@@ -70,7 +70,7 @@ hl.on("hyprland.start", function ()
     -- Detects monitors, generates the layout + Waybar config, and starts Waybar.
     hl.exec_cmd("monitors.sh apply")
     hl.exec_cmd("awww-daemon")
-    hl.exec_cmd("eww open activate-linux")
+    hl.exec_cmd("~/.local/lib/hyprflow/activate-linux.py")
     hl.exec_cmd("rgb-sync.sh --last")
     hl.exec_cmd("nm-applet --indicator")
     -- Bluetooth agent: shows the pairing and authorization prompts of any device

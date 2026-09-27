@@ -1,0 +1,43 @@
+"""Tests for lib/activate-linux.py, the GTK watermark. The surface itself
+needs a compositor; what matters without one is the single instance guard."""
+
+import fcntl
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+SCRIPT = Path(__file__).resolve().parent.parent / "lib" / "activate-linux.py"
+
+
+def test_a_second_copy_exits_at_once(tmp_path):
+    with open(tmp_path / "activate-linux.lock", "w") as held:
+        fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)      # the first copy
+        result = subprocess.run([sys.executable, str(SCRIPT)], timeout=20,
+                                env={**os.environ, "XDG_RUNTIME_DIR": str(tmp_path)},
+                                capture_output=True, text=True)
+    assert result.returncode == 0
+
+
+def test_it_reads_like_the_real_thing():
+    text = SCRIPT.read_text()
+    assert 'TITLE = "Activate Linux"' in text
+    assert 'SUBTITLE = "Go to Settings to activate Linux"' in text
+
+
+class Monitor:
+    def __init__(self, connector):
+        self.connector = connector
+
+    def get_connector(self):
+        return self.connector
+
+
+def test_it_goes_where_workspace_1_is_and_hides_in_game_mode():
+    from conftest import load_script
+    target = load_script("activate-linux.py").target
+    big, tv = Monitor("DP-2"), Monitor("HDMI-A-1")
+    assert target([tv, big], "DP-2", gaming=False) is big
+    assert target([tv, big], "DP-9", gaming=False) is tv      # workspace 1 not found yet
+    assert target([tv, big], "HDMI-A-1", gaming=True) is None
+    assert target([], "DP-2", gaming=False) is None

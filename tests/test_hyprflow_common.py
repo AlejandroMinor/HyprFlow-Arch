@@ -79,3 +79,32 @@ def test_notify_passes_app_urgency_icon_and_body(fake):
         "notify-send|-a|Battery|-u|critical|-i|battery-low|MX Keys Mini: 15%|Running low.|",
         "notify-send|-a|HyprFlow|-u|normal|Just a title|",
     ]
+
+
+def test_hyprctl_events_reads_the_socket_line_by_line(monkeypatch, tmp_path):
+    import socket
+    import threading
+    from hyprflow import hyprctl
+    monkeypatch.setattr(hyprctl.paths, "RUNTIME", tmp_path)   # the module hyprctl holds
+    monkeypatch.setenv("HYPRLAND_INSTANCE_SIGNATURE", "sig")
+    (tmp_path / "hypr" / "sig").mkdir(parents=True)
+    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    server.bind(str(tmp_path / "hypr" / "sig" / ".socket2.sock"))
+    server.listen(1)
+
+    def talk():
+        conn, _ = server.accept()
+        conn.sendall(b"monitoradded>>HDMI-A-1\nworkspace>>")      # the rest comes later
+        conn.sendall(b"2\n")
+        conn.close()
+
+    threading.Thread(target=talk, daemon=True).start()
+    assert list(hyprctl.events()) == ["monitoradded>>HDMI-A-1", "workspace>>2"]
+    server.close()
+
+
+def test_hyprctl_events_outside_hyprland(monkeypatch):
+    from hyprflow import hyprctl
+    monkeypatch.delenv("HYPRLAND_INSTANCE_SIGNATURE", raising=False)
+    with pytest.raises(OSError):
+        next(hyprctl.events())

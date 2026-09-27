@@ -74,7 +74,6 @@ are untested.
 | swaync | 0.12.6 | | |
 | wallust | 3.5.2 | 3.0 | `wallust cs` for the static themes and the v3 template syntax |
 | kitty | 0.48.2 | | |
-| eww | 0.6.0 | | |
 | PipeWire / WirePlumber | 1.6.8 / 0.5.17 | | `wpctl` drives volume and mute |
 | Python | 3.14.7 | 3.10 | `X \| None` type unions in the scripts |
 | GTK 4 + gtk4-layer-shell | 4.22 / 1.3.0 | 1.0 | master-pick's overlay |
@@ -97,11 +96,11 @@ grouped and with what it is for: [`packages/pacman.txt`](packages/pacman.txt),
 [`packages/aur.txt`](packages/aur.txt). By hand:
 
 ```bash
-sudo pacman -S --needed hyprland hyprpm hyprlock cpio cmake waybar rofi swaync libnotify awww gnome-themes-extra qt5ct qt6ct ttf-jetbrains-mono-nerd noto-fonts-cjk noto-fonts-emoji gnu-free-fonts imagemagick kitty yazi satty hyprshot hyprpicker wl-clipboard btop fastfetch fzf gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit cava headsetcontrol bluez bluez-utils blueman network-manager-applet openconnect upower brightnessctl playerctl polkit-gnome xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gtk4 gtk4-layer-shell pacman-contrib python python-gobject python-pillow python-evdev jq curl
+sudo pacman -S --needed hyprland hyprpm hyprlock cpio cmake waybar rofi swaync libnotify awww gnome-themes-extra qt5ct qt6ct ttf-jetbrains-mono-nerd noto-fonts-cjk noto-fonts-emoji gnu-free-fonts imagemagick kitty yazi satty hyprshot hyprpicker wl-clipboard btop fastfetch fzf gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit cava headsetcontrol bluez bluez-utils blueman network-manager-applet openconnect upower brightnessctl playerctl polkit-gnome xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gtk4 gtk4-layer-shell pacman-contrib python python-gobject python-cairo python-pillow python-evdev jq curl
 ```
 
 ```bash
-yay -S --needed wallust eww-git waypaper-git wlogout fzf-tab bibata-cursor-theme-bin
+yay -S --needed wallust waypaper-git wlogout fzf-tab bibata-cursor-theme-bin
 ```
 
 </details>

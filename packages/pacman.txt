@@ -68,6 +68,7 @@ pacman-contrib
 # Scripts
 python
 python-gobject       # D-Bus and GLib in the Python modules
+python-cairo         # click-through for the Activate Linux watermark
 python-pillow        # dominant wallpaper colour for the RGB lighting
 python-evdev         # controller combo for game mode
 jq

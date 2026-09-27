@@ -30,11 +30,15 @@
 
 set -uo pipefail
 
+# shellcheck source=../lib/common.sh
+. "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
+hyprflow_name "󰊴" game-mode 35
+
 CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 CONF="$CFG/hypr/game-mode.conf"
-STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow"
+STATE_DIR="$HYPRFLOW_STATE"
 STATE="$STATE_DIR/game-mode"
-MONITORS="$(dirname "$(readlink -f "$0")")/monitors.sh"
+MONITORS="$HYPRFLOW_BIN/monitors.sh"
 
 GAME_DISPLAY=""
 GAME_MODE=""
@@ -44,9 +48,6 @@ GAME_RGB=1
 GAME_AUDIO=1
 # shellcheck source=/dev/null
 [ -f "$CONF" ] && . "$CONF"
-
-msg()  { printf '\033[1;35m󰊴 game-mode:\033[0m %s\n' "$*"; }
-warn() { printf '\033[1;33m󰊴 game-mode:\033[0m %s\n' "$*" >&2; }
 
 # An SSH login has none of the session's environment. Point at the newest
 # running Hyprland instance and at the session bus (swaync talks over D-Bus).
@@ -106,7 +107,7 @@ screen_sink() {
 
 # Detached: talking to the OpenRGB server takes a second or so.
 rgb_sync() {
-    local bin; bin="$(dirname "$(readlink -f "$0")")/rgb-sync.sh"
+    local bin="$HYPRFLOW_BIN/rgb-sync.sh"
     [ -x "$bin" ] && setsid "$bin" "$@" >/dev/null 2>&1 < /dev/null &
 }
 
@@ -206,7 +207,7 @@ cmd_off() {
     [ "$dnd" = "true" ] || swaync-client -df >/dev/null 2>&1 || true
     [ "$GAME_RGB" = "1" ] && rgb_sync --last
     [ -n "$sink_prev" ] && pactl set-default-sink "$sink_prev" 2>/dev/null
-    pgrep -x waybar >/dev/null || "$(dirname "$(readlink -f "$0")")/../lib/waybar-restart.sh"
+    pgrep -x waybar >/dev/null || "$HYPRFLOW_LIB/waybar-restart.sh"
 
     msg "off"
 }

@@ -1,22 +1,23 @@
 #!/bin/bash
-# help-binds.sh — Keybinds de Hyprland en rofi
+# shellcheck disable=SC2154  # color0..15 come from the wallust palette (load_palette)
+# help-binds.sh: the Hyprland keybindings in rofi (Super+I).
 #
-# Lee las descripciones directamente de keybindings.lua (vía help-binds-parse.py)
-# en vez de usar `hyprctl binds -j`: en Hyprland 0.56 esa salida es JSON
-# inválido para cualquier bind registrado vía la API nativa de Lua
-# (dispatcher "__lua"), que es como está todo este config desde la
-# migración a Lua.
+# Reads the descriptions straight from keybindings.lua (via help-binds-parse.py)
+# instead of `hyprctl binds -j`: on Hyprland 0.56 that output is invalid JSON
+# for every bind registered through the native Lua API (dispatcher "__lua"),
+# which is how this whole config binds since the Lua migration.
 
-source ~/.cache/wallust/colors/colors-rofi-sh.conf
+# shellcheck source=common.sh
+. "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/common.sh"
+load_palette
 
 pkill -x rofi && exit 0
 
 THEME="$HOME/.config/rofi/hyprflow/list.rasi"
-SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-KEYBINDS_LUA="$SCRIPT_DIR/../dotconfig/hypr/keybindings.lua"
-GESTURES_LUA="$SCRIPT_DIR/../dotconfig/hypr/gestures.lua"
+KEYBINDS_LUA="$HYPRFLOW_LIB/../dotconfig/hypr/keybindings.lua"
+GESTURES_LUA="$HYPRFLOW_LIB/../dotconfig/hypr/gestures.lua"
 
-python3 "$SCRIPT_DIR/help-binds-parse.py" "$KEYBINDS_LUA" "$GESTURES_LUA" | \
+python3 "$HYPRFLOW_LIB/help-binds-parse.py" "$KEYBINDS_LUA" "$GESTURES_LUA" | \
 awk -F'\t' -v accent="$color15" -v muted="$color8" '
 function esc(s) {
     gsub(/&/, "\\&amp;", s); gsub(/</, "\\&lt;", s); gsub(/>/, "\\&gt;", s)

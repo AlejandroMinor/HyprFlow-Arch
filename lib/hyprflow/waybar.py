@@ -21,8 +21,8 @@ A module fills in two steps (Template Method):
 
     VpnStatus().run()
 
-It lives in lib/ with the modules, off PATH: install.sh links lib/ into
-~/.local/lib/hyprflow, and the modules import it from their own folder.
+Part of the hyprflow package (lib/hyprflow/), off PATH like the rest of lib/:
+modules import it as `from hyprflow.waybar import WaybarModule`.
 """
 
 import ctypes

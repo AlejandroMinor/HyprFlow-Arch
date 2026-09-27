@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154  # color0..15 come from the wallust palette (load_palette)
 
 # Paint every OpenRGB device to match the current theme.
 #
@@ -13,7 +14,8 @@
 # call, which takes ~15 s and cannot reach the NVMe LEDs as a normal user, so
 # this quietly does nothing instead.
 
-COLORS="$HOME/.cache/wallust/colors/colors-rofi-sh.conf"
+# shellcheck source=../lib/common.sh
+. "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
 LAST="$HOME/.cache/wallust/led-color"
 
 # Prints the hue covering the most area among saturated, lit pixels, at full
@@ -65,9 +67,7 @@ split() {
 # Arch icon and the active border), or the palette colour with the highest
 # chroma when color5 is under 30% saturation.
 palette_colour() {
-    [ -f "$COLORS" ] || return 1
-    # shellcheck source=/dev/null
-    . "$COLORS"
+    load_palette || return 1
 
     split "$color5"
     if (( max == 0 || (max - min) * 100 < max * 30 )); then

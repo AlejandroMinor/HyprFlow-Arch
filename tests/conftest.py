@@ -1,7 +1,9 @@
 """Shared fixtures. Some scripts under lib/ are named for the command line
 (battery-hub.py), which `import` cannot load, so they are loaded by path."""
 
+import importlib
 import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
@@ -64,8 +66,5 @@ def pad():
 
 @pytest.fixture(scope="session")
 def waybar_module():
-    spec = importlib.util.spec_from_file_location(
-        "waybar_module", LIB / "waybar_module.py")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    sys.path.insert(0, str(LIB))
+    return importlib.import_module("hyprflow.waybar")

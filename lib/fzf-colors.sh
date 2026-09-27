@@ -5,11 +5,11 @@
 #
 #   fzf --color="$(fzf-colors.sh)"
 
-PALETTE="${WALLUST_SH_PALETTE:-$HOME/.cache/wallust/colors/colors-rofi-sh.conf}"
+# shellcheck source=common.sh
+. "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/common.sh"
 
 foreground='#c0caf5' color0='#1a1b26' color1='#f7768e' color4='#7aa2f7' color5='#bb9af7' color8='#565f89'
-# shellcheck source=/dev/null
-[ -r "$PALETTE" ] && . "$PALETTE"
+load_palette
 
 # bg:-1 keeps the terminal's own (translucent) background.
 printf 'bg:-1,fg:%s,bg+:%s,fg+:%s,hl:%s,hl+:%s,prompt:%s,pointer:%s,border:%s\n' \

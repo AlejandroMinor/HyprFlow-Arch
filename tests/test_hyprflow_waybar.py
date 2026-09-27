@@ -1,4 +1,4 @@
-"""Tests for lib/waybar_module.py, the skeleton shared by the event driven
+"""Tests for lib/hyprflow/waybar.py, the skeleton shared by the event driven
 Waybar modules. Fake modules drive it; nothing touches Waybar or the kernel."""
 
 import json

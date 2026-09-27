@@ -3,6 +3,10 @@
 
 set -uo pipefail
 
+# shellcheck source=../lib/common.sh
+. "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
+hyprflow_name "󰍹" monitors 34 Monitors
+
 CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 HYPR_DIR="$CFG/hypr"
 WAYBAR_DIR="$CFG/waybar"
@@ -12,12 +16,8 @@ SOLO_STATE="$HYPR_DIR/monitor-solo.json"
 ACTIVE_LUA="$HYPR_DIR/monitors_active.lua"
 WAYBAR_CFG="$WAYBAR_DIR/config"
 BARS_TEMPLATE="$WAYBAR_DIR/bars.json"
-LIB="$(dirname "$(readlink -f "$0")")/../lib"
-GAME_MODE_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow/game-mode"
+GAME_MODE_STATE="$HYPRFLOW_STATE/game-mode"
 
-msg()  { printf '\033[1;34m󰍹 monitors:\033[0m %s\n' "$*"; }
-warn() { printf '\033[1;33m󰍹 monitors:\033[0m %s\n' "$*" >&2; }
-notify() { command -v notify-send >/dev/null 2>&1 && notify-send -a "Monitors" "Monitors" "$*" || true; }
 
 need() {
     command -v "$1" >/dev/null 2>&1 || { warn "missing '$1' (required)"; exit 1; }
@@ -335,7 +335,7 @@ cmd_apply() {
         msg "game mode on: leaving Waybar hidden"
     elif [ "$wb_changed" -eq 1 ] || ! pgrep -x waybar >/dev/null 2>&1; then
         # 9>&- : the helper must not hold the apply lock either
-        "$LIB/waybar-restart.sh" 9>&-
+        "$HYPRFLOW_LIB/waybar-restart.sh" 9>&-
         msg "Waybar (re)started"
     fi
 

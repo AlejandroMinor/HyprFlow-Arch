@@ -20,7 +20,6 @@ of them, so each flow is tested with fakes.
 
 import html
 import json
-import os
 import subprocess
 import sys
 import time
@@ -28,10 +27,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-TEMPLATES = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "hypr" / "templates"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from hyprflow import hyprctl, notify as notifications, paths  # noqa: E402
+
+TEMPLATES = paths.CONFIG / "hypr" / "templates"
 LAST = "default"                      # what logout writes; shown as "Last session"
 IGNORED = {"waybar", "rofi", "swaync", ""}
-THEME = Path.home() / ".config" / "rofi" / "hyprflow" / "list.rasi"
+THEME = paths.CONFIG / "rofi" / "hyprflow" / "list.rasi"
 WAIT = 5.0                            # seconds a relaunched app gets to show its window
 
 
@@ -199,10 +201,10 @@ class RofiMenu:
 
 class Desktop:
     def query(self, what):
-        return json.loads(subprocess.check_output(["hyprctl", what, "-j"]))
+        return hyprctl.query(what)
 
     def dispatch(self, expr):
-        subprocess.run(["hyprctl", "dispatch", expr], stdout=subprocess.DEVNULL)
+        hyprctl.dispatch(expr)
 
     def launch(self, argv):
         subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
@@ -239,7 +241,7 @@ class Desktop:
 
 
 def notify(body, urgency="normal"):
-    subprocess.run(["notify-send", "-a", "Layouts", "-u", urgency, "Layouts", body])
+    notifications.send("Layouts", body, app="Layouts", urgency=urgency)
 
 
 # ── the flows ─────────────────────────────────────────────────────────────

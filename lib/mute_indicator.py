@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from waybar_module import WaybarModule, lines  # noqa: E402
+from hyprflow.waybar import WaybarModule, lines  # noqa: E402
 
 SINK = "@DEFAULT_AUDIO_SINK@"
 SOURCE = "@DEFAULT_AUDIO_SOURCE@"

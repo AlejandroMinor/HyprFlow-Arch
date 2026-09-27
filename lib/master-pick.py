@@ -19,10 +19,8 @@ as a net.
                     master is "1").
 """
 import ctypes
-import json
 import os
 import socket
-import subprocess
 import sys
 import threading
 import time
@@ -38,6 +36,9 @@ gi.require_version("Gdk", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
 from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 from gi.repository import Gtk4LayerShell as LayerShell  # noqa: E402
+
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+from hyprflow import hyprctl  # noqa: E402
 
 # Pill colours. The background alpha is deliberately low: hyprglass composites
 # its glass underneath this surface (see hg.layer("master-pick") in
@@ -112,11 +113,6 @@ def log(msg):
     print(f"[master-pick] {msg}", file=sys.stderr)
 
 
-def hyprctl_json(*args):
-    out = subprocess.run(
-        ["hyprctl", *args, "-j"], capture_output=True, text=True, check=True
-    ).stdout
-    return json.loads(out)
 
 
 def keyval_to_digit(keyval):
@@ -173,7 +169,7 @@ class MasterPick(Gtk.Application):
             self.close_overlay()
             return
 
-        mon = next(m for m in hyprctl_json("monitors") if m["focused"])
+        mon = next(m for m in hyprctl.query("monitors") if m["focused"])
         ws_id = mon["activeWorkspace"]["id"]
 
         # Sorted by x, so index 0 is the master. No floating windows: they sit
@@ -182,7 +178,7 @@ class MasterPick(Gtk.Application):
         all_clients = sorted(
             (
                 c
-                for c in hyprctl_json("clients")
+                for c in hyprctl.query("clients")
                 if c["workspace"]["id"] == ws_id
                 and c["mapped"]
                 and not c["floating"]
@@ -204,10 +200,7 @@ class MasterPick(Gtk.Application):
                     if not self.clients
                     else "master-pick: only one window — it's already the master"
                 )
-                subprocess.run(
-                    ["hyprctl", "notify", "-1", "2000", "rgb(ff9e64)", msg],
-                    capture_output=True,
-                )
+                hyprctl.on_screen(msg)
             self.quit()
             return
 
@@ -354,21 +347,8 @@ if __name__ == "__main__":
         if app.choice == 0:
             # 0 is already the master, so focus without swapping.
             log(f"focus master {addr}")
-            r = subprocess.run(
-                ["hyprctl", "dispatch", focus],
-                capture_output=True,
-                text=True,
-            )
+            answer = hyprctl.dispatch(focus)
         else:
             log(f"swap {addr} → master")
-            r = subprocess.run(
-                [
-                    "hyprctl",
-                    "--batch",
-                    f"dispatch {focus} ; "
-                    "dispatch hl.dsp.layout('swapwithmaster master')",
-                ],
-                capture_output=True,
-                text=True,
-            )
-        log(f"hyprctl: {r.stdout.strip() or r.stderr.strip()}")
+            answer = hyprctl.batch(focus, "hl.dsp.layout('swapwithmaster master')")
+        log(f"hyprctl: {answer}")

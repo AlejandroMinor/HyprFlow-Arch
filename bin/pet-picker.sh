@@ -2,6 +2,9 @@
 # Interactive picker for the custom/hardware-wrap runner (cat/chicken/...).
 set -uo pipefail
 
+# shellcheck source=../lib/common.sh
+. "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
+
 CONFIG_FILE="${RUNCAT_RUNNER_CSS:-$HOME/.config/waybar/runcat-runner.css}"
 
 RUNNERS=(
@@ -36,7 +39,7 @@ main() {
         --border=rounded \
         --layout=reverse \
         --no-info \
-        --color="$("$(dirname "$(readlink -f "$0")")/../lib/fzf-colors.sh")")
+        --color="$("$HYPRFLOW_LIB/fzf-colors.sh")")
 
     [ -z "$name" ] && exit 0
 
@@ -56,7 +59,7 @@ main() {
     if apply_runner "$font_family"; then
         # SIGUSR2 only refreshes module data, not the CSS stylesheet (see
         # wallust-theme-manager.sh); font-family needs a full restart.
-        "$(dirname "$(readlink -f "$0")")/../lib/waybar-restart.sh"
+        "$HYPRFLOW_LIB/waybar-restart.sh"
         notify-send -i "preferences-desktop-theme" "Pet Picker" "Applied runner: $name"
     else
         notify-send -i "dialog-error" "Pet Picker" "Failed to apply runner: $name"

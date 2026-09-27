@@ -33,7 +33,7 @@ polled, and only when present.
 Layout: Device is the model; UPowerSource, HeadsetControlSource and
 HidppSource are adapters that turn each source's format into Devices (add a source by writing
 another class with read()); Batteries gathers them; BatteryHub presents them;
-BatteryHubModule plugs it all into lib/waybar_module.py.
+BatteryHubModule plugs it all into hyprflow.waybar.
 """
 
 import json
@@ -54,20 +54,18 @@ gi.require_version("Gio", "2.0")
 from gi.repository import Gio, GLib, GLibUnix  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from waybar_module import WaybarModule  # noqa: E402
+from hyprflow import notify, palette, paths  # noqa: E402
+from hyprflow.waybar import WaybarModule  # noqa: E402
 
 HEADSET_POLL = 60  # seconds; headsetcontrol reports no events
 HIDPP_POLL = 300   # seconds; batteries behind a Logitech receiver last weeks
-RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
-EXPANDED = os.path.join(RUNTIME, "battery-hub-expanded")
-NOTIFIED = os.path.join(RUNTIME, "battery-hub-notified.json")
+EXPANDED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-expanded")
+NOTIFIED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-notified.json")
 # headsetcontrol can set the headset lights but not read them back, so the
 # last value sent is kept here (survives reboots, like the headset itself).
-LIGHTS = os.path.join(os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state"),
-                      "hyprflow", "headset-lights")
-HOOK = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"),
-                    "hyprflow", "battery-hook")
-PALETTE = os.path.expanduser("~/.cache/wallust/colors/colors-rofi-sh.conf")
+LIGHTS = str(paths.HYPRFLOW_STATE / "headset-lights")
+HOOK = str(paths.HYPRFLOW_CONFIG / "battery-hook")
+PALETTE = palette.FILE
 WARNING = 35   # percent; same thresholds the old per-device modules used
 CRITICAL = 20
 
@@ -491,14 +489,7 @@ class Palette:
               "charging": ("color6", "#9ece6a")}
 
     def __init__(self, path=PALETTE):
-        self.colours = {}
-        try:
-            with open(path) as f:
-                for line in f:
-                    key, _, value = line.strip().partition("=")
-                    self.colours[key] = value.strip("'\"")
-        except OSError:
-            pass
+        self.colours = palette.load(path)
 
     def colour(self, level):
         """The colour for a level, or None for fine (left to the stylesheet)."""
@@ -582,10 +573,9 @@ class LowBatteryNotifier:
 
     def announce(self, d):
         urgency = "critical" if d.level == "critical" else "normal"
-        subprocess.run(["notify-send", "-a", "Battery", "-u", urgency, "-i", "battery-low",
-                        f"{d.name}: {d.percent}%",
-                        "Almost empty, charge it soon." if d.level == "critical" else "Running low."],
-                       stderr=subprocess.DEVNULL)
+        notify.send(f"{d.name}: {d.percent}%",
+                    "Almost empty, charge it soon." if d.level == "critical" else "Running low.",
+                    app="Battery", urgency=urgency, icon="battery-low")
         if os.access(self.hook, os.X_OK):
             subprocess.Popen([self.hook, d.name, str(d.percent), d.level],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,

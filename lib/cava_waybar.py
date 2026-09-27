@@ -8,15 +8,15 @@ dies with the Waybar that started it and takes cava along: the shell version
 it replaces piled up a copy per Waybar restart.
 """
 
-import os
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from waybar_module import WaybarModule, lines  # noqa: E402
+from hyprflow import paths  # noqa: E402
+from hyprflow.waybar import WaybarModule, lines  # noqa: E402
 
-CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "cava"
+CONFIG = paths.CONFIG / "cava"
 CONF = CONFIG / "waybar.conf"
 THEME = CONFIG / "themes" / "wallust"
 

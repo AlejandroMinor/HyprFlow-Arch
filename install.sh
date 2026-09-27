@@ -402,10 +402,10 @@ create_symlinks() {
     link_dir "$REPO_PATH/bin" "$BIN_FILES_PATH"
     link_dir "$REPO_PATH/lib" "$LIB_FILES_PATH"
 
-    # Scripts that moved from bin/ to lib/ leave dangling links behind in
-    # ~/.local/bin. Remove those, and only those that point into this repo.
+    # Scripts that moved or went away leave dangling links behind. Remove
+    # those, and only those that point into this repo.
     local link
-    for link in "$BIN_FILES_PATH"/*; do
+    for link in "$BIN_FILES_PATH"/* "$LIB_FILES_PATH"/*; do
         [ -L "$link" ] && [ ! -e "$link" ] || continue
         [[ "$(readlink "$link")" == "$REPO_PATH"/* ]] && rm -f "$link"
     done

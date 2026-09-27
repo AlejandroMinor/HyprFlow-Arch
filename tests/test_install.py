@@ -163,7 +163,11 @@ def test_config_removes_only_dangling_links_into_the_repo(env):
     (bin_dir / "moved.sh").symlink_to(REPO / "bin" / "moved.sh")
     (bin_dir / "someone-else").symlink_to("/nonexistent/tool")
     run(env, "config")
+    lib_dir = Path(env["HOME"]) / ".local" / "lib" / "hyprflow"
+    (lib_dir / "gone.py").symlink_to(REPO / "lib" / "gone.py")
+    run(env, "config")
     assert not (bin_dir / "moved.sh").is_symlink()
+    assert not (lib_dir / "gone.py").is_symlink()
     assert (bin_dir / "someone-else").is_symlink()
 
 

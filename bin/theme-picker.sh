@@ -5,9 +5,11 @@
 
 set -uo pipefail
 
+# shellcheck source=../lib/common.sh
+. "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
+
 THEMES_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/wallust/themes"
-HERE="$(dirname "$(readlink -f "$0")")"
-MANAGER="$HERE/wallust-theme-manager.sh"
+MANAGER="$HYPRFLOW_BIN/wallust-theme-manager.sh"
 AUTO="Wallpaper (Auto)"
 FIRST=(classic nocturne)   # shown right after the wallpaper, the rest A-Z
 
@@ -29,7 +31,7 @@ main() {
     local selected name
     selected="$( { printf '%s\n' "$AUTO"; theme_names | while read -r name; do title "$name"; done; } \
         | fzf --prompt="  Pick a theme > " --height=30% --border=rounded \
-              --layout=reverse --no-info --color="$("$HERE/../lib/fzf-colors.sh")")"
+              --layout=reverse --no-info --color="$("$HYPRFLOW_LIB/fzf-colors.sh")")"
     [ -z "$selected" ] && exit 0
 
     if [ "$selected" = "$AUTO" ]; then

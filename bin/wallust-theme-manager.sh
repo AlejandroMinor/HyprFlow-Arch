@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# shellcheck source=../lib/common.sh
+. "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
+
 ACTION="generate"
 SKIP_SEQUENCES=""
 NOTIFY=false
@@ -23,7 +26,9 @@ show_help() {
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --generate-palette) ACTION="generate" ;;
+        --generate-palette) . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
+
+ACTION="generate" ;;
         --theme)            ACTION="theme"; THEME="${2:-}"; shift ;;
         --restore-default)  ACTION="theme"; THEME="$DEFAULT_THEME" ;;
         --skip-terminal)    SKIP_SEQUENCES="-s" ;;
@@ -66,7 +71,7 @@ hyprctl reload > /dev/null
 setsid rgb-sync.sh ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1 < /dev/null &
 sleep 0.5
 if [ "$RESTART_WAYBAR" = true ]; then
-    "$(dirname "$(readlink -f "$0")")/../lib/waybar-restart.sh"
+    "$HYPRFLOW_LIB/waybar-restart.sh"
 fi
 
 # Rebuild the lockscreen backdrop now rather than on the next lock. Blurring the

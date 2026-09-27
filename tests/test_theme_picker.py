@@ -31,6 +31,7 @@ def box(tmp_path):
     for script in ("theme-picker.sh", "wallust-theme-manager.sh"):
         shutil.copy(REPO / "bin" / script, tmp_path / "bin")
     shutil.copy(REPO / "lib" / "fzf-colors.sh", tmp_path / "lib")
+    shutil.copy(REPO / "lib" / "common.sh", tmp_path / "lib")
 
     def fake(path, body):
         path.write_text(f'#!/bin/bash\necho "{path.name} $*" >> "$T/log"\n{body}\n')

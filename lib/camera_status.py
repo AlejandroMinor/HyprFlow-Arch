@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from waybar_module import WaybarModule  # noqa: E402
+from hyprflow.waybar import WaybarModule  # noqa: E402
 
 IN_OPEN = 0x00000020
 IN_CLOSE_WRITE = 0x00000008

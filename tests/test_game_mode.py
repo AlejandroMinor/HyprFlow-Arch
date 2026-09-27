@@ -62,6 +62,7 @@ class GameMode:
         fakes.mkdir()
         (root / "lib").mkdir()
         shutil.copy(REPO / "bin" / "game-mode.sh", bindir)
+        shutil.copy(REPO / "lib" / "common.sh", root / "lib")
         for name, body in FAKES.items():
             where = {"waybar-restart.sh": root / "lib"}.get(
                 name, bindir if name.endswith(".sh") else fakes)

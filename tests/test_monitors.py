@@ -39,6 +39,7 @@ class Monitors:
         (root / "lib").mkdir()
         (root / "fakebin").mkdir()
         shutil.copy(REPO / "bin" / "monitors.sh", root / "bin")
+        shutil.copy(REPO / "lib" / "common.sh", root / "lib")
         (self.config / "waybar").mkdir(parents=True)
         shutil.copy(REPO / "dotconfig" / "waybar" / "bars.json", self.config / "waybar")
         self.fake(root / "fakebin" / "hyprctl", HYPRCTL)

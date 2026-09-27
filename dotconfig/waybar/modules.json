@@ -163,12 +163,12 @@
     },
 
     "custom/claude-usage": {
-        "exec": "claude-usage.sh",
+        "exec": "~/.local/lib/hyprflow/claude-usage.sh",
         "return-type": "json",
         "interval": 300,
         "tooltip": true,
         "signal": 9,
-        "on-click": "claude-usage.sh --refresh; pkill -RTMIN+9 waybar"
+        "on-click": "~/.local/lib/hyprflow/claude-usage.sh --refresh; pkill -RTMIN+9 waybar"
     },
 
     "mpris": {

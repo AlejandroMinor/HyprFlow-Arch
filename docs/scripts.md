@@ -12,7 +12,6 @@
 | `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
 | `sinkswitch` | Quick audio output switcher |
-| `claude-usage.sh` | Claude Code rate-limit indicator (Waybar module) |
 | `trackpad-battery` | Apple Magic Trackpad battery, read from the trackpad itself |
 
 **Internal.** `lib/` holds what only Waybar, the keybindings or other scripts
@@ -28,6 +27,7 @@ each one by its full path:
 | `vpn_status.py` | Waybar | VPN status |
 | `cava_waybar.py` | Waybar | Audio visualizer, dims to a baseline when silent |
 | `runcat-text` | Waybar | Animated CPU runner |
+| `claude-usage.sh` | Waybar | Claude Code rate-limit indicator |
 | `help-binds.sh` | `Super + I` | Keybinding cheatsheet |
 | `master-pick.py` | `Super + Shift + Return` | Number windows and swap one to master |
 | `close-workspace.sh` | `Super + Shift + Q` | Close every window in the workspace, with confirmation |

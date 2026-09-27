@@ -239,7 +239,7 @@ GAME_RGB=1                      # case lighting off while playing (needs the RGB
 GAME_AUDIO=1                    # sound to the game screen (the TV's HDMI), back when leaving
 ```
 
-Without the file it uses the largest screen. Switching screens off goes through `monitors.sh solo`, so the monitors come back as they were. While game mode is on, `hyprland.lua` keeps the game settings on every reload, so a hotplug or `monitors.sh` does not undo them, and `monitors.sh` leaves Waybar hidden.
+Without the file it uses the largest screen. Switching screens off goes through `monitors.sh solo`, so the monitors come back as they were. While game mode is on, `gamemode.lua` keeps the game settings on every reload, so a hotplug or `monitors.sh` does not undo them, and `monitors.sh` leaves Waybar hidden.
 
 It also runs over SSH, from a phone for instance: it finds the running Hyprland session by itself and launches Steam and Waybar through Hyprland, so they show up on the screen and survive the SSH logout.
 

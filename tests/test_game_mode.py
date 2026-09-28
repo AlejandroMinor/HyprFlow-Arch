@@ -231,6 +231,16 @@ def test_off_keeps_do_not_disturb_if_it_was_on_before(gm):
     assert "swaync-client -df" not in gm.log()
 
 
+def test_odd_do_not_disturb_output_never_runs_as_code(gm):
+    # The state file is sourced by `off`: what swaync-client printed must not run.
+    gm.run("on", FAKE_DND="$(touch pwned)")
+    assert "dnd=false" in gm.state.read_text()
+    gm.run("off")
+    assert not (gm.root / "pwned").exists()
+    assert not Path("pwned").exists()
+    assert "swaync-client -df" in gm.log()
+
+
 def test_off_closes_steam_if_game_mode_opened_it(gm):
     gm.run("on")
     gm.run("off", FAKE_RUNNING="steam")

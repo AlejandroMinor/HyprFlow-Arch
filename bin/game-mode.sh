@@ -129,7 +129,8 @@ cmd_on() {
     display="$(game_display "${candidates[@]}")"
     [ -z "$display" ] && { warn "none of these screens is connected: ${candidates[*]}"; exit 1; }
 
-    dnd="$(swaync-client -D 2>/dev/null || echo false)"
+    dnd="$(swaync-client -D 2>/dev/null)"
+    [ "$dnd" = "true" ] || dnd=false  # only ever true/false: the state file is sourced
     local vrr=0
     [ "$GAME_VRR" = "1" ] && vrr=2  # 2 = fullscreen only; always-on flickers on the desktop
 
@@ -140,7 +141,7 @@ cmd_on() {
     # Whether Steam was already open, so off can leave it as it found it.
     local steam_was=0
     pgrep -x steam >/dev/null && steam_was=1
-    printf 'solo=0\ndnd=%s\nvrr=%s\nsteam_was=%s\n' "$dnd" "$vrr" "$steam_was" > "$STATE"
+    printf 'solo=0\ndnd=%q\nvrr=%q\nsteam_was=%q\n' "$dnd" "$vrr" "$steam_was" > "$STATE"
 
     if [ "$keep" -eq 0 ]; then
         # shellcheck disable=SC2086

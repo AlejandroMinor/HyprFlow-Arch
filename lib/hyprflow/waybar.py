@@ -7,6 +7,10 @@ needs is here, once:
   - print the state at start, then again whenever an event arrives
   - skip a line identical to the last one (most events change nothing shown)
   - start the event source again if it ends (PipeWire restarting, say)
+  - survive a failing state() or event source: log it, wait, try again, backing
+    off up to a minute, instead of dying and freezing that part of the bar.
+    Waybar sends its modules' stderr to /dev/null, so errors also go to the
+    journal: `journalctl -t hyprflow`
   - die with the Waybar that started it, and take the event source along:
     Waybar does not stop its continuous modules when it exits, so without
     this every Waybar restart left a copy running
@@ -31,6 +35,7 @@ import os
 import signal
 import subprocess
 import sys
+import syslog
 import time
 
 PR_SET_PDEATHSIG = 1
@@ -50,10 +55,19 @@ def lines(cmd):
         yield from proc.stdout
 
 
+def log_error(message):
+    """To stderr, for a module run by hand, and to the journal, since under
+    Waybar stderr goes nowhere."""
+    print(message, file=sys.stderr, flush=True)
+    syslog.openlog("hyprflow")
+    syslog.syslog(syslog.LOG_WARNING, message)
+
+
 class WaybarModule:
     """The skeleton every event driven module shares; see the module docs."""
 
     restart_delay = 1.0  # seconds before starting an ended event source again
+    max_delay = 60.0     # the longest wait between retries after errors
 
     def state(self):
         """The Waybar JSON dict for right now."""
@@ -77,12 +91,16 @@ class WaybarModule:
         die_with_parent()
         if os.getppid() == 1:  # Waybar already gone before the line above
             sys.exit(0)
-        self.emit()
+        delay = self.restart_delay
         while True:
             try:
+                self.emit()
                 for _ in self.events():
                     self.emit()
-            except OSError:
-                pass
-            time.sleep(self.restart_delay)
-            self.emit()  # the state may have changed while the source was down
+                delay = self.restart_delay  # ended cleanly: back to a short wait
+            except Exception as err:  # a dead module freezes its part of the bar
+                log_error(f"{type(self).__name__}: {err!r}")
+                time.sleep(delay)
+                delay = min(delay * 2, self.max_delay)
+                continue
+            time.sleep(delay)

@@ -102,7 +102,7 @@ class Device:
 
     @classmethod
     def laptop(cls, percent, charging):
-        icon = LAPTOP_CHARGING if charging else LAPTOP_ICONS[min(percent // 10, 10)]
+        icon = LAPTOP_CHARGING if charging else LAPTOP_ICONS[max(0, min(percent // 10, 10))]
         return cls("Laptop", icon, percent, charging, is_laptop=True)
 
     @property

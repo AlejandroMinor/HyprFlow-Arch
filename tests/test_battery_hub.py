@@ -59,6 +59,7 @@ def test_laptop_swaps_its_icon_instead_of_a_bolt(hub):
     assert charging.label() == f"{hub.LAPTOP_CHARGING} 64%"
     assert hub.Device.laptop(64, False).icon == hub.LAPTOP_ICONS[6]
     assert hub.Device.laptop(100, False).icon == hub.LAPTOP_ICONS[10]
+    assert hub.Device.laptop(-5, False).icon == hub.LAPTOP_ICONS[0]   # out of range, not wrapped
 
 
 def test_tooltip_line_escapes_markup(hub):

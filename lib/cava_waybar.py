@@ -45,10 +45,12 @@ def render(heights, colors):
     """Waybar's JSON for one frame. Every bar is drawn, zeros included: a
     module that changes width on silence shoves the rest of the bar around."""
     markup = ""
+    top = len(GLYPHS) - 1
     for h in heights:
-        glyph = GLYPHS[max(0, min(h, 7))]
+        h = max(0, min(h, top))  # cava's range comes from its config, not from us
+        glyph = GLYPHS[h]
         if colors:
-            markup += f"<span color='{colors[h * (len(colors) - 1) // 7]}'>{glyph}</span>"
+            markup += f"<span color='{colors[h * (len(colors) - 1) // top]}'>{glyph}</span>"
         else:
             markup += glyph
     if any(heights):

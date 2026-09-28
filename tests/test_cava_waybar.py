@@ -32,6 +32,13 @@ def test_higher_bars_take_later_colors(cava):
     assert re.findall(r"color='([^']+)'", text) == [COLORS[0], COLORS[-1]]
 
 
+def test_heights_outside_the_glyph_range_are_clamped(cava):
+    # A waybar.conf with ascii_max_range above 7 sends taller bars.
+    text = cava.render([99, -3], COLORS)["text"]
+    assert re.findall(r"color='([^']+)'", text) == [COLORS[-1], COLORS[0]]
+    assert cava.GLYPHS[-1] in text and cava.GLYPHS[0] in text
+
+
 def test_without_a_palette_it_draws_plain_glyphs(cava):
     assert cava.render([2, 7], [])["text"] == cava.GLYPHS[2] + cava.GLYPHS[7]
 

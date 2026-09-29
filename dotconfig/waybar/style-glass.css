@@ -236,6 +236,12 @@ window#waybar.hidden {
     border-color: alpha(@color2, 0.4);
 }
 
+#submap.groupmode {
+    animation: submap-groupmode 1s ease-in-out infinite;
+    background: alpha(@color3, 0.25);
+    border-color: alpha(@color3, 0.4);
+}
+
 @keyframes submap-winctl {
     0%   { color: @color6; }
     50%  { color: alpha(@color6, 0.3); }
@@ -246,6 +252,12 @@ window#waybar.hidden {
     0%   { color: @color2; }
     50%  { color: alpha(@color2, 0.3); }
     100% { color: @color2; }
+}
+
+@keyframes submap-groupmode {
+    0%   { color: @color3; }
+    50%  { color: alpha(@color3, 0.3); }
+    100% { color: @color3; }
 }
 
 /* ---- taskbar (apps abiertas) ---- */

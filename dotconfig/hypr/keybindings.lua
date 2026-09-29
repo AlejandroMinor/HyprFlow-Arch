@@ -44,38 +44,48 @@ end, { description = "Mini Window (1200x800)" })
 --  GROUPS (Browser Mode)
 -- =======================================================
 
-hl.bind(mainMod .. " + G",         hl.dsp.group.toggle(),                                    { description = "Toggle Group" })
-hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprland-group-all.sh"),      { description = "Group All Windows in Workspace" })
+hl.bind(mainMod .. " + G",         hl.dsp.submap("groupmode"), { description = "Enter Group Mode" })
+hl.bind(mainMod .. " + SHIFT + G", hl.dsp.group.toggle(), { description = "Toggle Group" })
+hl.bind("ALT + G",                 hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprland-group-all.sh"), { description = "Group All Windows in Workspace" })
 
 hl.bind("ALT + Tab",         hl.dsp.group.next(), { description = "Next Tab" })
 hl.bind("ALT + SHIFT + Tab", hl.dsp.group.prev(), { description = "Previous Tab" })
 
-hl.bind(mainMod .. " + ALT + H",    hl.dsp.window.move({ into_group = "l" }), { description = "Move Into Group (Left)" })
-hl.bind(mainMod .. " + ALT + L",    hl.dsp.window.move({ into_group = "r" }), { description = "Move Into Group (Right)" })
-hl.bind(mainMod .. " + ALT + K",    hl.dsp.window.move({ into_group = "u" }), { description = "Move Into Group (Up)" })
-hl.bind(mainMod .. " + ALT + J",    hl.dsp.window.move({ into_group = "d" }), { description = "Move Into Group (Down)" })
-hl.bind(mainMod .. " + ALT + down", hl.dsp.window.move({ out_of_group = true }), { description = "Move Out Of Group" })
+hl.bind(mainMod .. " + ALT + O", hl.dsp.window.move({ out_of_group = true }), { description = "Move Out Of Group" })
 
-hl.bind(mainMod .. " + SHIFT + P", hl.dsp.submap("grouptabs"), { description = "Reorder Group Tabs Mode" })
+hl.define_submap("groupmode", function()
+    hl.bind("g", hl.dsp.group.toggle(), { description = "Toggle Group" })
+    hl.bind("a", hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprland-group-all.sh"), { description = "Group All Windows in Workspace" })
+    hl.bind("o", hl.dsp.window.move({ out_of_group = true }), { description = "Move Out Of Group" })
 
-hl.define_submap("grouptabs", function()
-    hl.bind("h",     hl.dsp.group.move_window({ back = true }), { description = "Move Tab Back" })
-    hl.bind("left",  hl.dsp.group.move_window({ back = true }), { description = "Move Tab Back" })
-    hl.bind("l",     hl.dsp.group.move_window({}),              { description = "Move Tab Forward" })
-    hl.bind("right", hl.dsp.group.move_window({}),               { description = "Move Tab Forward" })
+    hl.bind("left",  hl.dsp.focus({ direction = "left" }),  { description = "Focus Left" })
+    hl.bind("right", hl.dsp.focus({ direction = "right" }), { description = "Focus Right" })
+    hl.bind("up",    hl.dsp.focus({ direction = "up" }),    { description = "Focus Up" })
+    hl.bind("down",  hl.dsp.focus({ direction = "down" }),  { description = "Focus Down" })
+
+    hl.bind("h", hl.dsp.focus({ direction = "left" }),  { description = "Focus Left" })
+    hl.bind("l", hl.dsp.focus({ direction = "right" }), { description = "Focus Right" })
+    hl.bind("k", hl.dsp.focus({ direction = "up" }),    { description = "Focus Up" })
+    hl.bind("j", hl.dsp.focus({ direction = "down" }),  { description = "Focus Down" })
+
+    hl.bind("SHIFT + left",  hl.dsp.window.move({ into_group = "l" }), { description = "Move Into Group (Left)" })
+    hl.bind("SHIFT + right", hl.dsp.window.move({ into_group = "r" }), { description = "Move Into Group (Right)" })
+    hl.bind("SHIFT + up",    hl.dsp.window.move({ into_group = "u" }), { description = "Move Into Group (Up)" })
+    hl.bind("SHIFT + down",  hl.dsp.window.move({ into_group = "d" }), { description = "Move Into Group (Down)" })
+    hl.bind("SHIFT + H",     hl.dsp.window.move({ into_group = "l" }), { description = "Move Into Group (Left)" })
+    hl.bind("SHIFT + L",     hl.dsp.window.move({ into_group = "r" }), { description = "Move Into Group (Right)" })
+    hl.bind("SHIFT + K",     hl.dsp.window.move({ into_group = "u" }), { description = "Move Into Group (Up)" })
+    hl.bind("SHIFT + J",     hl.dsp.window.move({ into_group = "d" }), { description = "Move Into Group (Down)" })
+
+    hl.bind("comma",  hl.dsp.group.move_window({ back = true }), { description = "Move Tab Back" })
+    hl.bind("period", hl.dsp.group.move_window({}),              { description = "Move Tab Forward" })
 
     hl.bind("n", hl.dsp.group.next(), { description = "Next Tab" })
     hl.bind("p", hl.dsp.group.prev(), { description = "Previous Tab" })
 
-    hl.bind("1", hl.dsp.group.active({ index = 1 }), { description = "Jump to Tab 1" })
-    hl.bind("2", hl.dsp.group.active({ index = 2 }), { description = "Jump to Tab 2" })
-    hl.bind("3", hl.dsp.group.active({ index = 3 }), { description = "Jump to Tab 3" })
-    hl.bind("4", hl.dsp.group.active({ index = 4 }), { description = "Jump to Tab 4" })
-    hl.bind("5", hl.dsp.group.active({ index = 5 }), { description = "Jump to Tab 5" })
-    hl.bind("6", hl.dsp.group.active({ index = 6 }), { description = "Jump to Tab 6" })
-    hl.bind("7", hl.dsp.group.active({ index = 7 }), { description = "Jump to Tab 7" })
-    hl.bind("8", hl.dsp.group.active({ index = 8 }), { description = "Jump to Tab 8" })
-    hl.bind("9", hl.dsp.group.active({ index = 9 }), { description = "Jump to Tab 9" })
+    for i = 1, 9 do
+        hl.bind("" .. i, hl.dsp.group.active({ index = i }), { description = "Jump to Tab" })
+    end
 
     hl.bind("escape", hl.dsp.submap("reset"), { description = "Exit Mode" })
 end)
@@ -246,6 +256,7 @@ for i = 1, 9 do
     hl.bind(mainMod .. " + " .. i,         hl.dsp.focus({ workspace = i }),   { description = "Focus Workspace" })
     hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }), { description = "Send Window to Workspace" })
 end
+
 hl.bind(mainMod .. " + 0",         hl.dsp.focus({ workspace = 10 }),  { description = "Focus Workspace" })
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }), { description = "Send Window to Workspace" })
 

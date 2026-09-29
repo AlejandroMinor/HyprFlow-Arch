@@ -40,7 +40,7 @@ from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 from gi.repository import Gtk4LayerShell as LayerShell  # noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-from hyprflow import hyprctl  # noqa: E402
+from hyprflow import hyprland  # noqa: E402
 
 # Pill colours. The background alpha is deliberately low: hyprglass composites
 # its glass underneath this surface (see hg.layer("master-pick") in
@@ -169,7 +169,7 @@ class MasterPick(Gtk.Application):
             self.close_overlay()
             return
 
-        mon = next(m for m in hyprctl.query("monitors") if m["focused"])
+        mon = next(m for m in hyprland.query("monitors") if m["focused"])
         ws_id = mon["activeWorkspace"]["id"]
 
         # Sorted by x, so index 0 is the master. No floating windows: they sit
@@ -178,7 +178,7 @@ class MasterPick(Gtk.Application):
         all_clients = sorted(
             (
                 c
-                for c in hyprctl.query("clients")
+                for c in hyprland.query("clients")
                 if c["workspace"]["id"] == ws_id
                 and c["mapped"]
                 and not c["floating"]
@@ -200,7 +200,7 @@ class MasterPick(Gtk.Application):
                     if not self.clients
                     else "master-pick: only one window — it's already the master"
                 )
-                hyprctl.on_screen(msg)
+                hyprland.on_screen(msg)
             self.quit()
             return
 
@@ -276,7 +276,7 @@ class MasterPick(Gtk.Application):
         # grab doesn't stop the switch either -- it's reachable by mouse.
         def reader():
             try:
-                for line in hyprctl.events():
+                for line in hyprland.events():
                     # activespecial covers the scratchpad, which
                     # doesn't emit workspace.
                     if line.startswith(("workspace>>", "focusedmon>>", "activespecial>>")):
@@ -330,8 +330,8 @@ if __name__ == "__main__":
         if app.choice == 0:
             # 0 is already the master, so focus without swapping.
             log(f"focus master {addr}")
-            answer = hyprctl.dispatch(focus)
+            answer = hyprland.dispatch(focus)
         else:
             log(f"swap {addr} → master")
-            answer = hyprctl.batch(focus, "hl.dsp.layout('swapwithmaster master')")
+            answer = hyprland.batch(focus, "hl.dsp.layout('swapwithmaster master')")
         log(f"hyprctl: {answer}")

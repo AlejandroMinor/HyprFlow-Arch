@@ -5,7 +5,7 @@
 - `bin/`: commands you run, linked into `~/.local/bin` (on PATH).
 - `lib/`: what only Waybar, the keybindings or other scripts call, linked into
   `~/.local/lib/hyprflow` (off PATH). Shared code lives here too:
-  - `lib/hyprflow/` (Python): `paths`, `hyprctl` (a facade over hyprctl),
+  - `lib/hyprflow/` (Python): `paths`, `hyprland` (a facade over Hyprland),
     `notify`, `palette`, `lock` (one copy at a time) and `waybar`
     (`WaybarModule`).
   - `lib/common.sh` (Bash): `msg`, `warn`, `notify`, `load_palette`, and where
@@ -24,8 +24,9 @@
   `Layouts`, asks through a `Menu` (rofi today), and `main()` wires them.
 - **Repository**: monitors.py keeps profiles behind `Profiles`; the layout
   logic is pure functions.
-- **Facade**: `hyprflow.hyprctl` is the one way to talk to Hyprland; every
-  failure comes out as `HyprctlError`, an `OSError`.
+- **Facade**: `hyprflow.hyprland` is the one way to talk to Hyprland (through
+  its `hyprctl` command and event socket); every failure comes out as
+  `HyprlandError`, an `OSError`.
 
 ## Adding a bar module
 

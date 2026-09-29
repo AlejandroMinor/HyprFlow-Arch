@@ -166,7 +166,7 @@ def test_the_apply_lock_is_per_user(mons):
 
 def test_hyprland_not_answering_is_a_message_not_a_traceback(mons, monkeypatch, capsys):
     def fails():
-        raise mons.hyprctl.HyprctlError("hyprctl monitors all: no answer in 5 s")
+        raise mons.hyprland.HyprlandError("hyprctl monitors all: no answer in 5 s")
     monkeypatch.setattr(mons, "detect", fails)
     assert mons.main(["monitors.py", "list"]) == 1
     assert "no answer in 5 s" in capsys.readouterr().err

@@ -32,7 +32,7 @@ from glob import glob
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hyprflow import hyprctl, notify, paths  # noqa: E402
+from hyprflow import hyprland, notify, paths  # noqa: E402
 
 LIB = Path(__file__).resolve().parent
 HYPR = paths.CONFIG / "hypr"
@@ -318,7 +318,7 @@ def port_connected(port):
 
 
 def detect():
-    return hyprctl.query("monitors", "all")
+    return hyprland.query("monitors", "all")
 
 
 def write_if_changed(path, text):
@@ -347,19 +347,19 @@ def restore_workspaces():
         return
     if not rules:
         return
-    workspaces = {w["id"]: w["monitor"] for w in hyprctl.query("workspaces")}
-    enabled = {m["name"] for m in hyprctl.query("monitors")}
-    focused = hyprctl.query("activeworkspace")["id"]
+    workspaces = {w["id"]: w["monitor"] for w in hyprland.query("workspaces")}
+    enabled = {m["name"] for m in hyprland.query("monitors")}
+    focused = hyprland.query("activeworkspace")["id"]
     moved = False
     for ws, mon in rules:
         ws = int(ws)
         if mon not in enabled or workspaces.get(ws) in (None, mon):
             continue
-        hyprctl.dispatch(f"hl.dsp.focus({{ workspace = {ws} }})")
-        hyprctl.dispatch(f'hl.dsp.workspace.move({{ monitor = "{mon}" }})')
+        hyprland.dispatch(f"hl.dsp.focus({{ workspace = {ws} }})")
+        hyprland.dispatch(f'hl.dsp.workspace.move({{ monitor = "{mon}" }})')
         moved = True
     if moved:
-        hyprctl.dispatch(f"hl.dsp.focus({{ workspace = {focused} }})")
+        hyprland.dispatch(f"hl.dsp.focus({{ workspace = {focused} }})")
 
 
 def apply(profile=None):
@@ -401,7 +401,7 @@ def apply(profile=None):
 
     if lua_changed:
         msg("layout changed; reloading Hyprland…")
-        hyprctl.reload()
+        hyprland.reload()
         # A monitor switched back on comes up without its wallpaper, and the
         # monitors must be on to take their workspaces back: both a moment
         # later, detached.
@@ -673,7 +673,7 @@ def main(argv):
     except (Stop, ValueError) as stop:
         warn(str(stop))
         return 1
-    except OSError as err:  # hyprctl.HyprctlError included: Hyprland not answering
+    except OSError as err:  # hyprland.HyprlandError included: Hyprland not answering
         warn(str(err))
         return 1
     except KeyError as err:  # a hand edited profile missing a field

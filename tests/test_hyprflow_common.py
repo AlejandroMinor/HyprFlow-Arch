@@ -1,4 +1,4 @@
-"""Tests for the shared pieces in lib/hyprflow/: paths, palette, hyprctl and
+"""Tests for the shared pieces in lib/hyprflow/: paths, palette, hyprland and
 notify. The commands are fakes on PATH that log how they were called."""
 
 import importlib
@@ -58,11 +58,11 @@ def test_palette_reads_wallusts_shell_file(tmp_path):
     assert palette.load(tmp_path / "missing") == {}
 
 
-def test_hyprctl_query_dispatch_and_batch(fake):
-    from hyprflow import hyprctl
-    assert hyprctl.query("monitors", "all") == {"id": 1}
-    hyprctl.dispatch("hl.dsp.exit()")
-    hyprctl.batch("hl.dsp.focus({window='address:0x1'})", "hl.dsp.layout('swapwithmaster master')")
+def test_hyprland_query_dispatch_and_batch(fake):
+    from hyprflow import hyprland
+    assert hyprland.query("monitors", "all") == {"id": 1}
+    hyprland.dispatch("hl.dsp.exit()")
+    hyprland.batch("hl.dsp.focus({window='address:0x1'})", "hl.dsp.layout('swapwithmaster master')")
     assert fake() == [
         "hyprctl|monitors|all|-j|",
         "hyprctl|dispatch|hl.dsp.exit()|",
@@ -83,20 +83,20 @@ def fake_hyprctl(tmp_path, monkeypatch, body):
     ("echo 'ok, not json'", "not JSON"),
     ("sleep 5", "no answer"),
 ])
-def test_hyprctl_query_failures_are_one_oserror(tmp_path, monkeypatch, body, reason):
-    from hyprflow import hyprctl
-    monkeypatch.setattr(hyprctl, "TIMEOUT", 0.5)
+def test_hyprland_query_failures_are_one_oserror(tmp_path, monkeypatch, body, reason):
+    from hyprflow import hyprland
+    monkeypatch.setattr(hyprland, "TIMEOUT", 0.5)
     fake_hyprctl(tmp_path, monkeypatch, body)
-    with pytest.raises(hyprctl.HyprctlError, match=reason) as caught:
-        hyprctl.query("monitors")
+    with pytest.raises(hyprland.HyprlandError, match=reason) as caught:
+        hyprland.query("monitors")
     assert isinstance(caught.value, OSError)   # what callers already catch
 
 
-def test_hyprctl_missing_is_the_same_error(tmp_path, monkeypatch):
-    from hyprflow import hyprctl
+def test_hyprland_without_hyprctl_is_the_same_error(tmp_path, monkeypatch):
+    from hyprflow import hyprland
     monkeypatch.setenv("PATH", str(tmp_path))   # no hyprctl anywhere
-    with pytest.raises(hyprctl.HyprctlError):
-        hyprctl.dispatch("hl.dsp.exit()")
+    with pytest.raises(hyprland.HyprlandError):
+        hyprland.dispatch("hl.dsp.exit()")
 
 
 def test_notify_passes_app_urgency_icon_and_body(fake):
@@ -111,11 +111,11 @@ def test_notify_passes_app_urgency_icon_and_body(fake):
     ]
 
 
-def test_hyprctl_events_reads_the_socket_line_by_line(monkeypatch, tmp_path):
+def test_hyprland_events_reads_the_socket_line_by_line(monkeypatch, tmp_path):
     import socket
     import threading
-    from hyprflow import hyprctl
-    monkeypatch.setattr(hyprctl.paths, "RUNTIME", tmp_path)   # the module hyprctl holds
+    from hyprflow import hyprland
+    monkeypatch.setattr(hyprland.paths, "RUNTIME", tmp_path)   # the module hyprctl holds
     monkeypatch.setenv("HYPRLAND_INSTANCE_SIGNATURE", "sig")
     (tmp_path / "hypr" / "sig").mkdir(parents=True)
     server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -129,15 +129,15 @@ def test_hyprctl_events_reads_the_socket_line_by_line(monkeypatch, tmp_path):
         conn.close()
 
     threading.Thread(target=talk, daemon=True).start()
-    assert list(hyprctl.events()) == ["monitoradded>>HDMI-A-1", "workspace>>2"]
+    assert list(hyprland.events()) == ["monitoradded>>HDMI-A-1", "workspace>>2"]
     server.close()
 
 
-def test_hyprctl_events_outside_hyprland(monkeypatch):
-    from hyprflow import hyprctl
+def test_hyprland_events_outside_hyprland(monkeypatch):
+    from hyprflow import hyprland
     monkeypatch.delenv("HYPRLAND_INSTANCE_SIGNATURE", raising=False)
     with pytest.raises(OSError):
-        next(hyprctl.events())
+        next(hyprland.events())
 
 
 def test_single_instance_lets_one_copy_run(tmp_path):

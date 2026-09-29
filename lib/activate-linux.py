@@ -29,7 +29,7 @@ from gi.repository import Gdk, Gio, GLib, Gtk  # noqa: E402
 from gi.repository import Gtk4LayerShell as LayerShell  # noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-from hyprflow import hyprctl, paths  # noqa: E402
+from hyprflow import hyprland, paths  # noqa: E402
 from hyprflow.lock import single_instance  # noqa: E402
 
 TITLE = "Activate Linux"
@@ -55,7 +55,7 @@ def label(text, css_class):
 def primary_port():
     """The connector showing workspace 1: monitors.sh gives it to the primary."""
     try:
-        return next((w["monitor"] for w in hyprctl.query("workspaces") if w["id"] == 1), None)
+        return next((w["monitor"] for w in hyprland.query("workspaces") if w["id"] == 1), None)
     except (OSError, ValueError):
         return None
 
@@ -107,7 +107,7 @@ class Watermark:
 
     def listen(self):
         try:
-            for line in hyprctl.events():
+            for line in hyprland.events():
                 if line.startswith(MOVES):
                     GLib.idle_add(self.later)
         except OSError:

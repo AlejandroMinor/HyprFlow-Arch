@@ -50,9 +50,9 @@ def test_without_hyprland_it_falls_back_to_the_first_monitor(monkeypatch):
     module = load_script("activate-linux.py")
 
     def fails(*what):
-        raise module.hyprctl.HyprctlError("hyprctl workspaces: no answer")
+        raise module.hyprland.HyprlandError("hyprctl workspaces: no answer")
 
-    monkeypatch.setattr(module.hyprctl, "query", fails)
+    monkeypatch.setattr(module.hyprland, "query", fails)
     assert module.primary_port() is None
     assert module.target([Monitor("DP-2")], module.primary_port(), gaming=False).get_connector() == "DP-2"
 

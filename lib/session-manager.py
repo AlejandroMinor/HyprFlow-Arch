@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Protocol
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hyprflow import hyprctl, notify as notifications, paths  # noqa: E402
+from hyprflow import hyprland, notify as notifications, paths  # noqa: E402
 
 TEMPLATES = paths.CONFIG / "hypr" / "templates"
 LAST = "default"                      # what logout writes; shown as "Last session"
@@ -221,10 +221,10 @@ class RofiMenu:
 
 class Desktop:
     def query(self, what):
-        return hyprctl.query(what)
+        return hyprland.query(what)
 
     def dispatch(self, expr):
-        hyprctl.dispatch(expr)
+        hyprland.dispatch(expr)
 
     def launch(self, argv):
         subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,

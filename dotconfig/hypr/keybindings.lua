@@ -257,9 +257,6 @@ for i = 1, 9 do
     hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }), { description = "Send Window to Workspace" })
 end
 
-hl.bind(mainMod .. " + 0",         hl.dsp.focus({ workspace = 10 }),  { description = "Focus Workspace" })
-hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }), { description = "Send Window to Workspace" })
-
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { description = "Next Workspace" })
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }), { description = "Previous Workspace" })
 hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true, description = "Drag Window (hold + move mouse)" })

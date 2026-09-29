@@ -101,6 +101,7 @@ MISSING_AUR=()
 MISSING_SUBMODULES=()
 MISSING_PLUGINS=()      # not installed
 DISABLED_PLUGINS=()     # installed, but not enabled
+FAILED_STEPS=()         # "command to retry|what went wrong", for the final report
 
 # ─────────────────────────────────────────
 # PROGRESS BAR
@@ -153,14 +154,21 @@ check_dependencies() {
 
     missing_banner
 
+    # --with-deps installs first, whatever the steps, `check` alone included.
+    if [ "$WITH_DEPS" = true ]; then
+        install_dependencies
+        [ ${#MISSING_PACMAN[@]} -eq 0 ] && [ ${#MISSING_AUR[@]} -eq 0 ] && return 0
+        missing_banner
+    fi
+
     # `check` on its own only reports; the steps after it would copy a config
     # onto a system that cannot fully run it, so those wait for an answer.
     if ! want config && ! want theme && ! want lockscreen && ! want monitors && ! want zsh; then
-        echo "   Re-run with --with-deps to install them."
+        [ "$WITH_DEPS" = true ] || echo "   Re-run with --with-deps to install them."
         return 0
     fi
 
-    if [ "$WITH_DEPS" = true ] || ask "Install them now?" y; then
+    if [ "$WITH_DEPS" != true ] && ask "Install them now?" y; then
         install_dependencies
         [ ${#MISSING_PACMAN[@]} -eq 0 ] && [ ${#MISSING_AUR[@]} -eq 0 ] && return 0
         missing_banner
@@ -170,6 +178,19 @@ check_dependencies() {
         printf "\n\033[1;31m󰅙 Install stopped. Nothing was copied.\033[0m\n"
         exit 1
     fi
+}
+
+# run_or_warn RETRY CMD...: runs CMD, its output shown as usual. If it fails,
+# says so with its last error line and files RETRY for the final report,
+# instead of letting the step look like it worked.
+run_or_warn() {
+    local retry="$1" err
+    shift
+    err="$( { "$@" 2>&1 1>&3 3>&-; } 3>&1 )" && return 0
+    err="$(tail -n 1 <<<"${err:-exited with an error}")"
+    printf "\033[1;33m󰀦 %s failed: %s\033[0m\n" "${1##*/}" "$err"
+    FAILED_STEPS+=("$retry|$err")
+    return 1
 }
 
 missing_banner() {
@@ -437,7 +458,8 @@ apply_theme() {
     progress "THEME"
     echo "󰏘 Setting up colors..."
     # --no-restart: we bounce Waybar once at the end, not once per step.
-    "$REPO_PATH/bin/wallust-theme-manager.sh" --restore-default --notify --no-restart 2>/dev/null || true
+    run_or_warn "wallust-theme-manager.sh --restore-default" \
+        "$REPO_PATH/bin/wallust-theme-manager.sh" --restore-default --notify --no-restart
 
     # Fallback for a wallust that failed: the repo's copies fill in only what
     # it did not write, so they never replace a fresh palette.
@@ -471,7 +493,7 @@ setup_lockscreen() {
     # both generated, so a clean install would start with them missing. Runs
     # after apply_theme because the avatar picks up the palette colour, and
     # calls the installed copy so the paths it writes match runtime.
-    "$CONFIG_DEST/hypr/hyprlock/geometry.sh" 2>/dev/null || true
+    run_or_warn "~/.config/hypr/hyprlock/geometry.sh" "$CONFIG_DEST/hypr/hyprlock/geometry.sh"
 }
 
 setup_monitors() {
@@ -483,7 +505,7 @@ setup_monitors() {
         "$REPO_PATH/bin/monitors.sh" setup || "$REPO_PATH/bin/monitors.sh" apply || true
     else
         echo "󰍹 Applying monitor layout (saved profile / default)..."
-        "$REPO_PATH/bin/monitors.sh" apply 2>/dev/null || true
+        run_or_warn "monitors.sh apply" "$REPO_PATH/bin/monitors.sh" apply
     fi
 }
 
@@ -571,7 +593,7 @@ fi
 final_report() {
     local pending name
     pending=$(( ${#MISSING_PACMAN[@]} + ${#MISSING_AUR[@]} + ${#MISSING_SUBMODULES[@]} +
-                ${#MISSING_PLUGINS[@]} + ${#DISABLED_PLUGINS[@]} ))
+                ${#MISSING_PLUGINS[@]} + ${#DISABLED_PLUGINS[@]} + ${#FAILED_STEPS[@]} ))
 
     if [ "$pending" -eq 0 ]; then
         if [ "$FULL_RUN" = true ]; then
@@ -596,6 +618,11 @@ final_report() {
     done
     for name in "${DISABLED_PLUGINS[@]}"; do
         printf "   hyprpm enable %s\n" "$name"
+    done
+
+    local failed
+    for failed in "${FAILED_STEPS[@]}"; do
+        printf "   %-44s (failed: %s)\n" "${failed%%|*}" "${failed#*|}"
     done
 
     printf "\n   Or re-run: bash install.sh --with-deps --with-plugins\n"

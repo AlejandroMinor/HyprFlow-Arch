@@ -145,6 +145,23 @@ def test_with_deps_installs_without_asking_and_goes_on(env):
     assert (Path(env["HOME"]) / ".config" / "hypr" / "hyprland.lua").exists()
 
 
+def test_check_alone_with_deps_installs(env):
+    missing(env, "jq")
+    result = run(env, "check", "--with-deps")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "sudo pacman -S --needed jq" in log(env)
+    assert "Re-run with --with-deps" not in result.stdout
+
+
+def test_a_failed_step_is_reported_not_passed_over(env):
+    # geometry.sh finds no monitor through the fake hyprctl and gives up.
+    result = run(env, "config", "lockscreen")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "geometry.sh failed:" in result.stdout
+    assert "Installation complete" not in result.stdout and "Done." not in result.stdout
+    assert "~/.config/hypr/hyprlock/geometry.sh" in result.stdout.split("things left to do")[1]
+
+
 def test_config_links_bin_on_path_and_lib_off_it(env):
     result = run(env, "config")
     assert result.returncode == 0, result.stdout + result.stderr

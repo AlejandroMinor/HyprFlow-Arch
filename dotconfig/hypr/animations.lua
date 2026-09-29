@@ -40,7 +40,7 @@ hl.animation({ leaf = "workspacesOut", enabled = true,  speed = 6,    bezier = "
 -- Scratchpad
 hl.animation({ leaf = "specialWorkspace",    enabled = true,  speed = 2,    bezier = "softFade" })
 hl.animation({ leaf = "specialWorkspaceIn",  enabled = true,  speed = 2,    bezier = "softFade", style = "fade" })
-hl.animation({ leaf = "specialWorkspaceOut", enabled = true,  speed = 2.6,  bezier = "softFade", style = "fade" })
+hl.animation({ leaf = "specialWorkspaceOut", enabled = true,  speed = 1.5,  bezier = "softFade", style = "fade" })
 
 -- Misc
 hl.animation({ leaf = "global",        enabled = true,  speed = 10,   bezier = "default" })

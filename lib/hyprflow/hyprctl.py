@@ -1,5 +1,9 @@
 """Hyprland over hyprctl, in one place (Facade): JSON queries and Lua
-dispatches. Scripts ask for what they need instead of building commands."""
+dispatches. Scripts ask for what they need instead of building commands.
+
+Every failure (no hyprctl, Hyprland not answering, an error, output that is
+not JSON) comes out as one exception, HyprctlError. It is an OSError, so the
+`except OSError` a caller already has for a missing command covers it too."""
 
 import json
 import os
@@ -8,14 +12,35 @@ import subprocess
 
 from . import paths
 
+TIMEOUT = 5  # seconds; Hyprland answers in milliseconds, or is stuck
+
+
+class HyprctlError(OSError):
+    """hyprctl could not give an answer."""
+
+
+def _call(args):
+    try:
+        return subprocess.run(["hyprctl", *args], capture_output=True, text=True, timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        raise HyprctlError(f"hyprctl {' '.join(args)}: no answer in {TIMEOUT} s") from None
+    except OSError as err:
+        raise HyprctlError(f"hyprctl: {err.strerror or err}") from None
+
 
 def query(*what):
     """hyprctl's JSON for a query: query("clients"), query("monitors", "all")."""
-    return json.loads(subprocess.check_output(["hyprctl", *what, "-j"]))
+    result = _call([*what, "-j"])
+    if result.returncode != 0:
+        raise HyprctlError(f"hyprctl {' '.join(what)}: {(result.stderr or result.stdout).strip()}")
+    try:
+        return json.loads(result.stdout)
+    except ValueError:
+        raise HyprctlError(f"hyprctl {' '.join(what)}: not JSON: {result.stdout[:80]!r}") from None
 
 
 def _run(*args):
-    result = subprocess.run(["hyprctl", *args], capture_output=True, text=True)
+    result = _call(args)
     return (result.stdout or result.stderr).strip()
 
 

@@ -41,3 +41,15 @@ def test_it_goes_where_workspace_1_is_and_hides_in_game_mode():
     assert target([tv, big], "DP-9", gaming=False) is tv      # workspace 1 not found yet
     assert target([tv, big], "HDMI-A-1", gaming=True) is None
     assert target([], "DP-2", gaming=False) is None
+
+
+def test_without_hyprland_it_falls_back_to_the_first_monitor(monkeypatch):
+    from conftest import load_script
+    module = load_script("activate-linux.py")
+
+    def fails(*what):
+        raise module.hyprctl.HyprctlError("hyprctl workspaces: no answer")
+
+    monkeypatch.setattr(module.hyprctl, "query", fails)
+    assert module.primary_port() is None
+    assert module.target([Monitor("DP-2")], module.primary_port(), gaming=False).get_connector() == "DP-2"

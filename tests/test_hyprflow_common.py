@@ -71,13 +71,43 @@ def test_hyprctl_query_dispatch_and_batch(fake):
     ]
 
 
+def fake_hyprctl(tmp_path, monkeypatch, body):
+    (tmp_path / "bin").mkdir(exist_ok=True)
+    (tmp_path / "bin" / "hyprctl").write_text(f"#!/bin/bash\n{body}\n")
+    (tmp_path / "bin" / "hyprctl").chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tmp_path / 'bin'}:{os.environ['PATH']}")
+
+
+@pytest.mark.parametrize("body, reason", [
+    ('echo "HYPRLAND_INSTANCE_SIGNATURE not set" >&2; exit 1', "not set"),
+    ("echo 'ok, not json'", "not JSON"),
+    ("sleep 5", "no answer"),
+])
+def test_hyprctl_query_failures_are_one_oserror(tmp_path, monkeypatch, body, reason):
+    from hyprflow import hyprctl
+    monkeypatch.setattr(hyprctl, "TIMEOUT", 0.5)
+    fake_hyprctl(tmp_path, monkeypatch, body)
+    with pytest.raises(hyprctl.HyprctlError, match=reason) as caught:
+        hyprctl.query("monitors")
+    assert isinstance(caught.value, OSError)   # what callers already catch
+
+
+def test_hyprctl_missing_is_the_same_error(tmp_path, monkeypatch):
+    from hyprflow import hyprctl
+    monkeypatch.setenv("PATH", str(tmp_path))   # no hyprctl anywhere
+    with pytest.raises(hyprctl.HyprctlError):
+        hyprctl.dispatch("hl.dsp.exit()")
+
+
 def test_notify_passes_app_urgency_icon_and_body(fake):
     from hyprflow import notify
     notify.send("MX Keys Mini: 15%", "Running low.", app="Battery", urgency="critical", icon="battery-low")
     notify.send("Just a title")
+    notify.send("-Weird Mouse: 10%")   # a device name is the hardware's, dash and all
     assert fake() == [
-        "notify-send|-a|Battery|-u|critical|-i|battery-low|MX Keys Mini: 15%|Running low.|",
-        "notify-send|-a|HyprFlow|-u|normal|Just a title|",
+        "notify-send|-a|Battery|-u|critical|-i|battery-low|--|MX Keys Mini: 15%|Running low.|",
+        "notify-send|-a|HyprFlow|-u|normal|--|Just a title|",
+        "notify-send|-a|HyprFlow|-u|normal|--|-Weird Mouse: 10%|",
     ]
 
 

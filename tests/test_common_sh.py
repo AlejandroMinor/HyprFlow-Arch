@@ -25,7 +25,12 @@ def test_msg_and_warn_carry_the_scripts_name(tmp_path):
 
 def test_notify_uses_the_title(tmp_path):
     result = bash('hyprflow_name "X" monitors 34 Monitors; notify "Layout changed"', tmp_path)
-    assert result.stdout == "notify-send -a Monitors Monitors Layout changed\n"
+    assert result.stdout == "notify-send -a Monitors -- Monitors Layout changed\n"
+
+
+def test_notify_text_starting_with_a_dash_is_not_an_option(tmp_path):
+    result = bash('hyprflow_name "X" monitors 34 Monitors; notify "-1 monitor"', tmp_path)
+    assert result.stdout == "notify-send -a Monitors -- Monitors -1 monitor\n"
 
 
 def test_load_palette_fills_the_callers_variables(tmp_path):

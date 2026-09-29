@@ -162,3 +162,19 @@ def test_setup_without_a_terminal_says_so(mons, monkeypatch):
 
 def test_the_apply_lock_is_per_user(mons):
     assert mons.LOCK.parent == mons.paths.HYPRFLOW_RUNTIME
+
+
+def test_hyprland_not_answering_is_a_message_not_a_traceback(mons, monkeypatch, capsys):
+    def fails():
+        raise mons.hyprctl.HyprctlError("hyprctl monitors all: no answer in 5 s")
+    monkeypatch.setattr(mons, "detect", fails)
+    assert mons.main(["monitors.py", "list"]) == 1
+    assert "no answer in 5 s" in capsys.readouterr().err
+
+
+def test_a_profile_missing_a_field_is_a_message(mons, monkeypatch, capsys):
+    def broken():
+        raise KeyError("description")
+    monkeypatch.setattr(mons, "cmd_list", broken)
+    assert mons.main(["monitors.py", "list"]) == 1
+    assert "no 'description' field" in capsys.readouterr().err

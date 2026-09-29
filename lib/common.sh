@@ -30,7 +30,8 @@ warn() { printf '\033[1;33m%s %s:\033[0m %s\n' "$_hyprflow_icon" "$_hyprflow_nam
 # A desktop notification titled with the script's name; quiet without one.
 notify() {
     command -v notify-send >/dev/null 2>&1 || return 0
-    notify-send -a "$_hyprflow_app" "$_hyprflow_app" "$*" 2>/dev/null || true
+    # "--": a message starting with "-" is text, not options.
+    notify-send -a "$_hyprflow_app" -- "$_hyprflow_app" "$*" 2>/dev/null || true
 }
 
 # Loads the wallust palette (foreground, background, color0..color15) into

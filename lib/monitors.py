@@ -659,6 +659,12 @@ def main(argv):
     except (Stop, ValueError) as stop:
         warn(str(stop))
         return 1
+    except OSError as err:  # hyprctl.HyprctlError included: Hyprland not answering
+        warn(str(err))
+        return 1
+    except KeyError as err:  # a hand edited profile missing a field
+        warn(f"a monitor profile has no {err} field: fix it or run 'monitors.sh setup'")
+        return 1
     return 0
 
 

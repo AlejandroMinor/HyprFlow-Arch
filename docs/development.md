@@ -6,7 +6,8 @@
 - `lib/`: what only Waybar, the keybindings or other scripts call, linked into
   `~/.local/lib/hyprflow` (off PATH). Shared code lives here too:
   - `lib/hyprflow/` (Python): `paths`, `hyprctl` (a facade over hyprctl),
-    `notify`, `palette`, and `waybar` (`WaybarModule`).
+    `notify`, `palette`, `lock` (one copy at a time) and `waybar`
+    (`WaybarModule`).
   - `lib/common.sh` (Bash): `msg`, `warn`, `notify`, `load_palette`, and where
     `bin/` and `lib/` are.
 - `dotconfig/`: copied into `~/.config` by `install.sh config`.
@@ -23,6 +24,8 @@
   `Layouts`, asks through a `Menu` (rofi today), and `main()` wires them.
 - **Repository**: monitors.py keeps profiles behind `Profiles`; the layout
   logic is pure functions.
+- **Facade**: `hyprflow.hyprctl` is the one way to talk to Hyprland; every
+  failure comes out as `HyprctlError`, an `OSError`.
 
 ## Adding a bar module
 
@@ -40,6 +43,6 @@ Every script in `bin/` and `lib/`, Python and Bash alike, has tests in `tests/`,
 
 ```bash
 python -m venv --system-site-packages .venv   # sees python-gobject from the system
-.venv/bin/pip install pytest
+.venv/bin/pip install pytest vermin   # vermin checks the minimum Python
 .venv/bin/pytest
 ```

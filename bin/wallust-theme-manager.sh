@@ -10,6 +10,8 @@ RESTART_WAYBAR=true
 DEFAULT_THEME="classic"
 THEME=""
 
+# show_help [CODE]: prints the usage and exits with CODE (0 for --help, 1 for a
+# usage error, so a caller checking $? sees the error).
 show_help() {
     echo "Usage: wallust-theme-manager.sh [OPTIONS]"
     echo ""
@@ -21,21 +23,19 @@ show_help() {
     echo "  --notify             Show a notification when done."
     echo "  --no-restart         Leave Waybar alone; the caller will restart it."
     echo "  -h, --help           Show this help."
-    exit 0
+    exit "${1:-0}"
 }
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --generate-palette) . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
-
-ACTION="generate" ;;
+        --generate-palette) ACTION="generate" ;;
         --theme)            ACTION="theme"; THEME="${2:-}"; shift ;;
         --restore-default)  ACTION="theme"; THEME="$DEFAULT_THEME" ;;
         --skip-terminal)    SKIP_SEQUENCES="-s" ;;
         --notify)           NOTIFY=true ;;
         --no-restart)       RESTART_WAYBAR=false ;;
         -h|--help)          show_help ;;
-        *) echo "Error: Unknown argument: $1"; show_help ;;
+        *) echo "Error: Unknown argument: $1" >&2; show_help 1 >&2 ;;
     esac
     shift
 done
@@ -68,7 +68,7 @@ elif [ "$ACTION" == "theme" ]; then
 fi
 
 hyprctl reload > /dev/null
-setsid rgb-sync.sh ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1 < /dev/null &
+setsid "$HYPRFLOW_BIN/rgb-sync.sh" ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1 < /dev/null &
 sleep 0.5
 if [ "$RESTART_WAYBAR" = true ]; then
     "$HYPRFLOW_LIB/waybar-restart.sh"

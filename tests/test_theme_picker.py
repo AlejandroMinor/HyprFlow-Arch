@@ -112,3 +112,20 @@ def test_restore_default_is_classic(box):
     _, log = pick(box, "", "wallust-theme-manager.sh", "--restore-default", "--no-restart")
     assert f"wallust cs {box[0]}/.config/wallust/themes/classic.json" in log
     assert "waybar-restart.sh " not in log
+
+
+def test_the_manager_fails_on_an_unknown_argument(box):
+    result, log = pick(box, "", "wallust-theme-manager.sh", "--bogus")
+    assert result.returncode == 1
+    assert "Unknown argument: --bogus" in result.stderr and "Usage" in result.stderr
+    assert not any(line.startswith("wallust") for line in log)
+
+
+def test_the_manager_help_still_exits_cleanly(box):
+    result, _ = pick(box, "", "wallust-theme-manager.sh", "--help")
+    assert result.returncode == 0 and "Usage" in result.stdout
+
+
+def test_the_manager_calls_rgb_sync_by_its_path_not_the_path_variable(box):
+    _, log = pick(box, "", "wallust-theme-manager.sh", "--restore-default", "--no-restart")
+    assert f"setsid {box[0]}/bin/rgb-sync.sh" in log

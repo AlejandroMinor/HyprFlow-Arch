@@ -413,6 +413,15 @@ def test_hidpp_a_dozing_device_keeps_its_last_reading(hub):
     assert source.devices(FakeHidpp({})) == []   # unpaired: gone for good
 
 
+@pytest.mark.parametrize("feature, status", [(0x1004, [0xFF, 0, 0xFF, 0]), (0x1000, [0xFF, 0, 0xFF])])
+def test_hidpp_an_unknown_level_is_no_reading_not_255(hub, feature, status):
+    source = hub.HidppSource()
+    assert source.devices(FakeHidpp({1: bolt_device("MX Master 3S", 3, [70, 4, 0, 0])}))[0].percent == 70
+    unknown = FakeHidpp({1: bolt_device("MX Master 3S", 3, status, feature=feature)})
+    assert [d.percent for d in source.devices(unknown)] == [70]   # the last good one stays
+    assert hub.HidppSource().devices(unknown) == []                # nothing known yet: not shown
+
+
 @pytest.mark.parametrize("report, delay", [
     (bytes([0x10, 2, 0x41, 0x04, 0xB3, 0x69, 0x40]), 5),        # MX Keys Mini connected
     (bytes([0x11, 1, 0x08, 0x00, 55, 4, 1, 0] + [0] * 12), 1),  # unified battery event
@@ -445,6 +454,17 @@ class SlowHidpp(FakeHidpp):
         if (feature, function) == (5, 1):
             self.clock[0] += self.delay
         return super().request(device, feature, function, *params)
+
+
+def test_hidpp_a_slow_sweep_stops_at_its_budget(hub):
+    now = [0.0]
+    source = hub.HidppSource(clock=lambda: now[0])
+    slots = {slot: bolt_device(f"Device {slot}", 3, [50 + slot, 4, 0, 0]) for slot in (1, 2, 3)}
+    source.devices(FakeHidpp(slots))                         # remembered while fast
+    slots[3] = bolt_device("Device 3", 3, [10, 4, 0, 0])     # would read differently now
+    found = source.devices(SlowHidpp(slots, now, delay=2.0)) # each answer takes 2 s
+    assert [d.percent for d in found] == [51, 52, 53]        # slot 3 kept, not read
+    assert now[0] == 4.0 and source.recheck
 
 
 def keyboard(percent, charging=0):

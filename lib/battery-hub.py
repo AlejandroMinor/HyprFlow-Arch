@@ -70,6 +70,7 @@ WARNING = 35   # percent; same thresholds the old per-device modules used
 CRITICAL = 20
 
 UPOWER = "org.freedesktop.UPower"
+DBUS_TIMEOUT_MS = 2000  # a stuck UPower must not hold the bar for D-Bus's default 25 s
 # UPower device types (UpDeviceKind).
 LINE_POWER, BATTERY = 1, 2
 ICONS = {
@@ -149,12 +150,12 @@ class UPowerSource:
     def read(self):
         bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)
         paths = bus.call_sync(UPOWER, "/org/freedesktop/UPower", UPOWER, "EnumerateDevices",
-                              None, GLib.VariantType("(ao)"), Gio.DBusCallFlags.NONE, -1, None)
+                              None, GLib.VariantType("(ao)"), Gio.DBusCallFlags.NONE, DBUS_TIMEOUT_MS, None)
         devices = []
         for path in paths.unpack()[0]:
             props = bus.call_sync(UPOWER, path, "org.freedesktop.DBus.Properties", "GetAll",
                                   GLib.Variant("(s)", (f"{UPOWER}.Device",)),
-                                  GLib.VariantType("(a{sv})"), Gio.DBusCallFlags.NONE, -1, None)
+                                  GLib.VariantType("(a{sv})"), Gio.DBusCallFlags.NONE, DBUS_TIMEOUT_MS, None)
             device = self.to_device(props.unpack()[0])
             if device:
                 devices.append(device)
@@ -267,6 +268,7 @@ class HidppSource:
     CONFIRM_DELAY = 5  # seconds before reading again a reading not trusted yet
     SLOW = 0.2         # seconds; an awake device answers in tens of milliseconds
     DROP = 20          # points; a real battery does not lose this many between polls
+    BUDGET = 3.0       # seconds for a whole sweep; sleeping devices can take one each
 
     def __init__(self, sysfs="/sys/class/hidraw", clock=time.monotonic):
         self.sysfs = Path(sysfs)
@@ -372,7 +374,14 @@ class HidppSource:
         of dropping out of the bar."""
         found = []
         self.recheck = False
+        deadline = self.clock() + self.BUDGET
         for slot in self.SLOTS:
+            if self.clock() > deadline:
+                # Out of time: the rest keep their last reading, and are read
+                # again shortly instead of blocking the bar any longer.
+                found += [self.last[s] for s in self.SLOTS if s >= slot and s in self.last]
+                self.recheck = True
+                break
             started = self.clock()
             battery = self.battery(hidpp, slot)
             slow = self.clock() - started > self.SLOW
@@ -426,13 +435,15 @@ class HidppSource:
             if status is None:
                 return None
             percent, levels, charging = status[0], status[1], status[2]
+            if percent > 100:  # 0xFF: disabled or unknown, not a 255 % battery
+                return None
             if not percent:  # a device that only reports coarse levels
                 percent = next((p for bit, p in self.LEVEL_PERCENT if levels & bit), 0)
             return percent, charging in (1, 2, 3)
         index = self.feature(hidpp, slot, self.BATTERY_STATUS)
         if index is not None:
             status = hidpp.request(slot, index, 0)
-            if status is not None:
+            if status is not None and status[0] <= 100:  # 0xFF: unknown
                 return status[0], status[2] in (1, 2, 3)
         return None
 

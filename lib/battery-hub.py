@@ -140,7 +140,8 @@ class BatterySource(Protocol):
 
     def watch(self, changed) -> None:
         """Calls changed() whenever the batteries may have changed (Observer);
-        each source knows its own events, the module does not."""
+        each source knows its own events, the module does not. Optional: a
+        source without events is simply read on every redraw."""
 
 
 class UPowerSource:
@@ -199,11 +200,14 @@ class HeadsetControlSource:
             data = json.loads(out)
         except (subprocess.SubprocessError, ValueError):
             return []
+        # Its JSON as documented, or nothing: an old or odd version must not
+        # take the whole module down.
+        headsets = data.get("devices") if isinstance(data, dict) else None
         devices = []
-        for headset in data.get("devices", []):
-            battery = headset.get("battery", {})
-            level = battery.get("level", -1)
-            if level < 0:  # switched off or out of range
+        for headset in headsets if isinstance(headsets, list) else []:
+            battery = headset.get("battery") if isinstance(headset, dict) else None
+            level = battery.get("level") if isinstance(battery, dict) else None
+            if not isinstance(level, int) or level < 0:  # off, out of range, or unknown
                 continue
             devices.append(Device(headset.get("product", "Headset"), ICONS[17], level,
                                   battery.get("status") == "BATTERY_CHARGING"))
@@ -489,7 +493,7 @@ class Batteries:
     """Every source put together: one laptop at most, and the peripherals,
     lowest first, each listed once even if two sources report it."""
 
-    def __init__(self, sources):
+    def __init__(self, sources: list[BatterySource]):
         self.sources = sources
 
     def collect(self):
@@ -681,7 +685,7 @@ class BatteryHubModule(WaybarModule):
     (Observer: each source watches its own events) and when the view is
     toggled."""
 
-    def __init__(self, sources=None):
+    def __init__(self, sources: list[BatterySource] | None = None):
         super().__init__()
         self.sources = default_sources() if sources is None else list(sources)
         self._changed = None  # set once the sources watch; see events()

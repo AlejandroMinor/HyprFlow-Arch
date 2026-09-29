@@ -12,6 +12,7 @@ def glyphs(text):
 def test_parse_reads_a_raw_ascii_frame(cava):
     assert cava.parse("0 3 7 1 \n") == [0, 3, 7, 1]
     assert cava.parse("\n") == []
+    assert cava.parse("3 ² 5") == [3, 5]   # a digit int() cannot read is skipped
 
 
 def test_every_bar_is_drawn_even_at_zero(cava):

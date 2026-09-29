@@ -60,7 +60,7 @@ def render(heights, colors):
 
 def parse(line):
     """cava's raw ascii frame: heights separated by spaces."""
-    return [int(v) for v in line.split() if v.isdigit()]
+    return [int(v) for v in line.split() if v.isdecimal()]  # isdigit() takes "²", int() does not
 
 
 class CavaWaybar(WaybarModule):

@@ -17,7 +17,7 @@ def fake_system(camera, monkeypatch):
     """/dev with two cameras and a tty; /proc with three processes, one of
     them (1001) holding /dev/video0 open, one that vanished mid-scan."""
     dirs = {
-        "/dev": ["video0", "video1", "tty1", "null"],
+        "/dev": ["video0", "video1", "video", "videoctl", "tty1", "null"],
         "/proc": ["1", "1001", "2002", "self", "cpuinfo"],
         "/proc/1": None,                           # not ours: PermissionError
         "/proc/1001/fd": ["0", "1", "5"],
@@ -62,7 +62,7 @@ def test_no_camera_open(camera, fake_system):
 
 
 def test_state_active_shows_the_camera_icon(camera, fake_system):
-    state = camera.state()
+    state = camera.camera_state()
     assert state["class"] == "active"
     assert state["text"] == " "          # the icon the rewrite once lost
     assert "/dev/video0" in state["tooltip"]
@@ -72,7 +72,7 @@ def test_state_active_shows_the_camera_icon(camera, fake_system):
 def test_state_inactive_is_empty(camera, fake_system):
     _, links = fake_system
     del links["/proc/1001/fd/5"]
-    assert camera.state() == {"text": "", "class": "inactive"}
+    assert camera.camera_state() == {"text": "", "class": "inactive"}
 
 
 @pytest.mark.parametrize("mask, name", [

@@ -8,12 +8,13 @@ scanning every process every two seconds.
 
 import ctypes
 import os
+import re
 import struct
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hyprflow.waybar import WaybarModule  # noqa: E402
+from hyprflow.waybar import WaybarModule, libc  # noqa: E402
 
 IN_OPEN = 0x00000020
 IN_CLOSE_WRITE = 0x00000008
@@ -21,13 +22,18 @@ IN_CLOSE_NOWRITE = 0x00000010
 IN_ATTRIB = 0x00000004
 IN_CREATE = 0x00000100
 IN_DELETE = 0x00000200
+IN_CLOEXEC = 0o2000000  # not inherited by anything this process starts
 EVENT_HEADER = struct.Struct("iIII")
 
-libc = ctypes.CDLL("libc.so.6", use_errno=True)
+# The libc hyprflow.waybar already loaded, with the inotify calls typed.
+libc.inotify_init1.argtypes, libc.inotify_init1.restype = [ctypes.c_int], ctypes.c_int
+libc.inotify_add_watch.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_uint32]
+libc.inotify_add_watch.restype = ctypes.c_int
 
 
 def video_devices():
-    return {f"/dev/{d}" for d in os.listdir("/dev") if d.startswith("video")}
+    # video0, video1...: not /dev/video (a folder some setups have) or videoctl.
+    return {f"/dev/{d}" for d in os.listdir("/dev") if re.fullmatch(r"video\d+", d)}
 
 
 def check_camera():
@@ -51,7 +57,7 @@ def check_camera():
     return None
 
 
-def state():
+def camera_state():
     device = check_camera()
     if device:
         return {"text": "\uf03d ", "class": "active", "tooltip": f"Cámara en uso: {device}"}  # nf-fa-video_camera
@@ -87,10 +93,10 @@ def video_event(data):
 
 class CameraStatus(WaybarModule):
     def state(self):
-        return state()
+        return camera_state()
 
     def events(self):
-        fd = libc.inotify_init1(0)
+        fd = libc.inotify_init1(IN_CLOEXEC)
         if fd < 0:
             sys.exit("inotify is not available")
         watch(fd)

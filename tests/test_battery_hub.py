@@ -126,6 +126,19 @@ def test_headsetcontrol_missing_or_broken_gives_nothing(hub, monkeypatch):
     assert hub.HeadsetControlSource().read() == []
 
 
+@pytest.mark.parametrize("output", [
+    "[]",                                                     # not an object
+    '{"devices": {"product": "G733"}}',                       # devices not a list
+    '{"devices": ["G733"]}',                                  # a headset not an object
+    '{"devices": [{"product": "G733", "battery": {"level": null}}]}',  # level unknown
+    '{"devices": [{"product": "G733", "battery": "60"}]}',    # battery not an object
+])
+def test_headsetcontrol_odd_json_gives_nothing(hub, monkeypatch, output):
+    monkeypatch.setattr(hub.shutil, "which", lambda _: "/usr/bin/headsetcontrol")
+    monkeypatch.setattr(hub.subprocess, "run", lambda *a, **k: type("R", (), {"stdout": output})())
+    assert hub.HeadsetControlSource().read() == []
+
+
 # ---- Batteries ---------------------------------------------------------------
 
 def test_batteries_merge_sort_and_split_the_laptop(hub):

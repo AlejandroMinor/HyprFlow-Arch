@@ -94,3 +94,11 @@ def test_events_for_devices_and_the_server_only(mute, monkeypatch):
         "Event 'change' on client #33\n",
     ]))
     assert len(list(mute.MuteIndicator().events())) == 3
+
+
+def test_wpctl_calls_have_a_timeout(mute, monkeypatch):
+    seen = {}
+    monkeypatch.setattr(mute.subprocess, "run",
+                        lambda *a, **k: seen.update(k) or type("R", (), {"stdout": ""})())
+    mute.wpctl("get-volume", mute.SINK)
+    assert seen.get("timeout")

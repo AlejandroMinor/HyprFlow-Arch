@@ -17,7 +17,7 @@ CLIENTS = ("openconnect", "vpnc")
 
 
 def running(name):
-    return subprocess.run(["pgrep", "-x", name], capture_output=True).returncode == 0
+    return subprocess.run(["pgrep", "-x", name], capture_output=True, timeout=5).returncode == 0
 
 
 class VpnStatus(WaybarModule):

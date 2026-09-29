@@ -49,7 +49,10 @@ def die_with_parent():
 
 def lines(cmd):
     """Yields the output lines of a long running command, which dies with
-    this process too (an orphaned pactl would otherwise stay up)."""
+    this process too (an orphaned pactl would otherwise stay up).
+
+    preexec_fn is not safe in a process with threads: a module using this
+    must not start any (none does today)."""
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                           text=True, preexec_fn=die_with_parent) as proc:
         try:

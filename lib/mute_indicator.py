@@ -29,7 +29,8 @@ SPEAKER, SPEAKER_MUTED, MIC_MUTED = "󰕾", "󰖁", "󰍭"
 
 
 def wpctl(*args):
-    return subprocess.run(["wpctl", *args], capture_output=True, text=True).stdout
+    # A stuck PipeWire raises instead of freezing the icon; run() retries.
+    return subprocess.run(["wpctl", *args], capture_output=True, text=True, timeout=5).stdout
 
 
 def card_name(inspect_output):

@@ -201,6 +201,13 @@ subtitle_size=$hud_font
 subtitle_y=$(( art_y + $(scaled 12) ))
 title_y=$(( subtitle_y + $(scaled 44) ))
 
+# Temporary files next to the real ones (a rename stays on one filesystem),
+# unique since a wallpaper change can start two runs at once; gone on any exit.
+geometry_tmp="$(mktemp "$GEOMETRY_FILE.XXXXXX")"
+extras_tmp="$(mktemp "$EXTRAS_FILE.XXXXXX")"
+trap 'rm -f "$geometry_tmp" "$extras_tmp"' EXIT
+chmod 644 "$geometry_tmp" "$extras_tmp"  # mktemp makes them private; keep the usual mode
+
 {
     printf '%s\n' "$GENERATED_HEADER"
     printf '# Monitor: %s  %sx%s logical  ·  scale: %s\n\n' \
@@ -259,7 +266,7 @@ title_y=$(( subtitle_y + $(scaled 44) ))
         "title_y=$title_y" \
         "subtitle_size=$subtitle_size" \
         "subtitle_y=$subtitle_y"
-} >"$GEOMETRY_FILE"
+} >"$geometry_tmp"
 
 # Per-monitor: only the primary takes the backdrop with the band baked in. One
 # shared image would paint that band onto screens with no clock or bar, and a
@@ -282,6 +289,9 @@ EOF
     printf '}\n\n'
 }
 
+# Both files are written to a temporary one and renamed into place: hyprlock
+# sources them, and a half written file (a failure midway, a full disk) could
+# keep the lockscreen from starting at all. A rename swaps them whole.
 {
     printf '%s\n\n' "$GENERATED_HEADER"
     while IFS= read -r name; do
@@ -296,11 +306,11 @@ EOF
                 "brightness = 0.6"
         fi
     done <<<"$all_monitors"
-} >"$EXTRAS_FILE"
+} >"$extras_tmp"
 
 battery_script="$SCRIPT_DIR/battery.sh"
 if [ -x "$battery_script" ] && [ -n "$("$battery_script")" ]; then
-    cat >>"$EXTRAS_FILE" <<EOF
+    cat >>"$extras_tmp" <<EOF
 label {
     monitor = \$primary
     text = cmd[update:30000] $battery_script
@@ -313,3 +323,6 @@ label {
 }
 EOF
 fi
+
+mv -f "$geometry_tmp" "$GEOMETRY_FILE"
+mv -f "$extras_tmp" "$EXTRAS_FILE"

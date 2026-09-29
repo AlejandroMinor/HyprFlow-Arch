@@ -44,7 +44,7 @@ end, { description = "Mini Window (1200x800)" })
 --  GROUPS (Browser Mode)
 -- =======================================================
 
-hl.bind(mainMod .. " + G",         hl.dsp.submap("groupmode"), { description = "Enter Group Mode" })
+hl.bind(mainMod .. " + G",         function() toggle_submap("groupmode") end, { description = "Toggle Group Mode" })
 hl.bind(mainMod .. " + SHIFT + G", hl.dsp.group.toggle(), { description = "Toggle Group" })
 hl.bind("ALT + G",                 hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprland-group-all.sh"), { description = "Group All Windows in Workspace" })
 
@@ -87,6 +87,7 @@ hl.define_submap("groupmode", function()
         hl.bind("" .. i, hl.dsp.group.active({ index = i }), { description = "Jump to Tab" })
     end
 
+    hl.bind(mainMod .. " + G", hl.dsp.submap("reset"), { description = "Exit Group Mode" })
     hl.bind("escape", hl.dsp.submap("reset"), { description = "Exit Mode" })
 end)
 
@@ -103,7 +104,7 @@ hl.bind(mainMod .. " + SHIFT + Z", hl.dsp.window.move({ workspace = "special:mag
 --  SCREENSHOT SUBMAP
 -- =======================================================
 
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.submap("screenshot"), { description = "Screenshot" })
+hl.bind(mainMod .. " + SHIFT + S", function() toggle_submap("screenshot") end, { description = "Toggle Screenshot Mode" })
 
 hl.define_submap("screenshot", function()
     local out = "$HOME/Pictures/Screenshots/$(date '+%Y-%m-%d_%H-%M-%S').png"
@@ -139,6 +140,7 @@ hl.define_submap("screenshot", function()
         hl.dispatch(hl.dsp.exec_cmd("hyprshot -m output --clipboard-only"))
     end, { description = "Screen Screenshot → Clipboard" })
 
+    hl.bind(mainMod .. " + SHIFT + S", hl.dsp.submap("reset"), { description = "Exit Screenshot Mode" })
     hl.bind("escape", hl.dsp.submap("reset"), { description = "Exit Mode" })
 end)
 
@@ -200,7 +202,7 @@ hl.bind(mainMod .. " + CTRL + J",     hl.dsp.window.move({ x = 0,   y = 50,  rel
 --  WINCTL SUBMAP
 -- =======================================================
 
-hl.bind(mainMod .. " + R", hl.dsp.submap("winctl"), { description = "Window Control Mode" })
+hl.bind(mainMod .. " + R", function() toggle_submap("winctl") end, { description = "Toggle Window Control Mode" })
 
 hl.define_submap("winctl", function()
     -- Resize (relative delta)
@@ -244,7 +246,8 @@ hl.define_submap("winctl", function()
     hl.bind("f",         hl.dsp.window.fullscreen({ mode = "maximized" }),  { description = "Fullscreen" })
     hl.bind("SHIFT + f", hl.dsp.window.fullscreen({ mode = "fullscreen" }), { description = "Fullscreen (Absolute)" })
     hl.bind("c",         hl.dsp.window.center(),                            { description = "Center Floating Window" })
-    hl.bind("escape",    hl.dsp.submap("reset"),                            { description = "Exit Mode" })
+    hl.bind(mainMod .. " + R", hl.dsp.submap("reset"), { description = "Exit Window Control Mode" })
+    hl.bind("escape", hl.dsp.submap("reset"), { description = "Exit Mode" })
 end)
 
 

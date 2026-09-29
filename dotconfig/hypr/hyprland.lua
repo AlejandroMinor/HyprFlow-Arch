@@ -40,6 +40,29 @@ for _, ev in ipairs({ "monitor.added", "monitor.removed" }) do
 end
 
 
+-- Entering a mode says which one and how to leave. Global: keybindings.lua uses
+-- it. Not an hl.on hook, since keybinds.submap never fires on 0.56.2.
+SUBMAP_MODES = {
+    groupmode  = { icon = "preferences-desktop", key = "Super + G",         hint = "Group mode" },
+    screenshot = { icon = "camera-photo",        key = "Super + Shift + S", hint = "Screenshot mode" },
+    winctl     = { icon = "view-fullscreen",     key = "Super + R",         hint = "Window control mode" },
+}
+
+function toggle_submap(name)
+    local mode = SUBMAP_MODES[name]
+    if hl.get_current_submap() == name then
+        hl.dispatch(hl.dsp.submap("reset"))
+        return
+    end
+    hl.dispatch(hl.dsp.submap(name))
+    if mode then
+        hl.exec_cmd('notify-send -u low -i "' .. mode.icon .. '" "' .. mode.hint .. '" "Press ' .. mode.key .. ' again or Esc to exit"')
+        -- swaync ignores -t
+        hl.exec_cmd("sleep 1.5; swaync-client --close-latest")
+    end
+end
+
+
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------

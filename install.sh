@@ -364,35 +364,26 @@ copy_configs() {
     echo "󰆐 Copying configuration files..."
 
     # The repo ships starting copies of files that are generated on your
-    # machine afterwards; copying over them would undo that. Yours are kept:
-    #   - the wallust palette (wallust.toml targets), until the theme step
-    #     writes a new one anyway
-    #   - the monitor layout and Waybar bars, unless the monitors step is
-    #     about to regenerate them
+    # machine afterwards: the wallust palette and the monitor layout and
+    # Waybar bars (the theme and monitors steps write their own). Those are
+    # never written over, not even for a moment: Hyprland reloads on every
+    # config change, and a moment with the repo's generic monitors_active.lua
+    # switched every screen to it and back. A fresh machine still gets them.
     local generated=(
         hypr/colors.lua rofi/hyprflow/colors.rasi wlogout/colors.css cava/themes/wallust
+        hypr/monitors_active.lua waybar/config
     )
-    want monitors || generated+=(hypr/monitors_active.lua waybar/config)
 
-    local keep path
-    # Must exist: an empty $keep would turn the restore below into
-    # `cp -rf /. ~/.config`, the whole filesystem.
-    keep="$(mktemp -d)" && [ -d "$keep" ] || {
-        printf "\033[1;31m󰅙 Could not create a temporary folder; nothing was copied.\033[0m\n"
-        FAILED_STEPS+=("install.sh config|could not create a temporary folder")
-        return 1
-    }
+    local excludes=() path
+    for path in "${generated[@]}"; do excludes+=(--exclude="./$path"); done
+    # tar, not cp: it can leave paths out. Dotfiles included.
+    tar -C "$REPO_PATH/dotconfig" "${excludes[@]}" -cf - . | tar -C "$CONFIG_DEST" -xf -
+
     for path in "${generated[@]}"; do
-        if [ -f "$CONFIG_DEST/$path" ]; then
-            mkdir -p "$keep/$(dirname "$path")"
-            cp -f "$CONFIG_DEST/$path" "$keep/$path"
-        fi
+        [ -e "$CONFIG_DEST/$path" ] || [ ! -e "$REPO_PATH/dotconfig/$path" ] && continue
+        mkdir -p "$CONFIG_DEST/$(dirname "$path")"
+        cp -f "$REPO_PATH/dotconfig/$path" "$CONFIG_DEST/$path"
     done
-
-    cp -rf "$REPO_PATH/dotconfig"/. "$CONFIG_DEST/"   # /. takes dotfiles too
-
-    cp -rf "$keep"/. "$CONFIG_DEST/"
-    rm -rf "$keep"
 
     # qt5ct/qt6ct want the stylesheet as an absolute path; the repo says ~.
     local qt

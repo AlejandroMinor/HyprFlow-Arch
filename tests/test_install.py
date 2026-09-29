@@ -164,16 +164,6 @@ def test_a_failed_step_is_reported_not_passed_over(env):
     assert "~/.config/hypr/hyprlock/geometry.sh" in result.stdout.split("things left to do")[1]
 
 
-def test_config_stops_copying_when_it_cannot_make_a_temp_folder(env):
-    fake = Path(env["PATH"].split(":")[0]) / "mktemp"
-    fake.write_text("#!/bin/bash\nexit 1\n")
-    fake.chmod(0o755)
-    result = run(env, "config")
-    assert "Could not create a temporary folder" in result.stdout
-    assert not (Path(env["HOME"]) / ".config" / "hypr").exists()
-    assert "install.sh config" in result.stdout.split("things left to do")[1]
-
-
 def test_a_failed_reload_is_reported(env):
     env["FAKE_RELOAD_FAIL"] = "1"
     result = run(env, "config")
@@ -226,6 +216,18 @@ def test_config_keeps_what_was_generated_on_this_machine(env):
         (config / path).write_text("mine\n")
     run(env, "config")
     assert {p: (config / p).read_text() for p in GENERATED} == {p: "mine\n" for p in GENERATED}
+
+
+def test_config_never_writes_a_generated_file_even_for_a_moment(env):
+    # Hyprland reloads on every config change: a moment with the repo's generic
+    # monitors_active.lua in place switched every screen to it and back.
+    config = Path(env["HOME"]) / ".config"
+    for path in GENERATED:
+        (config / path).parent.mkdir(parents=True, exist_ok=True)
+        (config / path).write_text("mine\n")
+        os.utime(config / path, ns=(1_000_000_000, 1_000_000_000))
+    run(env, "config")
+    assert {p: (config / p).stat().st_mtime_ns for p in GENERATED} == {p: 1_000_000_000 for p in GENERATED}
 
 
 def test_a_fresh_config_gets_the_repo_starting_copies(env):

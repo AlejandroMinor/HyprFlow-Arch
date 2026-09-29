@@ -116,7 +116,7 @@ progress() {
     [ "$percent" -gt 100 ] && percent=100
     [ "$filled" -gt "$width" ] && filled=$width
     local empty=$(( width - filled ))
-    local filled_str="" empty_str=""
+    local filled_str="" empty_str="" i
     for ((i=0; i<filled; i++)); do filled_str+="█"; done
     for ((i=0; i<empty; i++)); do empty_str+="░"; done
     printf "\n\033[1;32m[%s\033[90m%s\033[1;32m]\033[0m \033[1m%3d%%\033[0m  \033[1;36m%s\033[0m\n\n" \
@@ -350,6 +350,7 @@ set_permissions() {
     # hyprlock-flow.sh is meant to be invoked directly.
     find "$REPO_PATH/dotconfig/hypr/hyprlock" -type f -name '*.sh' -exec chmod +x {} \; 2>/dev/null || true
 
+    local link target
     while IFS= read -r -d '' link; do
         target="$(readlink -f "$link" 2>/dev/null || true)"
         if [ -n "$target" ] && [ -f "$target" ]; then
@@ -374,7 +375,13 @@ copy_configs() {
     want monitors || generated+=(hypr/monitors_active.lua waybar/config)
 
     local keep path
-    keep="$(mktemp -d)"
+    # Must exist: an empty $keep would turn the restore below into
+    # `cp -rf /. ~/.config`, the whole filesystem.
+    keep="$(mktemp -d)" && [ -d "$keep" ] || {
+        printf "\033[1;31m󰅙 Could not create a temporary folder; nothing was copied.\033[0m\n"
+        FAILED_STEPS+=("install.sh config|could not create a temporary folder")
+        return 1
+    }
     for path in "${generated[@]}"; do
         if [ -f "$CONFIG_DEST/$path" ]; then
             mkdir -p "$keep/$(dirname "$path")"
@@ -382,7 +389,7 @@ copy_configs() {
         fi
     done
 
-    cp -rf "$REPO_PATH/dotconfig"/* "$CONFIG_DEST/"
+    cp -rf "$REPO_PATH/dotconfig"/. "$CONFIG_DEST/"   # /. takes dotfiles too
 
     cp -rf "$keep"/. "$CONFIG_DEST/"
     rm -rf "$keep"
@@ -511,11 +518,13 @@ setup_monitors() {
 
 reload_hyprland() {
     progress "RELOAD"
-    echo "󰑓 Reloading Hyprpm..."
-    hyprpm reload
+    if command -v hyprpm >/dev/null 2>&1; then
+        echo "󰑓 Reloading Hyprpm..."
+        run_or_warn "hyprpm reload" hyprpm reload
+    fi
 
     echo "󰑓 Reloading Hyprland..."
-    hyprctl reload
+    run_or_warn "hyprctl reload" hyprctl reload
 }
 
 setup_zsh() {

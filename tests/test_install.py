@@ -34,7 +34,9 @@ FAKES = {
     """,
     "sudo": 'exec "$@"',
     # No `version` answer: Hyprland "not running", so the plugin check skips.
-    "hyprctl": '[ "$1" = dispatch ] && echo ok; [ "$1" = version ] && exit 1; exit 0',
+    # FAKE_RELOAD_FAIL: Hyprland refuses the reload.
+    "hyprctl": '[ "$1" = dispatch ] && echo ok; [ "$1" = version ] && exit 1; '
+               '[ "$1" = reload ] && [ -n "${FAKE_RELOAD_FAIL:-}" ] && { echo "no socket" >&2; exit 1; }; exit 0',
     "hyprpm": "",
     "killall": "",
     "fc-cache": "",
@@ -160,6 +162,23 @@ def test_a_failed_step_is_reported_not_passed_over(env):
     assert "geometry.sh failed:" in result.stdout
     assert "Installation complete" not in result.stdout and "Done." not in result.stdout
     assert "~/.config/hypr/hyprlock/geometry.sh" in result.stdout.split("things left to do")[1]
+
+
+def test_config_stops_copying_when_it_cannot_make_a_temp_folder(env):
+    fake = Path(env["PATH"].split(":")[0]) / "mktemp"
+    fake.write_text("#!/bin/bash\nexit 1\n")
+    fake.chmod(0o755)
+    result = run(env, "config")
+    assert "Could not create a temporary folder" in result.stdout
+    assert not (Path(env["HOME"]) / ".config" / "hypr").exists()
+    assert "install.sh config" in result.stdout.split("things left to do")[1]
+
+
+def test_a_failed_reload_is_reported(env):
+    env["FAKE_RELOAD_FAIL"] = "1"
+    result = run(env, "config")
+    assert "hyprctl failed: no socket" in result.stdout
+    assert "hyprctl reload" in result.stdout.split("things left to do")[1]
 
 
 def test_config_links_bin_on_path_and_lib_off_it(env):

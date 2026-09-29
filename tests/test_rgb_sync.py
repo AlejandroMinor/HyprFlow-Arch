@@ -84,6 +84,19 @@ def test_last_reuses_the_cached_colour(rgb):
     assert run("--last") == "D6FF00"
 
 
+@pytest.mark.parametrize("cached", ["", "zzz\n", "12345\n"])
+def test_last_with_an_empty_or_damaged_cache_takes_the_palette(rgb, cached):
+    run, root = rgb
+    (root / ".cache/wallust/led-color").write_text(cached)
+    assert run("--last", palette={"color5": "#778D01"}) == "D6FF00"
+
+
+def test_a_palette_with_bad_entries_skips_them(rgb):
+    run, root = rgb
+    # A hand written wallust template with a short or missing colour.
+    assert run(palette={"color5": "#777777", "color9": "#12", "color12": "#E02010"}) == "FF1300"
+
+
 def test_without_openrgb_it_does_nothing(rgb):
     run, root = rgb
     # An empty PATH: /bin is /usr/bin on Arch, so leaving it in would find the

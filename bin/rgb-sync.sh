@@ -55,12 +55,20 @@ print("%02X%02X%02X" % (round(r * 255), round(g * 255), round(b * 255)))
 EOF
 }
 
-# Sets r g b max min from a #RRGGBB colour.
+# Whether $1 is a colour this script can use: RRGGBB, with or without a #.
+is_hex() {
+    [[ ${1#\#} =~ ^[0-9A-Fa-f]{6}$ ]]
+}
+
+# Sets r g b max min from a #RRGGBB colour; fails, setting nothing, on anything
+# else. Globals on purpose: the callers read all five right after.
 split() {
+    is_hex "$1" || return 1
     local hex="${1#\#}"
     r=$((16#${hex:0:2})) g=$((16#${hex:2:2})) b=$((16#${hex:4:2}))
     max=$r; (( g > max )) && max=$g; (( b > max )) && max=$b
     min=$r; (( g < min )) && min=$g; (( b < min )) && min=$b
+    return 0
 }
 
 # Prints the LED colour for the wallust palette: color5 (the accent, as on the
@@ -69,12 +77,12 @@ split() {
 palette_colour() {
     load_palette || return 1
 
-    split "$color5"
+    split "$color5" || return 1
     if (( max == 0 || (max - min) * 100 < max * 30 )); then
         local best="$color5" best_chroma=$(( max - min )) i var
         for i in {1..15}; do
             var="color$i"
-            split "${!var}"
+            split "${!var}" || continue
             (( max - min > best_chroma )) && best="${!var}" best_chroma=$(( max - min ))
         done
         split "$best"
@@ -134,7 +142,8 @@ case "$1" in
 esac
 
 case "$1" in
-    --last) led=$(cat "$LAST" 2>/dev/null) || led=$(palette_colour) ;;
+    # An empty or damaged cache (a crash mid write) falls back to the palette.
+    --last) led=$(cat "$LAST" 2>/dev/null); is_hex "$led" || led=$(palette_colour) ;;
     "")     led=$(palette_colour) ;;
     *)      led=$(dominant_hue "$1") || led=$(palette_colour) ;;
 esac
@@ -142,7 +151,7 @@ esac
 
 # Cached before the server check, so a session start that finds the server
 # still scanning can re-apply it later with --last.
-echo "$led" > "$LAST"
+mkdir -p "$(dirname "$LAST")" && echo "$led" > "$LAST"
 
 (exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
 openrgb -m static -c "$led" >/dev/null 2>&1

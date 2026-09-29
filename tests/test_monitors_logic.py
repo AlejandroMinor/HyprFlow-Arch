@@ -150,3 +150,15 @@ def test_setup_wizard_survives_bad_answers(mons, tmp_path, monkeypatch):
     assert [(e["description"], e["scale"], e["primary"]) for e in saved] == [
         ("NZXT Canvas 27Q", 1.0, True), ("AOC 24B3HM", 1.0, False)]
     assert saved[1]["mirror"] == "NZXT Canvas 27Q"
+
+
+def test_setup_without_a_terminal_says_so(mons, monkeypatch):
+    def no_tty(*a, **k):
+        raise OSError("no tty")
+    monkeypatch.setattr("builtins.open", no_tty)
+    with pytest.raises(mons.Stop, match="from a terminal"):
+        mons.cmd_setup()
+
+
+def test_the_apply_lock_is_per_user(mons):
+    assert mons.LOCK.parent == mons.paths.HYPRFLOW_RUNTIME

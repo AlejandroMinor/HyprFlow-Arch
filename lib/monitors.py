@@ -23,6 +23,7 @@ import fcntl
 import json
 import math
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -43,7 +44,7 @@ ACTIVE_LUA = HYPR / "monitors_active.lua"
 WAYBAR_CONFIG = WAYBAR / "config"
 BARS_TEMPLATE = WAYBAR / "bars.json"
 GAME_MODE_STATE = paths.HYPRFLOW_STATE / "game-mode"
-LOCK = Path("/tmp/monitors-apply.lock")
+LOCK = paths.HYPRFLOW_RUNTIME / "monitors-apply.lock"  # per user, not a shared /tmp
 LOCK_WAIT = 30  # seconds
 
 USAGE = ("usage: monitors.sh [list|setup|apply|mirror [on [MONITOR]|off|toggle]|"
@@ -388,21 +389,24 @@ def apply(profile=None):
 
     if lua_changed:
         msg("layout changed; reloading Hyprland…")
-        subprocess.run(["hyprctl", "reload"], capture_output=True)
+        hyprctl.reload()
         # A monitor switched back on comes up without its wallpaper, and the
         # monitors must be on to take their workspaces back: both a moment
         # later, detached.
-        subprocess.Popen(["sh", "-c", "sleep 1; command -v awww >/dev/null && awww restore"],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-        subprocess.Popen([sys.executable, __file__, "_restore-workspaces"],
+        subprocess.Popen([sys.executable, __file__, "_after-reload"],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
 
     # game-mode.sh hides Waybar and brings it back itself when it ends.
     if GAME_MODE_STATE.exists():
         msg("game mode on: leaving Waybar hidden")
     elif bars_changed or not waybar_running():
-        subprocess.run([str(LIB / "waybar-restart.sh")])
-        msg("Waybar (re)started")
+        try:
+            # Its own lock and wait take seconds at most; a hang must not
+            # keep the apply lock held.
+            subprocess.run([str(LIB / "waybar-restart.sh")], timeout=30)
+            msg("Waybar (re)started")
+        except subprocess.TimeoutExpired:
+            warn("Waybar did not restart in time")
 
     if not lua_changed and not bars_changed:
         msg("no changes")
@@ -514,7 +518,13 @@ def pick(tty, prompt, count, default):
 
 
 def cmd_setup(tty=None):
-    tty = tty or Tty(open("/dev/tty"))
+    if tty is None:
+        try:
+            stream = open("/dev/tty")
+        except OSError:
+            raise Stop("setup asks questions: run it from a terminal") from None
+        with stream:
+            return cmd_setup(Tty(stream))
     detected = detect()
     if not detected:
         raise Stop("no monitors detected")
@@ -631,8 +641,10 @@ def main(argv):
             cmd_list()
         elif command == "setup":
             cmd_setup()
-        elif command == "_restore-workspaces":
+        elif command == "_after-reload":
             time.sleep(1)
+            if shutil.which("awww"):
+                subprocess.run(["awww", "restore"], capture_output=True, timeout=10)
             restore_workspaces()
         elif command in ("apply", "mirror", "solo"):
             with take_lock():

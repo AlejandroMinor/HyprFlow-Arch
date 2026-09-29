@@ -19,6 +19,11 @@ def _run(*args):
     return (result.stdout or result.stderr).strip()
 
 
+def reload():
+    """Reloads Hyprland's config; hyprctl's answer."""
+    return _run("reload")
+
+
 def dispatch(expr):
     """Runs a Lua dispatch, e.g. dispatch("hl.dsp.exit()"); hyprctl's answer."""
     return _run("dispatch", expr)

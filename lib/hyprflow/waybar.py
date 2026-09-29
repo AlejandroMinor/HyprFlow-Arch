@@ -52,7 +52,13 @@ def lines(cmd):
     this process too (an orphaned pactl would otherwise stay up)."""
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                           text=True, preexec_fn=die_with_parent) as proc:
-        yield from proc.stdout
+        try:
+            yield from proc.stdout
+        finally:
+            # Left early (the module's state() failed): stop the command now.
+            # Otherwise closing waits for it to exit, and a quiet one (pactl
+            # subscribe) holds the module until its next event.
+            proc.terminate()
 
 
 def log_error(message):

@@ -108,3 +108,11 @@ def test_run_exits_if_waybar_is_already_gone(waybar_module, monkeypatch, capsys)
 
 def test_lines_streams_a_commands_output(waybar_module):
     assert list(waybar_module.lines(["printf", "one\\ntwo\\n"])) == ["one\n", "two\n"]
+
+
+def test_lines_left_early_stops_its_command_at_once(waybar_module):
+    import time as real_time
+    started = real_time.monotonic()
+    for _ in waybar_module.lines(["bash", "-c", "echo first; sleep 30"]):
+        break   # as when state() fails mid stream
+    assert real_time.monotonic() - started < 5

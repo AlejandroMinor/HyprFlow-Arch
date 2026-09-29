@@ -529,3 +529,47 @@ def test_the_module_lets_every_source_watch_its_own_events(hub, monkeypatch):
         "Ctx", (), {"iteration": lambda self, block: watched[0]()})())
     next(events)
     assert len(watched) == 1
+
+
+def test_the_watches_are_set_up_once_even_when_events_restarts(hub, monkeypatch):
+    watched, signals = [], []
+
+    class Watching(FakeSource):
+        def watch(self, changed):
+            watched.append(changed)
+
+    def iteration(self, block):
+        assert len(watched) < 5, "a watch was set up again"
+        watched[-1]()                # an event from the newest watch
+
+    monkeypatch.setattr(hub.GLibUnix, "signal_add", lambda *a: signals.append(a))
+    monkeypatch.setattr(hub.GLib.MainContext, "default", lambda: type("Ctx", (), {"iteration": iteration})())
+    module = hub.BatteryHubModule(sources=[Watching([])])
+    next(module.events())
+    next(module.events())        # run() starting it again after an error
+    assert len(watched) == 1 and len(signals) == 1
+
+
+def test_modules_do_not_share_their_default_sources(hub):
+    first, second = hub.BatteryHubModule(), hub.BatteryHubModule()
+    assert all(a is not b for a, b in zip(first.sources, second.sources))
+
+
+@pytest.fixture
+def timers(hub, monkeypatch):
+    added = []
+    monkeypatch.setattr(hub.GLib, "timeout_add_seconds", lambda s, f, *a: added.append((s, f)))
+    return added
+
+
+def test_hidpp_without_a_receiver_keeps_looking_for_one(hub, timers, tmp_path):
+    source = hub.HidppSource(sysfs=tmp_path)          # no hidraw at all
+    source.watch(lambda *a: True)
+    assert (source.REWATCH, source.relisten) in timers
+
+
+def test_hidpp_a_reading_held_back_before_the_watch_is_rechecked(hub, timers, tmp_path):
+    source = hub.HidppSource(sysfs=tmp_path)
+    source.recheck = True                             # the first read held one back
+    source.watch(lambda *a: True)
+    assert (source.CONFIRM_DELAY, source.refresh) in timers

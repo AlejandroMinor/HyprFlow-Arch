@@ -269,6 +269,7 @@ class HidppSource:
     SLOW = 0.2         # seconds; an awake device answers in tens of milliseconds
     DROP = 20          # points; a real battery does not lose this many between polls
     BUDGET = 3.0       # seconds for a whole sweep; sleeping devices can take one each
+    REWATCH = 5        # seconds between looks for a receiver that is not plugged in
 
     def __init__(self, sysfs="/sys/class/hidraw", clock=time.monotonic):
         self.sysfs = Path(sysfs)
@@ -343,22 +344,34 @@ class HidppSource:
         """The receiver's own reports as events: a device connecting or a
         battery changing triggers a read a moment later. Polled every
         HIDPP_POLL seconds as a fallback."""
-        node = self.node()
-        if node is None:
-            return
         self.changed = changed
         GLib.timeout_add_seconds(HIDPP_POLL, changed)
+        if self.recheck:  # the first read, done before this, held one back
+            GLib.timeout_add_seconds(self.CONFIRM_DELAY, self.refresh)
+        self.listen()
+
+    def listen(self):
+        """Watches the receiver's reports. Without a receiver (not plugged in
+        yet, or just unplugged) it looks again every REWATCH seconds, so a
+        replugged one is heard again, not only at the next poll."""
+        node = self.node()
         try:
-            fd = os.open(node, os.O_RDONLY | os.O_NONBLOCK)
+            fd = os.open(node, os.O_RDONLY | os.O_NONBLOCK) if node else None
         except OSError:
-            return
+            fd = None
+        if fd is None:
+            GLib.timeout_add_seconds(self.REWATCH, self.relisten)
+            return False
 
         def on_report(*_):
             try:
                 report = os.read(fd, 20)
             except BlockingIOError:
                 return True
-            except OSError:  # receiver unplugged
+            except OSError:  # receiver unplugged: let go of it, then look again
+                os.close(fd)
+                self.refresh()
+                GLib.timeout_add_seconds(self.REWATCH, self.relisten)
                 return False
             delay = self.refresh_delay(report)
             if delay is not None:
@@ -367,6 +380,14 @@ class HidppSource:
 
         GLib.io_add_watch(GLib.IOChannel.unix_new(fd), GLib.PRIORITY_DEFAULT,
                           GLib.IOCondition.IN | GLib.IOCondition.HUP, on_report)
+        return True
+
+    def relisten(self):
+        """A one shot GLib callback: listen again, and read the receiver at
+        once when it is back."""
+        if self.listen():
+            self.refresh()
+        return False
 
     def devices(self, hidpp):
         """Every paired device. One that is paired but does not answer this
@@ -650,7 +671,9 @@ class ViewState:
         subprocess.run(["pkill", "-USR1", "-f", r"battery-hub\.py$"])
 
 
-SOURCES = [UPowerSource(), HeadsetControlSource(), HidppSource()]
+def default_sources():
+    """A fresh set: sources keep state (caches, a receiver's fd)."""
+    return [UPowerSource(), HeadsetControlSource(), HidppSource()]
 
 
 class BatteryHubModule(WaybarModule):
@@ -658,9 +681,10 @@ class BatteryHubModule(WaybarModule):
     (Observer: each source watches its own events) and when the view is
     toggled."""
 
-    def __init__(self, sources=SOURCES):
+    def __init__(self, sources=None):
         super().__init__()
-        self.sources = sources
+        self.sources = default_sources() if sources is None else list(sources)
+        self._changed = None  # set once the sources watch; see events()
         self.notifier = LowBatteryNotifier()
 
     def state(self):
@@ -669,17 +693,21 @@ class BatteryHubModule(WaybarModule):
         return BatteryHub(laptop, peripherals, ViewState().expanded, Palette()).render()
 
     def events(self):
-        changed = []
+        # run() calls this again after an error. The watches live in GLib's
+        # loop, not here, so they are set up once; a second set would pile up.
+        if self._changed is None:
+            self._changed = changed = []
 
-        def mark(*_):
-            changed.append(True)
-            return True  # keep GLib timers and signal handlers installed
+            def mark(*_):
+                changed.append(True)
+                return True  # keep GLib timers and signal handlers installed
 
-        for source in self.sources:
-            watch = getattr(source, "watch", None)
-            if watch:
-                watch(mark)
-        GLibUnix.signal_add(GLib.PRIORITY_DEFAULT, signal.SIGUSR1, mark)  # --toggle
+            for source in self.sources:
+                watch = getattr(source, "watch", None)
+                if watch:
+                    watch(mark)
+            GLibUnix.signal_add(GLib.PRIORITY_DEFAULT, signal.SIGUSR1, mark)  # --toggle
+        changed = self._changed
         context = GLib.MainContext.default()
         while True:
             context.iteration(True)

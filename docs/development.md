@@ -6,8 +6,8 @@
 - `lib/`: what only Waybar, the keybindings or other scripts call, linked into
   `~/.local/lib/hyprflow` (off PATH). Shared code lives here too:
   - `lib/hyprflow/` (Python): `paths`, `hyprland` (a facade over Hyprland),
-    `notify`, `palette`, `lock` (one copy at a time) and `waybar`
-    (`WaybarModule`).
+    `notify`, `palette`, `lock` (one copy at a time), `menu` (rofi) and
+    `waybar` (`WaybarModule`).
   - `lib/common.sh` (Bash): `msg`, `warn`, `notify`, `load_palette`, and where
     `bin/` and `lib/` are.
 - `dotconfig/`: copied into `~/.config` by `install.sh config`.
@@ -24,6 +24,10 @@
   `Layouts`, asks through a `Menu` (rofi today), and `main()` wires them.
 - **Repository**: monitors.py keeps profiles behind `Profiles`; the layout
   logic is pure functions.
+- **Command**: each quick action is an `Action` (label, state, what to run);
+  the Super+K menu only lists them, so a new one is one more entry.
+- **Strategy, shared**: `hyprflow.menu` is the one rofi menu both
+  session-manager and quick-actions ask through.
 - **Facade**: `hyprflow.hyprland` is the one way to talk to Hyprland (through
   its `hyprctl` command and event socket); every failure comes out as
   `HyprlandError`, an `OSError`.

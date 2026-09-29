@@ -103,3 +103,19 @@ def test_without_openrgb_it_does_nothing(rgb):
     # real openrgb and repaint the real LEDs.
     (root / "empty").mkdir()
     assert run(palette={"color5": "#778D01"}, path=str(root / "empty")) is None
+
+
+def test_toggle_switches_off_then_back_to_the_last_colour(rgb):
+    run, root = rgb
+    run(palette={"color5": "#778D01"})                   # the theme colour, cached
+    marker = root / ".cache/wallust/led-off"
+    run("--toggle")
+    assert marker.exists()                               # off
+    assert run("--toggle") == "D6FF00" and not marker.exists()   # back, same colour
+
+
+def test_a_new_colour_clears_the_off_mark(rgb):
+    run, root = rgb
+    run("--off")
+    run(palette={"color5": "#778D01"})                   # a theme change turns them on
+    assert not (root / ".cache/wallust/led-off").exists()

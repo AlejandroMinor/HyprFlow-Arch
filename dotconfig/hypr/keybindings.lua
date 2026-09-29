@@ -153,6 +153,7 @@ hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("swaync-client -t"),         
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -C"),          { description = "Clear Notifications" })
 hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("killall -SIGUSR1 waybar"),   { description = "Show / Hide Bar" })
 hl.bind(mainMod .. " + A",         hl.dsp.window.bring_to_top(),                 { description = "Bring to Front" })
+hl.bind(mainMod .. " + K",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/quick-actions.py"), { description = "Quick Actions (screens, game mode, lights, theme)" })
 
 
 -- =======================================================

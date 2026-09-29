@@ -13,7 +13,7 @@ waits in the load menu until you want it.
 Layout: the pure parts (what to save, how to describe a layout, where a
 window goes back to) are functions of their inputs. Layouts is a Repository,
 the only code that knows layouts are JSON files. Menu is a Strategy for asking
-the user, RofiMenu today (a GTK one would slot in without touching the rest),
+the user (hyprflow.menu), RofiMenu today (a GTK one would slot in without touching the rest),
 and Desktop adapts hyprctl. SessionManager runs save, logout and load on top
 of them, so each flow is tested with fakes.
 """
@@ -23,19 +23,16 @@ import json
 import subprocess
 import sys
 import time
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hyprflow import hyprland, notify as notifications, paths  # noqa: E402
+from hyprflow.menu import RofiMenu  # noqa: E402
 
 TEMPLATES = paths.CONFIG / "hypr" / "templates"
 LAST = "default"                      # what logout writes; shown as "Last session"
 IGNORED = {"waybar", "rofi", "swaync", ""}
-THEME = paths.CONFIG / "rofi" / "hyprflow" / "list.rasi"
 WAIT = 5.0                            # seconds a relaunched app gets to show its window
-MENU_TIMEOUT = 300                    # seconds; a menu left open longer counts as dismissed
 
 
 # ── pure ──────────────────────────────────────────────────────────────────
@@ -170,51 +167,6 @@ class Layouts:
 
     def delete(self, name):
         self.path(name).unlink(missing_ok=True)
-
-
-# ── asking the user (Strategy) ────────────────────────────────────────────
-
-@dataclass
-class Choice:
-    index: int
-    delete: bool = False  # Alt+D rather than Enter
-
-
-class Menu(Protocol):
-    def pick(self, prompt: str, rows: list[str], hint: str) -> Choice | None:
-        """A row from a list of layouts, or None when dismissed."""
-
-    def ask(self, prompt: str, options: list[str], hint: str = "") -> str | None:
-        """Typed text or a chosen option, or None when dismissed."""
-
-
-class RofiMenu:
-    """Menu on rofi, with the hyprflow list theme."""
-
-    def run(self, prompt, rows, hint="", extra=()):
-        cmd = ["rofi", "-dmenu", "-i", "-p", prompt, "-theme", str(THEME),
-               "-theme-str", f"window {{ width: 820px; }} listview {{ lines: {min(max(len(rows), 1), 8)}; }}"]
-        if hint:
-            cmd += ["-mesg", hint]
-        try:
-            # A stuck rofi keeps its keyboard grab: give up on it eventually,
-            # as if the menu had been dismissed.
-            result = subprocess.run([*cmd, *extra], input="\n".join(rows), text=True,
-                                    capture_output=True, timeout=MENU_TIMEOUT)
-        except subprocess.TimeoutExpired:
-            return 1, ""
-        return result.returncode, result.stdout.strip()
-
-    def pick(self, prompt, rows, hint):
-        code, index = self.run(prompt, rows, hint,
-                               ["-markup-rows", "-format", "i", "-kb-custom-1", "Alt+d"])
-        if code not in (0, 10) or not index.isdigit():
-            return None
-        return Choice(int(index), delete=code == 10)
-
-    def ask(self, prompt, options, hint=""):
-        code, text = self.run(prompt, options, hint)
-        return text if code == 0 and text else None
 
 
 # ── the running session (Adapter over hyprctl) ────────────────────────────

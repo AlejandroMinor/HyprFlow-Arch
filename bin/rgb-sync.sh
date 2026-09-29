@@ -8,6 +8,7 @@
 #   rgb-sync.sh --last  re-apply the last colour sent (session start)
 #   rgb-sync.sh --reset back to the factory rainbow; --last undoes it
 #   rgb-sync.sh --off   every LED off (game mode); --last undoes it
+#   rgb-sync.sh --toggle  --off, or --last when they are off already
 #
 # Talks to the OpenRGB server on localhost (openrgb.service, see
 # system/openrgb.service.d/). Without it the CLI rescans the hardware on every
@@ -17,6 +18,7 @@
 # shellcheck source=../lib/common.sh
 . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
 LAST="$HOME/.cache/wallust/led-color"
+LIGHTS_OFF="$HOME/.cache/wallust/led-off"  # there while --off holds
 
 # Prints the hue covering the most area among saturated, lit pixels, at full
 # saturation and value. Area beats wallust's palette here: the palette is
@@ -134,8 +136,14 @@ lights_off() {
 
 command -v openrgb >/dev/null 2>&1 || exit 0
 
+if [ "${1:-}" = "--toggle" ]; then
+    if [ -e "$LIGHTS_OFF" ]; then set -- --last; else set -- --off; fi
+fi
+
 case "$1" in
     --reset|--off)
+        # Like the colour cache below, marked before the server check.
+        [ "$1" = "--off" ] && mkdir -p "$(dirname "$LIGHTS_OFF")" && : > "$LIGHTS_OFF"
         (exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
         if [ "$1" = "--reset" ]; then reset_to_factory; else lights_off; fi
         exit 0 ;;
@@ -152,6 +160,7 @@ esac
 # Cached before the server check, so a session start that finds the server
 # still scanning can re-apply it later with --last.
 mkdir -p "$(dirname "$LAST")" && echo "$led" > "$LAST"
+rm -f "$LIGHTS_OFF"
 
 (exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
 openrgb -m static -c "$led" >/dev/null 2>&1

@@ -152,3 +152,41 @@ def test_single_instance_lets_one_copy_run(tmp_path):
     first.wait()
     assert second.returncode == 0 and second.stdout == ""   # left quietly, never ran
     assert (tmp_path / "helper.lock").exists()
+
+
+def rofi_answers(monkeypatch, code, out, seen=None):
+    from hyprflow import menu
+
+    def run(cmd, **kwargs):
+        if seen is not None:
+            seen.append(cmd)
+        return type("R", (), {"returncode": code, "stdout": out})()
+    monkeypatch.setattr(menu.subprocess, "run", run)
+    return menu
+
+
+def test_menu_choose_gives_the_row_index(monkeypatch):
+    seen = []
+    menu = rofi_answers(monkeypatch, 0, "2\n", seen)
+    assert menu.RofiMenu(width=500).choose("Actions", ["a", "b", "c"]) == 2
+    assert "window { width: 500px; }" in " ".join(seen[0])
+
+
+def test_menu_choose_dismissed_is_none(monkeypatch):
+    menu = rofi_answers(monkeypatch, 1, "")
+    assert menu.RofiMenu().choose("Actions", ["a"]) is None
+
+
+def test_menu_pick_tells_delete_from_enter(monkeypatch):
+    menu = rofi_answers(monkeypatch, 10, "1")
+    assert menu.RofiMenu().pick("Layout", ["a", "b"], "") == menu.Choice(1, delete=True)
+
+
+def test_a_stuck_rofi_counts_as_dismissed(monkeypatch):
+    import subprocess
+    from hyprflow import menu
+
+    def stuck(*a, **k):
+        raise subprocess.TimeoutExpired(a[0], k.get("timeout"))
+    monkeypatch.setattr(menu.subprocess, "run", stuck)
+    assert menu.RofiMenu().choose("Load", ["a", "b"]) is None

@@ -3,12 +3,12 @@ dicts, plus the menu over a temp layouts folder."""
 
 import json
 import os
-import subprocess
 import time
-
 from pathlib import Path
 
 import pytest
+
+from hyprflow.menu import Choice
 
 MONITORS = [
     {"id": 0, "name": "HDMI-A-1", "x": 0, "y": 0},
@@ -144,13 +144,6 @@ def test_a_layout_deleted_while_listing_is_skipped(session, tmp_path, monkeypatc
     assert session.Layouts(tmp_path).names() == ["kept"]
 
 
-def test_a_stuck_rofi_counts_as_dismissed(session, monkeypatch):
-    def stuck(*a, **k):
-        raise subprocess.TimeoutExpired(a[0], k.get("timeout"))
-    monkeypatch.setattr(session.subprocess, "run", stuck)
-    assert session.RofiMenu().run("Load", ["a", "b"]) == (1, "")
-
-
 def test_layouts_save_exists_and_delete(session, tmp_path):
     layouts = session.Layouts(tmp_path / "templates")
     assert not layouts.exists("work")
@@ -248,7 +241,7 @@ def test_logout_saves_the_last_session_and_exits(flow):
 def test_load_reopens_the_picked_layout(flow, session):
     build, layouts, notes = flow
     layouts.save("work", [{"class": "kitty", "workspace": 1}, {"class": "zen", "workspace": 2}])
-    manager, _, desktop = build(session.Choice(0))
+    manager, _, desktop = build(Choice(0))
     manager.load()
     assert desktop.reopened == ["kitty", "zen"]
     assert notes == ["'work': 2 of 2 windows back"]
@@ -257,7 +250,7 @@ def test_load_reopens_the_picked_layout(flow, session):
 def test_load_names_what_did_not_open(flow, session):
     build, layouts, notes = flow
     layouts.save("work", [{"class": "kitty", "workspace": 1}])
-    manager, _, _ = build(session.Choice(0), opens=False)
+    manager, _, _ = build(Choice(0), opens=False)
     manager.load()
     assert notes == ["'work': 0 of 1 windows back\nDid not open: kitty"]
 
@@ -266,7 +259,7 @@ def test_alt_d_deletes_and_shows_the_list_again(flow, session):
     build, layouts, notes = flow
     layouts.save("old", [])
     layouts.save("new", [])
-    manager, menu, desktop = build(session.Choice(0, delete=True), None)
+    manager, menu, desktop = build(Choice(0, delete=True), None)
     manager.load()
     assert layouts.names() == ["old"] and desktop.reopened == []
     assert len(menu.asked) == 2                                  # the list came back once

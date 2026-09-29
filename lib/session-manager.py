@@ -118,7 +118,8 @@ def placement(entry, monitors, address):
     target = "special:magic" if ws < 0 else ws
     win = f"window='address:{address}'"
     calls = [f"hl.dsp.window.move({{workspace='{target}', follow=false, {win}}})"]
-    if entry.get("floating"):
+    # Where it floated, if the layout says; without it the window just tiles.
+    if entry.get("floating") and "at" in entry and "size" in entry:
         mon = next((m for m in monitors if m["name"] == entry.get("monitor")), monitors[0] if monitors else None)
         x = entry["at"][0] + (mon["x"] if mon else 0)
         y = entry["at"][1] + (mon["y"] if mon else 0)
@@ -251,7 +252,7 @@ class Desktop:
             time.sleep(0.25)
             address = next((c["address"] for c in self.query("clients")
                             if c["address"] not in before
-                            and c.get("initialClass") == entry["initialClass"]), None)
+                            and c.get("initialClass") == entry.get("initialClass", entry["class"])), None)
             if address:
                 for expr in placement(entry, monitors, address):
                     self.dispatch(expr)

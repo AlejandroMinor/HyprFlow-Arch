@@ -133,6 +133,12 @@ def logical_width(entry):
     return int(side / scale_of(entry["scale"]))
 
 
+def area(resolution):
+    """Pixels in a "WxH" resolution."""
+    w, h = resolution.split("x")
+    return int(w) * int(h)
+
+
 def mirrorize(profile, source, detected):
     """Every monitor clones `source`, at the largest resolution they all offer,
     each at the refresh rate closest to the one it had."""
@@ -151,7 +157,7 @@ def mirrorize(profile, source, detected):
         for resolutions in per_monitor[1:]:
             shared = [r for r in shared if r in resolutions]
         if shared:
-            common = max(shared, key=lambda r: [int(v) for v in r.split("x")][0] * int(r.split("x")[1]))
+            common = max(shared, key=area)
     mirrored = []
     for entry in profile:
         entry = dict(entry)
@@ -169,6 +175,18 @@ def mirrorize(profile, source, detected):
             entry["mirror"] = source
         mirrored.append(entry)
     return mirrored
+
+
+def read_solo():
+    """Solo mode's state ({"entry": ..., "sig": ...}), or None when it is off
+    or the file is unreadable (then solo simply counts as off)."""
+    try:
+        state = json.loads(SOLO_STATE.read_text())
+    except (OSError, ValueError):
+        return None
+    ok = isinstance(state, dict) and isinstance(state.get("entry"), dict) \
+        and "description" in state["entry"] and isinstance(state.get("sig"), str)
+    return state if ok else None
 
 
 def solo_profile(detected, entry):
@@ -245,11 +263,8 @@ def resolution_choices(monitor):
         res, _, rate = no_hz(mode).partition("@")
         rate = re.sub(r"\.0+$", "", rate)
         rates.setdefault(res, [])
-        if rate not in rates[res]:
+        if rate and rate not in rates[res]:  # "1920x1080" alone offers no rate to pick
             rates[res].append(rate)
-    def area(res):
-        w, h = res.split("x")
-        return int(w) * int(h)
     return [(res, sorted(r, key=float, reverse=True))
             for res, r in sorted(rates.items(), key=lambda item: area(item[0]), reverse=True)]
 
@@ -358,11 +373,8 @@ def apply(profile=None):
     # Solo is a state, not a profile: a switched off DisplayPort monitor
     # reports itself disconnected once asleep, which changes the set; keyed on
     # the set, solo would fall back and wake everything up.
-    if profile is None and SOLO_STATE.exists():
-        try:
-            state = json.loads(SOLO_STATE.read_text())
-        except ValueError:
-            state = None
+    if profile is None:
+        state = read_solo()
         if state and any(m["description"] == state["entry"]["description"] for m in detected):
             profile = solo_profile(detected, state["entry"])
             msg(f"solo on: {state['entry']['description']}")
@@ -488,12 +500,14 @@ def cmd_solo(action="toggle", target="", mode=""):
         SOLO_STATE.write_text(json.dumps({"entry": entry, "sig": sig}, indent=2, ensure_ascii=False) + "\n")
         apply()
     elif action == "off":
-        if not SOLO_STATE.exists():
+        state = read_solo()
+        if state is None:
+            SOLO_STATE.unlink(missing_ok=True)  # a damaged one goes too
             msg("solo is already off")
             return
         # The layout of the set connected when solo began, even if a monitor
         # is still asleep: generate skips it and the hotplug apply adds it.
-        was = json.loads(SOLO_STATE.read_text())["sig"]
+        was = state["sig"]
         SOLO_STATE.unlink()
         msg("solo off: back to the previous layout")
         apply(Profiles().get(was))

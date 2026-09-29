@@ -62,6 +62,34 @@ def test_a_tiled_window_only_changes_workspace(session):
         "hl.dsp.window.move({workspace='special:magic', follow=false, window='address:0x1'})"]
 
 
+def test_a_floating_entry_without_its_position_just_changes_workspace(session):
+    entry = {"workspace": 2, "floating": True}          # edited by hand, or old
+    assert session.placement(entry, MONITORS, "0x1") == [
+        "hl.dsp.window.move({workspace='2', follow=false, window='address:0x1'})"]
+
+
+def test_an_entry_without_initial_class_is_matched_by_its_class(session, monkeypatch):
+    class Fake(session.Desktop):
+        def __init__(self):
+            self.calls = 0
+            self.dispatched = []
+
+        def query(self, what):
+            self.calls += 1
+            return [] if self.calls == 1 else [{"address": "0x9", "initialClass": "kitty"}]
+
+        def launch(self, argv):
+            pass
+
+        def dispatch(self, expr):
+            self.dispatched.append(expr)
+
+    monkeypatch.setattr(session.time, "sleep", lambda s: None)
+    desk = Fake()
+    assert desk.reopen({"class": "kitty", "workspace": 1, "command": ["kitty"]}, MONITORS)
+    assert desk.dispatched
+
+
 def test_old_layouts_with_a_joined_command_still_launch(session):
     assert session.launch_argv("kitty --class x") == ["bash", "-c", "kitty --class x"]
     assert session.launch_argv(["kitty"]) == ["kitty"]

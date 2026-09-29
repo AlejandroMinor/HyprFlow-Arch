@@ -178,3 +178,18 @@ def test_a_profile_missing_a_field_is_a_message(mons, monkeypatch, capsys):
     monkeypatch.setattr(mons, "cmd_list", broken)
     assert mons.main(["monitors.py", "list"]) == 1
     assert "no 'description' field" in capsys.readouterr().err
+
+
+def test_a_mode_without_a_rate_offers_no_rate(mons):
+    monitor = {"availableModes": ["1920x1080", "1920x1080@60.00Hz"]}
+    assert mons.resolution_choices(monitor) == [("1920x1080", ["60"])]
+
+
+@pytest.mark.parametrize("content", ["{nope", "[]", '{"entry": {}}', '{"entry": {"description": "TV"}}'])
+def test_a_damaged_solo_state_counts_as_off(mons, tmp_path, monkeypatch, content):
+    monkeypatch.setattr(mons, "SOLO_STATE", tmp_path / "solo.json")
+    (tmp_path / "solo.json").write_text(content)
+    assert mons.read_solo() is None
+    monkeypatch.setattr(mons, "detect", lambda: [NZXT])
+    mons.cmd_solo("off")                        # says it is off, removes the file
+    assert not (tmp_path / "solo.json").exists()

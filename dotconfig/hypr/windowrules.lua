@@ -66,13 +66,24 @@ hl.window_rule({
     center = true,
 })
 
+-- The scratchpad (special workspace "magic"): Spotify lands there on spawn
+-- instead of on the focused workspace, so it only shows with Super + Z.
 hl.window_rule({
-    name   = "spotify-mini",
-    match  = { class = "^(Spotify)$" },
-    float  = true,
-    size   = {900, 600},
-    center = true,
+    name      = "spotify-mini",
+    match     = { class = "^(Spotify)$" },
+    float     = true,
+    size      = {900, 600},
+    center    = true,
+    workspace = "special:magic",
 })
+
+-- A window in a scratchpad leaves no trace on screen, so launching Spotify
+-- looks like it failed. This is what makes the rule above discoverable.
+hl.on("window.open", function (w)
+    if w and w.class == "Spotify" then
+        hl.exec_cmd([[notify-send -u low -i spotify "Spotify" "In the scratchpad: Super + Z shows it"]])
+    end
+end)
 
 -- Steam never requests fullscreen for Big Picture under XWayland
 hl.window_rule({

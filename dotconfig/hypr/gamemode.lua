@@ -18,13 +18,9 @@ do
 
     -- Closing Big Picture from the controller ends game mode. game-mode.sh
     -- checks it is still on and that Steam did not just reopen the window.
-    -- Guarded so reloads do not stack handlers.
-    if not _G.__hyprflow_game_hooks then
-        _G.__hyprflow_game_hooks = true
-        hl.on("window.close", function (w)
-            if w and w.title == "Steam Big Picture Mode" then
-                hl.exec_cmd("game-mode.sh bigpicture-closed")
-            end
-        end)
-    end
+    hl.on("window.close", function (w)
+        if w and w.title == "Steam Big Picture Mode" then
+            hl.exec_cmd("game-mode.sh bigpicture-closed")
+        end
+    end)
 end

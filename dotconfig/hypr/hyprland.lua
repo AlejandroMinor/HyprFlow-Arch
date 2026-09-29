@@ -31,16 +31,12 @@ if not mon_ok then
 end
 
 -- React to monitor hotplug: regenerate the layout + reload via monitors.sh.
--- Guarded by a global so config reloads don't stack duplicate handlers.
 -- (`apply` is idempotent and only reloads if the generated output changed,
 --  which prevents an event -> reload -> event loop.)
-if not _G.__hyprflow_monitor_hooks then
-    _G.__hyprflow_monitor_hooks = true
-    for _, ev in ipairs({ "monitor.added", "monitor.removed" }) do
-        pcall(function()
-            hl.on(ev, function() hl.dispatch(hl.dsp.exec_cmd("monitors.sh apply")) end)
-        end)
-    end
+for _, ev in ipairs({ "monitor.added", "monitor.removed" }) do
+    pcall(function()
+        hl.on(ev, function() hl.dispatch(hl.dsp.exec_cmd("monitors.sh apply")) end)
+    end)
 end
 
 

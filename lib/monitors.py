@@ -21,6 +21,7 @@ bin/monitors.sh is a one line wrapper, so the command keeps its name.
 
 import fcntl
 import json
+import math
 import re
 import subprocess
 import sys
@@ -64,6 +65,15 @@ class Stop(Exception):
 
 
 # ── pure ──────────────────────────────────────────────────────────────────
+
+def scale_of(value):
+    """A monitor scale, as given, if Hyprland can use it; ValueError if not
+    (0, a negative, true, 1e999: a hand edited profile or a typo)."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)) \
+            or not math.isfinite(value) or not 0 < value <= 8:
+        raise ValueError(f"invalid scale: {value!r}")
+    return value
+
 
 def number(value):
     """A JSON number as jq prints it: 1 stays 1, 1.0 stays 1.0."""
@@ -119,7 +129,7 @@ def logical_width(entry):
     size = entry["mode"].split("@")[0]
     w, h = (int(v) for v in size.split("x"))
     side = h if transform_of(entry) % 2 else w
-    return int(side / entry["scale"])
+    return int(side / scale_of(entry["scale"]))
 
 
 def mirrorize(profile, source, detected):
@@ -187,11 +197,11 @@ def generate(profile, detected, bars_template=None, connected=lambda port: True)
         mirror_port = port_for(detected, entry["mirror"]) if entry.get("mirror") else None
         if mirror_port:
             rules.append(f'hl.monitor({{ output = "{port}", mode = "{entry["mode"]}", position = "auto", '
-                         f'scale = {number(entry["scale"])}, mirror = "{mirror_port}" }})')
+                         f'scale = {number(scale_of(entry["scale"]))}, mirror = "{mirror_port}" }})')
             continue
         transform = transform_of(entry)
         rules.append(f'hl.monitor({{ output = "{port}", mode = "{entry["mode"]}", position = "{x}x0", '
-                     f'scale = {number(entry["scale"])}, transform = {transform} }})')
+                     f'scale = {number(scale_of(entry["scale"]))}, transform = {transform} }})')
         layout = ', layout_opts = { orientation = "top" }' if transform % 2 else ""
         numbers = (1, 2) if entry.get("primary") else (pair, pair + 1)
         if not entry.get("primary"):
@@ -551,8 +561,9 @@ def cmd_setup(tty=None):
         transform = int(transform) if transform in "01234567" and len(transform) == 1 else 0
         scale = tty.ask(f"  Scale (default {number(m['scale'])}): ", number(m["scale"]))
         try:
-            scale = json.loads(scale)
+            scale = scale_of(json.loads(scale))
         except ValueError:
+            print(f"  → not a usable scale, keeping {number(m['scale'])}")
             scale = m["scale"]
         bar = tty.ask("  Waybar bar: [f]ull / [m]inimal / [n]one (default f): ", "f").lower()
         bar = "minimal" if bar.startswith("m") else "none" if bar.startswith("n") else "full"
@@ -567,13 +578,20 @@ def cmd_setup(tty=None):
         print(f"  {j}) {e['description']}")
     order = tty.ask(f"  Indices separated by space (default 0..{len(entries) - 1}): ")
     if order:
-        entries = [entries[int(i)] for i in order.split()]
+        picked = [int(i) for i in order.split() if i.isdigit()]
+        if sorted(picked) == list(range(len(entries))):
+            entries = [entries[i] for i in picked]
+        else:
+            print(f"  → not every index from 0 to {len(entries) - 1} once, keeping the order")
 
     print("\n\033[1mPrimary monitor\033[0m (gets workspaces 1 and 2):")
     for j, e in enumerate(entries):
         print(f"  {j}) {e['description']}")
     primary = tty.ask("  Primary index (default 0): ", "0")
     primary = int(primary) if primary.isdigit() else 0
+    if primary >= len(entries):
+        print(f"  → no monitor {primary}, the primary is 0")
+        primary = 0
     for j, e in enumerate(entries):
         e["primary"] = j == primary
 
@@ -626,7 +644,7 @@ def main(argv):
                     cmd_solo(*args[:3])
         else:
             raise Stop(USAGE)
-    except Stop as stop:
+    except (Stop, ValueError) as stop:
         warn(str(stop))
         return 1
     return 0

@@ -123,3 +123,30 @@ def test_setup_with_every_monitor_disabled_stops(mons, monkeypatch):
     monkeypatch.setattr(mons, "detect", lambda: [NZXT])
     with pytest.raises(mons.Stop, match="no monitors enabled"):
         mons.cmd_setup(mons.Tty(io.StringIO("n\n")))
+
+
+@pytest.mark.parametrize("bad", [0, -1, True, float("inf"), 9, "1.5", None])
+def test_a_scale_hyprland_cannot_use_is_refused(mons, bad):
+    with pytest.raises(ValueError):
+        mons.scale_of(bad)
+    with pytest.raises(ValueError):
+        mons.logical_width({"mode": "1920x1080@60", "scale": bad})
+
+
+def test_setup_wizard_survives_bad_answers(mons, tmp_path, monkeypatch):
+    monkeypatch.setattr(mons, "detect", lambda: [NZXT, AOC])
+    monkeypatch.setattr(mons, "PROFILES", tmp_path / "profiles.json")
+    monkeypatch.setattr(mons, "UNMIRRORED", tmp_path / "unmirrored.json")
+    monkeypatch.setattr(mons, "apply", lambda profile=None: None)
+    answers = "\n".join([
+        "", "1", "1", "0", "0", "",     # NZXT: scale 0 is refused
+        "", "", "1", "0", "true", "",   # AOC: scale true is refused
+        "0 5",                          # no monitor 5: the order stays
+        "7",                            # no monitor 7: the primary is 0
+        "y",                            # mirror, which needs a primary
+    ]) + "\n"
+    mons.cmd_setup(mons.Tty(io.StringIO(answers)))
+    saved = json.loads((tmp_path / "profiles.json").read_text())["AOC 24B3HM|NZXT Canvas 27Q"]
+    assert [(e["description"], e["scale"], e["primary"]) for e in saved] == [
+        ("NZXT Canvas 27Q", 1.0, True), ("AOC 24B3HM", 1.0, False)]
+    assert saved[1]["mirror"] == "NZXT Canvas 27Q"

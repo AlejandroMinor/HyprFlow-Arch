@@ -9,13 +9,15 @@ It follows workspace 1 when monitors come and go, and hides in game mode.
 """
 
 import ctypes
-import fcntl
 import os
 import sys
 import threading
 
 # Must load before gi imports GTK, or the surface comes up as a normal window.
-ctypes.CDLL("libgtk4-layer-shell.so", mode=ctypes.RTLD_GLOBAL)
+try:
+    ctypes.CDLL("libgtk4-layer-shell.so", mode=ctypes.RTLD_GLOBAL)
+except OSError:
+    sys.exit("activate-linux needs gtk4-layer-shell (pacman -S gtk4-layer-shell)")
 
 import cairo  # noqa: E402
 import gi  # noqa: E402
@@ -28,6 +30,7 @@ from gi.repository import Gtk4LayerShell as LayerShell  # noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 from hyprflow import hyprctl, paths  # noqa: E402
+from hyprflow.lock import single_instance  # noqa: E402
 
 TITLE = "Activate Linux"
 SUBTITLE = "Go to Settings to activate Linux"
@@ -41,17 +44,6 @@ window { background-color: transparent; }
 .title    { color: rgba(250, 250, 250, 0.5); font-size: 1.25em; }
 .subtitle { color: rgba(250, 250, 250, 0.5); }
 """
-
-
-def single_instance():
-    """Exits if another copy already runs (a Hyprland reload, say)."""
-    runtime = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
-    lock = open(os.path.join(runtime, "activate-linux.lock"), "w")
-    try:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
-        sys.exit(0)
-    return lock  # kept open for the life of the process
 
 
 def label(text, css_class):
@@ -143,7 +135,7 @@ class Watermark:
 
 
 def main():
-    with single_instance():
+    with single_instance("activate-linux"):
         app = Gtk.Application(application_id="dev.hyprflow.activatelinux")
         app.connect("activate", lambda app: Watermark(app).build())
         return app.run([])

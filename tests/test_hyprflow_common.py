@@ -138,3 +138,17 @@ def test_hyprctl_events_outside_hyprland(monkeypatch):
     monkeypatch.delenv("HYPRLAND_INSTANCE_SIGNATURE", raising=False)
     with pytest.raises(OSError):
         next(hyprctl.events())
+
+
+def test_single_instance_lets_one_copy_run(tmp_path):
+    import subprocess
+    code = ("import sys, time; sys.path.insert(0, %r); from hyprflow.lock import single_instance; "
+            "lock = single_instance('helper'); print('running', flush=True); time.sleep(5)") % str(LIB)
+    env = {**os.environ, "XDG_RUNTIME_DIR": str(tmp_path)}
+    first = subprocess.Popen([sys.executable, "-c", code], env=env, stdout=subprocess.PIPE, text=True)
+    assert first.stdout.readline() == "running\n"
+    second = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, timeout=10)
+    first.kill()
+    first.wait()
+    assert second.returncode == 0 and second.stdout == ""   # left quietly, never ran
+    assert (tmp_path / "helper.lock").exists()

@@ -26,7 +26,10 @@ import time
 
 # Must load before gi imports GTK, or the window comes up as a normal toplevel
 # and the tiler swallows it.
-ctypes.CDLL("libgtk4-layer-shell.so", mode=ctypes.RTLD_GLOBAL)
+try:
+    ctypes.CDLL("libgtk4-layer-shell.so", mode=ctypes.RTLD_GLOBAL)
+except OSError:
+    sys.exit("master-pick needs gtk4-layer-shell (pacman -S gtk4-layer-shell)")
 
 import gi  # noqa: E402
 
@@ -110,8 +113,6 @@ CAP_BY_MODE = {"numbers": 10, "letters": len(LETTER_LABELS)}
 
 def log(msg):
     print(f"[master-pick] {msg}", file=sys.stderr)
-
-
 
 
 def keyval_to_digit(keyval):

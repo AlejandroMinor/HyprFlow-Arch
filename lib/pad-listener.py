@@ -15,7 +15,6 @@ can be tested without waiting. PadListener is the device side: finding
 controllers, reading them and running the action.
 """
 
-import fcntl
 import os
 import select
 import subprocess
@@ -25,10 +24,14 @@ import time
 import evdev
 from evdev import ecodes as ec
 
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+from hyprflow.lock import single_instance  # noqa: E402
+
 COMBO = frozenset({ec.BTN_MODE, ec.BTN_START})  # PS + Options
 HOLD = 1.0                                      # seconds both must stay down
 RESCAN = 3.0                                    # seconds between looks for new controllers
-ACTION = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bin", "game-mode.sh"), "toggle"]
+ACTION = [os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bin", "game-mode.sh")),
+          "toggle"]
 
 
 class ComboHold:
@@ -141,17 +144,6 @@ class PadListener:
             self.fire_due()
 
 
-def single_instance():
-    """Exits if another copy already runs (a Hyprland restart, say)."""
-    runtime = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
-    lock = open(os.path.join(runtime, "pad-listener.lock"), "w")
-    try:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
-        sys.exit(0)
-    return lock  # kept open for the life of the process
-
-
 if __name__ == "__main__":
-    _lock = single_instance()
+    _lock = single_instance("pad-listener")
     PadListener().run()

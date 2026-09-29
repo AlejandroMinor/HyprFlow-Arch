@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 SCRIPT = Path(__file__).resolve().parent.parent / "lib" / "activate-linux.py"
 
 
@@ -53,3 +55,16 @@ def test_without_hyprland_it_falls_back_to_the_first_monitor(monkeypatch):
     monkeypatch.setattr(module.hyprctl, "query", fails)
     assert module.primary_port() is None
     assert module.target([Monitor("DP-2")], module.primary_port(), gaming=False).get_connector() == "DP-2"
+
+
+@pytest.mark.parametrize("script", ["activate-linux.py", "master-pick.py"])
+def test_without_gtk4_layer_shell_it_says_what_to_install(monkeypatch, script):
+    import ctypes
+    from conftest import load_script
+
+    def missing(name, *a, **k):
+        raise OSError(f"{name}: cannot open shared object file")
+
+    monkeypatch.setattr(ctypes, "CDLL", missing)
+    with pytest.raises(SystemExit, match="gtk4-layer-shell"):
+        load_script(script)

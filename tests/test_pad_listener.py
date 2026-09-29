@@ -175,3 +175,8 @@ def test_the_action_is_game_mode_toggle(pad):
     script, arg = pad.ACTION
     assert script.endswith("bin/game-mode.sh") and arg == "toggle"
     assert os.path.exists(script)
+
+
+def test_the_action_path_has_no_dotdot(pad):
+    assert ".." not in pad.ACTION[0].split("/")
+    assert pad.ACTION[0].endswith("/bin/game-mode.sh")

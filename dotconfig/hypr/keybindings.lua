@@ -50,11 +50,11 @@ hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprla
 hl.bind("ALT + Tab",         hl.dsp.group.next(), { description = "Next Tab" })
 hl.bind("ALT + SHIFT + Tab", hl.dsp.group.prev(), { description = "Previous Tab" })
 
-hl.bind(mainMod .. " + ALT + H",    hl.dsp.window.move({ into_group = "l" }))
-hl.bind(mainMod .. " + ALT + L",    hl.dsp.window.move({ into_group = "r" }))
-hl.bind(mainMod .. " + ALT + K",    hl.dsp.window.move({ into_group = "u" }))
-hl.bind(mainMod .. " + ALT + J",    hl.dsp.window.move({ into_group = "d" }))
-hl.bind(mainMod .. " + ALT + down", hl.dsp.window.move({ out_of_group = true }))
+hl.bind(mainMod .. " + ALT + H",    hl.dsp.window.move({ into_group = "l" }), { description = "Move Into Group (Left)" })
+hl.bind(mainMod .. " + ALT + L",    hl.dsp.window.move({ into_group = "r" }), { description = "Move Into Group (Right)" })
+hl.bind(mainMod .. " + ALT + K",    hl.dsp.window.move({ into_group = "u" }), { description = "Move Into Group (Up)" })
+hl.bind(mainMod .. " + ALT + J",    hl.dsp.window.move({ into_group = "d" }), { description = "Move Into Group (Down)" })
+hl.bind(mainMod .. " + ALT + down", hl.dsp.window.move({ out_of_group = true }), { description = "Move Out Of Group" })
 
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.submap("grouptabs"), { description = "Reorder Group Tabs Mode" })
 
@@ -77,7 +77,7 @@ hl.define_submap("grouptabs", function()
     hl.bind("8", hl.dsp.group.active({ index = 8 }), { description = "Jump to Tab 8" })
     hl.bind("9", hl.dsp.group.active({ index = 9 }), { description = "Jump to Tab 9" })
 
-    hl.bind("escape", hl.dsp.submap("reset"))
+    hl.bind("escape", hl.dsp.submap("reset"), { description = "Exit Mode" })
 end)
 
 
@@ -129,7 +129,7 @@ hl.define_submap("screenshot", function()
         hl.dispatch(hl.dsp.exec_cmd("hyprshot -m output --clipboard-only"))
     end, { description = "Screen Screenshot → Clipboard" })
 
-    hl.bind("escape", hl.dsp.submap("reset"))
+    hl.bind("escape", hl.dsp.submap("reset"), { description = "Exit Mode" })
 end)
 
 
@@ -139,7 +139,7 @@ end)
 
 hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("swaync-client -t"),          { description = "Notifications" })
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -C"),          { description = "Clear Notifications" })
-hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("killall -SIGUSR1 waybar"),   { description = "Restart Waybar" })
+hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("killall -SIGUSR1 waybar"),   { description = "Show / Hide Bar" })
 hl.bind(mainMod .. " + A",         hl.dsp.window.bring_to_top(),                 { description = "Bring to Front" })
 
 
@@ -147,43 +147,43 @@ hl.bind(mainMod .. " + A",         hl.dsp.window.bring_to_top(),                
 --  FOCUS
 -- =======================================================
 
-hl.bind(mainMod .. " + Tab",         hl.dsp.window.cycle_next())
-hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.window.cycle_next({ next = false }))
-hl.bind(mainMod .. " + Escape",      hl.dsp.focus({ last = true }))
+hl.bind(mainMod .. " + Tab",         hl.dsp.window.cycle_next(),                             { description = "Focus Next Window" })
+hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.window.cycle_next({ next = false }),           { description = "Focus Previous Window" })
+hl.bind(mainMod .. " + Escape",      hl.dsp.focus({ last = true }),                         { description = "Focus Last Window" })
 
 -- Arrow keys
-hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
+hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }),  { description = "Focus Left" })
+hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }), { description = "Focus Right" })
+hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }),    { description = "Focus Up" })
+hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }),  { description = "Focus Down" })
 
 
 -- =======================================================
 --  MOVE WINDOWS (Swap)
 -- =======================================================
 
-hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "l" }))
-hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.move({ direction = "r" }))
-hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "u" }))
-hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "d" }))
-hl.bind(mainMod .. " + SHIFT + H",     hl.dsp.window.move({ direction = "l" }))
-hl.bind(mainMod .. " + SHIFT + L",     hl.dsp.window.move({ direction = "r" }))
-hl.bind(mainMod .. " + SHIFT + K",     hl.dsp.window.move({ direction = "u" }))
-hl.bind(mainMod .. " + SHIFT + J",     hl.dsp.window.move({ direction = "d" }))
+hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "l" }), { description = "Move Window Left" })
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.move({ direction = "r" }), { description = "Move Window Right" })
+hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "u" }), { description = "Move Window Up" })
+hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "d" }), { description = "Move Window Down" })
+hl.bind(mainMod .. " + SHIFT + H",     hl.dsp.window.move({ direction = "l" }), { description = "Move Window Left" })
+hl.bind(mainMod .. " + SHIFT + L",     hl.dsp.window.move({ direction = "r" }), { description = "Move Window Right" })
+hl.bind(mainMod .. " + SHIFT + K",     hl.dsp.window.move({ direction = "u" }), { description = "Move Window Up" })
+hl.bind(mainMod .. " + SHIFT + J",     hl.dsp.window.move({ direction = "d" }), { description = "Move Window Down" })
 
 
 -- =======================================================
 --  FINE MOVEMENT (Floating windows)
 -- =======================================================
 
-hl.bind(mainMod .. " + CTRL + left",  hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + right", hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + up",    hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + down",  hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + H",     hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + L",     hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + K",     hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + J",     hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + left",  hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true, description = "Nudge Window Left" })
+hl.bind(mainMod .. " + CTRL + right", hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true, description = "Nudge Window Right" })
+hl.bind(mainMod .. " + CTRL + up",    hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true, description = "Nudge Window Up" })
+hl.bind(mainMod .. " + CTRL + down",  hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true, description = "Nudge Window Down" })
+hl.bind(mainMod .. " + CTRL + H",     hl.dsp.window.move({ x = -50, y = 0,   relative = true }), { repeating = true, description = "Nudge Window Left" })
+hl.bind(mainMod .. " + CTRL + L",     hl.dsp.window.move({ x = 50,  y = 0,   relative = true }), { repeating = true, description = "Nudge Window Right" })
+hl.bind(mainMod .. " + CTRL + K",     hl.dsp.window.move({ x = 0,   y = -50, relative = true }), { repeating = true, description = "Nudge Window Up" })
+hl.bind(mainMod .. " + CTRL + J",     hl.dsp.window.move({ x = 0,   y = 50,  relative = true }), { repeating = true, description = "Nudge Window Down" })
 
 
 -- =======================================================
@@ -234,7 +234,7 @@ hl.define_submap("winctl", function()
     hl.bind("f",         hl.dsp.window.fullscreen({ mode = "maximized" }),  { description = "Fullscreen" })
     hl.bind("SHIFT + f", hl.dsp.window.fullscreen({ mode = "fullscreen" }), { description = "Fullscreen (Absolute)" })
     hl.bind("c",         hl.dsp.window.center(),                            { description = "Center Floating Window" })
-    hl.bind("escape",    hl.dsp.submap("reset"))
+    hl.bind("escape",    hl.dsp.submap("reset"),                            { description = "Exit Mode" })
 end)
 
 
@@ -243,16 +243,16 @@ end)
 -- =======================================================
 
 for i = 1, 9 do
-    hl.bind(mainMod .. " + " .. i,         hl.dsp.focus({ workspace = i }))
-    hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
+    hl.bind(mainMod .. " + " .. i,         hl.dsp.focus({ workspace = i }),   { description = "Focus Workspace" })
+    hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }), { description = "Send Window to Workspace" })
 end
-hl.bind(mainMod .. " + 0",         hl.dsp.focus({ workspace = 10 }))
-hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }))
+hl.bind(mainMod .. " + 0",         hl.dsp.focus({ workspace = 10 }),  { description = "Focus Workspace" })
+hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }), { description = "Send Window to Workspace" })
 
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true })
-hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true })
+hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { description = "Next Workspace" })
+hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }), { description = "Previous Workspace" })
+hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true, description = "Drag Window (hold + move mouse)" })
+hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true, description = "Resize Window (hold + move mouse)" })
 
 
 -- =======================================================
@@ -293,10 +293,10 @@ local function set_zoom(delta)
     end
 end
 
-hl.bind(mainMod .. " + SHIFT + I",          set_zoom( 0.5), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + mouse_down", set_zoom( 0.1), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + O",          set_zoom(-0.5), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + mouse_up",   set_zoom(-0.1), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + I",          set_zoom( 0.5), { repeating = true, description = "Zoom In" })
+hl.bind(mainMod .. " + SHIFT + mouse_down", set_zoom( 0.1), { repeating = true, description = "Zoom In (fine)" })
+hl.bind(mainMod .. " + SHIFT + O",          set_zoom(-0.5), { repeating = true, description = "Zoom Out" })
+hl.bind(mainMod .. " + SHIFT + mouse_up",   set_zoom(-0.1), { repeating = true, description = "Zoom Out (fine)" })
 
 
 -- =======================================================
@@ -307,7 +307,7 @@ hl.bind(mainMod .. " + Return",    hl.dsp.layout("swapwithmaster master"), { des
 hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("~/.local/lib/hyprflow/master-pick.py --notify"), { description = "Pick Window to Send to Master" })
 -- "masculine" is º, the key left of 1 on the es layout.
 hl.bind(mainMod .. " + masculine",      hl.dsp.exec_cmd("~/.local/lib/hyprflow/master-pick.py --notify"), { description = "Pick Window to Send to Master (alt)" })
-hl.bind("mouse:277",               hl.dsp.layout("swapwithmaster master"))
+hl.bind("mouse:277",               hl.dsp.layout("swapwithmaster master"), { description = "Swap With Master" })
 hl.bind(mainMod .. " + S",         hl.dsp.layout("focusmaster auto"),      { description = "Focus Master" })
 hl.bind(mainMod .. " + U",         hl.dsp.layout("orientationnext"),       { description = "Rotate Master" })
 hl.bind(mainMod .. " + Y",         hl.dsp.layout("addmaster"),             { description = "Add to Master" })

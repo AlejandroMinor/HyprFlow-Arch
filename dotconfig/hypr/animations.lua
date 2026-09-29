@@ -6,6 +6,7 @@ hl.curve("easeOutQuint",   { type = "bezier", points = { {0.23, 1},    {0.32, 1}
 hl.curve("linear",         { type = "bezier", points = { {0, 0},       {1, 1}       } })
 hl.curve("almostLinear",   { type = "bezier", points = { {0.5, 0.5},   {0.75, 1}    } })
 hl.curve("quick",          { type = "bezier", points = { {0.15, 0},    {0.1, 1}     } })
+hl.curve("softFade",       { type = "bezier", points = { {0.4, 0},     {0.2, 1}     } })
 
 -- Springs
 hl.curve("easy",           { type = "spring", mass = 1, stiffness = 71.2633, dampening = 15.8273644 })
@@ -35,6 +36,11 @@ hl.animation({ leaf = "fadeLayersOut", enabled = true,  speed = 1.39, bezier = "
 hl.animation({ leaf = "workspaces",    enabled = true,  speed = 6,    bezier = "overshot",     style = "slide" })
 hl.animation({ leaf = "workspacesIn",  enabled = true,  speed = 6,    bezier = "overshot",     style = "slide" })
 hl.animation({ leaf = "workspacesOut", enabled = true,  speed = 6,    bezier = "overshot",     style = "slidefade 80%" })
+
+-- Scratchpad
+hl.animation({ leaf = "specialWorkspace",    enabled = true,  speed = 2,    bezier = "softFade" })
+hl.animation({ leaf = "specialWorkspaceIn",  enabled = true,  speed = 2,    bezier = "softFade", style = "fade" })
+hl.animation({ leaf = "specialWorkspaceOut", enabled = true,  speed = 2.6,  bezier = "softFade", style = "fade" })
 
 -- Misc
 hl.animation({ leaf = "global",        enabled = true,  speed = 10,   bezier = "default" })

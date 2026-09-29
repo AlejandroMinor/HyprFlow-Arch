@@ -36,3 +36,16 @@ def test_every_described_bind_in_the_config_is_listed(help_binds):
     parsed = sorted(desc for _, _, desc in help_binds.parse_binds(text))
     in_binds = sorted(re.findall(r'description\s*=\s*"((?:[^"\\]|\\.)*)"', text))
     assert parsed == in_binds and len(parsed) > 20
+
+
+def test_an_escaped_backslash_ends_the_string(help_binds):
+    assert help_binds.split_args(r'"a\\", 2') == [r'"a\\"', "2"]
+    assert help_binds.split_args(r'"say \"hi\", ok", 3') == [r'"say \"hi\", ok"', "3"]
+
+
+def test_an_unclosed_call_loses_only_its_own_line(help_binds):
+    text = ('hl.bind(mainMod .. " + A", x, { description = "kept" })\n'
+            'hl.bind(mainMod .. " + B", y, { description = "mid edit"\n')
+    assert help_binds.parse_binds(text) == [("", "SUPER + A", "kept")]
+    assert help_binds.parse_gestures('hl.gesture({ fingers = 3') == []
+    assert help_binds.find_submap_spans('hl.define_submap("resize", function ()') == []

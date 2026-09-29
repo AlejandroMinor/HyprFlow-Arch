@@ -10,61 +10,62 @@ import re
 import sys
 
 
+def scan(text, start=0):
+    """Yields (index, char) for every character of Lua source from `start`
+    that sits outside a string literal. A string is skipped whole, escapes
+    included ("a\\" ends at its second quote), so a quote, comma or bracket
+    inside one never counts. The one place that knows what a string is."""
+    i = start
+    while i < len(text):
+        c = text[i]
+        if c in "\"'":
+            i += 1
+            while i < len(text) and text[i] != c:
+                i += 2 if text[i] == "\\" else 1
+        else:
+            yield i, c
+        i += 1
+
+
 def split_args(inner):
-    depth = 0
-    in_str = False
-    str_char = ""
-    current = []
-    args = []
-    i = 0
-    while i < len(inner):
-        c = inner[i]
-        if in_str:
-            current.append(c)
-            if c == str_char and inner[i - 1] != "\\":
-                in_str = False
-        elif c in "\"'":
-            in_str = True
-            str_char = c
-            current.append(c)
-        elif c in "([{":
+    """The top level arguments of a call's inside, split on its commas."""
+    depth, start, args = 0, 0, []
+    for i, c in scan(inner):
+        if c in "([{":
             depth += 1
-            current.append(c)
         elif c in ")]}":
             depth -= 1
-            current.append(c)
         elif c == "," and depth == 0:
-            args.append("".join(current))
-            current = []
-        else:
-            current.append(c)
-        i += 1
-    if current:
-        args.append("".join(current))
+            args.append(inner[start:i])
+            start = i + 1
+    if inner[start:]:
+        args.append(inner[start:])
     return [a.strip() for a in args]
 
 
 def extract_call(text, open_paren_index):
+    """The call's "( ... )" from its opening paren, and the index after it;
+    ValueError when it never closes (a config mid edit)."""
     depth = 0
-    i = open_paren_index
-    in_str = False
-    str_char = ""
-    while i < len(text):
-        c = text[i]
-        if in_str:
-            if c == str_char and text[i - 1] != "\\":
-                in_str = False
-        elif c in "\"'":
-            in_str = True
-            str_char = c
-        elif c == "(":
+    for i, c in scan(text, open_paren_index):
+        if c == "(":
             depth += 1
         elif c == ")":
             depth -= 1
             if depth == 0:
                 return text[open_paren_index : i + 1], i + 1
-        i += 1
     raise ValueError("unbalanced parens")
+
+
+def calls(text, pattern):
+    """(match, call text) for each call of `pattern`. One left unclosed is
+    skipped, so a typo loses that line only, not the whole list."""
+    for m in re.finditer(pattern, text):
+        try:
+            call_text, end = extract_call(text, text.index("(", m.start()))
+        except ValueError:
+            continue
+        yield m, call_text, end
 
 
 def key_label(expr):
@@ -76,11 +77,8 @@ def key_label(expr):
 
 def find_submap_spans(text):
     spans = []
-    for m in re.finditer(r'hl\.define_submap\(\s*"([^"]+)"', text):
-        name = m.group(1)
-        open_idx = text.index("(", m.start())
-        _, end_idx = extract_call(text, open_idx)
-        spans.append((m.start(), end_idx, name))
+    for m, _, end_idx in calls(text, r'hl\.define_submap\(\s*"([^"]+)"'):
+        spans.append((m.start(), end_idx, m.group(1)))
     return spans
 
 
@@ -110,9 +108,7 @@ def parse_gestures(text):
     Gestures have no submap, so that column stays empty and they sort first.
     """
     results = []
-    for m in re.finditer(r"hl\.gesture\(", text):
-        open_idx = text.index("(", m.start())
-        call_text, _ = extract_call(text, open_idx)
+    for _, call_text, _ in calls(text, r"hl\.gesture\("):
         inner = call_text[1:-1]
 
         desc = re.search(r'description\s*=\s*"((?:[^"\\]|\\.)*)"', inner)
@@ -129,9 +125,7 @@ def parse_gestures(text):
 def parse_binds(text):
     submap_spans = find_submap_spans(text)
     results = []
-    for m in re.finditer(r"hl\.bind\(", text):
-        open_idx = text.index("(", m.start())
-        call_text, _ = extract_call(text, open_idx)
+    for m, call_text, _ in calls(text, r"hl\.bind\("):
         inner = call_text[1:-1]
         args = split_args(inner)
         if len(args) < 2:

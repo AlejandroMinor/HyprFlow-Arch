@@ -22,6 +22,7 @@ theme_names() {
         [ -f "$THEMES_DIR/$name.json" ] && printf '%s\n' "$name"
     done
     for name in "$THEMES_DIR"/*.json; do
+        [ -e "$name" ] || continue  # no themes: the pattern comes back as is
         name="$(basename "$name" .json)"
         [[ " ${FIRST[*]} " == *" $name "* ]] || printf '%s\n' "$name"
     done

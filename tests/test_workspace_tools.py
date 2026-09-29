@@ -90,6 +90,38 @@ def test_show_desktop_sends_every_monitor_to_a_decoy_and_back(box):
     assert not (root / "hyprland-show-desktop.json").exists()
 
 
+def test_show_desktop_sends_only_real_monitors_and_numbers_back(box):
+    run, root = box
+    (root / "hyprland-show-desktop.json").write_text(json.dumps({
+        "monitors": {"HDMI-A-1": 3, 'DP-2"}) os.execute("x") --': 1, "DP-2": "1; evil"},
+        "focused_monitor": "GONE-1"}))
+    back = run("hyprland-show-desktop.sh")
+    assert back.strip() == 'dispatch hl.dsp.focus({monitor = "HDMI-A-1"}); dispatch hl.dsp.focus({workspace = 3});'
+    assert not (root / "hyprland-show-desktop.json").exists()
+
+
+def test_show_desktop_keeps_the_state_when_the_restore_fails(box):
+    run, root = box
+    state = root / "hyprland-show-desktop.json"
+    state.write_text(json.dumps({"monitors": {"DP-2": 1}, "focused_monitor": "DP-2"}))
+    (root / "fakebin" / "hyprctl").write_text("#!/bin/bash\n" + HYPRCTL.replace(
+        'printf \'%s\\n\' "$2" >> "$T/batch"; exit 0', 'exit 1'))
+    run("hyprland-show-desktop.sh")
+    assert state.exists()
+
+
+def test_show_desktop_refuses_to_run_without_a_runtime_dir(box):
+    _, root = box
+    # The fakes stay first on PATH: a script that did not refuse would
+    # otherwise reach the real hyprctl and hide the real desktop.
+    env = {k: v for k, v in os.environ.items() if k != "XDG_RUNTIME_DIR"}
+    env.update(T=str(root), HOME=str(root), PATH=f"{root / 'fakebin'}:{os.environ['PATH']}")
+    result = subprocess.run(["bash", str(LIB / "hyprland-show-desktop.sh")], env=env,
+                            capture_output=True, text=True, timeout=10)
+    assert result.returncode == 1 and "XDG_RUNTIME_DIR" in result.stderr
+    assert not (root / "batch").exists()          # nothing was dispatched
+
+
 def test_group_all_groups_the_workspace_windows(box):
     run, _ = box
     batch = run("hyprland-group-all.sh")

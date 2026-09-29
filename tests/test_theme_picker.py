@@ -129,3 +129,12 @@ def test_the_manager_help_still_exits_cleanly(box):
 def test_the_manager_calls_rgb_sync_by_its_path_not_the_path_variable(box):
     _, log = pick(box, "", "wallust-theme-manager.sh", "--restore-default", "--no-restart")
     assert f"setsid {box[0]}/bin/rgb-sync.sh" in log
+
+
+def test_without_theme_files_the_list_has_no_stray_star(box):
+    root, _ = box
+    for theme in (root / "config" / "wallust" / "themes").glob("*.json"):
+        theme.unlink()
+    pick(box, "")
+    offered = (root / "offered").read_text().splitlines()
+    assert "*" not in offered

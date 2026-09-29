@@ -68,7 +68,29 @@ def calls(text, pattern):
         yield m, call_text, end
 
 
-def key_label(expr):
+FOR_LOOP = re.compile(r"for\s+(\w+)\s*=\s*(-?\d+)\s*,\s*(-?\d+)")
+
+
+def loop_bounds(text, pos, expr):
+    """(variable, first, last) of the numeric `for` loop that produced `expr`.
+
+    A key concatenated inside a loop names a *range* and the number is nowhere
+    in the text. Reading the bounds off the loop means a different range needs
+    no change here."""
+    trailing = re.search(r"(\w+)\s*$", expr.strip())
+    if not trailing:
+        return None
+    var = trailing.group(1)
+    loops = [m for m in FOR_LOOP.finditer(text, 0, pos) if m.group(1) == var]
+    if not loops:
+        return None
+    return var, loops[-1].group(2), loops[-1].group(3)
+
+
+def key_label(expr, loop=None):
+    if loop:
+        var, first, last = loop
+        expr = re.sub(rf"\b{re.escape(var)}\b\s*$", f"{first}-{last}", expr.strip())
     expr = expr.replace("..", " ")
     expr = expr.replace('"', "").replace("'", "")
     expr = re.sub(r"\bmainMod\b", "SUPER", expr)
@@ -134,7 +156,8 @@ def parse_binds(text):
         if not desc_match:
             continue
         submap = submap_for(m.start(), submap_spans)
-        results.append((submap, key_label(args[0]), desc_match.group(1)))
+        label = key_label(args[0], loop_bounds(text, m.start(), args[0]))
+        results.append((submap, label, desc_match.group(1)))
     return results
 
 

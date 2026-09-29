@@ -35,6 +35,7 @@ LAST = "default"                      # what logout writes; shown as "Last sessi
 IGNORED = {"waybar", "rofi", "swaync", ""}
 THEME = paths.CONFIG / "rofi" / "hyprflow" / "list.rasi"
 WAIT = 5.0                            # seconds a relaunched app gets to show its window
+MENU_TIMEOUT = 300                    # seconds; a menu left open longer counts as dismissed
 
 
 # ── pure ──────────────────────────────────────────────────────────────────
@@ -74,6 +75,15 @@ def ago(seconds):
     if seconds < 129600:
         return f"{round(seconds / 3600)} h ago"
     return f"{round(seconds / 86400)} days ago"
+
+
+def layout_like(entries):
+    """Whether a file holds what save writes: a list of windows, each with its
+    class and workspace. Anything else (edited by hand, another tool's JSON)
+    is skipped rather than breaking the menu."""
+    return isinstance(entries, list) and all(
+        isinstance(e, dict) and isinstance(e.get("class"), str)
+        and isinstance(e.get("workspace"), int) for e in entries)
 
 
 def describe(entries, age):
@@ -139,9 +149,12 @@ class Layouts:
         for path in self.folder.glob("*.json"):
             try:
                 entries = json.loads(path.read_text())
+                age = now - path.stat().st_mtime  # gone meanwhile: skipped too
             except (OSError, ValueError):
                 continue
-            found.append((path.stem, entries, now - path.stat().st_mtime))
+            if not layout_like(entries):
+                continue
+            found.append((path.stem, entries, age))
         return sorted(found, key=lambda item: item[2])
 
     def names(self):
@@ -182,7 +195,13 @@ class RofiMenu:
                "-theme-str", f"window {{ width: 820px; }} listview {{ lines: {min(max(len(rows), 1), 8)}; }}"]
         if hint:
             cmd += ["-mesg", hint]
-        result = subprocess.run([*cmd, *extra], input="\n".join(rows), text=True, capture_output=True)
+        try:
+            # A stuck rofi keeps its keyboard grab: give up on it eventually,
+            # as if the menu had been dismissed.
+            result = subprocess.run([*cmd, *extra], input="\n".join(rows), text=True,
+                                    capture_output=True, timeout=MENU_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            return 1, ""
         return result.returncode, result.stdout.strip()
 
     def pick(self, prompt, rows, hint):

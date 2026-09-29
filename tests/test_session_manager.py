@@ -3,7 +3,10 @@ dicts, plus the menu over a temp layouts folder."""
 
 import json
 import os
+import subprocess
 import time
+
+from pathlib import Path
 
 import pytest
 
@@ -92,11 +95,39 @@ def test_layouts_are_listed_newest_first_and_bad_files_skipped(session, tmp_path
     assert session.Layouts(tmp_path, clock=lambda: now).names() == ["new", "old"]
 
 
+@pytest.mark.parametrize("content", ['{"class": "kitty"}', "42", '[{"workspace": 1}]', '["kitty"]'])
+def test_a_layout_that_is_not_a_window_list_is_skipped(session, tmp_path, content):
+    (tmp_path / "odd.json").write_text(content)
+    (tmp_path / "good.json").write_text(json.dumps([{"class": "kitty", "workspace": 1}]))
+    assert session.Layouts(tmp_path).names() == ["good"]
+
+
+def test_a_layout_deleted_while_listing_is_skipped(session, tmp_path, monkeypatch):
+    for name in ("gone", "kept"):
+        (tmp_path / f"{name}.json").write_text(json.dumps([{"class": "kitty", "workspace": 1}]))
+    real_stat = Path.stat
+
+    def stat(path, *a, **k):
+        if path.name == "gone.json":
+            raise FileNotFoundError(path)
+        return real_stat(path, *a, **k)
+
+    monkeypatch.setattr(Path, "stat", stat)
+    assert session.Layouts(tmp_path).names() == ["kept"]
+
+
+def test_a_stuck_rofi_counts_as_dismissed(session, monkeypatch):
+    def stuck(*a, **k):
+        raise subprocess.TimeoutExpired(a[0], k.get("timeout"))
+    monkeypatch.setattr(session.subprocess, "run", stuck)
+    assert session.RofiMenu().run("Load", ["a", "b"]) == (1, "")
+
+
 def test_layouts_save_exists_and_delete(session, tmp_path):
     layouts = session.Layouts(tmp_path / "templates")
     assert not layouts.exists("work")
-    layouts.save("work", [{"class": "kitty"}])
-    assert layouts.exists("work") and layouts.all()[0][1] == [{"class": "kitty"}]
+    layouts.save("work", [{"class": "kitty", "workspace": 1}])
+    assert layouts.exists("work") and layouts.all()[0][1] == [{"class": "kitty", "workspace": 1}]
     layouts.delete("work")
     assert layouts.names() == []
 

@@ -8,7 +8,7 @@ IMG_DIR="${FASTFETCH_IMG_DIR:-$FASTFETCH_DIR/img_art}"
 CONFIG_FILE="${FASTFETCH_CONFIG:-$FASTFETCH_DIR/config.jsonc}"
 ARCH_BUILTIN="__arch_builtin__"
 
-mapfile -t ARTS < <(find "$ASCII_DIR" "$IMG_DIR" -maxdepth 1 -type f | sort)
+mapfile -t ARTS < <(find "$ASCII_DIR" "$IMG_DIR" -maxdepth 1 -type f 2>/dev/null | sort)
 
 # include the built-in Arch logo as one more option in the pool
 ARTS+=("$ARCH_BUILTIN")

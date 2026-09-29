@@ -82,7 +82,8 @@ game_display() {
     local monitors candidate found
     monitors="$(hyprctl monitors all -j)"
     if [ $# -eq 0 ]; then
-        jq -r 'map(select(.disabled | not)) | max_by(.width * .height) | .description' <<<"$monitors"
+        # // empty: with every screen off there is no largest, not a screen named "null"
+        jq -r 'map(select(.disabled | not)) | max_by(.width * .height) | .description // empty' <<<"$monitors"
         return
     fi
     for candidate in "$@"; do

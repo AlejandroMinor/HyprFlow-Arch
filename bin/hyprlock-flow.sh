@@ -6,8 +6,10 @@
 
 set -uo pipefail
 
-pidof hyprlock >/dev/null 2>&1 && exit 0
+# Only this user's hyprlock: another session's lock is not this screen's.
+pgrep -u "$UID" -x hyprlock >/dev/null 2>&1 && exit 0
 
-"${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock/geometry.sh" || true
+geometry="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock/geometry.sh"
+[ -x "$geometry" ] && { "$geometry" || true; }
 
 exec hyprlock "$@"

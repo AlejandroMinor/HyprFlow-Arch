@@ -9,6 +9,7 @@
 set -uo pipefail
 
 ws="$(hyprctl activeworkspace -j | jq -r '.id')"
+[[ $ws =~ ^-?[0-9]+$ ]] || { echo "${0##*/}: no active workspace from hyprctl" >&2; exit 1; }
 
 mapfile -t addrs < <(
 	hyprctl clients -j |

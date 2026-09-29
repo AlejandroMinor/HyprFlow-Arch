@@ -23,7 +23,8 @@ metadata() { playerctl metadata --format "$1" 2>/dev/null; }
 
 print_placeholder() {
     [ -s "$PLACEHOLDER" ] || magick -size 256x256 xc:none "$PLACEHOLDER" 2>/dev/null
-    printf '%s\n' "$PLACEHOLDER"
+    # No file, no path: printing nothing keeps what hyprlock already shows.
+    [ -s "$PLACEHOLDER" ] && printf '%s\n' "$PLACEHOLDER"
 }
 
 player_id=$(metadata '{{playerName}}')
@@ -138,7 +139,9 @@ find_icon_file() {
         done
     done
 
-    file=$(find /usr/share/icons \( -name "$name.png" -o -name "$name.svg" \) 2>/dev/null | head -1)
+    # Last resort, and it runs on every artwork refresh: themes keep icons at
+    # <theme>/<size>/<category>/<file>, so four levels cover them all.
+    file=$(find /usr/share/icons -maxdepth 4 \( -name "$name.png" -o -name "$name.svg" \) 2>/dev/null | head -1)
     [ -n "$file" ] && { printf '%s' "$file"; return 0; }
 
     return 1

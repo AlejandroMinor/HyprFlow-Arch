@@ -122,6 +122,17 @@ def test_show_desktop_refuses_to_run_without_a_runtime_dir(box):
     assert not (root / "batch").exists()          # nothing was dispatched
 
 
+@pytest.mark.parametrize("script", ["close-workspace.sh", "hyprland-group-all.sh"])
+def test_without_an_answer_from_hyprctl_they_say_so(box, script):
+    _, root = box
+    (root / "active.json").write_text("")        # hyprctl answered nothing
+    env = {**os.environ, "T": str(root), "HOME": str(root), "XDG_RUNTIME_DIR": str(root),
+           "PATH": f"{root / 'fakebin'}:{os.environ['PATH']}", "FAKE_ANSWER": "Close 2 window(s)"}
+    result = subprocess.run(["bash", str(LIB / script)], env=env, capture_output=True, text=True, timeout=10)
+    assert result.returncode == 1 and "no active workspace" in result.stderr
+    assert not (root / "batch").exists()
+
+
 def test_group_all_groups_the_workspace_windows(box):
     run, _ = box
     batch = run("hyprland-group-all.sh")

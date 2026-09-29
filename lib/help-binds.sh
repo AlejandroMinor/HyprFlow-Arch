@@ -13,12 +13,12 @@ load_palette
 
 pkill -x rofi && exit 0
 
-THEME="$HOME/.config/rofi/hyprflow/list.rasi"
+THEME="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/hyprflow/list.rasi"
 KEYBINDS_LUA="$HYPRFLOW_LIB/../dotconfig/hypr/keybindings.lua"
 GESTURES_LUA="$HYPRFLOW_LIB/../dotconfig/hypr/gestures.lua"
 
 python3 "$HYPRFLOW_LIB/help-binds-parse.py" "$KEYBINDS_LUA" "$GESTURES_LUA" | \
-awk -F'\t' -v accent="$color15" -v muted="$color8" '
+awk -F'\t' -v accent="${color15:-#c0caf5}" -v muted="${color8:-#565f89}" '
 function esc(s) {
     gsub(/&/, "\\&amp;", s); gsub(/</, "\\&lt;", s); gsub(/>/, "\\&gt;", s)
     return s

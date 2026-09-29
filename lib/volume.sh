@@ -23,6 +23,7 @@ read_volume() {
 
 show() {
     local title="$1" icon="$2" percent="$3" body="$4"
+    command -v notify-send >/dev/null 2>&1 || return 0  # the volume changed anyway
     notify-send -a "Volume" -u low -t 1200 -e -i "$icon" \
         -h string:x-canonical-private-synchronous:volume \
         -h "int:value:$percent" "$title" "$body"

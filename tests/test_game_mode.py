@@ -135,6 +135,14 @@ def test_without_a_list_the_largest_screen_wins(gm):
     assert "monitors.sh solo on NZXT Canvas 27Q" in gm.log()
 
 
+def test_with_every_screen_off_there_is_no_screen_called_null(gm):
+    gm.config('GAME_DISPLAY=""')
+    (gm.root / "monitors.json").write_text(json.dumps([{**m, "disabled": True} for m in MONITORS]))
+    result = gm.run("on")
+    assert result.returncode == 1
+    assert not any("solo on null" in line for line in gm.log())
+
+
 def test_on_fails_cleanly_when_no_screen_matches(gm):
     gm.config('GAME_DISPLAY=("Samsung")')
     result = gm.run("on")

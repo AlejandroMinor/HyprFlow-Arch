@@ -36,6 +36,39 @@ hl.window_rule({
 --  APP-SPECIFIC RULES
 -- =======================================================
 
+-- Edge (Wayland) opens these two as windows with no class. Given focus, Edge
+-- closed them at once (a black flash), and they draw their own look, so both
+-- get no focus and no frame, shadow, dimming or glass. Keep the pair in step.
+
+-- Hover cards and tooltips: next to the pointer, not centred.
+hl.window_rule({
+    name             = "untitled-popups-no-focus",
+    match            = { class = "^$", title = "^$", xwayland = false },
+    move             = {"cursor_x+16", "cursor_y+16"},
+    float            = true,
+    no_initial_focus = true,
+    border_size      = 0,
+    rounding         = 0,
+    no_shadow        = true,
+    no_blur          = true,
+    opaque           = true,
+    tag              = "+hyprglass_disabled",
+})
+
+-- The "is sharing your screen" bar: stays where Edge puts it.
+hl.window_rule({
+    name             = "screen-share-bar",
+    match            = { class = "^$", title = ".*(compartiendo tu pantalla|is sharing your screen).*" },
+    float            = true,
+    no_initial_focus = true,
+    border_size      = 0,
+    rounding         = 0,
+    no_shadow        = true,
+    no_blur          = true,
+    opaque           = true,
+    tag              = "+hyprglass_disabled",
+})
+
 hl.window_rule({
     name       = "center-vscode-dialogs",
     match      = { class = "^(Code|code-url-handler)$", fullscreen = false },

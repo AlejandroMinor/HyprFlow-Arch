@@ -173,6 +173,13 @@ hl.window_rule({
     opacity   = "0.7 override 0.7 override",
 })
 
+-- Any app's dialogs (modal windows), centred instead of wherever they land.
+hl.window_rule({
+    name   = "center-dialogs",
+    match  = { modal = true },
+    center = true,
+})
+
 hl.window_rule({
     name    = "kitty-transparent",
     match   = { class = "^(kitty)$" },

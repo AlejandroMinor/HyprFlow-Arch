@@ -586,3 +586,81 @@ def test_hidpp_a_reading_held_back_before_the_watch_is_rechecked(hub, timers, tm
     source.recheck = True                             # the first read held one back
     source.watch(lambda *a: True)
     assert (source.CONFIRM_DELAY, source.refresh) in timers
+
+
+# ---- AppleBleSource (AirPods over Bluetooth LE) ------------------------------
+
+# The proximity message his AirPods Max broadcast at 78 % (nibble 7 = 70-79 %).
+MAX_ADVERT = bytes.fromhex("0719011f202b07800612c5f544d1732c13b1c98b5589c2c26e867a")
+
+
+def test_ble_parses_the_airpods_max_advert(hub):
+    assert hub.AppleBleSource.parse(MAX_ADVERT) == (0x201F, 70)
+
+
+@pytest.mark.parametrize("data", [
+    MAX_ADVERT[:5],                                   # cut short
+    bytes([0x10]) + MAX_ADVERT[1:],                   # another Apple message type
+    MAX_ADVERT[:6] + bytes([0x0F]) + MAX_ADVERT[7:],  # level unknown
+])
+def test_ble_ignores_what_is_not_a_reading(hub, data):
+    assert hub.AppleBleSource.parse(data) is None
+
+
+def ble_source(hub, monkeypatch, connected, now):
+    source = hub.AppleBleSource(clock=lambda: now[0])
+    monkeypatch.setattr(source, "connected_models", lambda: set(connected))
+    return source
+
+
+def test_ble_shows_airpods_only_while_connected_here(hub, monkeypatch):
+    now = [0.0]
+    source = ble_source(hub, monkeypatch, [], now)
+    source.heard(MAX_ADVERT)                          # a neighbour's, or ours out of range
+    assert source.read() == []
+    source.connected_models = lambda: {0x201F}
+    assert source.read() == [hub.Device("AirPods Max", hub.ICONS[19], 70)]
+
+
+def test_ble_drops_a_stale_reading(hub, monkeypatch):
+    now = [0.0]
+    source = ble_source(hub, monkeypatch, [0x201F], now)
+    source.heard(MAX_ADVERT)
+    now[0] = hub.BLE_STALE + 1
+    assert source.read() == []
+
+
+def test_ble_redraws_only_when_the_level_changes(hub, monkeypatch):
+    calls = []
+    source = ble_source(hub, monkeypatch, [0x201F], [0.0])
+    source.changed = lambda: calls.append(1)
+    source.heard(MAX_ADVERT)
+    source.heard(MAX_ADVERT)                          # the same advert, many times a second
+    assert calls == [1]
+
+
+def test_ble_does_not_scan_without_airpods_connected(hub, monkeypatch):
+    source = ble_source(hub, monkeypatch, [], [0.0])
+    monkeypatch.setattr(hub.Gio, "bus_get_sync", lambda *a: pytest.fail("scanned"))
+    assert source.scan() is True                      # the poll keeps going
+
+
+def test_ble_reads_adverts_bluez_already_holds(hub, monkeypatch):
+    # An advert BlueZ already knew sends no change signal: it is read from the list.
+    source = hub.AppleBleSource(clock=lambda: 0.0)
+    monkeypatch.setattr(source, "devices", lambda: {
+        "/org/bluez/hci0/dev_45": {"ManufacturerData": {hub.APPLE: list(MAX_ADVERT)}},
+        "/org/bluez/hci0/dev_AA": {"ManufacturerData": {0x0006: [1, 2, 3]}},   # not Apple
+    })
+    source.collect()
+    assert source.readings[0x201F][0] == 70
+
+
+def test_ble_knows_connected_apple_models_by_modalias(hub, monkeypatch):
+    source = hub.AppleBleSource()
+    monkeypatch.setattr(source, "devices", lambda: {
+        "a": {"Connected": True, "Modalias": "bluetooth:v004Cp201FdF06C"},    # AirPods Max
+        "b": {"Connected": False, "Modalias": "bluetooth:v004Cp0265d0100"},   # Apple, but off
+        "c": {"Connected": True, "Modalias": "usb:v046DpC548d0100"},          # not Apple
+    })
+    assert source.connected_models() == {0x201F}

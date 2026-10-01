@@ -18,8 +18,9 @@
 - **Template Method**: `WaybarModule.run()` fixes the loop (die with Waybar,
   skip repeated lines, restart a dead event source); a module only writes
   `state()` and `events()`.
-- **Adapter + Observer**: battery-hub turns UPower, headsetcontrol and the Bolt
-  receiver into one `Device`; each source `watch()`es its own events.
+- **Adapter + Observer**: battery-hub turns UPower, headsetcontrol, the Bolt
+  receiver and AirPods (Bluetooth LE) into one `Device`; each source
+  `watch()`es its own events.
 - **Repository + Strategy + injection**: session-manager keeps layouts behind
   `Layouts`, asks through a `Menu` (rofi today), and `main()` wires them.
 - **Repository**: monitors.py keeps profiles behind `Profiles`; the layout

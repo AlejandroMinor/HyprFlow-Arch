@@ -20,7 +20,7 @@ each one by its full path:
 
 | Script | Called by | Description |
 |--------|-----------|-------------|
-| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol and Logitech Bolt receivers in one module: click for all of them, right click for the headset lights, notifications when one runs low |
+| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them, right click for the headset lights, notifications when one runs low |
 | `mute_indicator.py` | Waybar | Audio at a glance: output muted, and a badge while the microphone is muted |
 | `volume.sh` | Volume keys | Change volume or mute, with a transient notification showing the level |
 | `camera_status.py` | Waybar | Camera-in-use indicator |

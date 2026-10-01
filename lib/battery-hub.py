@@ -59,6 +59,9 @@ from hyprflow.waybar import WaybarModule  # noqa: E402
 
 HEADSET_POLL = 60  # seconds; headsetcontrol reports no events
 HIDPP_POLL = 300   # seconds; batteries behind a Logitech receiver last weeks
+BLE_POLL = 600     # seconds between Bluetooth LE scans, while AirPods are connected
+BLE_SCAN = 6       # seconds a scan lasts; it shares the radio with the audio
+BLE_STALE = 1800   # seconds; an older AirPods reading is dropped
 EXPANDED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-expanded")
 NOTIFIED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-notified.json")
 # headsetcontrol can set the headset lights but not read them back, so the
@@ -70,6 +73,8 @@ WARNING = 35   # percent; same thresholds the old per-device modules used
 CRITICAL = 20
 
 UPOWER = "org.freedesktop.UPower"
+BLUEZ = "org.bluez"
+APPLE = 0x004C  # Bluetooth company id
 DBUS_TIMEOUT_MS = 2000  # a stuck UPower must not hold the bar for D-Bus's default 25 s
 # UPower device types (UpDeviceKind).
 LINE_POWER, BATTERY = 1, 2
@@ -217,6 +222,114 @@ class HeadsetControlSource:
         # headsetcontrol has no events: poll, and only when it is installed.
         if shutil.which("headsetcontrol"):
             GLib.timeout_add_seconds(HEADSET_POLL, changed)
+
+
+class AppleBleSource:
+    """Adapter for the battery AirPods broadcast over Bluetooth LE for nearby
+    iPhones (Apple's proximity message, the card an iPhone shows). AirPods Max
+    report it nowhere else: not to BlueZ, so not to UPower. Any AirPods nearby
+    broadcast too, so a model is shown only while a pair of it is connected
+    here. In steps of 10 %."""
+
+    MODELS = {0x201F: "AirPods Max", 0x200A: "AirPods Max"}  # model id -> name
+
+    def __init__(self, clock=time.monotonic):
+        self.clock = clock
+        self.readings = {}  # model id -> (percent, when)
+        self.changed = None
+
+    @staticmethod
+    def parse(data):
+        """(model id, percent) from a proximity message, or None. The level is
+        a nibble, 0-10 in tens; 15 means unknown."""
+        if len(data) < 8 or data[0] != 0x07:
+            return None
+        level = data[6] & 0x0F
+        if level > 10:
+            return None
+        return data[3] | data[4] << 8, level * 10
+
+    def devices(self):
+        """BlueZ's known devices: {path: Device1 properties}."""
+        try:
+            bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)
+            objects = bus.call_sync(BLUEZ, "/", "org.freedesktop.DBus.ObjectManager",
+                                    "GetManagedObjects", None, None, Gio.DBusCallFlags.NONE,
+                                    DBUS_TIMEOUT_MS, None).unpack()[0]
+        except GLib.Error:
+            return {}
+        return {path: ifaces["org.bluez.Device1"] for path, ifaces in objects.items()
+                if "org.bluez.Device1" in ifaces}
+
+    def connected_models(self):
+        """Model ids of the Apple devices connected to this computer, from
+        their Modalias (bluetooth:v004Cp201F...)."""
+        models = set()
+        for device in self.devices().values():
+            modalias = device.get("Modalias", "")
+            if device.get("Connected") and modalias.startswith("bluetooth:v004Cp"):
+                models.add(int(modalias[16:20], 16))
+        return models
+
+    def read(self):
+        now, devices = self.clock(), []
+        for model in self.connected_models() & self.MODELS.keys():
+            reading = self.readings.get(model)
+            if reading and now - reading[1] < BLE_STALE:
+                devices.append(Device(self.MODELS[model], ICONS[19], reading[0]))
+        return devices
+
+    def heard(self, data):
+        """One advert: keep the reading if it is a model we know."""
+        found = self.parse(bytes(data))
+        if found and found[0] in self.MODELS:
+            model, percent = found
+            new = self.readings.get(model, (None,))[0] != percent
+            self.readings[model] = (percent, self.clock())
+            if new and self.changed:
+                self.changed()
+
+    def collect(self):
+        """The adverts BlueZ holds after a scan. Read from its device list, not
+        from change signals: an advert already known sends none."""
+        for device in self.devices().values():
+            data = device.get("ManufacturerData", {}).get(APPLE)
+            if data:
+                self.heard(data)
+
+    def watch(self, changed):
+        self.changed = changed
+        GLib.timeout_add_seconds(3, lambda: self.scan() and False)  # once, soon after start
+        GLib.timeout_add_seconds(BLE_POLL, self.scan)                # then now and then
+
+    def scan(self):
+        """A short LE scan, only while AirPods are connected: it shares the
+        radio with their audio. A GLib callback; True keeps the poll going."""
+        if not self.connected_models() & self.MODELS.keys():
+            return True
+        bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)
+        adapter = "/org/bluez/hci0"
+        try:
+            bus.call_sync(BLUEZ, adapter, "org.bluez.Adapter1", "SetDiscoveryFilter",
+                          GLib.Variant("(a{sv})", ({"Transport": GLib.Variant("s", "le"),
+                                                    "DuplicateData": GLib.Variant("b", True)},)),
+                          None, Gio.DBusCallFlags.NONE, DBUS_TIMEOUT_MS, None)
+            bus.call_sync(BLUEZ, adapter, "org.bluez.Adapter1", "StartDiscovery",
+                          None, None, Gio.DBusCallFlags.NONE, DBUS_TIMEOUT_MS, None)
+        except GLib.Error:
+            return True
+
+        def finish():
+            self.collect()
+            try:
+                bus.call_sync(BLUEZ, adapter, "org.bluez.Adapter1", "StopDiscovery",
+                              None, None, Gio.DBusCallFlags.NONE, DBUS_TIMEOUT_MS, None)
+            except GLib.Error:
+                pass
+            return False
+
+        GLib.timeout_add_seconds(BLE_SCAN, finish)
+        return True
 
 
 class HidrawTransport:
@@ -677,7 +790,7 @@ class ViewState:
 
 def default_sources():
     """A fresh set: sources keep state (caches, a receiver's fd)."""
-    return [UPowerSource(), HeadsetControlSource(), HidppSource()]
+    return [UPowerSource(), HeadsetControlSource(), HidppSource(), AppleBleSource()]
 
 
 class BatteryHubModule(WaybarModule):

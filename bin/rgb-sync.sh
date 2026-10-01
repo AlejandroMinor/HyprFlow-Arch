@@ -13,7 +13,7 @@
 # Talks to the OpenRGB server on localhost (openrgb.service, see
 # system/openrgb.service.d/). Without it the CLI rescans the hardware on every
 # call, which takes ~15 s and cannot reach the NVMe LEDs as a normal user, so
-# this quietly does nothing instead.
+# this quietly does nothing instead (but waits for one still starting).
 
 # shellcheck source=../lib/common.sh
 . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
@@ -110,7 +110,7 @@ palette_colour() {
 # cached colour is left alone, so --last brings the theme back.
 reset_to_factory() {
     local args=()
-    mapfile -t args < <(openrgb -l 2>/dev/null | awk '
+    mapfile -t args < <(openrgb -ld 2>/dev/null | awk '
         /^[0-9]+:/ { dev = $1; sub(":", "", dev) }
         /^ *Modes:/ {
             mode = ""
@@ -122,10 +122,10 @@ reset_to_factory() {
 }
 
 # Switches every LED off: the device's Off mode, or static black when it has
-# none. Like the reset, it leaves the cached colour for --last.
+# none. Leaves the cached colour for --last; fails when no device came back.
 lights_off() {
     local args=()
-    mapfile -t args < <(openrgb -l 2>/dev/null | awk '
+    mapfile -t args < <(openrgb -ld 2>/dev/null | awk '
         /^[0-9]+:/ { dev = $1; sub(":", "", dev) }
         /^ *Modes:/ {
             if ($0 ~ / \[?Off\]? /) print "-d\n" dev "\n-m\noff"
@@ -136,16 +136,32 @@ lights_off() {
 
 command -v openrgb >/dev/null 2>&1 || exit 0
 
+# Something listening on the OpenRGB port (RGB_PORT: for the tests).
+server_up() { (exec 3<>/dev/tcp/127.0.0.1/"${RGB_PORT:-6742}") 2>/dev/null; }
+
+# True once the server answers. openrgb.service opens its port ~20 s after it
+# starts (hardware scan), so a session start waits; with the service not
+# running there is nothing to wait for and it gives up at once.
+wait_for_server() {
+    local waited=0
+    until server_up; do
+        command -v systemctl >/dev/null 2>&1 &&
+            systemctl is-active --quiet openrgb.service || return 1
+        (( waited++ >= ${RGB_WAIT_STEPS:-60} )) && return 1
+        sleep 0.5
+    done
+}
+
 if [ "${1:-}" = "--toggle" ]; then
     if [ -e "$LIGHTS_OFF" ]; then set -- --last; else set -- --off; fi
 fi
 
 case "$1" in
     --reset|--off)
-        # Like the colour cache below, marked before the server check.
-        [ "$1" = "--off" ] && mkdir -p "$(dirname "$LIGHTS_OFF")" && : > "$LIGHTS_OFF"
-        (exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
-        if [ "$1" = "--reset" ]; then reset_to_factory; else lights_off; fi
+        wait_for_server || exit 0
+        if [ "$1" = "--reset" ]; then reset_to_factory; exit 0; fi
+        # Marked only if they went off: --toggle reads it.
+        lights_off && mkdir -p "$(dirname "$LIGHTS_OFF")" && : > "$LIGHTS_OFF"
         exit 0 ;;
 esac
 
@@ -157,10 +173,8 @@ case "$1" in
 esac
 [ -n "$led" ] || exit 0
 
-# Cached before the server check, so a session start that finds the server
-# still scanning can re-apply it later with --last.
+# Cached first, so --last can apply it later if the server never answers.
 mkdir -p "$(dirname "$LAST")" && echo "$led" > "$LAST"
-rm -f "$LIGHTS_OFF"
 
-(exec 3<>/dev/tcp/127.0.0.1/6742) 2>/dev/null || exit 0
-openrgb -m static -c "$led" >/dev/null 2>&1
+wait_for_server || exit 0
+openrgb -m static -c "$led" >/dev/null 2>&1 && rm -f "$LIGHTS_OFF"

@@ -2,6 +2,7 @@
 file it writes before talking to OpenRGB. openrgb itself is a fake."""
 
 import os
+import socket
 import subprocess
 from pathlib import Path
 
@@ -12,14 +13,34 @@ SCRIPT = Path(__file__).resolve().parent.parent / "bin" / "rgb-sync.sh"
 GREYS = {f"color{i}": "#808080" for i in range(16)}
 
 
+# What OpenRGB 1.0 prints for -ld (-l lists names only since 1.0).
+DETAILED = """0: ENE DRAM
+  Modes: Direct Off [Static] Breathing Rainbow
+1: Razer Basilisk V3
+  Modes: Direct [Static] Breathing 'Spectrum Cycle'
+"""
+
+
 @pytest.fixture
 def rgb(tmp_path):
     fakes = tmp_path / "fakebin"
     fakes.mkdir()
-    (fakes / "openrgb").write_text('#!/bin/bash\necho "openrgb $*" >> "$HOME/log"\n')
+    (tmp_path / "detailed").write_text(DETAILED)
+    (fakes / "openrgb").write_text('#!/bin/bash\necho "openrgb $*" >> "$HOME/log"\n'
+                                   '[ "$1" = -ld ] && cat "$HOME/detailed"\nexit 0\n')
     (fakes / "openrgb").chmod(0o755)
+    # A stand-in for the OpenRGB server port: never the real one, which is up
+    # on this machine and would make the tests depend on it.
+    server = socket.socket()
+    server.bind(("127.0.0.1", 0))
+    server.listen(16)
+    # OpenRGB "not running": the script must not sit in its startup wait, and on
+    # this machine the real service is up and listening on the port.
+    (fakes / "systemctl").write_text("#!/bin/bash\nexit 1\n")
+    (fakes / "systemctl").chmod(0o755)
     (tmp_path / ".cache" / "wallust" / "colors").mkdir(parents=True)
-    env = {**os.environ, "HOME": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}"}
+    env = {**os.environ, "HOME": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}",
+           "RGB_PORT": str(server.getsockname()[1])}
 
     def run(*args, palette=None, path=None):
         if palette is not None:
@@ -30,7 +51,13 @@ def rgb(tmp_path):
         cache = tmp_path / ".cache/wallust/led-color"
         return cache.read_text().strip() if cache.exists() else None
 
-    return run, tmp_path
+    yield run, tmp_path
+    server.close()
+
+
+def log(root):
+    path = root / "log"
+    return path.read_text().splitlines() if path.exists() else []
 
 
 def image(path, *areas):
@@ -103,6 +130,38 @@ def test_without_openrgb_it_does_nothing(rgb):
     # real openrgb and repaint the real LEDs.
     (root / "empty").mkdir()
     assert run(palette={"color5": "#778D01"}, path=str(root / "empty")) is None
+
+
+def test_a_server_still_scanning_is_waited_for(rgb):
+    """openrgb.service binds the port ~21 s into its hardware scan, and a
+    session start landing in that window used to skip the LEDs until the next
+    theme change. Active service, no port: retry, then give up quietly."""
+    run, root = rgb
+    probe = root / "fakebin/systemctl"
+    probe.write_text('#!/bin/bash\necho poll >> "$HOME/polls"\nexit 0\n')
+    probe.chmod(0o755)
+    (root / ".cache/wallust/colors/colors-rofi-sh.conf").write_text("color5='#778D01'\n")
+    env = {**os.environ, "HOME": str(root), "PATH": f"{root / 'fakebin'}:{os.environ['PATH']}",
+           "RGB_WAIT_STEPS": "2", "RGB_PORT": "1"}   # nothing listens on port 1
+    subprocess.run(["/usr/bin/bash", str(SCRIPT)], env=env, check=True, timeout=30)
+    assert (root / "polls").read_text().split() == ["poll"] * 3   # polled, slept, gave up
+    assert not (root / "log").exists()                           # gave up before openrgb
+
+
+def test_off_reads_the_detailed_list_and_switches_every_device_off(rgb):
+    run, root = rgb
+    run("--off")
+    assert "openrgb -ld" in log(root)
+    # Off where the device has an Off mode, static black where it has none.
+    assert "openrgb -d 0 -m off -d 1 -m static -c 000000" in log(root)
+    assert (root / ".cache/wallust/led-off").exists()
+
+
+def test_off_marks_nothing_when_no_device_came_back(rgb):
+    run, root = rgb
+    (root / "fakebin/openrgb").write_text('#!/bin/bash\necho "openrgb $*" >> "$HOME/log"\n')
+    run("--off")                                          # an empty list, like -l on 1.0
+    assert not (root / ".cache/wallust/led-off").exists()
 
 
 def test_toggle_switches_off_then_back_to_the_last_colour(rgb):

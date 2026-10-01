@@ -165,11 +165,14 @@ hl.config({
         active_opacity   = 1.0,
         inactive_opacity = 0.80,
 
+        -- Floating windows only (tiled ones drop it in windowrules.lua): wide,
+        -- and cast downwards so they read as lifted.
         shadow = {
             enabled      = true,
-            range        = 4,
+            range        = 40,
             render_power = 3,
-            color        = 0xee1a1a1a,
+            offset       = {0, 8},
+            color        = 0x77000000,
         },
 
         -- Scratchpad (Super+Z): blur what's behind it instead of dimming it.

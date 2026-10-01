@@ -11,6 +11,8 @@ hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
 
 hl.window_rule({ name = "smart-borders-tiled",      match = { float = false, workspace = "w[tv1]" }, border_size = 0, rounding = 0 })
 hl.window_rule({ name = "smart-borders-fullscreen", match = { float = false, workspace = "f[1]"   }, border_size = 0, rounding = 0 })
+-- The shadow is for floating windows; tiled ones sit flat between the gaps.
+hl.window_rule({ name = "no-shadow-tiled",          match = { float = false }, no_shadow = true })
 
 
 -- =======================================================

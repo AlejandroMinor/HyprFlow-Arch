@@ -307,6 +307,10 @@ class AppleBleSource:
         radio with their audio. A GLib callback; True keeps the poll going."""
         if not self.connected_models() & self.MODELS.keys():
             return True
+        # Not while gaming: a scan loads the radio the controller is on, and a
+        # cheap adapter can stall under it.
+        if (paths.HYPRFLOW_STATE / "game-mode").exists():
+            return True
         bus = Gio.bus_get_sync(Gio.BusType.SYSTEM)
         adapter = "/org/bluez/hci0"
         try:

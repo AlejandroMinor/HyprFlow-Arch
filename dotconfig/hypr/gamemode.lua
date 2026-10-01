@@ -14,6 +14,12 @@ do
             -- 2 = fullscreen only; always on flickers on the desktop
             misc       = { vrr = tonumber(state:match("vrr=(%d)")) or 0 },
         })
+        -- A game opens fullscreen on top of Big Picture, not tiled beside it.
+        hl.window_rule({
+            name       = "game-mode-games-fullscreen",
+            match      = { class = "^(steam_app_.*)$" },
+            fullscreen = true,
+        })
     end
 
     -- Closing Big Picture from the controller ends game mode. game-mode.sh

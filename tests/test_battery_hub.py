@@ -664,3 +664,11 @@ def test_ble_knows_connected_apple_models_by_modalias(hub, monkeypatch):
         "c": {"Connected": True, "Modalias": "usb:v046DpC548d0100"},          # not Apple
     })
     assert source.connected_models() == {0x201F}
+
+
+def test_ble_does_not_scan_in_game_mode(hub, monkeypatch, tmp_path):
+    source = ble_source(hub, monkeypatch, [0x201F], [0.0])   # AirPods connected
+    monkeypatch.setattr(hub.paths, "HYPRFLOW_STATE", tmp_path)
+    (tmp_path / "game-mode").write_text("solo=1\n")
+    monkeypatch.setattr(hub.Gio, "bus_get_sync", lambda *a: pytest.fail("scanned while gaming"))
+    assert source.scan() is True

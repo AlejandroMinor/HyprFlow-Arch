@@ -116,7 +116,8 @@ def test_each_screen_gets_the_bar_its_profile_names(mon):
 
 
 def test_apply_reloads_and_restarts_waybar_only_on_change(mon):
-    mon.run("apply")
+    first = mon.run("apply")
+    assert "monitor layout changed" in first.stdout and "bars changed" in first.stdout
     assert "hyprctl reload" in mon.log()
     assert "waybar-restart.sh " in mon.log()
     result = mon.run("apply", FAKE_RUNNING="waybar")

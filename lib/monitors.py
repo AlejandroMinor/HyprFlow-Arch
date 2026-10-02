@@ -400,7 +400,7 @@ def apply(profile=None):
         WAYBAR_CONFIG, json.dumps(bars, indent=2, ensure_ascii=False) + "\n")
 
     if lua_changed:
-        msg("layout changed; reloading Hyprland…")
+        msg("monitor layout changed: reloading Hyprland")
         hyprland.reload()
         # A monitor switched back on comes up without its wallpaper, and the
         # monitors must be on to take their workspaces back: both a moment
@@ -412,16 +412,18 @@ def apply(profile=None):
     if GAME_MODE_STATE.exists():
         msg("game mode on: leaving Waybar hidden")
     elif bars_changed or not waybar_running():
+        why = "bars changed (bars.json): restarting Waybar" if bars_changed \
+            else "Waybar was not running: starting it"
+        msg(why)
         try:
             # Its own lock and wait take seconds at most; a hang must not
             # keep the apply lock held.
             subprocess.run([str(LIB / "waybar-restart.sh")], timeout=30)
-            msg("Waybar (re)started")
         except subprocess.TimeoutExpired:
             warn("Waybar did not restart in time")
 
     if not lua_changed and not bars_changed:
-        msg("no changes")
+        msg("no changes: layout and bars already up to date")
     if used_default:
         notify.send("Monitors", "Using default layout. Run 'monitors.sh setup' to customize.", app="Monitors")
 

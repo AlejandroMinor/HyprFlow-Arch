@@ -35,8 +35,10 @@ FAKES = {
     "sudo": 'exec "$@"',
     # No `version` answer: Hyprland "not running", so the plugin check skips.
     # FAKE_RELOAD_FAIL: Hyprland refuses the reload.
+    # Queries with -j get an empty JSON list: no monitors, no windows.
     "hyprctl": '[ "$1" = dispatch ] && echo ok; [ "$1" = version ] && exit 1; '
-               '[ "$1" = reload ] && [ -n "${FAKE_RELOAD_FAIL:-}" ] && { echo "no socket" >&2; exit 1; }; exit 0',
+               '[ "$1" = reload ] && [ -n "${FAKE_RELOAD_FAIL:-}" ] && { echo "no socket" >&2; exit 1; }; '
+               'case " $* " in *" -j "*) echo "[]" ;; esac; exit 0',
     "hyprpm": "",
     "killall": "",
     "fc-cache": "",
@@ -171,6 +173,14 @@ def test_a_failed_reload_is_reported(env):
     assert "hyprctl reload" in result.stdout.split("things left to do")[1]
 
 
+def test_config_regenerates_the_bars_and_says_so(env):
+    # The Waybar config is built from bars.json, which config just copied.
+    result = run(env, "config")
+    assert "monitors:" in result.stdout                     # monitors.sh apply ran and spoke
+    assert "monitors.sh failed" not in result.stdout
+    assert (Path(env["HOME"]) / ".config" / "waybar" / "config").exists()
+
+
 def test_config_links_bin_on_path_and_lib_off_it(env):
     result = run(env, "config")
     assert result.returncode == 0, result.stdout + result.stderr
@@ -205,36 +215,46 @@ def test_config_never_touches_the_real_session(env):
     assert "hyprctl dispatch hl.dsp.exec_cmd(\"waybar\")" in calls
 
 
-GENERATED = ["hypr/colors.lua", "rofi/hyprflow/colors.rasi", "wlogout/colors.css",
-             "cava/themes/wallust", "hypr/monitors_active.lua", "waybar/config"]
+# Generated on the machine, so config never copies the repo's starting copy over
+# them. The palette is left alone; the layout and bars are rebuilt from the
+# saved monitor profile by monitors.sh apply, which config now runs.
+PALETTE = ["hypr/colors.lua", "rofi/hyprflow/colors.rasi", "wlogout/colors.css", "cava/themes/wallust"]
+LAYOUT = ["hypr/monitors_active.lua", "waybar/config"]
 
 
-def test_config_keeps_what_was_generated_on_this_machine(env):
+def seed(env, paths):
     config = Path(env["HOME"]) / ".config"
-    for path in GENERATED:
-        (config / path).parent.mkdir(parents=True, exist_ok=True)
-        (config / path).write_text("mine\n")
-    run(env, "config")
-    assert {p: (config / p).read_text() for p in GENERATED} == {p: "mine\n" for p in GENERATED}
-
-
-def test_config_never_writes_a_generated_file_even_for_a_moment(env):
-    # Hyprland reloads on every config change: a moment with the repo's generic
-    # monitors_active.lua in place switched every screen to it and back.
-    config = Path(env["HOME"]) / ".config"
-    for path in GENERATED:
+    for path in paths:
         (config / path).parent.mkdir(parents=True, exist_ok=True)
         (config / path).write_text("mine\n")
         os.utime(config / path, ns=(1_000_000_000, 1_000_000_000))
+    return config
+
+
+def test_config_never_touches_the_palette(env):
+    config = seed(env, PALETTE)
     run(env, "config")
-    assert {p: (config / p).stat().st_mtime_ns for p in GENERATED} == {p: 1_000_000_000 for p in GENERATED}
+    assert {p: (config / p).read_text() for p in PALETTE} == {p: "mine\n" for p in PALETTE}
+    assert {p: (config / p).stat().st_mtime_ns for p in PALETTE} == {p: 1_000_000_000 for p in PALETTE}
 
 
-def test_a_fresh_config_gets_the_repo_starting_copies(env):
+def test_config_never_puts_the_generic_layout_over_a_machine_one(env):
+    # Hyprland reloads on every config change: a moment with the repo's generic
+    # monitors_active.lua in place switched every screen to it and back. The
+    # layout may be rebuilt from the profile, never replaced by that copy.
+    config = seed(env, LAYOUT)
+    run(env, "config")
+    for path in LAYOUT:
+        assert (config / path).read_bytes() != (REPO / "dotconfig" / path).read_bytes(), path
+
+
+def test_a_fresh_config_gets_the_starting_palette_and_a_layout(env):
     run(env, "config")
     config = Path(env["HOME"]) / ".config"
-    for path in GENERATED:
+    for path in PALETTE:
         assert (config / path).read_bytes() == (REPO / "dotconfig" / path).read_bytes(), path
+    for path in LAYOUT:
+        assert (config / path).exists(), path
 
 
 def test_theme_keeps_the_palette_wallust_just_wrote(env):

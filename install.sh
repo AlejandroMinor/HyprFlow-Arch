@@ -186,7 +186,9 @@ check_dependencies() {
 run_or_warn() {
     local retry="$1" err
     shift
-    err="$( { "$@" 2>&1 1>&3 3>&-; } 3>&1 )" && return 0
+    # fd 3 is this script's stdout, opened outside the capture: the command's
+    # output goes there as usual, only its stderr lands in $err.
+    { err="$( { "$@" 2>&1 1>&3 3>&-; } )"; } 3>&1 && return 0
     err="$(tail -n 1 <<<"${err:-exited with an error}")"
     printf "\033[1;33m󰀦 %s failed: %s\033[0m\n" "${1##*/}" "$err"
     FAILED_STEPS+=("$retry|$err")
@@ -585,8 +587,10 @@ want monitors && setup_monitors
 want zsh      && setup_zsh
 
 # monitors.sh restarts Waybar itself after regenerating the bars, so only do it
-# here when that step did not run.
+# here when that step did not run. A config sync regenerates the bars first:
+# the Waybar config is built from bars.json, which the copy just updated.
 if ! want monitors && { want config || want theme; }; then
+    want config && run_or_warn "monitors.sh apply" "$REPO_PATH/bin/monitors.sh" apply
     restart_waybar
 fi
 

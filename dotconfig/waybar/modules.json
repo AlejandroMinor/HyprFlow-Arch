@@ -334,8 +334,7 @@
         "custom/updates",
         "wlr/taskbar",
         "tray",
-        "hyprland/language",
-        "custom/theme-selector"
+        "hyprland/language"
     ]
 },
 

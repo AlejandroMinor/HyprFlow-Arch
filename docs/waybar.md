@@ -16,7 +16,7 @@ monitor's profile.
 |------|---------|
 | Left | launcher, workspaces, hymission overview, hardware (runner, CPU, temperature, memory, disk, network) |
 | Centre | media (visualizer and player) |
-| Right | system tools (updates, taskbar, tray, keyboard layout, theme), Claude usage, privacy (screen share, microphone, camera), batteries, submap, audio, VPN, notifications, clock, power |
+| Right | submap, system tools (updates, taskbar, tray, keyboard layout), Claude usage, privacy (screen share, microphone, camera), batteries, audio, VPN, notifications, clock, power |
 
 Hardware, system tools, privacy and audio are drawers: only their first icon shows,
 and clicking it opens the rest.

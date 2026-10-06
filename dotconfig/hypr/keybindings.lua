@@ -31,6 +31,7 @@ hl.bind(mainMod .. " + V",         hl.dsp.window.float({ action = "toggle" }),  
 hl.bind(mainMod .. " + P",         hl.dsp.window.pin(),                                          { description = "Pin Window (all workspaces)" })
 hl.bind(mainMod .. " + F",         hl.dsp.window.fullscreen({ mode = "maximized" }),             { description = "Fullscreen" })
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }),            { description = "Fullscreen (Absolute)" })
+hl.bind(mainMod .. " + CTRL + F",  require("macos-fullscreen").toggle,                          { description = "Fullscreen on Its Own Workspace (macOS)" })
 hl.bind(mainMod .. " + C",         hl.dsp.window.center(),                                       { description = "Center Floating Window" })
 hl.bind(mainMod .. " + O",         hl.dsp.window.tag({ tag = "opaque" }),                                                                                                    { description = "Toggle Opacity" })
 hl.bind(mainMod .. " + SHIFT + C", function()

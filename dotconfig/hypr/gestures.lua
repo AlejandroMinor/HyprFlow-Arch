@@ -21,8 +21,10 @@ hl.gesture({ fingers = 4, direction = "up",   action = mission_control, descript
 hl.gesture({ fingers = 3, direction = "down", action = "special", workspace_name = "magic", description = "Toggle Scratchpad" })
 hl.gesture({ fingers = 4, direction = "down", action = "special", workspace_name = "magic", description = "Toggle Scratchpad" })
 
--- Swipe HORIZONTAL -> Switch workspaces (macOS spaces).
+-- Swipe HORIZONTAL -> Switch workspaces (macOS spaces). Both finger counts
+-- too: the T14's Synaptics pad often reads a 3 finger swipe as 4.
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace", description = "Switch Workspace" })
+hl.gesture({ fingers = 4, direction = "horizontal", action = "workspace", description = "Switch Workspace" })
 
 -- Pinch IN -> app launcher, where macOS has Launchpad.
 hl.gesture({ fingers = 4, direction = "pinchin",  action = function() hl.exec_cmd('sh -c "pkill -x rofi || ' .. menu .. '"') end, description = "App Launcher" })

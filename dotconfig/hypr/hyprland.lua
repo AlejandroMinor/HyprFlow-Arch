@@ -91,6 +91,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("~/.local/lib/hyprflow/activate-linux.py")
     hl.exec_cmd("rgb-sync.sh --last")
+    -- The headset gets the LED colour again whenever it turns on.
+    hl.exec_cmd("~/.local/lib/hyprflow/headset-watch.py")
     hl.exec_cmd("nm-applet --indicator")
     -- Bluetooth agent: shows the pairing and authorization prompts of any device
     -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ

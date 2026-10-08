@@ -3,7 +3,9 @@ file it writes before talking to OpenRGB. openrgb itself is a fake."""
 
 import os
 import socket
+import struct
 import subprocess
+import threading
 from pathlib import Path
 
 import pytest
@@ -178,3 +180,65 @@ def test_a_new_colour_clears_the_off_mark(rgb):
     run("--off")
     run(palette={"color5": "#778D01"})                   # a theme change turns them on
     assert not (root / ".cache/wallust/led-off").exists()
+
+
+def openrgb_server(answer=True):
+    """A stand-in OpenRGB server on its own port: records the packets it gets
+    and, if answer, reports detection started and done after a rescan."""
+    server = socket.socket()
+    server.bind(("127.0.0.1", 0))
+    server.listen(1)
+    packets = []
+
+    def serve():
+        while True:   # server_up connects first, only to see the port open
+            try:
+                conn, _ = server.accept()
+            except OSError:
+                return
+            with conn:
+                while len(header := conn.recv(16, socket.MSG_WAITALL)) == 16:
+                    packet, size = struct.unpack("<II", header[8:16])
+                    if size:
+                        conn.recv(size, socket.MSG_WAITALL)
+                    packets.append(packet)
+                    if packet == 140 and answer:
+                        for reply in (101, 103):
+                            conn.sendall(b"ORGB" + struct.pack("<III", 0, reply, 0))
+
+    threading.Thread(target=serve, daemon=True).start()
+    return server, packets
+
+
+def rescan(root, port, wait="5"):
+    env = {**os.environ, "HOME": str(root), "PATH": f"{root / 'fakebin'}:{os.environ['PATH']}",
+           "RGB_PORT": str(port), "RGB_RESCAN_WAIT": wait}
+    subprocess.run(["/usr/bin/bash", str(SCRIPT), "--rescan"], env=env, check=True, timeout=30)
+
+
+def test_rescan_detects_again_then_applies_the_last_colour(rgb):
+    run, root = rgb
+    run(palette={"color5": "#778D01"})
+    server, packets = openrgb_server()
+    rescan(root, server.getsockname()[1])
+    server.close()
+    assert packets[-1] == 140                            # the rescan request
+    assert log(root)[-1] == "openrgb -m static -c D6FF00"
+
+
+def test_rescan_keeps_the_lights_off(rgb):
+    run, root = rgb
+    run("--off")
+    server, _ = openrgb_server()
+    rescan(root, server.getsockname()[1])
+    server.close()
+    assert log(root)[-1] == "openrgb -d 0 -m off -d 1 -m static -c 000000"
+
+
+def test_rescan_with_a_silent_server_still_applies_the_colour(rgb):
+    run, root = rgb
+    run(palette={"color5": "#778D01"})
+    server, _ = openrgb_server(answer=False)
+    rescan(root, server.getsockname()[1], wait="1")
+    server.close()
+    assert log(root)[-1] == "openrgb -m static -c D6FF00"

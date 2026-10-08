@@ -36,6 +36,7 @@ each one by its full path:
 | `session-manager.py` | `Super + W` / `Shift + W` / `M` | Save window layouts and reopen them from a menu; `Super + M` saves the session and logs out |
 | `quick-actions.py` | `Super + K` | A menu to mirror or solo the screens, toggle game mode and the lights, change the wallpaper or theme; switches show whether they are on |
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
+| `headset-watch.py` | Hyprland | Gives the headset its LED colour back when it turns on (`rgb-sync.sh --rescan`) |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
 | `activate-linux.py` | Hyprland | The "Activate Linux" watermark, click-through, bottom right |
 | `monitors.py` | `monitors.sh` | The monitor logic behind the command |

@@ -70,6 +70,11 @@ def pad():
 
 
 @pytest.fixture(scope="session")
+def headset_watch():
+    return load_script("headset-watch.py")
+
+
+@pytest.fixture(scope="session")
 def waybar_module():
     sys.path.insert(0, str(LIB))
     return importlib.import_module("hyprflow.waybar")

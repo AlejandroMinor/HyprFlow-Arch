@@ -9,6 +9,8 @@
 #   rgb-sync.sh --reset back to the factory rainbow; --last undoes it
 #   rgb-sync.sh --off   every LED off (game mode); --last undoes it
 #   rgb-sync.sh --toggle  --off, or --last when they are off already
+#   rgb-sync.sh --rescan  detect devices again (a headset just turned on),
+#                         then --last, or --off while they are off
 #
 # Talks to the OpenRGB server on localhost (openrgb.service, see
 # system/openrgb.service.d/). Without it the CLI rescans the hardware on every
@@ -151,6 +153,44 @@ wait_for_server() {
         sleep 0.5
     done
 }
+
+# Asks the server to detect devices again and waits until it is done. The
+# server only detects at start, so a device off back then is missing.
+rescan() {
+    python3 - "${RGB_PORT:-6742}" "${RGB_RESCAN_WAIT:-60}" <<'EOF' 2>/dev/null
+import socket, struct, sys
+
+PROTOCOL, SET_NAME, RESCAN, DETECTION_DONE = 40, 50, 140, 103
+
+def send(sock, packet, data=b""):
+    sock.sendall(b"ORGB" + struct.pack("<III", 0, packet, len(data)) + data)
+
+def receive(sock, n):
+    data = b""
+    while len(data) < n:
+        chunk = sock.recv(n - len(data))
+        if not chunk:
+            raise OSError("closed")
+        data += chunk
+    return data
+
+sock = socket.create_connection(("127.0.0.1", int(sys.argv[1])), timeout=float(sys.argv[2]))
+send(sock, PROTOCOL, struct.pack("<I", 6))
+send(sock, SET_NAME, b"rgb-sync\0")
+send(sock, RESCAN)
+while True:
+    packet, size = struct.unpack("<II", receive(sock, 16)[8:16])
+    receive(sock, size)
+    if packet == DETECTION_DONE:
+        break
+EOF
+}
+
+if [ "${1:-}" = "--rescan" ]; then
+    wait_for_server || exit 0
+    rescan
+    if [ -e "$LIGHTS_OFF" ]; then set -- --off; else set -- --last; fi
+fi
 
 if [ "${1:-}" = "--toggle" ]; then
     if [ -e "$LIGHTS_OFF" ]; then set -- --last; else set -- --off; fi

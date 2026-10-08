@@ -1,6 +1,6 @@
 # Lockscreen
 
-`hyprlock`, bound to `Super + L` and the wlogout Lock button: oversized clock, glass
+`hyprlock`, bound to `Super + Alt + L` and the wlogout Lock button: oversized clock, glass
 bar with avatar and password field, now-playing card. Track details show only for
 dedicated music apps, since a lockscreen is visible to passers-by. Media keys keep working
 under the lock.

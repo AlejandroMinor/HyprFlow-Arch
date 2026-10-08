@@ -20,7 +20,7 @@ hl.bind(mainMod .. " + E",         hl.dsp.exec_cmd(fileManager),                
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("[float; size 1000 700; center] " .. fileManager), { description = "Open Floating File Manager" })
 hl.bind(mainMod .. " + Q",         hl.dsp.window.close(),                                        { description = "Close Active Window" })
 hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd("~/.local/lib/hyprflow/close-workspace.sh"),                        { description = "Close All Windows in Workspace" })
-hl.bind(mainMod .. " + L",         hl.dsp.exec_cmd("~/.local/bin/hyprlock-flow.sh"),             { description = "Lock Screen" })
+hl.bind(mainMod .. " + ALT + L",   hl.dsp.exec_cmd("~/.local/bin/hyprlock-flow.sh"),             { description = "Lock Screen" })
 
 
 -- =======================================================
@@ -264,6 +264,11 @@ end
 
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { description = "Next Workspace" })
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }), { description = "Previous Workspace" })
+-- This monitor only, like Ctrl+arrows on macOS: fullscreen apps (90-99) come last.
+hl.bind(mainMod .. " + ALT + right", hl.dsp.focus({ workspace = "m+1" }), { description = "Next Workspace on Monitor" })
+hl.bind(mainMod .. " + ALT + left",  hl.dsp.focus({ workspace = "m-1" }), { description = "Previous Workspace on Monitor" })
+hl.bind(mainMod .. " + L",           hl.dsp.focus({ workspace = "m+1" }), { description = "Next Workspace on Monitor" })
+hl.bind(mainMod .. " + H",           hl.dsp.focus({ workspace = "m-1" }), { description = "Previous Workspace on Monitor" })
 hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true, description = "Drag Window (hold + move mouse)" })
 hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true, description = "Resize Window (hold + move mouse)" })
 

@@ -161,13 +161,15 @@ class FakeMenu:
     def __init__(self, *answers):
         self.answers = list(answers)
         self.asked = []
+        self.widths = []
 
     def pick(self, prompt, rows, hint):
         self.asked.append((prompt, rows))
         return self.answers.pop(0)
 
-    def ask(self, prompt, options, hint=""):
+    def ask(self, prompt, options, hint="", width=None):
         self.asked.append((prompt, options))
+        self.widths.append(width)
         return self.answers.pop(0)
 
 
@@ -232,10 +234,30 @@ def test_dismissing_save_saves_nothing(flow):
 
 def test_logout_saves_the_last_session_and_exits(flow):
     build, layouts, _ = flow
-    manager, _, desktop = build()
+    manager, _, desktop = build("Log out")
     manager.logout()
     assert layouts.names() == ["default"]
     assert desktop.dispatched == ["hl.dsp.exit()"]
+
+
+def test_logout_asks_first_and_counts_the_windows(flow):
+    build, _, _ = flow
+    manager, menu, _ = build("Log out")
+    manager.logout()
+    prompt, options = menu.asked[0]
+    assert "2 windows" in prompt
+    assert options == ["Cancel", "Log out"]      # Cancel first: Enter is the safe answer
+    assert menu.widths == [400]                  # compact box, like close-workspace.sh
+
+
+def test_dismissing_logout_neither_saves_nor_exits(flow):
+    build, layouts, notes = flow
+    for answer in (None, "Cancel"):
+        manager, _, desktop = build(answer)
+        manager.logout()
+        assert layouts.names() == []
+        assert desktop.dispatched == []
+        assert notes == []
 
 
 def test_load_reopens_the_picked_layout(flow, session):

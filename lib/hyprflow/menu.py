@@ -25,8 +25,10 @@ class Menu(Protocol):
     def pick(self, prompt: str, rows: list[str], hint: str) -> Choice | None:
         """A chosen row that can also be deleted (Alt+D), or None."""
 
-    def ask(self, prompt: str, options: list[str], hint: str = "") -> str | None:
-        """Typed text or a chosen option, or None when dismissed."""
+    def ask(self, prompt: str, options: list[str], hint: str = "",
+            width: int | None = None) -> str | None:
+        """Typed text or a chosen option, or None when dismissed. `width`
+        narrows this one menu; a confirmation wants a smaller box than a list."""
 
 
 class RofiMenu:
@@ -35,9 +37,9 @@ class RofiMenu:
     def __init__(self, width=820):
         self.width = width
 
-    def run(self, prompt, rows, hint="", extra=()):
+    def run(self, prompt, rows, hint="", extra=(), width=None):
         cmd = ["rofi", "-dmenu", "-i", "-p", prompt, "-theme", str(THEME),
-               "-theme-str", f"window {{ width: {self.width}px; }} "
+               "-theme-str", f"window {{ width: {width or self.width}px; }} "
                              f"listview {{ lines: {min(max(len(rows), 1), 8)}; }}"]
         if hint:
             cmd += ["-mesg", hint]
@@ -61,6 +63,6 @@ class RofiMenu:
             return None
         return Choice(int(index), delete=code == 10)
 
-    def ask(self, prompt, options, hint=""):
-        code, text = self.run(prompt, options, hint)
+    def ask(self, prompt, options, hint="", width=None):
+        code, text = self.run(prompt, options, hint, width=width)
         return text if code == 0 and text else None

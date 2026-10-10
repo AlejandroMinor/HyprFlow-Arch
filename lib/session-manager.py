@@ -243,7 +243,14 @@ class SessionManager:
         self.notify(f"'{name}' {'updated' if existed else 'saved'}: {len(entries)} windows")
 
     def logout(self):
+        """Save the session as the last one and leave Hyprland. Confirms
+        first: one chord ends the session, and there is no undo."""
         entries = self.desktop.capture()
+        # Narrow box, matching close-workspace.sh: a two-option confirmation
+        # does not want the width a layout list needs.
+        if self.menu.ask(f"  Save {len(entries)} windows and log out?",
+                         ["Cancel", "Log out"], width=400) != "Log out":
+            return
         self.layouts.save(LAST, entries)
         self.notify(f"Session saved ({len(entries)} windows). Logging out…", "critical")
         time.sleep(0.5)

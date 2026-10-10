@@ -172,6 +172,13 @@ def test_menu_choose_gives_the_row_index(monkeypatch):
     assert "window { width: 500px; }" in " ".join(seen[0])
 
 
+def test_menu_ask_takes_a_width_for_this_call(monkeypatch):
+    seen = []
+    menu = rofi_answers(monkeypatch, 0, "Log out\n", seen)
+    assert menu.RofiMenu().ask("Log out?", ["Cancel", "Log out"], width=400) == "Log out"
+    assert "window { width: 400px; }" in " ".join(seen[0])   # not the 820px default
+
+
 def test_menu_choose_dismissed_is_none(monkeypatch):
     menu = rofi_answers(monkeypatch, 1, "")
     assert menu.RofiMenu().choose("Actions", ["a"]) is None

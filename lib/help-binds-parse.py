@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# help-binds-parse.py — extracts "MODS<TAB>DESCRIPTION<TAB>SUBMAP" from keybindings.lua
+# help-binds-parse.py — extracts "SECTION<TAB>KEYS<TAB>DESCRIPTION<TAB>SUBMAP" from
+# keybindings.lua, one line per action: keys doing the same thing share a line.
 #
 # `hyprctl binds -j` emits invalid JSON for binds registered via Hyprland's
 # native Lua API (dispatcher "__lua"), which is how this whole config is
@@ -111,6 +112,71 @@ def submap_for(pos, spans):
     return ""
 
 
+# The banner keybindings.lua opens each section with:
+#   -- =====
+#   --  WORKSPACES
+#   -- =====
+SECTION = re.compile(r"^--\s*=+\s*\n--\s+(.+?)\s*\n--\s*=+", re.M)
+
+
+def section_for(pos, text):
+    """Name of the last section banner before `pos`, or "" before the first."""
+    found = ""
+    for m in SECTION.finditer(text, 0, pos):
+        found = m.group(1)
+    return found
+
+
+MODS = {"SUPER": "Super", "SHIFT": "Shift", "CTRL": "Ctrl", "CONTROL": "Ctrl", "ALT": "Alt"}
+KEYS = {
+    "left": "←", "right": "→", "up": "↑", "down": "↓",
+    "mouse_down": "Scroll ↓", "mouse_up": "Scroll ↑",
+    "mouse:272": "Left drag", "mouse:273": "Right drag", "mouse:274": "Middle click",
+    "mouse:275": "Back button", "mouse:276": "Forward button", "mouse:277": "Thumb button",
+    "return": "Enter", "escape": "Esc", "space": "Space", "tab": "Tab",
+    "comma": ",", "period": ".", "masculine": "º", "print": "Print",
+}
+
+
+def pretty(label):
+    """"SUPER + SHIFT + left" -> "Super + Shift + ←"; XF86AudioMute -> "Audio Mute"."""
+    parts = []
+    for part in label.split(" + "):
+        if part.upper() in MODS:
+            parts.append(MODS[part.upper()])
+        elif part.lower() in KEYS:
+            parts.append(KEYS[part.lower()])
+        elif part.startswith("XF86"):
+            parts.append(re.sub(r"(?<=[a-z])(?=[A-Z])", " ", part[4:]))
+        else:
+            parts.append(part.upper() if len(part) == 1 else part)
+    return " + ".join(parts)
+
+
+def merge_keys(labels):
+    """One label for keys doing the same: "Super + ← / H" when only the last
+    key differs, "3 / 4 fingers swipe up" for gestures, else the labels joined."""
+    fingers = [re.match(r"(\d+) fingers (.+)", label) for label in labels]
+    if len(labels) > 1 and all(fingers) and len({f.group(2) for f in fingers}) == 1:
+        return " / ".join(f.group(1) for f in fingers) + f" fingers {fingers[0].group(2)}"
+    heads = {label.rpartition(" + ")[0] for label in labels}
+    if len(labels) > 1 and len(heads) == 1 and "" not in heads:
+        return f"{heads.pop()} + " + " / ".join(label.rpartition(" + ")[2] for label in labels)
+    return " / ".join(labels)
+
+
+def group(rows):
+    """Merges rows with the same section, submap and description, keeping the
+    order of the first one."""
+    merged = {}
+    for section, submap, label, description in rows:
+        keys = merged.setdefault((section, submap, description), [])
+        if pretty(label) not in keys:
+            keys.append(pretty(label))
+    return [(section, submap, merge_keys(keys), description)
+            for (section, submap, description), keys in merged.items()]
+
+
 GESTURE_LABELS = {
     "up": "swipe up",
     "down": "swipe down",
@@ -125,10 +191,7 @@ GESTURE_LABELS = {
 
 
 def parse_gestures(text):
-    """hl.gesture calls -> ("", "N fingers <motion>", description).
-
-    Gestures have no submap, so that column stays empty and they sort first.
-    """
+    """hl.gesture calls -> ("GESTURES", "", "N fingers <motion>", description)."""
     results = []
     for _, call_text, _ in calls(text, r"hl\.gesture\("):
         inner = call_text[1:-1]
@@ -140,7 +203,7 @@ def parse_gestures(text):
             continue
 
         motion = GESTURE_LABELS.get(direction.group(1), direction.group(1))
-        results.append(("", f"{fingers.group(1)} fingers {motion}", desc.group(1)))
+        results.append(("GESTURES", "", f"{fingers.group(1)} fingers {motion}", desc.group(1)))
     return results
 
 
@@ -157,7 +220,7 @@ def parse_binds(text):
             continue
         submap = submap_for(m.start(), submap_spans)
         label = key_label(args[0], loop_bounds(text, m.start(), args[0]))
-        results.append((submap, label, desc_match.group(1)))
+        results.append((section_for(m.start(), text), submap, label, desc_match.group(1)))
     return results
 
 
@@ -171,9 +234,9 @@ def main():
         results.extend(parse_binds(text))
         results.extend(parse_gestures(text))
 
-    results.sort(key=lambda r: r[0])
-    for submap, mods, description in results:
-        print(f"{mods}\t{description}\t{submap}")
+    # File order: sections as written, gestures after the binds.
+    for section, submap, keys, description in group(results):
+        print(f"{section}\t{keys}\t{description}\t{submap}")
 
 
 if __name__ == "__main__":

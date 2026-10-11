@@ -24,9 +24,13 @@ function esc(s) {
     return s
 }
 {
-    if ($1 == "" || $2 == "") next
-    tag = ($3 != "") ? "  <span size=\"x-small\" color=\"" muted "\">[" esc($3) "]</span>" : ""
-    printf "<b><span color=\"%s\">%s</span></b>   %s%s\n", accent, esc($1), esc($2), tag
+    if ($2 == "" || $3 == "") next
+    if ($1 != section) {
+        section = $1
+        printf "<span size=\"small\" color=\"%s\"><b>%s</b></span>\n", muted, esc(section)
+    }
+    tag = ($4 != "") ? "  <span size=\"x-small\" color=\"" muted "\">[" esc($4) "]</span>" : ""
+    printf "    <b><span color=\"%s\">%s</span></b>   %s%s\n", accent, esc($2), esc($3), tag
 }' | \
 rofi -dmenu \
     -i \

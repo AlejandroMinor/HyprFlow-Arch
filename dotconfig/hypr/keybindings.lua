@@ -11,7 +11,8 @@ local mainMod = "SUPER"
 -- =======================================================
 
 hl.bind(mainMod .. " + X",         function() if hl.plugin.hymission then hl.plugin.hymission.toggle() end end, { description = "Mission Control (Hymission)" })
-hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/help-binds.sh"),                { description = "View Keybind Guide" })
+-- The Quickshell guide, or rofi when Quickshell is not running.
+hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("qs -c hyprflow ipc call keyguide toggle || ~/.local/lib/hyprflow/help-binds.sh"),                { description = "View Keybind Guide" })
 hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal),                                    { description = "Open Terminal (Kitty)" })
 hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("[float; size 900 600; center] kitty"),       { description = "Open Floating Kitty" })
 hl.bind(mainMod .. " + SPACE",         hl.dsp.exec_cmd('sh -c "pkill -x rofi || ' .. menu .. '"'),  { description = "Open App Launcher" })
@@ -154,7 +155,8 @@ hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("swaync-client -t"),         
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -C"),          { description = "Clear Notifications" })
 hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("killall -SIGUSR1 waybar"),   { description = "Show / Hide Bar" })
 hl.bind(mainMod .. " + A",         hl.dsp.window.bring_to_top(),                 { description = "Bring to Front" })
-hl.bind(mainMod .. " + K",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/quick-actions.py"), { description = "Quick Actions (screens, audio, game mode, lights...)" })
+-- The Quickshell panel, or the rofi menu when Quickshell is not running.
+hl.bind(mainMod .. " + K",         hl.dsp.exec_cmd("qs -c hyprflow ipc call quickactions toggle || ~/.local/lib/hyprflow/quick-actions.py"), { description = "Quick Actions (screens, audio, game mode, lights...)" })
 
 
 -- =======================================================
@@ -339,4 +341,3 @@ hl.bind(mainMod .. " + SHIFT + Y", hl.dsp.layout("removemaster"),          { des
 hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py logout"), { description = "Save & Exit" })
 hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py save"), { description = "Save Layout" })
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py load"),        { description = "Open Saved Layout" })
-hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exit(),                                                  { description = "Force Exit" })

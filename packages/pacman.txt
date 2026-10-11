@@ -12,6 +12,7 @@ cmake                # hyprpm needs it to build plugins
 waybar
 rofi
 swaync
+quickshell           # Super+K panel (rofi when it is not running)
 libnotify            # notify-send, used by most scripts
 
 # Wallpaper and look

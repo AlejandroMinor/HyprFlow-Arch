@@ -113,3 +113,28 @@ def test_power_profile_state(qa, monkeypatch):
     assert qa.power_profile() == "balanced"
     monkeypatch.setattr(qa, "output", lambda argv: "")
     assert qa.power_profile() is None
+
+
+def test_json_lists_the_shown_actions_with_their_state(qa, capsys, monkeypatch):
+    monkeypatch.setattr(qa.shutil, "which", lambda name: None)
+    qa.main(actions=[qa.Action("a", "Lights", ["one"], lambda: False),
+                     qa.Action("b", "Gone", ["two"], needs="missing"),
+                     qa.Action("c", "Power", ["three"], lambda: "balanced")], args=["--json"])
+    import json
+    assert json.loads(capsys.readouterr().out) == [
+        {"icon": "a", "label": "Lights", "state": "off"},
+        {"icon": "c", "label": "Power", "state": "balanced"},
+    ]
+    assert qa.launched == []
+
+
+def test_run_picks_an_action_by_its_label(qa):
+    actions = [qa.Action("a", "First", ["one"]), qa.Action("b", "Second", ["two"])]
+    assert qa.main(actions=actions, args=["--run", "Second"]) == 0
+    assert qa.launched[0][0] == ["two"]
+
+
+@pytest.mark.parametrize("args", [["--run", "Nope"], ["--run"]])
+def test_run_with_an_unknown_label_runs_nothing(qa, args):
+    assert qa.main(actions=[qa.Action("a", "First", ["one"])], args=args) == 1
+    assert qa.launched == []

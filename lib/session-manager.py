@@ -13,8 +13,8 @@ waits in the load menu until you want it.
 Layout: the pure parts (what to save, how to describe a layout, where a
 window goes back to) are functions of their inputs. Layouts is a Repository,
 the only code that knows layouts are JSON files. Menu is a Strategy for asking
-the user (hyprflow.menu), RofiMenu today (a GTK one would slot in without touching the rest),
-and Desktop adapts hyprctl. SessionManager runs save, logout and load on top
+the user (hyprflow.menu): rofi, with the confirmations on the Quickshell
+panel (QuickshellMenu), and Desktop adapts hyprctl. SessionManager runs save, logout and load on top
 of them, so each flow is tested with fakes.
 """
 
@@ -27,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hyprflow import hyprland, notify as notifications, paths  # noqa: E402
-from hyprflow.menu import RofiMenu  # noqa: E402
+from hyprflow.menu import QuickshellMenu  # noqa: E402
 
 TEMPLATES = paths.CONFIG / "hypr" / "templates"
 LAST = "default"                      # what logout writes; shown as "Last session"
@@ -231,12 +231,12 @@ class SessionManager:
     def save(self):
         """Ask for a name (the existing ones listed, to overwrite) and save."""
         names = [n for n in self.layouts.names() if n != LAST]
-        name = self.menu.ask("  Save as", names, "Type a new name, or pick one to overwrite it")
+        name = self.menu.ask("  Save as", names, "Type a new name, or pick one to overwrite it")
         if not name:
             return
         name = name.replace("/", "-").replace(" ", "-")
         existed = self.layouts.exists(name)
-        if existed and self.menu.ask(f"  Overwrite '{name}'?", ["Cancel", "Overwrite"]) != "Overwrite":
+        if existed and self.menu.confirm(f"  Overwrite '{name}'?", ["Cancel", "Overwrite"]) != "Overwrite":
             return
         entries = self.desktop.capture()
         self.layouts.save(name, entries)
@@ -246,10 +246,8 @@ class SessionManager:
         """Save the session as the last one and leave Hyprland. Confirms
         first: one chord ends the session, and there is no undo."""
         entries = self.desktop.capture()
-        # Narrow box, matching close-workspace.sh: a two-option confirmation
-        # does not want the width a layout list needs.
-        if self.menu.ask(f"  Save {len(entries)} windows and log out?",
-                         ["Cancel", "Log out"], width=400) != "Log out":
+        if self.menu.confirm(f"  Save {len(entries)} windows and log out?",
+                             ["Cancel", "Log out"]) != "Log out":
             return
         self.layouts.save(LAST, entries)
         self.notify(f"Session saved ({len(entries)} windows). Logging out…", "critical")
@@ -267,7 +265,7 @@ class SessionManager:
             rows = [f"<b>{html.escape(title(name))}</b>   "
                     f"<span alpha='55%'>{html.escape(describe(entries, age))}</span>"
                     for name, entries, age in found]
-            choice = self.menu.pick("  Layout", rows, "Enter: open  ·  Alt+D: delete")
+            choice = self.menu.pick("  Layout", rows, "Enter: open  ·  Alt+D: delete")
             if choice is None:
                 return
             name, entries, _ = found[choice.index]
@@ -292,7 +290,7 @@ def main(argv):
         print(__doc__.split("\n\n")[1], file=sys.stderr)
         return 1
     # Composition root: the one place that chooses the concrete pieces.
-    manager = SessionManager(Layouts(), RofiMenu(), Desktop(), notify)
+    manager = SessionManager(Layouts(), QuickshellMenu(), Desktop(), notify)
     getattr(manager, argv[1])()
     return 0
 

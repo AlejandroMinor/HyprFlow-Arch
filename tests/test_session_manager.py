@@ -156,21 +156,25 @@ def test_layouts_save_exists_and_delete(session, tmp_path):
 # The flows, on a fake menu, desktop and notifier
 
 class FakeMenu:
-    """Answers in order: pick() takes Choice or None, ask() takes text or None."""
+    """Answers in order: pick() takes Choice or None, ask() and confirm() text
+    or None. confirmed lists which prompts were confirmations."""
 
     def __init__(self, *answers):
         self.answers = list(answers)
         self.asked = []
-        self.widths = []
+        self.confirmed = []
 
     def pick(self, prompt, rows, hint):
         self.asked.append((prompt, rows))
         return self.answers.pop(0)
 
-    def ask(self, prompt, options, hint="", width=None):
+    def ask(self, prompt, options, hint=""):
         self.asked.append((prompt, options))
-        self.widths.append(width)
         return self.answers.pop(0)
+
+    def confirm(self, prompt, options):
+        self.confirmed.append(prompt)
+        return self.ask(prompt, options)
 
 
 class FakeDesktop:
@@ -220,6 +224,7 @@ def test_saving_over_a_layout_asks_first(flow):
     manager, menu, _ = build("work", "Cancel")
     manager.save()
     assert layouts.all()[0][1] == [] and notes == []            # kept
+    assert len(menu.confirmed) == 1                              # the name was a list
     manager, _, _ = build("work", "Overwrite")
     manager.save()
     assert len(layouts.all()[0][1]) == 2 and notes == ["'work' updated: 2 windows"]
@@ -247,7 +252,7 @@ def test_logout_asks_first_and_counts_the_windows(flow):
     prompt, options = menu.asked[0]
     assert "2 windows" in prompt
     assert options == ["Cancel", "Log out"]      # Cancel first: Enter is the safe answer
-    assert menu.widths == [400]                  # compact box, like close-workspace.sh
+    assert menu.confirmed == [prompt]            # the confirmation panel, not a list
 
 
 def test_dismissing_logout_neither_saves_nor_exits(flow):

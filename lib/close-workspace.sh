@@ -19,12 +19,9 @@ mapfile -t addrs < <(
 count=${#addrs[@]}
 ((count == 0)) && exit 0
 
-answer=$(printf 'Cancel\nClose %d window(s)' "$count" |
-	rofi -dmenu \
-		-p "  Close workspace $ws?" \
-		-selected-row 0 \
-		-theme "$HOME/.config/rofi/hyprflow/list.rasi" \
-		-theme-str "window { width: 400px; } listview { lines: 2; }")
+# The Quickshell panel, or rofi without it; Cancel first: Enter is the safe answer.
+answer=$("$(dirname "$(readlink -f "$0")")/confirm.py" \
+	"  Close workspace $ws?" "Cancel" "Close $count window(s)")
 
 [[ "$answer" == Close* ]] || exit 0
 

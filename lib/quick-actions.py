@@ -7,8 +7,12 @@ Each entry is a Command: what it is called, how to read its current state
 lists them and runs the one picked, so a new action is one more entry in
 ACTIONS; nothing else changes. An action whose program is missing (needs) is
 left out of the menu.
+
+The menu is rofi, or the Quickshell panel (dotconfig/quickshell/hyprflow), which
+reads `--json` and runs its pick with `--run LABEL`.
 """
 
+import json
 import shutil
 import subprocess
 import sys
@@ -35,14 +39,20 @@ class Action:
     def available(self):
         return self.needs is None or shutil.which(self.needs) is not None
 
-    def row(self):
-        text = f"{self.icon}  {self.label}"
+    def state_word(self):
         state = self.state() if self.state else None
         if isinstance(state, bool):
-            state = "on" if state else "off"
-        if state:
+            return "on" if state else "off"
+        return state or ""
+
+    def row(self):
+        text = f"{self.icon}  {self.label}"
+        if state := self.state_word():
             text += f"   <span alpha='55%'>{state}</span>"
         return text
+
+    def as_dict(self):
+        return {"icon": self.icon, "label": self.label, "state": self.state_word()}
 
     def run(self):
         # Detached: game mode or a monitor change outlive this menu.
@@ -113,10 +123,19 @@ ACTIONS = [
 ]
 
 
-def main(menu=None, actions=ACTIONS):
+def main(menu=None, actions=ACTIONS, args=()):
     # Composition root: the menu comes in, so the tests pass a fake one.
-    menu = menu or RofiMenu(width=520)
     actions = [a for a in actions if a.available()]
+    if args[:1] == ["--json"]:
+        print(json.dumps([a.as_dict() for a in actions], ensure_ascii=False))
+        return 0
+    if args[:1] == ["--run"]:
+        action = next((a for a in actions if args[1:2] == [a.label]), None)
+        if action is None:
+            return 1
+        action.run()
+        return 0
+    menu = menu or RofiMenu(width=520)
     picked = menu.choose("Quick actions", [a.row() for a in actions])
     if picked is not None and 0 <= picked < len(actions):
         actions[picked].run()
@@ -124,4 +143,4 @@ def main(menu=None, actions=ACTIONS):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(args=sys.argv[1:]))

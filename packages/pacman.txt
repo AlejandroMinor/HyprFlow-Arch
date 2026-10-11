@@ -53,6 +53,7 @@ blueman              # pairing prompts (controllers)
 network-manager-applet
 openconnect          # VPN, watched by the VPN module
 upower               # every battery in battery-hub
+power-profiles-daemon  # power profile in Super+K
 brightnessctl
 playerctl            # media keys, lockscreen music
 

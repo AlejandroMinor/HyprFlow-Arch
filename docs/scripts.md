@@ -34,7 +34,8 @@ each one by its full path:
 | `hyprland-group-all.sh` | `Alt + G` | Group every window in the workspace |
 | `hyprland-show-desktop.sh` | `Super + D` | Show the desktop |
 | `session-manager.py` | `Super + W` / `Shift + W` / `M` | Save window layouts and reopen them from a menu; `Super + M` saves the session and logs out |
-| `quick-actions.py` | `Super + K` | A menu to mirror or solo the screens, toggle game mode and the lights, change the wallpaper or theme; switches show whether they are on |
+| `quick-actions.py` | `Super + K` | A menu to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, change the wallpaper or theme; switches show their state, and actions whose program is missing are hidden |
+| `power-profile.sh` | `Super + K` | Switches to the next power profile and says which one is on |
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
 | `headset-watch.py` | Hyprland | Gives the headset its LED colour back when it turns on (`rgb-sync.sh --rescan`) |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |

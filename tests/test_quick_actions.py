@@ -73,3 +73,43 @@ def test_mirror_state_is_unknown_without_hyprland(qa, monkeypatch):
         raise monitors.hyprland.HyprlandError("no answer")
     monkeypatch.setattr(monitors, "detect", fails)
     assert qa.mirror_on() is None
+
+
+def test_a_state_word_is_shown_as_is(qa):
+    assert qa.Action("x", "Power", ["true"], lambda: "balanced").row().endswith(">balanced</span>")
+
+
+def test_actions_whose_program_is_missing_are_left_out(qa, monkeypatch):
+    monkeypatch.setattr(qa.shutil, "which", lambda name: None if name == "missing" else "/usr/bin/" + name)
+    menu = FakeMenu(None)
+    qa.main(menu, [qa.Action("a", "Here", ["one"], needs="present"),
+                   qa.Action("b", "Gone", ["two"], needs="missing"),
+                   qa.Action("c", "Plain", ["three"])])
+    assert menu.rows == ["a  Here", "c  Plain"]
+
+
+def test_a_picked_action_is_counted_among_the_shown_ones(qa, monkeypatch):
+    monkeypatch.setattr(qa.shutil, "which", lambda name: None)
+    qa.main(FakeMenu(1), [qa.Action("a", "Gone", ["one"], needs="missing"),
+                          qa.Action("b", "First", ["two"]), qa.Action("c", "Second", ["three"])])
+    assert qa.launched[0][0] == ["three"]
+
+
+@pytest.mark.parametrize("out, expected", [("true", True), ("false", False), ("", None)])
+def test_dnd_state(qa, monkeypatch, out, expected):
+    monkeypatch.setattr(qa, "output", lambda argv: out)
+    assert qa.dnd_on() is expected
+
+
+@pytest.mark.parametrize("out, expected", [
+    ("Volume: 0.82", True), ("Volume: 0.82 [MUTED]", False), ("", None)])
+def test_mic_state(qa, monkeypatch, out, expected):
+    monkeypatch.setattr(qa, "output", lambda argv: out)
+    assert qa.mic_on() is expected
+
+
+def test_power_profile_state(qa, monkeypatch):
+    monkeypatch.setattr(qa, "output", lambda argv: "balanced")
+    assert qa.power_profile() == "balanced"
+    monkeypatch.setattr(qa, "output", lambda argv: "")
+    assert qa.power_profile() is None

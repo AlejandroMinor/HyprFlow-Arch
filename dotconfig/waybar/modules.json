@@ -242,7 +242,7 @@
 "group/media": {
     "orientation": "horizontal",
     "drawer": {
-        "transition-duration": 300,
+        "transition-duration": 260,
         "transition-left-to-right": true,
         "click-to-reveal": true
     },
@@ -266,7 +266,7 @@
 "group/hardware": {
     "orientation": "horizontal",
     	"drawer": {
-		"transition-duration": 200,
+		"transition-duration": 260,
 		"transition-left-to-right": true,
         "click-to-reveal": true
 	},
@@ -325,7 +325,7 @@
 "group/system-tools": {
     "orientation": "horizontal",
     "drawer": {
-        "transition-duration": 300,
+        "transition-duration": 260,
         "transition-left-to-right": false,
         "click-to-reveal": true
     },
@@ -346,7 +346,7 @@
 "group/audio": {
     "orientation": "horizontal",
     "drawer": {
-        "transition-duration": 300,
+        "transition-duration": 260,
         "transition-left-to-right": false,
         "click-to-reveal": true
     },

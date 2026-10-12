@@ -172,11 +172,53 @@ def test_menu_choose_gives_the_row_index(monkeypatch):
     assert "window { width: 500px; }" in " ".join(seen[0])
 
 
-def test_menu_ask_takes_a_width_for_this_call(monkeypatch):
+def test_menu_confirm_is_a_narrow_box(monkeypatch):
     seen = []
     menu = rofi_answers(monkeypatch, 0, "Log out\n", seen)
-    assert menu.RofiMenu().ask("Log out?", ["Cancel", "Log out"], width=400) == "Log out"
+    assert menu.RofiMenu().confirm("Log out?", ["Cancel", "Log out"]) == "Log out"
     assert "window { width: 400px; }" in " ".join(seen[0])   # not the 820px default
+
+
+def panel_answers(monkeypatch, answer, running=True):
+    """qs and rofi faked: the panel writes `answer` into the reply pipe, as
+    Confirm.qml does; not running, qs fails and rofi answers "rofi"."""
+    from hyprflow import menu
+    seen = []
+
+    def run(cmd, **kwargs):
+        seen.append(cmd)
+        if cmd[0] == "rofi":
+            return type("R", (), {"returncode": 0, "stdout": "rofi\n"})()
+        if running and answer is not None:
+            Path(cmd[-1]).write_text(answer + "\n")
+        return type("R", (), {"returncode": 0 if running else 255})()
+    monkeypatch.setattr(menu.subprocess, "run", run)
+    return menu, seen
+
+
+def test_quickshell_confirm_reads_the_panel_answer(monkeypatch):
+    menu, seen = panel_answers(monkeypatch, "Log out")
+    assert menu.QuickshellMenu().confirm("Log out?", ["Cancel", "Log out"]) == "Log out"
+    assert seen[0][:7] == ["qs", "-c", "hyprflow", "ipc", "call", "confirm", "ask"]
+    assert seen[0][7:9] == ["Log out?", "Cancel\nLog out"]
+    assert len(seen) == 1                                     # rofi never ran
+
+
+def test_quickshell_confirm_dismissed_is_none(monkeypatch):
+    menu, _ = panel_answers(monkeypatch, "")
+    assert menu.QuickshellMenu().confirm("Log out?", ["Cancel", "Log out"]) is None
+
+
+def test_quickshell_confirm_falls_back_to_rofi(monkeypatch):
+    menu, seen = panel_answers(monkeypatch, None, running=False)
+    assert menu.QuickshellMenu().confirm("Log out?", ["Cancel", "Log out"]) == "rofi"
+    assert seen[1][0] == "rofi"
+
+
+def test_quickshell_confirm_gives_up_on_a_silent_panel(monkeypatch):
+    menu, _ = panel_answers(monkeypatch, None)
+    monkeypatch.setattr(menu, "TIMEOUT", 0.1)
+    assert menu.QuickshellMenu().confirm("Log out?", ["Cancel", "Log out"]) is None
 
 
 def test_menu_choose_dismissed_is_none(monkeypatch):

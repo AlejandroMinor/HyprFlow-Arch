@@ -218,7 +218,7 @@ def test_config_never_touches_the_real_session(env):
 # Generated on the machine, so config never copies the repo's starting copy over
 # them. The palette is left alone; the layout and bars are rebuilt from the
 # saved monitor profile by monitors.sh apply, which config now runs.
-PALETTE = ["hypr/colors.lua", "rofi/hyprflow/colors.rasi", "wlogout/colors.css", "cava/themes/wallust"]
+PALETTE = ["hypr/colors.lua", "wlogout/colors.css", "cava/themes/wallust"]
 LAYOUT = ["hypr/monitors_active.lua", "waybar/config"]
 
 

@@ -56,9 +56,10 @@ function toggle_submap(name)
     end
     hl.dispatch(hl.dsp.submap(name))
     if mode then
-        hl.exec_cmd('notify-send -u low -i "' .. mode.icon .. '" "' .. mode.hint .. '" "Press ' .. mode.key .. ' again or Esc to exit"')
-        -- swaync ignores -t
-        hl.exec_cmd("sleep 1.5; swaync-client --close-latest")
+        -- The Quickshell HUD with the submap's keys, or a notification without it.
+        hl.exec_cmd('qs -c hyprflow ipc call submap enter ' .. name .. ' "' .. mode.hint .. '" "' .. mode.key .. '"'
+            .. ' || { notify-send -u low -i "' .. mode.icon .. '" "' .. mode.hint .. '" "Press ' .. mode.key .. ' again or Esc to exit";'
+            .. ' sleep 1.5; swaync-client --close-latest; }')  -- swaync ignores -t
     end
 end
 
@@ -93,6 +94,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("rgb-sync.sh --last")
     -- The headset gets the LED colour again whenever it turns on.
     hl.exec_cmd("~/.local/lib/hyprflow/headset-watch.py")
+    -- HyprFlow's Quickshell panels (Super+K); -n: one copy only.
+    hl.exec_cmd("qs -n -d -c hyprflow")
     hl.exec_cmd("nm-applet --indicator")
     -- Bluetooth agent: shows the pairing and authorization prompts of any device
     -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ

@@ -1,7 +1,7 @@
 """Tests for the keybinding helpers that act on a whole workspace:
 close-workspace.sh (Super+Shift+Q), hyprland-show-desktop.sh (Super+D) and
-hyprland-group-all.sh (Super+Shift+G). hyprctl and rofi are fakes that log
-what they were asked, so no real window moves."""
+hyprland-group-all.sh (Super+Shift+G). hyprctl, rofi and qs are fakes that log
+what they were asked, so no real window moves and no real panel opens."""
 
 import json
 import os
@@ -21,13 +21,22 @@ case "$1" in
 esac
 '''
 
+# The Quickshell panel: answers FAKE_PANEL into the reply pipe (the last
+# argument), or is not running (exit 255) when FAKE_PANEL is unset.
+QS = r'''
+[ -n "${FAKE_PANEL+x}" ] || exit 255
+printf '%s\n' "$@" > "$T/panel"
+printf '%s\n' "$FAKE_PANEL" > "${@: -1}"
+'''
+
 
 @pytest.fixture
 def box(tmp_path):
     fakes = tmp_path / "fakebin"
     fakes.mkdir()
     for name, body in {"hyprctl": HYPRCTL,
-                       "rofi": 'cat > "$T/offered"; printf "%s\\n" "${FAKE_ANSWER:-}"'}.items():
+                       "rofi": 'cat > "$T/offered"; printf "%s\\n" "${FAKE_ANSWER:-}"',
+                       "qs": QS}.items():
         (fakes / name).write_text(f"#!/bin/bash\n{body}\n")
         (fakes / name).chmod(0o755)
     (tmp_path / "active.json").write_text(json.dumps({"id": 3, "monitor": "DP-2"}))
@@ -62,6 +71,19 @@ def test_close_workspace_asks_and_closes_only_this_workspace(box):
     assert "address:0xa" in batch and "address:0xb" in batch
     assert "0xc" not in batch and "0xd" not in batch       # other workspace, unmapped
     assert batch.count("hl.dsp.window.close()") == 2
+
+
+def test_close_workspace_asks_on_the_panel_when_quickshell_runs(box):
+    run, root = box
+    batch = run("close-workspace.sh", FAKE_PANEL="Close 2 window(s)")
+    assert batch.count("hl.dsp.window.close()") == 2
+    assert "Cancel\nClose 2 window(s)" in (root / "panel").read_text()
+    assert not (root / "offered").exists()                  # rofi stayed closed
+
+
+def test_close_workspace_dismissed_panel_closes_nothing(box):
+    run, _ = box
+    assert run("close-workspace.sh", FAKE_PANEL="") == ""
 
 
 def test_close_workspace_cancel_closes_nothing(box):

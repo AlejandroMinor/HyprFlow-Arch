@@ -372,7 +372,7 @@ copy_configs() {
     # config change, and a moment with the repo's generic monitors_active.lua
     # switched every screen to it and back. A fresh machine still gets them.
     local generated=(
-        hypr/colors.lua rofi/hyprflow/colors.rasi wlogout/colors.css cava/themes/wallust
+        hypr/colors.lua wlogout/colors.css cava/themes/wallust
         hypr/monitors_active.lua waybar/config
     )
 

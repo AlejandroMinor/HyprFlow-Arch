@@ -6,11 +6,14 @@
 - `lib/`: what only Waybar, the keybindings or other scripts call, linked into
   `~/.local/lib/hyprflow` (off PATH). Shared code lives here too:
   - `lib/hyprflow/` (Python): `paths`, `hyprland` (a facade over Hyprland),
-    `notify`, `palette`, `lock` (one copy at a time), `menu` (rofi) and
+    `notify`, `palette`, `lock` (one copy at a time), `menu` (rofi, with the
+    confirmations on Quickshell) and
     `waybar` (`WaybarModule`).
   - `lib/common.sh` (Bash): `msg`, `warn`, `notify`, `load_palette`, and where
     `bin/` and `lib/` are.
 - `dotconfig/`: copied into `~/.config` by `install.sh config`.
+  `dotconfig/quickshell/hyprflow/` holds the Quickshell panels (`qs -c hyprflow`):
+  the Super+K and Super+I panels, the confirmations and the submap HUD.
 - `packages/`: the package lists install.sh reads.
 
 ## Patterns
@@ -32,6 +35,13 @@
 - **Facade**: `hyprflow.hyprland` is the one way to talk to Hyprland (through
   its `hyprctl` command and event socket); every failure comes out as
   `HyprlandError`, an `OSError`.
+- **Quickshell panels**: every panel is an `Overlay` (the window, the fold
+  open and closed, keyboard and click outside) plus its content; durations
+  and curves live only in `Motion`, colours in `Colors` (fixed). The data
+  stays in Python: the Super+K panel draws `quick-actions.py --json` and
+  runs `--run LABEL`, so rofi and Quickshell share one list of actions.
+  A confirmation is asked through IPC with a pipe to answer on
+  (`QuickshellMenu.confirm`), so the scripts wait for it as they wait for rofi.
 
 ## Adding a bar module
 

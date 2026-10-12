@@ -1,15 +1,16 @@
 /**
- * Static fallback palette. Wallust regenerates this file (see wallust.toml).
+ * Fixed colours, the same as the Quickshell panels (Colors.qml): they do not
+ * follow wallust.
  */
 * {
-    foreground: #F2E9F4;
-    muted:      #F2E9F499;
-    accent:     #FF2E88;   /* selection / prompt / button */
-    active:     #4DD8E6;   /* secondary accents */
-    bg-solid:   #140C1C;   /* text on accent */
+    foreground: #FFFFFF;
+    muted:      #FFFFFF73;   /* 45%: the panels' placeholder */
+    accent:     #FFFFFF;     /* prompt */
+    active:     #3DFF3D;
+    bg-solid:   #000000;
 
-    bg-window:  #140C1C61;  /* 61 hex ≈ 38% alpha */
-    bg-input:   #0D0A128C;
-    sel-bg:     #FF2E883D;
-    separator:  #F2E9F414;
+    bg-window:  #00000061;   /* 38%: the panel card */
+    bg-input:   #00000000;   /* none: the panels have no input box */
+    sel-bg:     #0000008C;   /* 55%: the panels' selection */
+    separator:  #FFFFFF14;   /* 8%: the card border */
 }

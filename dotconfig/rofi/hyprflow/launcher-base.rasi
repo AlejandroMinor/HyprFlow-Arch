@@ -34,7 +34,9 @@ window {
     location:         center;
     width:            820px;
     height:           480px;
-    border-radius:    14px;
+    border-radius:    16px;
+    border:           1px;
+    border-color:     @separator;
     background-color: @bg-window;
     children:         [ mainbox ];
 }

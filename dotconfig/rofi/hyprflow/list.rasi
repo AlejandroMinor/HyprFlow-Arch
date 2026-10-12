@@ -21,7 +21,9 @@ window {
     transparency:     "real";
     location:         center;
     width:            600px;
-    border-radius:    14px;
+    border-radius:    16px;
+    border:           1px;
+    border-color:     @separator;
     background-color: @bg-window;
     padding:          20px;
     children:         [ mainbox ];
@@ -83,8 +85,6 @@ element-text {
 
 element selected.normal {
     background-color: @sel-bg;
-    border:           0px 0px 0px 4px;
-    border-color:     @accent;
     text-color:       @foreground;
 }
 

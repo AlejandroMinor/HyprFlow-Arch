@@ -1,5 +1,5 @@
 -- Plugin settings: hymission (the overview) and hyprglass (the glass on
--- windows, rofi and master-pick). Both follow the wallust palette from
+-- windows and master-pick). Both follow the wallust palette from
 -- colors.lua. Loaded after windowrules.lua, whose tags hyprglass reads.
 
 -- Rewrites a wallust color from colors.lua with an explicit alpha.
@@ -163,5 +163,4 @@ if hl.plugin.hyprglass then
     -- Namespace match is exact, not regex. mask_threshold keeps the pill's
     -- anti-aliased edge from counting as content.
     hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.05 })
-    hg.layer("rofi",        { preset = "minor",             mask_threshold = 0.05 })
 end

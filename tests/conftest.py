@@ -75,6 +75,11 @@ def headset_watch():
 
 
 @pytest.fixture(scope="session")
+def osd_watch():
+    return load_script("osd-watch.py")
+
+
+@pytest.fixture(scope="session")
 def waybar_module():
     sys.path.insert(0, str(LIB))
     return importlib.import_module("hyprflow.waybar")

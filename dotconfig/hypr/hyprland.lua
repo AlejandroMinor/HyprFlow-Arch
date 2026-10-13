@@ -96,6 +96,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("~/.local/lib/hyprflow/headset-watch.py")
     -- HyprFlow's Quickshell panels (Super+K); -n: one copy only.
     hl.exec_cmd("qs -n -d -c hyprflow")
+    -- OSD for play/pause, Caps/Num Lock and Do Not Disturb.
+    hl.exec_cmd("~/.local/lib/hyprflow/osd-watch.py")
     hl.exec_cmd("nm-applet --indicator")
     -- Bluetooth agent: shows the pairing and authorization prompts of any device
     -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ

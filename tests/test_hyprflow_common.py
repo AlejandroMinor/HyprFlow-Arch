@@ -111,6 +111,34 @@ def test_notify_passes_app_urgency_icon_and_body(fake):
     ]
 
 
+def test_osd_pushes_the_level_to_the_panel(tmp_path, monkeypatch):
+    from hyprflow import osd
+    log = tmp_path / "log"
+    (tmp_path / "bin").mkdir()
+    (tmp_path / "bin" / "qs").write_text(
+        f'#!/bin/bash\nprintf "%s|" "$@" >> "{log}"\necho >> "{log}"\n')
+    (tmp_path / "bin" / "qs").chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tmp_path / 'bin'}:{os.environ['PATH']}")
+    assert osd.show("\U000F057E", "Volume", "50%", 50) is True
+    osd.show("\U000F040A", "Song", "Artist", -1)
+    assert log.read_text().splitlines() == [
+        "-c|hyprflow|ipc|call|osd|level|\U000F057E|Volume|50%|50|",
+        "-c|hyprflow|ipc|call|osd|level|\U000F040A|Song|Artist|-1|",
+    ]
+
+
+def test_osd_without_the_panel_notifies_instead(tmp_path, monkeypatch):
+    from hyprflow import osd
+    log = tmp_path / "log"
+    (tmp_path / "bin").mkdir()
+    (tmp_path / "bin" / "notify-send").write_text(
+        f'#!/bin/bash\nprintf "%s|" "$@" >> "{log}"\necho >> "{log}"\n')
+    (tmp_path / "bin" / "notify-send").chmod(0o755)
+    monkeypatch.setenv("PATH", str(tmp_path / "bin"))   # no qs anywhere
+    assert osd.show("\U000F0A9B", "Caps Lock", "On", -1) is False
+    assert log.read_text().splitlines() == ["-a|HyprFlow|-u|normal|--|Caps Lock|On|"]
+
+
 def test_hyprland_events_reads_the_socket_line_by_line(monkeypatch, tmp_path):
     import socket
     import threading

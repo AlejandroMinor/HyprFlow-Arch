@@ -26,7 +26,8 @@ esac
 def profile(tmp_path):
     fakes = tmp_path / "fakebin"
     fakes.mkdir()
-    for name, body in {"powerprofilesctl": PPCTL, "notify-send": 'printf "%s\\n" "$*" >> "$T/notes"'}.items():
+    for name, body in {"powerprofilesctl": PPCTL, "notify-send": 'printf "%s\\n" "$*" >> "$T/notes"',
+                       "qs": "exit 255"}.items():
         (fakes / name).write_text(f"#!/bin/bash\n{body}\n")
         (fakes / name).chmod(0o755)
     env = {**os.environ, "T": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}"}
@@ -60,3 +61,36 @@ def test_without_powerprofilesctl_it_does_nothing(tmp_path):
     (tmp_path / "empty").mkdir()
     env = {**os.environ, "PATH": str(tmp_path / "empty")}
     assert subprocess.run(["/usr/bin/bash", str(SCRIPT)], env=env, timeout=10).returncode == 0
+
+
+def test_the_osd_shows_the_profile_when_quickshell_runs(tmp_path):
+    fakes = tmp_path / "fakebin"
+    fakes.mkdir()
+    fakes_files = {"powerprofilesctl": PPCTL, "qs": 'printf "%s\\n" "$*" >> "$T/osd"',
+                   "notify-send": 'printf "%s\\n" "$*" >> "$T/notes"'}
+    for name, body in fakes_files.items():
+        (fakes / name).write_text(f"#!/bin/bash\n{body}\n")
+        (fakes / name).chmod(0o755)
+    env = {**os.environ, "T": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}"}
+    (tmp_path / "current").write_text("balanced\n")
+    (tmp_path / "have").write_text("performance balanced power-saver")
+    subprocess.run(["bash", str(SCRIPT)], env=env, check=True, timeout=10)
+    assert (tmp_path / "current").read_text().strip() == "performance"
+    assert not (tmp_path / "notes").exists()   # the OSD took it, no notification
+    assert (tmp_path / "osd").read_text().strip() == (
+        "-c hyprflow ipc call osd level \U000F0425 Power profile performance -1")
+
+
+def test_a_failed_switch_says_nothing(tmp_path):
+    fakes = tmp_path / "fakebin"
+    fakes.mkdir()
+    ppctl = PPCTL.replace('set)  echo "$2" > "$T/current" ;;', "set)  exit 1 ;;")
+    for name, body in {"powerprofilesctl": ppctl, "qs": "exit 255",
+                       "notify-send": 'printf "%s\\n" "$*" >> "$T/notes"'}.items():
+        (fakes / name).write_text(f"#!/bin/bash\n{body}\n")
+        (fakes / name).chmod(0o755)
+    (tmp_path / "current").write_text("balanced\n")
+    (tmp_path / "have").write_text("performance balanced power-saver")
+    env = {**os.environ, "T": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}"}
+    assert subprocess.run(["bash", str(SCRIPT)], env=env, timeout=10).returncode == 1
+    assert not (tmp_path / "notes").exists()

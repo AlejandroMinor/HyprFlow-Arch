@@ -6,7 +6,7 @@
 #
 # That one readlink line is the only path a script works out for itself; the
 # rest comes from here: where lib/ and bin/ are, HyprFlow's own folders, the
-# wallust palette, and msg/warn/notify with the script's name on them.
+# wallust palette, msg/warn/notify with the script's name on them, and the OSD.
 
 # Used by the scripts that source this file.
 # shellcheck disable=SC2034
@@ -32,6 +32,19 @@ notify() {
     command -v notify-send >/dev/null 2>&1 || return 0
     # "--": a message starting with "-" is text, not options.
     notify-send -a "$_hyprflow_app" -- "$_hyprflow_app" "$*" 2>/dev/null || true
+}
+
+# osd ICON TITLE CAPTION VALUE: the level OSD (VALUE < 0: no bar). False
+# without Quickshell, so the caller can notify instead.
+osd() {
+    command -v qs >/dev/null 2>&1 || return 1
+    qs -c hyprflow ipc call osd level "$@" 2>/dev/null
+}
+
+# True when Quickshell is running.
+quickshell_up() {
+    command -v qs >/dev/null 2>&1 || return 1
+    qs -c hyprflow ipc show >/dev/null 2>&1
 }
 
 # Loads the wallust palette (foreground, background, color0..color15) into

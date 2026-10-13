@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Switches to the next power profile (power-saver, balanced, performance) and
-# says which one is on. Profiles this machine lacks are skipped: performance
-# needs hardware support. Super+K runs it.
+# says which one is on: the level OSD, the notification if Quickshell is down.
+# Profiles this machine lacks are skipped: performance needs hardware support.
+# Super+K runs it.
 
 # shellcheck source=common.sh
 . "$(dirname "$(readlink -f "$0")")/common.sh"
@@ -22,4 +23,5 @@ for i in "${!order[@]}"; do
     [ "${order[$i]}" = "$current" ] && next=${order[$(( (i + 1) % ${#order[@]} ))]}
 done
 
-powerprofilesctl set "$next" && notify "Power profile: $next"
+powerprofilesctl set "$next" || exit 1
+osd $'\U000F0425' "Power profile" "$next" -1 || notify "Power profile: $next"

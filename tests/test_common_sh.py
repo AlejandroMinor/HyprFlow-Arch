@@ -12,6 +12,10 @@ def bash(script, tmp_path, **env):
     fakes.mkdir(exist_ok=True)
     (fakes / "notify-send").write_text('#!/bin/bash\necho "notify-send $*"\n')
     (fakes / "notify-send").chmod(0o755)
+    # The Quickshell panel: logs the call and succeeds, or is not running
+    # (exit 255) when QS_OFF is set.
+    (fakes / "qs").write_text('#!/bin/bash\n[ -n "${QS_OFF:-}" ] && exit 255\necho "qs $*"\n')
+    (fakes / "qs").chmod(0o755)
     full = {**os.environ, "PATH": f"{fakes}:{os.environ['PATH']}", **env}
     return subprocess.run(["bash", "-c", f'. "{REPO}/lib/common.sh"; {script}'],
                           env=full, text=True, capture_output=True)
@@ -44,6 +48,26 @@ def test_load_palette_without_one_keeps_the_defaults(tmp_path):
     result = bash('color5=default; load_palette || echo none; echo "$color5"', tmp_path,
                   WALLUST_SH_PALETTE=str(tmp_path / "missing"))
     assert result.stdout == "none\ndefault\n"
+
+
+def test_osd_reaches_the_panel(tmp_path):
+    result = bash('osd "I" "Volume" "50%" 50', tmp_path)
+    assert result.stdout == "qs -c hyprflow ipc call osd level I Volume 50% 50\n"
+
+
+def test_osd_is_false_when_quickshell_is_not_running(tmp_path):
+    result = bash('osd "I" "Volume" "50%" 50 || echo fallback', tmp_path, QS_OFF="1")
+    assert result.stdout == "fallback\n"
+
+
+def test_quickshell_up_is_true_when_the_panel_runs(tmp_path):
+    result = bash('quickshell_up && echo up', tmp_path)
+    assert result.stdout.endswith("up\n")
+
+
+def test_quickshell_up_is_false_when_the_panel_is_not_running(tmp_path):
+    result = bash('quickshell_up || echo down', tmp_path, QS_OFF="1")
+    assert result.stdout == "down\n"
 
 
 def test_the_repo_folders_are_found_through_a_symlink(tmp_path):

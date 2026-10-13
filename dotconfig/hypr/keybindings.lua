@@ -287,18 +287,19 @@ hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh
 -- Toggles do not repeat: holding the key would flip mute on and off at random.
 hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh mute"),     { description = "Mute Audio" })
 hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh mic-mute"), { description = "Mute Microphone" })
-hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("brightnessctl s 10%+"), { repeating = true, description = "Brightness Up" })
-hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl s 10%-"), { repeating = true, description = "Brightness Down" })
+hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("~/.local/lib/hyprflow/brightness.sh up"),   { repeating = true, description = "Brightness Up" })
+hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("~/.local/lib/hyprflow/brightness.sh down"), { repeating = true, description = "Brightness Down" })
 
 -- Playback
-hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true, description = "Next Track" })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, description = "Pause" })
-hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, description = "Play" })
-hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true, description = "Previous Track" })
+-- media.sh shows the skip on the OSD; osd-watch.py shows play/pause.
+hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh next"),       { locked = true, description = "Next Track" })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"),                       { locked = true, description = "Pause" })
+hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"),                       { locked = true, description = "Play" })
+hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh previous"),   { locked = true, description = "Previous Track" })
 
 -- Media control (MX Keys alternative)
-hl.bind(mainMod .. " + period",         hl.dsp.exec_cmd("playerctl next"),           { locked = true, description = "Next Track (Keyboard)" })
-hl.bind(mainMod .. " + comma",          hl.dsp.exec_cmd("playerctl previous"),       { locked = true, description = "Previous Track (Keyboard)" })
+hl.bind(mainMod .. " + period",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh next"),     { locked = true, description = "Next Track (Keyboard)" })
+hl.bind(mainMod .. " + comma",          hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh previous"), { locked = true, description = "Previous Track (Keyboard)" })
 hl.bind(mainMod .. " + SHIFT + period", hl.dsp.exec_cmd("playerctl position 10+"),  { locked = true, description = "Seek Forward 10s" })
 hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.exec_cmd("playerctl position 10-"),  { locked = true, description = "Seek Back 10s" })
 

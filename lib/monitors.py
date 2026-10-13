@@ -50,6 +50,11 @@ LOCK_WAIT = 30  # seconds
 USAGE = ("usage: monitors.sh [list|setup|apply|mirror [on [MONITOR]|off|toggle]|"
          "solo [on [MONITOR [MODE]]|off|toggle]]")
 
+# Actions a keybind or the Quick Actions panel fires directly. A success
+# notifies through apply(); a failure has no terminal to warn on, so it
+# notifies here too, titled with what the user pressed.
+GUI_ACTIONS = {"mirror": "Mirror screens", "solo": "Solo screen"}
+
 
 # ── messages ──────────────────────────────────────────────────────────────
 
@@ -697,6 +702,9 @@ def main(argv):
             raise Stop(USAGE)
     except (Stop, ValueError) as stop:
         warn(str(stop))
+        if command in GUI_ACTIONS:
+            notify.send(GUI_ACTIONS[command], str(stop), app="Monitors",
+                        icon="video-display-symbolic")
         return 1
     except OSError as err:  # hyprland.HyprlandError included: Hyprland not answering
         warn(str(err))

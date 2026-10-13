@@ -132,6 +132,13 @@ def test_mirror_and_solo_say_what_changed(mon):
     assert any("Solo off" in line for line in notes(mon))
 
 
+def test_mirror_says_so_when_there_is_only_one_screen(mon):
+    mon.connect(BIG)                                          # unplug the second
+    assert mon.run("mirror", "toggle").returncode == 1
+    assert any(line.startswith("notify-send -a Monitors") and "Mirror screens" in line
+               and "at least 2 monitors" in line for line in notes(mon))
+
+
 def test_describe_names_the_screens_left_on(mons):
     detected = [{"description": "Acme A1 123", "model": "A1"},
                 {"description": "Acme B2 456", "model": "B2"}]

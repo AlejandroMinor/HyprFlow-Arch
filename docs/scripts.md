@@ -38,9 +38,10 @@ each one by its full path:
 | `hyprland-group-all.sh` | `Alt + G` | Group every window in the workspace |
 | `hyprland-show-desktop.sh` | `Super + D` | Show the desktop |
 | `session-manager.py` | `Super + W` / `Shift + W` / `M` | Save window layouts and reopen them from a menu; `Super + M` saves the session and logs out |
-| `quick-actions.py` | `Super + K` | The Quickshell panel (rofi when Quickshell is not running) to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, change the wallpaper or theme; switches show their state, and actions whose program is missing are hidden |
+| `quick-actions.py` | `Super + K` | The Quickshell panel (rofi when Quickshell is not running) to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, switch the keyboard layout, change the wallpaper or theme; switches show their state, and actions whose program is missing are hidden |
 | `confirm.py` | `close-workspace.sh` | Asks a yes/no question on the Quickshell panel (rofi when it is not running) and prints the answer |
 | `power-profile.sh` | `Super + K` | Switches to the next power profile and says which one is on (the Quickshell OSD, or a notification without it) |
+| `layout-picker.py` | `Super + K` | Picks the active keyboard layout among the ones declared in `hyprland.lua` (`es,us`): the chosen one moves to the front of `input:kb_layout`, and the OSD confirms it (a notification without Quickshell) |
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
 | `headset-watch.py` | Hyprland | Gives the headset its LED colour back when it turns on (`rgb-sync.sh --rescan`) |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |

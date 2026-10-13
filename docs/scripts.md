@@ -4,8 +4,8 @@
 
 | Script | Description |
 |--------|-------------|
-| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo` |
-| `game-mode.sh` | Controller friendly mode for the TV: one screen, no effects, Big Picture |
+| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo`; hotplug `apply` and mirror/solo announce the new layout |
+| `game-mode.sh` | Controller friendly mode for the TV: one screen, no effects, Big Picture; says on and off on the OSD |
 | `wallust-theme-manager.sh` | Generate and apply color palettes |
 | `theme-picker.sh` | Interactive theme selector |
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
@@ -20,11 +20,12 @@ each one by its full path:
 
 | Script | Called by | Description |
 |--------|-----------|-------------|
-| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them, right click for the headset lights, notifications when one runs low |
+| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them, right click for the headset lights, notifications when one runs low (the laptop's with a "Power saver" button) |
 | `mute_indicator.py` | Waybar | Audio at a glance: output muted, and a badge while the microphone is muted |
 | `volume.sh` | Volume and mute keys | Change volume or mute; the level shows on the Quickshell OSD (it watches Pipewire, so the headset's own buttons show it too), or a transient notification without Quickshell |
 | `brightness.sh` | Brightness keys | Change the panel backlight; the level shows on the Quickshell OSD, or a notification without it |
 | `media.sh` | Next and previous keys | Skip the track; the Quickshell OSD shows the matching skip glyph (play and pause the OSD shows by watching the player, which also catches Spotify's own controls) |
+| `screenshot.sh` | `Super + Shift + S` submap | Capture a region, window or screen with hyprshot and annotate it in satty; a saved shot becomes a notification with an "Open" button (`dotconfig/swaync`), a copy goes straight to the clipboard |
 | `osd-watch.py` | Hyprland | Shows the Quickshell OSD for what no key of ours reports: play/pause (`playerctl`), Caps/Num Lock (the lock LEDs) and Do Not Disturb (`dconf`) |
 | `camera_status.py` | Waybar | Camera-in-use indicator |
 | `vpn_status.py` | Waybar | VPN status |
@@ -46,7 +47,7 @@ each one by its full path:
 | `activate-linux.py` | Hyprland | The "Activate Linux" watermark, click-through, bottom right |
 | `monitors.py` | `monitors.sh` | The monitor logic behind the command |
 | `hyprflow/` | the Python scripts | Shared package: paths, hyprctl, notifications, palette, the Waybar module base |
-| `common.sh` | the Bash scripts | Shared paths, messages, notifications, the Quickshell level OSD (`osd`, `quickshell_up`) and palette |
+| `common.sh` | the Bash scripts | Shared paths, messages, notifications (with urgency, icon, timeout, category and an action button), the Quickshell level OSD (`osd`, `quickshell_up`) and palette |
 
 ## Submodules
 

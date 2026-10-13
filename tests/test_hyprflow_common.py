@@ -111,6 +111,32 @@ def test_notify_passes_app_urgency_icon_and_body(fake):
     ]
 
 
+def test_notify_passes_timeout_hints_actions_and_category(fake):
+    from hyprflow import notify
+    notify.send("Screenshot saved", "/tmp/shot.png", app="Screenshot", icon="camera-photo",
+                timeout=0, transient=True, replace_id=7, category="transfer",
+                actions=[("open", "Open")], hints={"x-canonical-private-synchronous": "shot"})
+    assert fake() == [
+        "notify-send|-a|Screenshot|-u|normal|-i|camera-photo|-c|transfer|-t|0|-e|-r|7"
+        "|-h|x-canonical-private-synchronous:shot|-A|open=Open|--|Screenshot saved|/tmp/shot.png|",
+    ]
+
+
+def test_an_action_does_not_block_the_caller(tmp_path, monkeypatch):
+    # notify-send waits for the user when it carries an action (-A implies
+    # --wait) and a critical one never expires; send() must not wait with it.
+    import time
+    from hyprflow import notify
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    (bin_dir / "notify-send").write_text("#!/bin/bash\nsleep 30\n")
+    (bin_dir / "notify-send").chmod(0o755)
+    monkeypatch.setenv("PATH", f"{bin_dir}:{os.environ['PATH']}")
+    started = time.monotonic()
+    notify.send("Low battery", app="Battery", urgency="critical", actions=[("power", "Power saver")])
+    assert time.monotonic() - started < 3
+
+
 def test_osd_pushes_the_level_to_the_panel(tmp_path, monkeypatch):
     from hyprflow import osd
     log = tmp_path / "log"

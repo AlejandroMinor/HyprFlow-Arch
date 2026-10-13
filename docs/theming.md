@@ -1,8 +1,8 @@
 # Theming
 
 Colors come from `wallust`, regenerated on wallpaper change and pushed to Waybar,
-Hyprland, kitty, wlogout, hyprlock, and cava. Rofi and the Quickshell panels keep
-fixed colors of their own.
+Hyprland, kitty, wlogout, hyprlock, and cava. Rofi, the Quickshell panels and the
+swaync notifications keep fixed colors of their own.
 
 Wire it up in `~/.config/waypaper/config.ini`:
 

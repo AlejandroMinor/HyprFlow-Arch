@@ -362,10 +362,23 @@ def restore_workspaces():
         hyprland.dispatch(f"hl.dsp.focus({{ workspace = {focused} }})")
 
 
-def apply(profile=None):
+# Hotplug titles, from `apply --notify connected|disconnected`.
+HOTPLUG = {"connected": "Screen connected", "disconnected": "Screen disconnected"}
+
+
+def describe(profile, detected):
+    """The screens left on, by model, for a notification body."""
+    models = {m["description"]: m.get("model") or m["description"] for m in detected}
+    on = [models[e["description"]] for e in profile
+          if not e.get("disabled") and e["description"] in models]
+    return "On: " + " · ".join(on) if on else "No screens on"
+
+
+def apply(profile=None, announce=None):
     """Writes the layout for the monitors connected now and reloads what
     changed. Without a profile: solo while it is on, else the saved one for
-    this set, else the default."""
+    this set, else the default. announce is a notification title (hotplug,
+    mirror, solo); login passes none and stays quiet."""
     detected = detect()
     sig = signature(detected)
     used_default = False
@@ -424,6 +437,8 @@ def apply(profile=None):
 
     if not lua_changed and not bars_changed:
         msg("no changes: layout and bars already up to date")
+    if announce:
+        notify.send(announce, describe(profile, detected), app="Monitors", icon="video-display-symbolic")
     if used_default:
         notify.send("Monitors", "Using default layout. Run 'monitors.sh setup' to customize.", app="Monitors")
 
@@ -464,13 +479,15 @@ def cmd_mirror(action="toggle", source=""):
             Profiles(UNMIRRORED).save(sig, profile)
         profile = mirrorize(profile, source, detected)
         msg(f"mirroring onto: {source}")
+        title = "Mirror on"
     elif action == "off":
         profile = Profiles(UNMIRRORED).get(sig) or default_profile(detected)
         msg("mirror off: back to extended layout")
+        title = "Mirror off"
     else:
         raise Stop("usage: monitors.sh mirror [on [MONITOR]|off|toggle]")
     Profiles().save(sig, profile)
-    apply()
+    apply(announce=title)
 
 
 def cmd_solo(action="toggle", target="", mode=""):
@@ -500,7 +517,7 @@ def cmd_solo(action="toggle", target="", mode=""):
             entry["mode"] = mode
         SOLO_STATE.parent.mkdir(parents=True, exist_ok=True)
         SOLO_STATE.write_text(json.dumps({"entry": entry, "sig": sig}, indent=2, ensure_ascii=False) + "\n")
-        apply()
+        apply(announce="Solo on")
     elif action == "off":
         state = read_solo()
         if state is None:
@@ -512,7 +529,7 @@ def cmd_solo(action="toggle", target="", mode=""):
         was = state["sig"]
         SOLO_STATE.unlink()
         msg("solo off: back to the previous layout")
-        apply(Profiles().get(was))
+        apply(Profiles().get(was), announce="Solo off")
     else:
         raise Stop("usage: monitors.sh solo [on [MONITOR [MODE]]|off|toggle]")
 
@@ -663,9 +680,15 @@ def main(argv):
                 subprocess.run(["awww", "restore"], capture_output=True, timeout=10)
             restore_workspaces()
         elif command in ("apply", "mirror", "solo"):
+            # apply --notify connected|disconnected: a hotplug says which.
+            announce = None
+            if "--notify" in args:
+                at = args.index("--notify")
+                announce = HOTPLUG.get(args[at + 1] if at + 1 < len(args) else "", "Screens changed")
+                args = args[:at]
             with take_lock():
                 if command == "apply":
-                    apply()
+                    apply(announce=announce)
                 elif command == "mirror":
                     cmd_mirror(*args[:2])
                 else:

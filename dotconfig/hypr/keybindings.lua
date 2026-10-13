@@ -109,39 +109,39 @@ hl.bind(mainMod .. " + SHIFT + Z", hl.dsp.window.move({ workspace = "special:mag
 hl.bind(mainMod .. " + SHIFT + S", function() toggle_submap("screenshot") end, { description = "Toggle Screenshot Mode" })
 
 hl.define_submap("screenshot", function()
-    local out = "$HOME/Pictures/Screenshots/$(date '+%Y-%m-%d_%H-%M-%S').png"
-    local satty_flags = "--copy-command wl-copy --early-exit --action-on-enter save-to-file --right-click-copy --filename - --output-filename "
     -- Hide the submap HUD first, or the capture (frozen at once) shows it.
+    -- lib/screenshot.sh does the capture, annotate and notify.
+    local shot = "~/.local/lib/hyprflow/screenshot.sh "
     local hide_hud = "qs -c hyprflow ipc call submap leave && sleep 0.3; "
 
     hl.bind("r", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. "hyprshot -m region --freeze --raw | satty " .. satty_flags .. out))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "region"))
     end, { description = "Region Screenshot (Satty)" })
 
     hl.bind("w", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. "hyprshot -m window --freeze --raw | satty " .. satty_flags .. out))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "window"))
     end, { description = "Window Screenshot (Satty)" })
 
     hl.bind("s", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. "hyprshot -m output --freeze --raw | satty " .. satty_flags .. out))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "output"))
     end, { description = "Screen Screenshot (Satty)" })
 
     hl.bind("SHIFT + r", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. "hyprshot -m region --freeze --clipboard-only"))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "region --clipboard"))
     end, { description = "Region Screenshot → Clipboard" })
 
     hl.bind("SHIFT + w", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. "hyprshot -m window --clipboard-only"))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "window --clipboard"))
     end, { description = "Window Screenshot → Clipboard" })
 
     hl.bind("SHIFT + s", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. "hyprshot -m output --clipboard-only"))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "output --clipboard"))
     end, { description = "Screen Screenshot → Clipboard" })
 
     hl.bind(mainMod .. " + SHIFT + S", hl.dsp.submap("reset"), { description = "Exit Screenshot Mode" })

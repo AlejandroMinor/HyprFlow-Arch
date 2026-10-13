@@ -240,6 +240,39 @@ def test_notifies_once_per_level_and_again_after_a_recharge(hub, tmp_path, monke
     assert urgencies == ["normal", "critical", "normal"]
 
 
+def test_the_laptop_low_battery_toast_offers_power_saver(hub, tmp_path, monkeypatch):
+    sent = []
+    monkeypatch.setattr(hub.subprocess, "run", lambda cmd, *a, **k: sent.append(cmd))
+    monkeypatch.setattr(hub.shutil, "which", lambda name: "/usr/bin/" + name)  # tool present
+    notifier = hub.LowBatteryNotifier(state=str(tmp_path / "n.json"),
+                                      hook=str(tmp_path / "no-hook"))
+    notifier.notify([hub.Device.laptop(18, False)])
+    [cmd] = sent
+    assert cmd[cmd.index("-A") + 1] == "power=Power saver"
+
+
+def test_a_peripheral_gets_no_power_saver_button(hub, tmp_path, monkeypatch):
+    sent = []
+    monkeypatch.setattr(hub.subprocess, "run", lambda cmd, *a, **k: sent.append(cmd))
+    monkeypatch.setattr(hub.shutil, "which", lambda name: "/usr/bin/" + name)
+    notifier = hub.LowBatteryNotifier(state=str(tmp_path / "n.json"),
+                                      hook=str(tmp_path / "no-hook"))
+    notifier.notify([hub.Device("Mouse", "M", 18)])
+    [cmd] = sent
+    assert "-A" not in cmd
+
+
+def test_the_button_is_left_out_without_the_tool(hub, tmp_path, monkeypatch):
+    sent = []
+    monkeypatch.setattr(hub.subprocess, "run", lambda cmd, *a, **k: sent.append(cmd))
+    monkeypatch.setattr(hub.shutil, "which", lambda name: None)  # no powerprofilesctl
+    notifier = hub.LowBatteryNotifier(state=str(tmp_path / "n.json"),
+                                      hook=str(tmp_path / "no-hook"))
+    notifier.notify([hub.Device.laptop(18, False)])
+    [cmd] = sent
+    assert "-A" not in cmd
+
+
 def test_hook_gets_name_percent_and_level(hub, tmp_path, monkeypatch):
     monkeypatch.setattr(hub.subprocess, "run", lambda *a, **k: None)
     log = tmp_path / "hook.log"

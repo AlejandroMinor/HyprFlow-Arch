@@ -48,6 +48,10 @@ FAKES = {
     "monitors.sh": 'exit "${FAKE_SOLO_FAIL:-0}"',
     "rgb-sync.sh": "",
     "waybar-restart.sh": "",   # lives in lib/, next to bin/
+    # The level OSD (osd in common.sh): the wrapper logs the call; FAKE_NO_QS
+    # makes it exit 255, as qs does when Quickshell is not running.
+    "qs": '[ -n "${FAKE_NO_QS:-}" ] && exit 255',
+    "notify-send": "",    # only used when Quickshell is down
 }
 
 
@@ -162,6 +166,21 @@ def test_on_writes_the_state_and_quiets_the_desktop(gm):
     assert "rgb-sync.sh --off" in log
     assert any('focus({ monitor = \\"HDMI-A-1\\" })' in line or 'monitor = "HDMI-A-1"' in line
                for line in gm.called("hyprctl eval"))
+
+
+def test_on_and_off_show_the_osd(gm):
+    gm.run("on")
+    assert any("ipc call osd level" in line and "On · AMZ FireTV" in line
+               for line in gm.called("qs"))
+    (gm.root / "log").write_text("")
+    gm.run("off")
+    assert any("ipc call osd level" in line and "Off" in line for line in gm.called("qs"))
+
+
+def test_on_falls_back_to_a_notification_without_quickshell(gm):
+    gm.run("on", FAKE_NO_QS="1")
+    assert any(line.startswith("notify-send") and "Game mode on: AMZ FireTV" in line
+               for line in gm.log())
 
 
 def test_on_moves_the_sound_to_the_screen(gm):

@@ -33,9 +33,9 @@ end
 -- React to monitor hotplug: regenerate the layout + reload via monitors.sh.
 -- (`apply` is idempotent and only reloads if the generated output changed,
 --  which prevents an event -> reload -> event loop.)
-for _, ev in ipairs({ "monitor.added", "monitor.removed" }) do
+for ev, what in pairs({ ["monitor.added"] = "connected", ["monitor.removed"] = "disconnected" }) do
     pcall(function()
-        hl.on(ev, function() hl.dispatch(hl.dsp.exec_cmd("monitors.sh apply")) end)
+        hl.on(ev, function() hl.dispatch(hl.dsp.exec_cmd("monitors.sh apply --notify " .. what)) end)
     end)
 end
 

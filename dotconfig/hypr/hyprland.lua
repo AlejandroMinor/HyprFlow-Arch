@@ -146,7 +146,7 @@ hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
 hl.config({
     general = {
         gaps_in  = 5,
-        gaps_out = 20,
+        gaps_out = { top = 0, right = 20, bottom = 20, left = 20 },
 
         border_size = 2,
 

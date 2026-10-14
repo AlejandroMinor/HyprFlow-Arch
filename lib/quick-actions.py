@@ -2,14 +2,12 @@
 """Quick actions menu (Super+K): screens, game mode, lights, audio, notifications,
 power profile, wallpaper, theme.
 
-Each entry is a Command: what it is called, how to read its current state
-(for the ones that switch something on and off) and what to run. The menu only
-lists them and runs the one picked, so a new action is one more entry in
-ACTIONS; nothing else changes. An action whose program is missing (needs) is
-left out of the menu.
+Each entry is a Command: its name, how to read its state (for the switches),
+what to run and its section. A new action is one more entry in ACTIONS, tagged
+with one of SECTIONS; an action whose program is missing (needs) is left out.
 
-The menu is rofi, or the Quickshell panel (dotconfig/quickshell/hyprflow), which
-reads `--json` and runs its pick with `--run LABEL`.
+The menu is rofi (a bold heading row per section), or the Quickshell panel,
+which reads `--json`, groups by section and runs its pick with `--run LABEL`.
 """
 
 import json
@@ -35,6 +33,7 @@ class Action:
     argv: list
     state: Callable[[], bool | str | None] | None = None  # on/off, or a word
     needs: str | None = None  # program that must be installed
+    section: str = ""  # heading it is filed under; see SECTIONS
 
     def available(self):
         return self.needs is None or shutil.which(self.needs) is not None
@@ -52,7 +51,8 @@ class Action:
         return text
 
     def as_dict(self):
-        return {"icon": self.icon, "label": self.label, "state": self.state_word()}
+        return {"icon": self.icon, "label": self.label,
+                "state": self.state_word(), "section": self.section}
 
     def run(self):
         # Detached: game mode or a monitor change outlive this menu.
@@ -112,25 +112,50 @@ def current_layout():
     return output([LIB / "layout-picker.py", "--state"]) or None
 
 
+# In the order they show; an action with none goes last, without a heading.
+SECTIONS = ("Screens", "Audio", "System", "Appearance")
+
 ACTIONS = [
-    Action("󰍺", "Mirror screens", [BIN / "monitors.sh", "mirror", "toggle"], mirror_on),
-    Action("󰍹", "Only the main screen", [BIN / "monitors.sh", "solo", "toggle"], solo_on),
-    Action("󰊴", "Game mode", [BIN / "game-mode.sh", "toggle"], game_mode_on),
-    Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on),
+    Action("󰍺", "Mirror screens", [BIN / "monitors.sh", "mirror", "toggle"], mirror_on, section="Screens"),
+    Action("󰍹", "Only the main screen", [BIN / "monitors.sh", "solo", "toggle"], solo_on, section="Screens"),
     Action("󰓃", "Audio output", ["kitty", "--class", "kitty-sinkswitch", "-e",
-                                 "sinkswitch", "-sync", "-notify-hypr", "-nick"], needs="sinkswitch"),
-    Action("󰍬", "Microphone", [LIB / "volume.sh", "mic-mute"], mic_on, needs="wpctl"),
-    Action("󰂛", "Do not disturb", ["swaync-client", "-d"], dnd_on, needs="swaync-client"),
-    Action("󰓅", "Power profile", [LIB / "power-profile.sh"], power_profile, needs="powerprofilesctl"),
-    Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl"),
-    Action("󰸉", "Random wallpaper", ["waypaper", "--random"]),
-    Action("󰏘", "Theme", ["kitty", "--class", "kitty-theme-picker", "-e", BIN / "theme-picker.sh"]),
+                                 "sinkswitch", "-sync", "-notify-hypr", "-nick"], needs="sinkswitch", section="Audio"),
+    Action("󰍬", "Microphone", [LIB / "volume.sh", "mic-mute"], mic_on, needs="wpctl", section="Audio"),
+    Action("󰊴", "Game mode", [BIN / "game-mode.sh", "toggle"], game_mode_on, section="System"),
+    Action("󰂛", "Do not disturb", ["swaync-client", "-d"], dnd_on, needs="swaync-client", section="System"),
+    Action("󰓅", "Power profile", [LIB / "power-profile.sh"], power_profile, needs="powerprofilesctl", section="System"),
+    Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl", section="System"),
+    Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
+    Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
+    Action("󰏘", "Theme", ["kitty", "--class", "kitty-theme-picker", "-e", BIN / "theme-picker.sh"], section="Appearance"),
 ]
+
+
+def ordered(actions):
+    """By section, in SECTIONS order; stable, so ACTIONS keeps its order within
+    a section. An action with no (or an unknown) section goes last."""
+    rank = {name: i for i, name in enumerate(SECTIONS)}
+    return sorted(actions, key=lambda a: rank.get(a.section, len(SECTIONS)))
+
+
+def grouped(actions):
+    """Rofi wants a flat list: a bold heading row before each section, then its
+    actions. Returns the rows and what each row index maps to (None: a heading,
+    so picking it runs nothing)."""
+    rows, targets, current = [], [], None
+    for action in actions:
+        if action.section and action.section != current:
+            current = action.section
+            rows.append(f"<b>{current}</b>")
+            targets.append(None)
+        rows.append(action.row())
+        targets.append(action)
+    return rows, targets
 
 
 def main(menu=None, actions=ACTIONS, args=()):
     # Composition root: the menu comes in, so the tests pass a fake one.
-    actions = [a for a in actions if a.available()]
+    actions = ordered([a for a in actions if a.available()])
     if args[:1] == ["--json"]:
         print(json.dumps([a.as_dict() for a in actions], ensure_ascii=False))
         return 0
@@ -141,9 +166,10 @@ def main(menu=None, actions=ACTIONS, args=()):
         action.run()
         return 0
     menu = menu or RofiMenu(width=520)
-    picked = menu.choose("Quick actions", [a.row() for a in actions])
-    if picked is not None and 0 <= picked < len(actions):
-        actions[picked].run()
+    rows, targets = grouped(actions)
+    picked = menu.choose("Quick actions", rows)
+    if picked is not None and 0 <= picked < len(targets) and targets[picked] is not None:
+        targets[picked].run()
     return 0
 
 

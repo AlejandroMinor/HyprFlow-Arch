@@ -137,10 +137,35 @@ def test_json_lists_the_shown_actions_with_their_state(qa, capsys, monkeypatch):
                      qa.Action("c", "Power", ["three"], lambda: "balanced")], args=["--json"])
     import json
     assert json.loads(capsys.readouterr().out) == [
-        {"icon": "a", "label": "Lights", "state": "off"},
-        {"icon": "c", "label": "Power", "state": "balanced"},
+        {"icon": "a", "label": "Lights", "state": "off", "section": ""},
+        {"icon": "c", "label": "Power", "state": "balanced", "section": ""},
     ]
     assert qa.launched == []
+
+
+def test_actions_are_grouped_under_their_section_heading(qa, monkeypatch):
+    monkeypatch.setattr(qa.shutil, "which", lambda name: "/usr/bin/" + name)
+    actions = [qa.Action("a", "Mic", ["one"], section="Audio"),
+               qa.Action("b", "Mirror", ["two"], section="Screens"),
+               qa.Action("c", "Output", ["three"], section="Audio")]
+    rows, targets = qa.grouped(qa.ordered(actions))
+    assert rows == ["<b>Screens</b>", "b  Mirror", "<b>Audio</b>", "a  Mic", "c  Output"]
+    assert [None if t is None else t.label for t in targets] == \
+        [None, "Mirror", None, "Mic", "Output"]
+
+
+def test_a_section_heading_picking_runs_nothing(qa, monkeypatch):
+    monkeypatch.setattr(qa.shutil, "which", lambda name: "/usr/bin/" + name)
+    qa.main(FakeMenu(0), [qa.Action("a", "Mic", ["one"], section="Audio")])
+    assert qa.launched == []
+
+
+def test_picking_a_row_runs_its_action_past_the_headings(qa, monkeypatch):
+    monkeypatch.setattr(qa.shutil, "which", lambda name: "/usr/bin/" + name)
+    actions = [qa.Action("a", "Mirror", ["one"], section="Screens"),
+               qa.Action("b", "Mic", ["two"], section="Audio")]
+    qa.main(FakeMenu(3), actions)              # Screens, Mirror, Audio, Mic
+    assert [argv for argv, _ in qa.launched] == [["two"]]
 
 
 def test_run_picks_an_action_by_its_label(qa):

@@ -130,6 +130,21 @@ Scope {
                 highlightMoveDuration: Motion.fast
                 highlightResizeDuration: 0
 
+                // The list comes from lib/quick-actions.py already ordered by
+                // section: ListView draws a heading before each run of them.
+                section.property: "section"
+                section.criteria: ViewSection.FullString
+                section.delegate: Item {
+                    width: view.width
+                    height: (section ? 26 : 0)
+                    Text {
+                        anchors { left: parent.left; leftMargin: 12; bottom: parent.bottom; bottomMargin: 4 }
+                        text: section
+                        color: Qt.alpha(Colors.foreground, 0.45)
+                        font { family: root.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
+                    }
+                }
+
                 highlight: Rectangle {
                     radius: 10
                     color: Colors.selection

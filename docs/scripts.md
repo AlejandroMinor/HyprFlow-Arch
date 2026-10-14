@@ -44,6 +44,7 @@ each one by its full path:
 | `layout-picker.py` | `Super + K` | Picks the active keyboard layout among the ones declared in `hyprland.lua` (`es,us`): the chosen one moves to the front of `input:kb_layout`, and the OSD confirms it (a notification without Quickshell) |
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
 | `headset-watch.py` | Hyprland | Gives the headset its LED colour back when it turns on (`rgb-sync.sh --rescan`) |
+| `rgb-hotplug.py` | Hyprland | Rescans OpenRGB when a USB device is plugged in, so it takes the LED colour (or stays off) like the rest |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
 | `activate-linux.py` | Hyprland | The "Activate Linux" watermark, click-through, bottom right |
 | `monitors.py` | `monitors.sh` | The monitor logic behind the command |

@@ -45,6 +45,7 @@ each one by its full path:
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
 | `headset-watch.py` | Hyprland | Gives the headset its LED colour back when it turns on (`rgb-sync.sh --rescan`) |
 | `rgb-hotplug.py` | Hyprland | Rescans OpenRGB when a USB device is plugged in, so it takes the LED colour (or stays off) like the rest |
+| `mic-mute-watch.py` | Hyprland | A headset's own mic mute button (any with the standard Phone Mute control) mutes its microphone in Pipewire too, so the bar and the OSD show it |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
 | `activate-linux.py` | Hyprland | The "Activate Linux" watermark, click-through, bottom right |
 | `monitors.py` | `monitors.sh` | The monitor logic behind the command |

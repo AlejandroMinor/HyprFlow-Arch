@@ -75,6 +75,11 @@ def headset_watch():
 
 
 @pytest.fixture(scope="session")
+def mic_mute_watch():
+    return load_script("mic-mute-watch.py")
+
+
+@pytest.fixture(scope="session")
 def rgb_hotplug():
     return load_script("rgb-hotplug.py")
 

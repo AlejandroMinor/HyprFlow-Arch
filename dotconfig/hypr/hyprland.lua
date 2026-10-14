@@ -96,6 +96,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("~/.local/lib/hyprflow/headset-watch.py")
     -- A USB device plugged in later gets the LED colour too (OpenRGB rescan).
     hl.exec_cmd("~/.local/lib/hyprflow/rgb-hotplug.py")
+    -- A headset's own mic mute button mutes its microphone in Pipewire too.
+    hl.exec_cmd("~/.local/lib/hyprflow/mic-mute-watch.py")
     -- HyprFlow's Quickshell panels (Super+K); -n: one copy only.
     hl.exec_cmd("qs -n -d -c hyprflow")
     -- OSD for play/pause, Caps/Num Lock and Do Not Disturb.

@@ -27,6 +27,11 @@ Scope {
     // Bumped on a change while open: the glyph nudges.
     property int pulse: 0
 
+    // Node the shown bar drives, so it can be scrubbed with the mouse.
+    property var audioNode: null
+    property bool micTarget: false
+    property bool dragging: false
+
     // Nerd Font (Material Design) glyphs.
     readonly property string glyphVolumeHigh: String.fromCodePoint(0xF057E)
     readonly property string glyphVolumeMedium: String.fromCodePoint(0xF0580)
@@ -51,6 +56,18 @@ Scope {
         if (percent >= 66) return glyphVolumeHigh;
         if (percent >= 33) return glyphVolumeMedium;
         return glyphVolumeLow;
+    }
+
+    // Map a pointer x along the bar to a level and apply it to the shown node.
+    function scrubVolume(x, barWidth) {
+        if (!audioNode || !audioNode.audio || barWidth <= 0) return;
+        const clamped = Math.max(0, Math.min(barWidth, x));
+        const percent = Math.round(100 * clamped / barWidth);
+        audioNode.audio.muted = false;
+        audioNode.audio.volume = percent / 100;
+        root.value = percent;
+        root.icon = micTarget ? glyphMic : volumeGlyph(percent);
+        root.caption = micTarget ? "On  ·  " + percent + "%" : percent + "%";
     }
 
     IpcHandler {
@@ -113,10 +130,13 @@ Scope {
         const muted = node.audio.muted;
         const percent = Math.round(node.audio.volume * 100);
         if (node.id !== sinkNode) {  // new node: remember, do not show
-            sinkNode = node.id; sinkMuted = muted; sinkPercent = percent; return;
+            sinkNode = node.id; sinkMuted = muted; sinkPercent = percent;
+            root.audioNode = node; root.micTarget = false; return;
         }
         if (muted === sinkMuted && percent === sinkPercent) return;
         sinkMuted = muted; sinkPercent = percent;
+        root.audioNode = node; root.micTarget = false;
+        if (root.dragging) return;  // the drag already reflects the level
         if (muted) present(glyphVolumeOff, "Volume", "Muted", 0);
         else present(volumeGlyph(percent), "Volume", percent + "%", percent);
     }
@@ -127,10 +147,13 @@ Scope {
         const muted = node.audio.muted;
         const percent = Math.round(node.audio.volume * 100);
         if (node.id !== sourceNode) {
-            sourceNode = node.id; sourceMuted = muted; sourcePercent = percent; return;
+            sourceNode = node.id; sourceMuted = muted; sourcePercent = percent;
+            root.audioNode = node; root.micTarget = true; return;
         }
         if (muted === sourceMuted && percent === sourcePercent) return;
         sourceMuted = muted; sourcePercent = percent;
+        root.audioNode = node; root.micTarget = true;
+        if (root.dragging) return;
         if (muted) present(glyphMicOff, "Microphone", "Muted", 0);
         else present(glyphMic, "Microphone", "On  ·  " + percent + "%", percent);
     }
@@ -160,6 +183,7 @@ Scope {
         function onRawEvent(event) {
             if (event.name !== "activelayout") return;
             const layout = event.data.split(",")[1] || "";
+            root.audioNode = null;
             root.present(glyphKeyboard, "Keyboard layout", layout, -1);
         }
     }
@@ -242,6 +266,33 @@ Scope {
                     radius: parent.radius
                     color: Qt.alpha(Colors.foreground, 0.85)
                     Behavior on width { Anim {} }
+                }
+
+                // A taller hit area than the 6px track, so it is easy to grab.
+                MouseArea {
+                    id: scrub
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width
+                    height: 28
+                    acceptedButtons: Qt.LeftButton
+                    hoverEnabled: true
+                    enabled: root.audioNode !== null
+                    cursorShape: Qt.PointingHandCursor
+
+                    // Hold the card while the pointer is on the bar.
+                    onEntered: hide.stop()
+                    onExited: if (!root.dragging) hide.restart()
+                    onPressed: {
+                        root.dragging = true;
+                        hide.stop();
+                        root.scrubVolume(mouse.x, width);
+                    }
+                    onPositionChanged: if (pressed) root.scrubVolume(mouse.x, width)
+                    onReleased: {
+                        root.dragging = false;
+                        if (!containsMouse) hide.restart();
+                    }
                 }
             }
         }

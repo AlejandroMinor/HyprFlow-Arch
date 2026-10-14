@@ -69,9 +69,28 @@ Scope {
     property bool sourceMuted: false
     property int sourcePercent: 0
 
+    // Quickshell leaves defaultAudioSource null while the chosen mic is away
+    // (AirPods off), though Pipewire falls back to another: follow the one
+    // Pipewire actually uses, from its metadata.
+    property string usedSourceName: ""
+    readonly property var micNode: Pipewire.defaultAudioSource
+        || Pipewire.nodes.values.find(n => n.name === usedSourceName) || null
+    onMicNodeChanged: seedAudio()
+
+    Process {
+        running: true
+        command: ["pw-metadata", "-m", "0", "default.audio.source"]
+        stdout: SplitParser {
+            onRead: line => {
+                const found = line.match(/key:'default\.audio\.source' value:'\{ *"name": *"([^"]+)"/);
+                if (found) root.usedSourceName = found[1];
+            }
+        }
+    }
+
     // Without a tracker the volume and mute signals never arrive.
     PwObjectTracker {
-        objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource].filter(n => n)
+        objects: [Pipewire.defaultAudioSink, root.micNode].filter(n => n)
     }
 
     // Remember the starting values when the default node changes.
@@ -81,7 +100,7 @@ Scope {
             sinkNode = sink.id; sinkMuted = sink.audio.muted;
             sinkPercent = Math.round(sink.audio.volume * 100);
         }
-        const source = Pipewire.defaultAudioSource;
+        const source = root.micNode;
         if (source && source.audio) {
             sourceNode = source.id; sourceMuted = source.audio.muted;
             sourcePercent = Math.round(source.audio.volume * 100);
@@ -103,7 +122,7 @@ Scope {
     }
 
     function audioSource() {
-        const node = Pipewire.defaultAudioSource;
+        const node = root.micNode;
         if (!node || !node.audio) return;
         const muted = node.audio.muted;
         const percent = Math.round(node.audio.volume * 100);
@@ -130,7 +149,7 @@ Scope {
     }
 
     Connections {
-        target: Pipewire.defaultAudioSource ? Pipewire.defaultAudioSource.audio : null
+        target: root.micNode ? root.micNode.audio : null
         function onVolumesChanged() { root.audioSource(); }
         function onMutedChanged() { root.audioSource(); }
     }

@@ -108,6 +108,10 @@ def power_profile():
     return output(["powerprofilesctl", "get"]) or None
 
 
+def current_layout():
+    return output([LIB / "layout-picker.py", "--state"]) or None
+
+
 ACTIONS = [
     Action("󰍺", "Mirror screens", [BIN / "monitors.sh", "mirror", "toggle"], mirror_on),
     Action("󰍹", "Only the main screen", [BIN / "monitors.sh", "solo", "toggle"], solo_on),
@@ -118,6 +122,7 @@ ACTIONS = [
     Action("󰍬", "Microphone", [LIB / "volume.sh", "mic-mute"], mic_on, needs="wpctl"),
     Action("󰂛", "Do not disturb", ["swaync-client", "-d"], dnd_on, needs="swaync-client"),
     Action("󰓅", "Power profile", [LIB / "power-profile.sh"], power_profile, needs="powerprofilesctl"),
+    Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"]),
     Action("󰏘", "Theme", ["kitty", "--class", "kitty-theme-picker", "-e", BIN / "theme-picker.sh"]),
 ]

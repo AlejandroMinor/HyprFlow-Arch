@@ -15,6 +15,7 @@ PanelWindow {
     property int cardWidth: 420
     property bool interactive: true  // false: a HUD, keys stay with Hyprland
     property bool atBottom: false    // false: centred
+    property bool hud: false         // a level OSD: pops, does not fold
     property real cardHeight: 0
     default property alias content: card.data
     signal dismissed()
@@ -43,7 +44,8 @@ PanelWindow {
     Rectangle {
         id: card
         x: overlay.margin
-        y: overlay.margin
+        // The HUD drops in from a little higher.
+        y: overlay.hud ? overlay.margin - 18 : overlay.margin
         width: overlay.cardWidth
         height: overlay.cardHeight
         radius: 16
@@ -55,29 +57,44 @@ PanelWindow {
         // Filtering changes the height: follow it instead of jumping.
         Behavior on height { Anim {} }
 
-        // Folded flat against its top edge when closed; unfolds towards you.
+        // Unfolds from its top edge; the HUD also pops and drops.
         opacity: 0
-        transform: Rotation {
-            id: fold
-            origin { x: card.width / 2; y: 0 }
-            axis { x: 1; y: 0; z: 0 }
-            angle: -90
-        }
+        transform: [
+            Rotation {
+                id: fold
+                origin { x: card.width / 2; y: 0 }
+                axis { x: 1; y: 0; z: 0 }
+                angle: overlay.hud ? -100 : -90
+            },
+            Scale {
+                id: pop
+                origin { x: card.width / 2; y: card.height / 2 }
+                xScale: overlay.hud ? 0.88 : 1
+                yScale: overlay.hud ? 0.88 : 1
+            }
+        ]
 
         states: State {
             name: "open"
             when: overlay.open
             PropertyChanges { card.opacity: 1 }
+            PropertyChanges { card.y: overlay.margin }
             PropertyChanges { fold.angle: 0 }
+            PropertyChanges { pop.xScale: 1 }
+            PropertyChanges { pop.yScale: 1 }
         }
         transitions: [
             Transition {
                 to: "open"
-                Anim { properties: "opacity,angle"; duration: Motion.normal; curve: Motion.enter }
+                Anim {
+                    properties: "opacity,y,angle,xScale,yScale"
+                    duration: overlay.hud ? Motion.hud : Motion.normal
+                    curve: Motion.enter
+                }
             },
             Transition {
                 from: "open"
-                Anim { id: folding; properties: "opacity,angle"; duration: Motion.exit; curve: Motion.leave }
+                Anim { id: folding; properties: "opacity,y,angle,xScale,yScale"; duration: Motion.exit; curve: Motion.leave }
             }
         ]
     }

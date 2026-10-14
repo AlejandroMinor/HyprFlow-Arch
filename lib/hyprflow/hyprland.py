@@ -51,6 +51,13 @@ def reload():
     return _run("reload")
 
 
+def eval_lua(code):
+    """Runs LUA in the config environment, e.g. `hl.config(...)`. Hyprland's
+    keyword is not allowed with a Lua config, so dynamic options go through
+    `hyprctl eval`."""
+    return _run("eval", code)
+
+
 def dispatch(expr):
     """Runs a Lua dispatch, e.g. dispatch("hl.dsp.exit()"); hyprctl's answer."""
     return _run("dispatch", expr)

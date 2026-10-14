@@ -115,6 +115,21 @@ def test_power_profile_state(qa, monkeypatch):
     assert qa.power_profile() is None
 
 
+def test_keyboard_layout_action_runs_the_picker(qa):
+    action = next(a for a in qa.ACTIONS if a.label == "Keyboard layout")
+    assert action.argv == [qa.LIB / "layout-picker.py"]
+
+
+def test_keyboard_layout_state_reads_the_active_layout(qa, monkeypatch):
+    monkeypatch.setattr(qa, "output", lambda argv: "es")
+    assert qa.current_layout() == "es"
+
+
+def test_keyboard_layout_state_unknown_without_hyprland(qa, monkeypatch):
+    monkeypatch.setattr(qa, "output", lambda argv: "")
+    assert qa.current_layout() is None
+
+
 def test_json_lists_the_shown_actions_with_their_state(qa, capsys, monkeypatch):
     monkeypatch.setattr(qa.shutil, "which", lambda name: None)
     qa.main(actions=[qa.Action("a", "Lights", ["one"], lambda: False),

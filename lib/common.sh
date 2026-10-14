@@ -6,7 +6,7 @@
 #
 # That one readlink line is the only path a script works out for itself; the
 # rest comes from here: where lib/ and bin/ are, HyprFlow's own folders, the
-# wallust palette, and msg/warn/notify with the script's name on them.
+# wallust palette, msg/warn/notify with the script's name on them, and the OSD.
 
 # Used by the scripts that source this file.
 # shellcheck disable=SC2034
@@ -28,10 +28,54 @@ msg()  { printf '\033[1;%sm%s %s:\033[0m %s\n' "$_hyprflow_colour" "$_hyprflow_i
 warn() { printf '\033[1;33m%s %s:\033[0m %s\n' "$_hyprflow_icon" "$_hyprflow_name" "$*" >&2; }
 
 # A desktop notification titled with the script's name; quiet without one.
+# Optional flags come first, then the message:
+#
+#   notify [--urgency U] [--icon I] [--timeout MS] [--transient]
+#          [--replace ID] [--category C] [--action KEY=LABEL]... MESSAGE
+#
+# An action becomes a button in swaync; the command it runs is matched on the
+# app name in dotconfig/swaync/config.json, so a notification carries one.
 notify() {
     command -v notify-send >/dev/null 2>&1 || return 0
-    # "--": a message starting with "-" is text, not options.
-    notify-send -a "$_hyprflow_app" -- "$_hyprflow_app" "$*" 2>/dev/null || true
+    local urgency="" icon="" timeout="" actioned=0 extra=()
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --urgency)  urgency="$2"; shift 2 ;;
+            --icon)     icon="$2"; shift 2 ;;
+            --timeout)  timeout="$2"; shift 2 ;;
+            --transient) extra+=(-e); shift ;;
+            --replace)  extra+=(-r "$2"); shift 2 ;;
+            --category) extra+=(-c "$2"); shift 2 ;;
+            --action)   actioned=1; extra+=(-A "$2"); shift 2 ;;
+            *)          break ;;
+        esac
+    done
+    local args=(-a "$_hyprflow_app")
+    [ -n "$urgency" ] && args+=(-u "$urgency")
+    [ -n "$icon" ] && args+=(-i "$icon")
+    [ -n "$timeout" ] && args+=(-t "$timeout")
+    args+=("${extra[@]}")
+    # "--": a message starting with "-" is text, not options. An action (-A)
+    # makes notify-send wait for the user and a critical one never expires, so
+    # give it a second to hand the notification over, then move on.
+    if [ "$actioned" = 1 ]; then
+        timeout 1 notify-send "${args[@]}" -- "$_hyprflow_app" "$*" 2>/dev/null || true
+    else
+        notify-send "${args[@]}" -- "$_hyprflow_app" "$*" 2>/dev/null || true
+    fi
+}
+
+# osd ICON TITLE CAPTION VALUE: the level OSD (VALUE < 0: no bar). False
+# without Quickshell, so the caller can notify instead.
+osd() {
+    command -v qs >/dev/null 2>&1 || return 1
+    qs -c hyprflow ipc call osd level "$@" 2>/dev/null
+}
+
+# True when Quickshell is running.
+quickshell_up() {
+    command -v qs >/dev/null 2>&1 || return 1
+    qs -c hyprflow ipc show >/dev/null 2>&1
 }
 
 # Loads the wallust palette (foreground, background, color0..color15) into

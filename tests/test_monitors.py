@@ -107,6 +107,47 @@ def test_without_a_profile_the_largest_screen_is_primary(mon):
                for line in mon.log())
 
 
+def notes(mon):
+    return [line for line in mon.log() if line.startswith("notify-send -a Monitors")]
+
+
+def test_apply_only_notifies_when_asked(mon):
+    mon.run("apply")                                          # login: no hotplug title
+    assert not any("Screen" in line for line in notes(mon))
+    mon.run("apply", "--notify", "connected")                 # a hotplug
+    assert any("Screen connected" in line and "On: " in line for line in notes(mon))
+    mon.run("apply", "--notify", "disconnected")
+    assert any("Screen disconnected" in line for line in notes(mon))
+
+
+def test_mirror_and_solo_say_what_changed(mon):
+    mon.run("mirror", "on")
+    assert any("Mirror on" in line for line in notes(mon))
+    mon.run("mirror", "off")
+    assert any("Mirror off" in line for line in notes(mon))
+    mon.run("solo", "on", "TEST-B")
+    solo = [line for line in notes(mon) if "Solo on" in line]
+    assert solo and " · " not in solo[-1]                     # one screen on
+    mon.run("solo", "off")
+    assert any("Solo off" in line for line in notes(mon))
+
+
+def test_mirror_says_so_when_there_is_only_one_screen(mon):
+    mon.connect(BIG)                                          # unplug the second
+    assert mon.run("mirror", "toggle").returncode == 1
+    assert any(line.startswith("notify-send -a Monitors") and "Mirror screens" in line
+               and "at least 2 monitors" in line for line in notes(mon))
+
+
+def test_describe_names_the_screens_left_on(mons):
+    detected = [{"description": "Acme A1 123", "model": "A1"},
+                {"description": "Acme B2 456", "model": "B2"}]
+    profile = [{"description": "Acme A1 123"},
+               {"description": "Acme B2 456", "disabled": True}]
+    assert mons.describe(profile, detected) == "On: A1"
+    assert mons.describe([], detected) == "No screens on"
+
+
 def test_each_screen_gets_the_bar_its_profile_names(mon):
     mon.run("apply")
     by_output = {bar["output"][0]: bar for bar in mon.bars}

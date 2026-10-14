@@ -107,39 +107,42 @@ hl.bind(mainMod .. " + SHIFT + Z", hl.dsp.window.move({ workspace = "special:mag
 -- =======================================================
 
 hl.bind(mainMod .. " + SHIFT + S", function() toggle_submap("screenshot") end, { description = "Toggle Screenshot Mode" })
+hl.bind("Print",                   function() toggle_submap("screenshot") end, { description = "Toggle Screenshot Mode" })
 
 hl.define_submap("screenshot", function()
-    local out = "$HOME/Pictures/Screenshots/$(date '+%Y-%m-%d_%H-%M-%S').png"
-    local satty_flags = "--copy-command wl-copy --early-exit --action-on-enter save-to-file --right-click-copy --filename - --output-filename "
+    -- Hide the submap HUD first, or the capture (frozen at once) shows it.
+    -- lib/screenshot.sh does the capture, annotate and notify.
+    local shot = "~/.local/lib/hyprflow/screenshot.sh "
+    local hide_hud = "qs -c hyprflow ipc call submap leave && sleep 0.3; "
 
     hl.bind("r", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd("hyprshot -m region --freeze --raw | satty " .. satty_flags .. out))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "region"))
     end, { description = "Region Screenshot (Satty)" })
 
     hl.bind("w", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd("hyprshot -m window --freeze --raw | satty " .. satty_flags .. out))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "window"))
     end, { description = "Window Screenshot (Satty)" })
 
     hl.bind("s", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd("hyprshot -m output --freeze --raw | satty " .. satty_flags .. out))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "output"))
     end, { description = "Screen Screenshot (Satty)" })
 
     hl.bind("SHIFT + r", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd("hyprshot -m region --freeze --clipboard-only"))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "region --clipboard"))
     end, { description = "Region Screenshot → Clipboard" })
 
     hl.bind("SHIFT + w", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd("hyprshot -m window --clipboard-only"))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "window --clipboard"))
     end, { description = "Window Screenshot → Clipboard" })
 
     hl.bind("SHIFT + s", function()
         hl.dispatch(hl.dsp.submap("reset"))
-        hl.dispatch(hl.dsp.exec_cmd("hyprshot -m output --clipboard-only"))
+        hl.dispatch(hl.dsp.exec_cmd(hide_hud .. shot .. "output --clipboard"))
     end, { description = "Screen Screenshot → Clipboard" })
 
     hl.bind(mainMod .. " + SHIFT + S", hl.dsp.submap("reset"), { description = "Exit Screenshot Mode" })
@@ -152,11 +155,14 @@ end)
 -- =======================================================
 
 hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("swaync-client -t"),          { description = "Notifications" })
+hl.bind("XF86NotificationCenter",  hl.dsp.exec_cmd("swaync-client -t"),          { description = "Notifications" })
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -C"),          { description = "Clear Notifications" })
 hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("killall -SIGUSR1 waybar"),   { description = "Show / Hide Bar" })
 hl.bind(mainMod .. " + A",         hl.dsp.window.bring_to_top(),                 { description = "Bring to Front" })
 -- The Quickshell panel, or the rofi menu when Quickshell is not running.
 hl.bind(mainMod .. " + K",         hl.dsp.exec_cmd("qs -c hyprflow ipc call quickactions toggle || ~/.local/lib/hyprflow/quick-actions.py"), { description = "Quick Actions (screens, audio, game mode, lights...)" })
+hl.bind("XF86Favorites",           hl.dsp.exec_cmd("qs -c hyprflow ipc call quickactions toggle || ~/.local/lib/hyprflow/quick-actions.py"), { description = "Quick Actions (screens, audio, game mode, lights...)" })
+hl.bind("XF86Display",             hl.dsp.exec_cmd("~/.local/bin/monitors.sh mirror toggle"), { description = "Mirror Screens (toggle)" })
 
 
 -- =======================================================
@@ -285,18 +291,19 @@ hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh
 -- Toggles do not repeat: holding the key would flip mute on and off at random.
 hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh mute"),     { description = "Mute Audio" })
 hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("~/.local/lib/hyprflow/volume.sh mic-mute"), { description = "Mute Microphone" })
-hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("brightnessctl s 10%+"), { repeating = true, description = "Brightness Up" })
-hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl s 10%-"), { repeating = true, description = "Brightness Down" })
+hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("~/.local/lib/hyprflow/brightness.sh up"),   { repeating = true, description = "Brightness Up" })
+hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("~/.local/lib/hyprflow/brightness.sh down"), { repeating = true, description = "Brightness Down" })
 
 -- Playback
-hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true, description = "Next Track" })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, description = "Pause" })
-hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, description = "Play" })
-hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true, description = "Previous Track" })
+-- media.sh shows the skip on the OSD; osd-watch.py shows play/pause.
+hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh next"),       { locked = true, description = "Next Track" })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"),                       { locked = true, description = "Pause" })
+hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"),                       { locked = true, description = "Play" })
+hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh previous"),   { locked = true, description = "Previous Track" })
 
 -- Media control (MX Keys alternative)
-hl.bind(mainMod .. " + period",         hl.dsp.exec_cmd("playerctl next"),           { locked = true, description = "Next Track (Keyboard)" })
-hl.bind(mainMod .. " + comma",          hl.dsp.exec_cmd("playerctl previous"),       { locked = true, description = "Previous Track (Keyboard)" })
+hl.bind(mainMod .. " + period",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh next"),     { locked = true, description = "Next Track (Keyboard)" })
+hl.bind(mainMod .. " + comma",          hl.dsp.exec_cmd("~/.local/lib/hyprflow/media.sh previous"), { locked = true, description = "Previous Track (Keyboard)" })
 hl.bind(mainMod .. " + SHIFT + period", hl.dsp.exec_cmd("playerctl position 10+"),  { locked = true, description = "Seek Forward 10s" })
 hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.exec_cmd("playerctl position 10-"),  { locked = true, description = "Seek Back 10s" })
 

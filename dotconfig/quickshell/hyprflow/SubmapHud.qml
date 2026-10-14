@@ -1,12 +1,11 @@
 // The keys of the submap you are in (Super+G, Super+R, Super+Shift+S), at the
 // bottom while it lasts. toggle_submap (hyprland.lua) opens it with the title
 // and exit key from SUBMAP_MODES; the keys come from help-binds-parse.py, the
-// same list as Super+I. Leaving the submap, Esc included, closes it.
+// same list as Super+I. Leaving the submap, any way, closes it.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 
 Scope {
     id: root
@@ -27,14 +26,29 @@ Scope {
             root.exitKey = exitKey;
             parser.running = true;  // opens once the keys are read
         }
+        // Right away, before a screenshot freezes the screen.
+        function leave(): void {
+            root.open = false;
+        }
     }
 
-    // Hyprland says "submap>>" (empty) when back to the normal binds.
-    Connections {
-        target: Hyprland
-        function onRawEvent(event) {
-            if (event.name === "submap" && event.data === "")
-                root.open = false;
+    // Hyprland 0.56 sends no event when a Lua bind leaves the submap, so ask
+    // while open: "default" means back to the normal binds.
+    Timer {
+        interval: 250
+        repeat: true
+        running: root.open
+        onTriggered: current.running = true
+    }
+
+    Process {
+        id: current
+        command: ["hyprctl", "submap"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (text.trim() !== root.submap)
+                    root.open = false;
+            }
         }
     }
 

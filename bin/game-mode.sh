@@ -32,7 +32,8 @@ set -uo pipefail
 
 # shellcheck source=../lib/common.sh
 . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
-hyprflow_name "󰊴" game-mode 35
+glyph="󰊴"
+hyprflow_name "$glyph" game-mode 35
 
 CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 CONF="$CFG/hypr/game-mode.conf"
@@ -183,6 +184,9 @@ cmd_on() {
 
     if [ "$keep" -eq 1 ]; then msg "on: $display (other screens kept on)"
     else msg "on: $display"; fi
+    # The OSD, not a notification: game mode turns do not disturb on, and the
+    # panel ignores it. notify only if Quickshell is not running.
+    osd "$glyph" "Game mode" "On · $display" -1 || notify "Game mode on: $display"
 }
 
 cmd_off() {
@@ -212,6 +216,7 @@ cmd_off() {
     pgrep -x waybar >/dev/null || "$HYPRFLOW_LIB/waybar-restart.sh"
 
     msg "off"
+    osd "$glyph" "Game mode" "Off" -1 || notify "Game mode off"
 }
 
 attach_session

@@ -33,9 +33,9 @@ end
 -- React to monitor hotplug: regenerate the layout + reload via monitors.sh.
 -- (`apply` is idempotent and only reloads if the generated output changed,
 --  which prevents an event -> reload -> event loop.)
-for _, ev in ipairs({ "monitor.added", "monitor.removed" }) do
+for ev, what in pairs({ ["monitor.added"] = "connected", ["monitor.removed"] = "disconnected" }) do
     pcall(function()
-        hl.on(ev, function() hl.dispatch(hl.dsp.exec_cmd("monitors.sh apply")) end)
+        hl.on(ev, function() hl.dispatch(hl.dsp.exec_cmd("monitors.sh apply --notify " .. what)) end)
     end)
 end
 
@@ -96,6 +96,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("~/.local/lib/hyprflow/headset-watch.py")
     -- HyprFlow's Quickshell panels (Super+K); -n: one copy only.
     hl.exec_cmd("qs -n -d -c hyprflow")
+    -- OSD for play/pause, Caps/Num Lock and Do Not Disturb.
+    hl.exec_cmd("~/.local/lib/hyprflow/osd-watch.py")
     hl.exec_cmd("nm-applet --indicator")
     -- Bluetooth agent: shows the pairing and authorization prompts of any device
     -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ
@@ -144,7 +146,7 @@ hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
 hl.config({
     general = {
         gaps_in  = 5,
-        gaps_out = 20,
+        gaps_out = { top = 0, right = 20, bottom = 20, left = 20 },
 
         border_size = 2,
 

@@ -1,5 +1,6 @@
 """Tests for lib/volume.sh with a fake wpctl that keeps its own volume and
-mute state in files, and a fake notify-send, so no real device changes."""
+mute state in files, a fake notify-send and a fake Quickshell panel, so no
+real device changes and no real panel opens."""
 
 import os
 import subprocess
@@ -24,26 +25,42 @@ case "$1" in
 esac
 '''
 
+# The Quickshell panel: answers `ipc show` (exit 0) when FAKE_OSD is set, or is
+# not running (exit 255) when it is not. It logs every call so a test can check
+# that volume.sh asked quickshell_up but never pushed the OSD itself.
+QS = r'''
+[ -n "${FAKE_OSD+x}" ] || exit 255
+printf '%s\n' "$@" >> "$T/osd"
+'''
+
 
 @pytest.fixture
 def vol(tmp_path):
     fakes = tmp_path / "fakebin"
     fakes.mkdir()
-    for name, body in {"wpctl": WPCTL, "notify-send": 'printf "%s\\n" "$*" >> "$T/notes"'}.items():
+    for name, body in {"wpctl": WPCTL,
+                       "notify-send": 'printf "%s\\n" "$*" >> "$T/notes"',
+                       "qs": QS}.items():
         (fakes / name).write_text(f"#!/bin/bash\n{body}\n")
         (fakes / name).chmod(0o755)
     (tmp_path / "sink.vol").write_text("0.45")
     (tmp_path / "source.vol").write_text("0.82")
     env = {**os.environ, "T": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}"}
 
-    def run(*args):
-        result = subprocess.run(["bash", str(SCRIPT), *args], env=env, text=True,
-                                capture_output=True, timeout=10)
+    def run(*args, **extra):
+        result = subprocess.run(["bash", str(SCRIPT), *args], env={**env, **extra},
+                                text=True, capture_output=True, timeout=10)
         notes = tmp_path / "notes"
         last = notes.read_text().splitlines()[-1] if notes.exists() else None
         return result, last
 
     return run, tmp_path
+
+
+def osd_args(root):
+    log = root / "osd"
+    return log.read_text().splitlines() if log.exists() else []
+
 
 
 def test_up_raises_and_shows_the_new_level(vol):
@@ -97,3 +114,33 @@ def test_unknown_action(vol):
     run, _ = vol
     result, _ = run("louder")
     assert result.returncode == 1 and "usage" in result.stderr
+
+
+# With Quickshell up the OSD is Osd.qml's job (it watches Pipewire): volume.sh
+# changes the level and stays quiet -- no notification, and no pushed OSD.
+
+def test_with_quickshell_it_shows_no_notification(vol):
+    run, root = vol
+    _, note = run("up", FAKE_OSD="1")
+    assert (root / "sink.vol").read_text() == "0.50"
+    assert note is None                                        # notification skipped
+    assert "level" not in osd_args(root)                       # and no OSD pushed
+
+
+def test_with_quickshell_mute_shows_no_notification(vol):
+    run, root = vol
+    _, note = run("mute", FAKE_OSD="1")
+    assert (root / "sink.muted").exists() and note is None
+
+
+def test_with_quickshell_the_microphone_stays_quiet(vol):
+    run, root = vol
+    _, note = run("mic-mute", FAKE_OSD="1")
+    assert (root / "source.muted").exists() and note is None
+
+
+def test_without_quickshell_it_falls_back_to_a_notification(vol):
+    run, root = vol
+    _, note = run("up")                                        # qs exits 255
+    assert "int:value:50" in note and note.endswith("Volume 50%")
+    assert osd_args(root) == []

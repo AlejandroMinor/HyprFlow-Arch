@@ -726,9 +726,13 @@ class LowBatteryNotifier:
 
     def announce(self, d):
         urgency = "critical" if d.level == "critical" else "normal"
+        # Power saver helps only the laptop's own battery, and needs the tool
+        # (the swaync script for it is in dotconfig/swaync/config.json).
+        actions = [("power", "Power saver")] \
+            if d.is_laptop and shutil.which("powerprofilesctl") else []
         notify.send(f"{d.name}: {d.percent}%",
                     "Almost empty, charge it soon." if d.level == "critical" else "Running low.",
-                    app="Battery", urgency=urgency, icon="battery-low")
+                    app="Battery", urgency=urgency, icon="battery-low-symbolic", actions=actions)
         if os.access(self.hook, os.X_OK):
             subprocess.Popen([self.hook, d.name, str(d.percent), d.level],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,

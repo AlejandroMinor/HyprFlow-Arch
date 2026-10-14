@@ -4,8 +4,8 @@
 
 | Script | Description |
 |--------|-------------|
-| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo` |
-| `game-mode.sh` | Controller friendly mode for the TV: one screen, no effects, Big Picture |
+| `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo`; hotplug `apply` and mirror/solo announce the new layout |
+| `game-mode.sh` | Controller friendly mode for the TV: one screen, no effects, Big Picture; says on and off on the OSD |
 | `wallust-theme-manager.sh` | Generate and apply color palettes |
 | `theme-picker.sh` | Interactive theme selector |
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
@@ -20,9 +20,13 @@ each one by its full path:
 
 | Script | Called by | Description |
 |--------|-----------|-------------|
-| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them, right click for the headset lights, notifications when one runs low |
+| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them, right click for the headset lights, notifications when one runs low (the laptop's with a "Power saver" button) |
 | `mute_indicator.py` | Waybar | Audio at a glance: output muted, and a badge while the microphone is muted |
-| `volume.sh` | Volume keys | Change volume or mute, with a transient notification showing the level |
+| `volume.sh` | Volume and mute keys | Change volume or mute; the level shows on the Quickshell OSD (it watches Pipewire, so the headset's own buttons show it too), or a transient notification without Quickshell |
+| `brightness.sh` | Brightness keys | Change the panel backlight; the level shows on the Quickshell OSD, or a notification without it |
+| `media.sh` | Next and previous keys | Skip the track; the Quickshell OSD shows the matching skip glyph (play and pause the OSD shows by watching the player, which also catches Spotify's own controls) |
+| `screenshot.sh` | `Super + Shift + S` submap | Capture a region, window or screen with hyprshot and annotate it in satty; a saved shot becomes a notification with an "Open" button (`dotconfig/swaync`), a copy goes straight to the clipboard |
+| `osd-watch.py` | Hyprland | Shows the Quickshell OSD for what no key of ours reports: play/pause (`playerctl`), Caps/Num Lock (the lock LEDs) and Do Not Disturb (`dconf`) |
 | `camera_status.py` | Waybar | Camera-in-use indicator |
 | `vpn_status.py` | Waybar | VPN status |
 | `cava_waybar.py` | Waybar | Audio visualizer, dims to a baseline when silent |
@@ -34,16 +38,17 @@ each one by its full path:
 | `hyprland-group-all.sh` | `Alt + G` | Group every window in the workspace |
 | `hyprland-show-desktop.sh` | `Super + D` | Show the desktop |
 | `session-manager.py` | `Super + W` / `Shift + W` / `M` | Save window layouts and reopen them from a menu; `Super + M` saves the session and logs out |
-| `quick-actions.py` | `Super + K` | The Quickshell panel (rofi when Quickshell is not running) to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, change the wallpaper or theme; switches show their state, and actions whose program is missing are hidden |
+| `quick-actions.py` | `Super + K` | The Quickshell panel (rofi when Quickshell is not running) to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, switch the keyboard layout, change the wallpaper or theme; switches show their state, and actions whose program is missing are hidden |
 | `confirm.py` | `close-workspace.sh` | Asks a yes/no question on the Quickshell panel (rofi when it is not running) and prints the answer |
-| `power-profile.sh` | `Super + K` | Switches to the next power profile and says which one is on |
+| `power-profile.sh` | `Super + K` | Switches to the next power profile and says which one is on (the Quickshell OSD, or a notification without it) |
+| `layout-picker.py` | `Super + K` | Picks the active keyboard layout among the ones declared in `hyprland.lua` (`es,us`): the chosen one moves to the front of `input:kb_layout`, and the OSD confirms it (a notification without Quickshell) |
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
 | `headset-watch.py` | Hyprland | Gives the headset its LED colour back when it turns on (`rgb-sync.sh --rescan`) |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
 | `activate-linux.py` | Hyprland | The "Activate Linux" watermark, click-through, bottom right |
 | `monitors.py` | `monitors.sh` | The monitor logic behind the command |
 | `hyprflow/` | the Python scripts | Shared package: paths, hyprctl, notifications, palette, the Waybar module base |
-| `common.sh` | the Bash scripts | Shared paths, messages, notifications and palette |
+| `common.sh` | the Bash scripts | Shared paths, messages, notifications (with urgency, icon, timeout, category and an action button), the Quickshell level OSD (`osd`, `quickshell_up`) and palette |
 
 ## Submodules
 

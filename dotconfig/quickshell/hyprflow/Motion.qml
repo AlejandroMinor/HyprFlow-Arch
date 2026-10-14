@@ -8,6 +8,7 @@ import Quickshell
 Singleton {
     readonly property int fast: 120    // hover, highlight, small changes
     readonly property int normal: 260  // a panel unfolding
+    readonly property int hud: 220     // the level OSD
     readonly property int exit: 160    // a panel folding away: quicker
 
     readonly property var enter:    [0.05, 0.7, 0.1, 1.0, 1, 1]

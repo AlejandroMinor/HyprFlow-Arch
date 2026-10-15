@@ -37,7 +37,7 @@
         "scroll-step": 5,
         "format": "{icon} {volume}%",
         "format-muted": "<span color='#f7768e'>󰖁 </span> {volume}%",
-        "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 450 150; center] kitty --class kitty-sinkswitch -e sinkswitch -sync -notify-hypr -nick\")'",
+        "on-click": "~/.local/lib/hyprflow/sink-switch.py --toggle",
         "on-click-right": "pavucontrol",
         "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "format-icons": {

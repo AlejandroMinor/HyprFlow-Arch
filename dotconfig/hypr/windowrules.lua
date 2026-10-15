@@ -145,16 +145,6 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name      = "audio-sink-switcher",
-    match     = { class = "^(kitty-sinkswitch)$" },
-    float     = true,
-    size      = {450, 150},
-    center    = true,
-    pin       = true,
-    animation = "slide",
-})
-
-hl.window_rule({
     name      = "cal-popup",
     match     = { class = "^(cal-popup)$" },
     float     = true,

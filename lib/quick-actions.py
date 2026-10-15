@@ -118,8 +118,7 @@ SECTIONS = ("Screens", "Audio", "System", "Appearance")
 ACTIONS = [
     Action("󰍺", "Mirror screens", [BIN / "monitors.sh", "mirror", "toggle"], mirror_on, section="Screens"),
     Action("󰍹", "Only the main screen", [BIN / "monitors.sh", "solo", "toggle"], solo_on, section="Screens"),
-    Action("󰓃", "Audio output", ["kitty", "--class", "kitty-sinkswitch", "-e",
-                                 "sinkswitch", "-sync", "-notify-hypr", "-nick"], needs="sinkswitch", section="Audio"),
+    Action("󰓃", "Audio output", [LIB / "sink-switch.py", "--toggle"], needs="wpctl", section="Audio"),
     Action("󰍬", "Microphone", [LIB / "volume.sh", "mic-mute"], mic_on, needs="wpctl", section="Audio"),
     Action("󰊴", "Game mode", [BIN / "game-mode.sh", "toggle"], game_mode_on, section="System"),
     Action("󰂛", "Do not disturb", ["swaync-client", "-d"], dnd_on, needs="swaync-client", section="System"),

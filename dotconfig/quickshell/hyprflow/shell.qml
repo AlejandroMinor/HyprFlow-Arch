@@ -5,6 +5,7 @@ import Quickshell
 
 ShellRoot {
     QuickActions {}
+    SinkSwitch {}
     KeyGuide {}
     Confirm {}
     SubmapHud {}

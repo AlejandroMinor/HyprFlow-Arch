@@ -240,7 +240,7 @@ install_dependencies() {
 
 # A clone without --recursive leaves modules/* empty. That is quiet damage: the
 # runcat font never installs, and the symlinks for
-# claude-usage.sh / sinkswitch / trackpad-battery are skipped without a word.
+# claude-usage.sh / trackpad-battery are skipped without a word.
 # So check them out here instead of warning and carrying on regardless.
 missing_submodules() {
     local path

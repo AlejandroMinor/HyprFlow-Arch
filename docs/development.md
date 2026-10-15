@@ -13,7 +13,8 @@
     `bin/` and `lib/` are.
 - `dotconfig/`: copied into `~/.config` by `install.sh config`.
   `dotconfig/quickshell/hyprflow/` holds the Quickshell panels (`qs -c hyprflow`):
-  the Super+K and Super+I panels, the confirmations, the submap HUD and the
+  the Super+K and Super+I panels, the audio output switcher, the
+  confirmations, the submap HUD and the
   level OSD the volume and brightness keys show (it also watches Pipewire, so
   a headset's own volume buttons show it too).
 - `packages/`: the package lists install.sh reads.
@@ -41,7 +42,8 @@
   open and closed, keyboard and click outside) plus its content; durations
   and curves live only in `Motion`, colours in `Colors` (fixed). The data
   stays in Python: the Super+K panel draws `quick-actions.py --json` and
-  runs `--run LABEL`, so rofi and Quickshell share one list of actions.
+  runs `--run LABEL`, so rofi and Quickshell share one list of actions; the
+  audio switcher the same way (`sink-switch.py --json` / `--set ID`).
   A confirmation is asked through IPC with a pipe to answer on
   (`QuickshellMenu.confirm`), so the scripts wait for it as they wait for rofi.
 

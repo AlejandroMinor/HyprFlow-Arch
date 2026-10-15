@@ -1,1 +1,10 @@
-../modules/sinkswitch/sinkswitch.sh
+#!/usr/bin/env bash
+# sinkswitch: pick the audio output. The short name for lib/sink-switch.py,
+# handy on the terminal and over SSH, where the Quickshell panel is out of
+# reach and the rofi menu (or a bare --set) does the job.
+#
+#   sinkswitch            rofi menu, then switch
+#   sinkswitch --toggle    the Quickshell panel, or rofi
+#   sinkswitch --json      the list
+#   sinkswitch --set ID    make ID the default
+exec python3 "$(dirname "$(readlink -f "$0")")/../lib/sink-switch.py" "$@"

@@ -11,8 +11,8 @@
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
 | `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
-| `sinkswitch` | Quick audio output switcher |
 | `trackpad-battery` | Apple Magic Trackpad battery, read from the trackpad itself |
+| `sinkswitch` | Pick the audio output from the terminal or over SSH (`sinkswitch --json` / `--set ID` work without a display); the short name for `lib/sink-switch.py` |
 
 **Internal.** `lib/` holds what only Waybar, the keybindings or other scripts
 call. It lands in `~/.local/lib/hyprflow`, off your `PATH`, and the configs call
@@ -42,6 +42,7 @@ each one by its full path:
 | `confirm.py` | `close-workspace.sh` | Asks a yes/no question on the Quickshell panel (rofi when it is not running) and prints the answer |
 | `power-profile.sh` | `Super + K` | Switches to the next power profile and says which one is on (the Quickshell OSD, or a notification without it) |
 | `layout-picker.py` | `Super + K` | Picks the active keyboard layout among the ones declared in `hyprland.lua` (`es,us`): the chosen one moves to the front of `input:kb_layout`, and the OSD confirms it (a notification without Quickshell) |
+| `sink-switch.py` | `sinkswitch` / Waybar / `Super + K` | Lists the PipeWire audio outputs and switches the default (moving the running streams too); the Quickshell panel, or a rofi menu without it. A personal `~/.config/hyprflow/sink-switch.conf` (out of the repo) hides outputs |
 | `pad-listener.py` | Hyprland | Hold PS + Options (Guide + Menu) on a controller to toggle game mode |
 | `headset-watch.py` | Hyprland | Gives the headset its LED colour back when it turns on (`rgb-sync.sh --rescan`) |
 | `rgb-hotplug.py` | Hyprland | Rescans OpenRGB when a USB device is plugged in, so it takes the LED colour (or stays off) like the rest |
@@ -61,7 +62,6 @@ Some pieces live in their own repositories and come in as git submodules, under
 |--------|-------------------|------------|
 | `runcat-text` | The animated CPU runner in the bar (cat or chicken) | No runner |
 | `waybar-claude-usage` | The Claude usage indicator in the bar (needs the Claude Code CLI logged in) | No Claude indicator |
-| `sinkswitch` | The `sinkswitch` command, to switch audio output | No `sinkswitch` |
 | `apple-magic-trackpad-battery` | The `trackpad-battery` command | No `trackpad-battery` |
 
 You do not have to fetch them yourself: if you cloned without `--recursive`,

@@ -84,7 +84,7 @@ waypaper (Super+K → Random wallpaper, or waypaper itself) → its post_command
       → with --notify: the OSD says "Theme · Wallpaper" (or the preset's name)
 ```
 
-A preset instead: Super+K → Theme or the Waybar theme click →
+A preset instead: Super+K → Theme →
 `theme-picker.sh --toggle` → the Quickshell panel (`--json` lists them, a pick
 runs `--set NAME`; the fzf picker itself in a terminal or over SSH) →
 `wallust-theme-manager.sh --theme NAME` → `wallust cs`, then the same chain

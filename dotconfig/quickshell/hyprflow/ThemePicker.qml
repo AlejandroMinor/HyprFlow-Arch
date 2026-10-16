@@ -1,4 +1,4 @@
-// Super+K's "Theme" and the Waybar theme click. The list comes from
+// Super+K's "Theme". The list comes from
 // bin/theme-picker.sh --json (the wallpaper palette first, then the presets in
 // ~/.config/wallust/themes/, by section, each with its colours and the one in
 // use marked); picking one runs --set NAME. Opened through IPC:
@@ -16,7 +16,7 @@ Scope {
 
     readonly property string script: Quickshell.env("HOME") + "/.local/bin/theme-picker.sh"
     readonly property string font: "JetBrainsMono Nerd Font"
-    readonly property string palette: "\uee26"  // Nerd Font: the Waybar theme glyph
+    readonly property string palette: "\uee26"  // Nerd Font: a palette
     readonly property string check: "󰄬"
     readonly property int rowHeight: 46
     readonly property int maxRows: 8  // past this the list scrolls

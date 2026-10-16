@@ -95,7 +95,7 @@ window#waybar.minimal #workspaces {
 #cpu, #memory, #disk,
 #tray, #custom-vpn,
 #network, #pulseaudio, #battery,
-#custom-swaync, #clock, #custom-power, #custom-hardware-wrap, #custom-theme-selector,
+#custom-swaync, #clock, #custom-power, #custom-hardware-wrap,
 #custom-updates, #custom-mute-indicator, #custom-battery-hub, #language, #submap,
 #custom-claude-usage, #media, #privacy-info,
 #custom-system-tools-wrap, #temperature, #workspaces {
@@ -114,7 +114,6 @@ window#waybar.minimal #workspaces {
 #network             { color: @color5; }
 #pulseaudio          { color: @color2; }
 #battery             { color: @color2; }
-#custom-theme-selector { color: @color2; }
 #custom-system-tools-wrap { color: @color4; padding: 0 9px 0 6px; }
 #language { color: @color5; }
 
@@ -130,7 +129,7 @@ window#waybar.minimal #workspaces {
 #temperature:hover, #network:hover, #pulseaudio:hover,
 #battery:hover, #custom-vpn:hover, #tray:hover,
 #custom-swaync:hover, #language:hover,
-#custom-hardware-wrap:hover, #custom-theme-selector:hover,
+#custom-hardware-wrap:hover,
 #custom-system-tools-wrap:hover, #custom-battery-hub:hover {
     background: alpha(@color5, 0.15);
 }

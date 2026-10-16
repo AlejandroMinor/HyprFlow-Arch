@@ -231,14 +231,6 @@
         }
     },
 
-"custom/theme-selector": {
-    "format": "",
-    "tooltip": false,
-    "on-click": "~/.local/bin/theme-picker.sh --toggle",
-    "on-click-right": "waypaper",
-    "on-click-middle": "waypaper --random"
-},
-
 "group/media": {
     "orientation": "horizontal",
     "drawer": {

@@ -14,7 +14,7 @@ zen_mode = True
 post_command = bash -c "$HOME/.local/bin/wallust-theme-manager.sh --generate-palette --notify"
 ```
 
-Run `theme-picker.sh` — the Quickshell panel from the bar or `Super + K`, the
+Run `theme-picker.sh` — the Quickshell panel from `Super + K`, the
 fzf picker in a terminal or over SSH — to pick between the wallpaper palette and
 eighteen presets:
 

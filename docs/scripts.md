@@ -7,7 +7,7 @@
 | `monitors.sh` | Monitor wizard: `list` / `setup` / `apply` / `mirror` / `solo`; hotplug `apply` and mirror/solo announce the new layout |
 | `game-mode.sh` | Controller friendly mode for the TV: one screen, no effects, Big Picture; says on and off on the OSD |
 | `wallust-theme-manager.sh` | Generate and apply color palettes |
-| `theme-picker.sh` | Picks the wallpaper palette or a preset from `~/.config/wallust/themes/`, each with its colours and the one in use marked; the Quickshell panel from Waybar or `Super + K`, and the fzf picker in a terminal or over SSH (`--json` / `--set NAME` work without a display) |
+| `theme-picker.sh` | Picks the wallpaper palette or a preset from `~/.config/wallust/themes/`, each with its colours and the one in use marked; the Quickshell panel from `Super + K`, and the fzf picker in a terminal or over SSH (`--json` / `--set NAME` work without a display) |
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
 | `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |

@@ -26,7 +26,7 @@ window#waybar.hidden {
 #cpu, #memory, #disk,
 #tray, #custom-vpn,
 #network, #pulseaudio, #battery,
-#custom-swaync, #clock, #custom-power, #custom-hardware-wrap, #custom-theme-selector,
+#custom-swaync, #clock, #custom-power, #custom-hardware-wrap,
 #custom-updates, #custom-mute-indicator, #custom-battery-hub, #language, #submap,
 #custom-claude-usage {
     background: alpha(@color0, 0.8);
@@ -203,7 +203,6 @@ window#waybar.hidden {
     color: @color4;
 }
 
-#custom-theme-selector { color: @color2; }
 #language              { color: @color5; }
 
 #custom-claude-usage.low      { color: @color4; }

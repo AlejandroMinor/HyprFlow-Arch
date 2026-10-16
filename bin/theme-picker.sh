@@ -21,8 +21,6 @@ AUTO_NAME="auto"
 FIRST=(classic nocturne)   # shown right after the wallpaper, then accent-*, the rest A-Z
 CURRENT_FILE="$HYPRFLOW_STATE/theme"  # written by wallust-theme-manager.sh
 
-# accent-blue -> Accent Blue
-title() { sed -E 's/-/ /g; s/(^| )([a-z])/\1\u\2/g' <<<"$1"; }
 
 # The panel's heading for a theme; theme_names keeps each run together.
 section() {
@@ -79,7 +77,7 @@ as_json() {
         [ "$current" = "$AUTO_NAME" ] && colors="$(auto_colors)"
         entry "$AUTO_NAME" "$AUTO" "$colors" "$([ "$current" = "$AUTO_NAME" ] && echo true || echo false)"
         while read -r name; do
-            entry "$name" "$(title "$name")" "$(theme_colors "$name")" \
+            entry "$name" "$(theme_title "$name")" "$(theme_colors "$name")" \
                 "$([ "$current" = "$name" ] && echo true || echo false)"
         done < <(theme_names)
     } | jq -sc .
@@ -111,7 +109,7 @@ main() {
     esac
 
     local selected name
-    selected="$( { printf '%s\n' "$AUTO"; theme_names | while read -r name; do title "$name"; done; } \
+    selected="$( { printf '%s\n' "$AUTO"; theme_names | while read -r name; do theme_title "$name"; done; } \
         | fzf --prompt="  Pick a theme > " --height=30% --border=rounded \
               --layout=reverse --no-info --color="$("$HYPRFLOW_LIB/fzf-colors.sh")")"
     [ -z "$selected" ] && exit 0
@@ -120,7 +118,7 @@ main() {
         exec "$MANAGER" --generate-palette --notify
     fi
     while read -r name; do
-        [ "$(title "$name")" = "$selected" ] && exec "$MANAGER" --theme "$name" --notify
+        [ "$(theme_title "$name")" = "$selected" ] && exec "$MANAGER" --theme "$name" --notify
     done < <(theme_names)
 }
 

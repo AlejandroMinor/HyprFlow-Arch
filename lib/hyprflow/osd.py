@@ -15,6 +15,16 @@ def show(icon, title, caption="", value=0, app="HyprFlow"):
     return False
 
 
+def quickshell_up():
+    """True when the Quickshell config answers IPC (common.sh's quickshell_up)."""
+    try:
+        result = subprocess.run(["qs", "-c", "hyprflow", "ipc", "show"],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.returncode == 0
+
+
 def _push(icon, title, caption, value):
     try:
         result = subprocess.run(

@@ -1,6 +1,7 @@
 // Level OSD: a HUD card that shows what just changed and hides itself.
 // Pushed: qs -c hyprflow ipc call osd level ICON TITLE CAPTION VALUE
-// (VALUE < 0: no bar). Audio comes from Pipewire, the layout from Hyprland.
+// (VALUE < 0: no bar). Audio comes from Pipewire (levels, and the output in
+// use whenever it changes), the layout from Hyprland.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -160,9 +161,46 @@ Scope {
 
     Connections {
         target: Pipewire
-        function onDefaultAudioSinkChanged() { root.seedAudio(); }
+        function onDefaultAudioSinkChanged() { root.seedAudio(); outputSettle.restart(); }
         function onDefaultAudioSourceChanged() { root.seedAudio(); }
-        function onReadyChanged() { root.seedAudio(); }
+        function onReadyChanged() { root.seedAudio(); outputSettle.restart(); }
+    }
+
+    // The output in use changed: picked in the switcher, or Pipewire fell back
+    // when a device left (AirPods off). Said once it settles, never at start.
+    // The label and glyph come from sink-switch.py, the one place that names
+    // outputs.
+    property string outputName: ""
+
+    Timer {
+        id: outputSettle
+        interval: 800
+        onTriggered: {
+            const sink = Pipewire.defaultAudioSink;
+            if (!sink || sink.name === root.outputName) return;
+            const first = root.outputName === "";
+            root.outputName = sink.name;
+            if (!first) outputList.running = true;
+        }
+    }
+
+    Process {
+        id: outputList
+        command: [Quickshell.env("HOME") + "/.local/lib/hyprflow/sink-switch.py", "--json"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let found = null;
+                try {
+                    found = JSON.parse(text).find(s => s.default) || null;
+                } catch (e) {}
+                const sink = Pipewire.defaultAudioSink;
+                // A sink the personal config hides: its own name, the generic glyph.
+                const label = found ? found.label
+                    : sink ? (sink.nickname || sink.description || sink.name) : "";
+                root.audioNode = null;
+                root.present(found ? found.icon : root.glyphVolumeHigh, "Audio output", label, -1);
+            }
+        }
     }
 
     Connections {

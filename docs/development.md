@@ -81,6 +81,7 @@ waypaper (Super+K → Random wallpaper, or waypaper itself) → its post_command
       → waybar-restart.sh
       → hyprlock/geometry.sh --wait-backdrop (detached): rebuilds the blurred
         lockscreen backdrop
+      → with --notify: the OSD says "Theme · Wallpaper" (or the preset's name)
 ```
 
 A preset instead: Super+K → Theme or the Waybar theme click →
@@ -140,8 +141,11 @@ Waybar volume click or Super+K → Audio output → lib/sink-switch.py --toggle
       → sink-switch.py --json: pw-dump sinks, minus ~/.config/hyprflow/sink-switch.conf
   → a pick runs sink-switch.py --set ID
       → wpctl set-default, pactl moves the running streams (unless --no-sync)
-      → the OSD shows the output with its family glyph
+      → without Quickshell, a notification names the output
 `sinkswitch` (bin/) is the same script, for the terminal or SSH
+Osd.qml watches the default sink: any change (a pick, or Pipewire falling back
+when AirPods leave) settles 0.8 s, then "Audio output · NAME" with the glyph
+and label from sink-switch.py --json; never at start
 ```
 
 ### Notifications

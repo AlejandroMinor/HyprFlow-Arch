@@ -87,6 +87,9 @@ fi
 LOCKSCREEN_GEOMETRY="$HOME_DIR/.config/hypr/hyprlock/geometry.sh"
 [ -x "$LOCKSCREEN_GEOMETRY" ] && setsid "$LOCKSCREEN_GEOMETRY" --wait-backdrop >/dev/null 2>&1 &
 
+# Which theme is on now: the OSD, or a notification without Quickshell.
 if [ "$NOTIFY" = true ]; then
-    notify-send -i "color-management" "Theme Manager" "Sync complete."
+    LABEL="Wallpaper"
+    [ "$ACTION" = "theme" ] && LABEL="$(theme_title "$THEME")"
+    osd $'\uee26' "Theme" "$LABEL" -1 || notify-send -i "color-management" "Theme" "$LABEL"
 fi

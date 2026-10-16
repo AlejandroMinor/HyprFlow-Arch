@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hyprflow import osd, paths  # noqa: E402
+from hyprflow import notify, osd, paths  # noqa: E402
 from hyprflow.menu import RofiMenu  # noqa: E402
 
 CONFIG = str(paths.HYPRFLOW_CONFIG / "sink-switch.conf")
@@ -169,11 +169,13 @@ def sync_streams(name):
 
 
 def switch(sink, sync=True):
-    """Make the sink the default; the OSD says which one is on now."""
+    """Make the sink the default. The OSD sees the change and says which one
+    is on now (Osd.qml); without Quickshell, a notification does."""
     out(["wpctl", "set-default", str(sink.id)])
     if sync:
         sync_streams(sink.name)
-    osd.show(sink.icon, "Audio output", sink.label, -1)
+    if not osd.quickshell_up():
+        notify.send("Audio output", sink.label, app="Audio")
 
 
 def quickshell_open():

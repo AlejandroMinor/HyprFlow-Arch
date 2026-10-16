@@ -165,6 +165,22 @@ def test_osd_without_the_panel_notifies_instead(tmp_path, monkeypatch):
     assert log.read_text().splitlines() == ["-a|HyprFlow|-u|normal|--|Caps Lock|On|"]
 
 
+@pytest.mark.parametrize("answer, up", [("exit 0", True), ("exit 1", False)])
+def test_quickshell_up_asks_the_config_over_ipc(tmp_path, monkeypatch, answer, up):
+    from hyprflow import osd
+    (tmp_path / "bin").mkdir()
+    (tmp_path / "bin" / "qs").write_text(f'#!/bin/bash\n[ "$*" = "-c hyprflow ipc show" ] || exit 9\n{answer}\n')
+    (tmp_path / "bin" / "qs").chmod(0o755)
+    monkeypatch.setenv("PATH", str(tmp_path / "bin"))
+    assert osd.quickshell_up() is up
+
+
+def test_quickshell_up_is_false_without_qs(tmp_path, monkeypatch):
+    from hyprflow import osd
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert osd.quickshell_up() is False
+
+
 def test_hyprland_events_reads_the_socket_line_by_line(monkeypatch, tmp_path):
     import socket
     import threading

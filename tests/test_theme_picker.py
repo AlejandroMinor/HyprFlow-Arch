@@ -233,3 +233,17 @@ def test_json_escapes_quotes_in_a_file_name(box):
     (root / "config" / "wallust" / "themes" / 'odd"name.json').write_text("{}")
     result, _ = run(box, "--json")
     assert ('odd"name', 'Odd"name') in [(t["name"], t["title"]) for t in json.loads(result.stdout)]
+
+
+def test_the_manager_says_which_theme_is_on(box):
+    _, log = pick(box, "", "wallust-theme-manager.sh", "--theme", "accent-blue", "--notify", "--no-restart")
+    assert any(line.startswith("qs -c hyprflow ipc call osd level") and "Theme Accent Blue -1" in line
+               for line in log)
+    assert not any(line.startswith("notify-send") for line in log)
+
+
+def test_without_quickshell_the_manager_notifies_the_theme(box):
+    root, env = box
+    env["FAKE_QS_RC"] = "1"
+    _, log = pick(box, "", "wallust-theme-manager.sh", "--theme", "nord", "--notify", "--no-restart")
+    assert "notify-send -i color-management Theme Nord" in log

@@ -38,7 +38,8 @@ def ss(monkeypatch, tmp_path):
     monkeypatch.setattr(module, "out", fake_out)
     module.answered = answered
     shown = []
-    monkeypatch.setattr(module.osd, "show", lambda *a, **k: shown.append(a))
+    monkeypatch.setattr(module.osd, "quickshell_up", lambda: True)
+    monkeypatch.setattr(module.notify, "send", lambda *a, **k: shown.append(a))
     module.shown = shown
     return module
 
@@ -118,11 +119,16 @@ def test_the_icon_follows_the_kind_with_a_generic_fallback(ss):
     assert ss.Sink(1, "n", "d", "", kind="unknown").icon == ss.SPEAKER
 
 
-def test_set_makes_the_sink_default_and_shows_the_osd(ss):
+def test_set_makes_the_sink_default_and_leaves_the_osd_to_quickshell(ss):
     assert ss.main(config=ss.CONFIG, args=["--set", "67"]) == 0
     assert ["wpctl", "set-default", "67"] in ss.answered
-    # The TV is an HDMI sink: its own glyph, not the generic speaker.
-    assert ss.shown == [(ss.ICONS["monitor"], "Audio output", "TV", -1)]
+    assert ss.shown == []   # Osd.qml sees the change and says it
+
+
+def test_without_quickshell_a_notification_says_the_output(ss, monkeypatch):
+    monkeypatch.setattr(ss.osd, "quickshell_up", lambda: False)
+    ss.main(config=ss.CONFIG, args=["--set", "67"])
+    assert ss.shown == [("Audio output", "TV")]
 
 
 def test_set_without_sync_leaves_the_streams_alone(ss):

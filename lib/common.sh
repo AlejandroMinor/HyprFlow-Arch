@@ -72,6 +72,9 @@ osd() {
     qs -c hyprflow ipc call osd level "$@" 2>/dev/null
 }
 
+# A wallust theme's name as people read it: accent-blue -> Accent Blue.
+theme_title() { sed -E 's/-/ /g; s/(^| )([a-z])/\1\u\2/g' <<<"$1"; }
+
 # True when Quickshell is running.
 quickshell_up() {
     command -v qs >/dev/null 2>&1 || return 1

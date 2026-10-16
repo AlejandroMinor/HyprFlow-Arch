@@ -40,6 +40,8 @@ hl.bind(mainMod .. " + SHIFT + C", function()
     hl.dispatch(hl.dsp.window.resize({ x = 1200, y = 800 }))
     hl.dispatch(hl.dsp.window.center())
 end, { description = "Mini Window (1200x800)" })
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true, description = "Drag Window (hold + move mouse)" })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Resize Window (hold + move mouse)" })
 
 
 -- =======================================================
@@ -277,8 +279,6 @@ hl.bind(mainMod .. " + ALT + right", hl.dsp.focus({ workspace = "m+1" }), { desc
 hl.bind(mainMod .. " + ALT + left",  hl.dsp.focus({ workspace = "m-1" }), { description = "Previous Workspace on Monitor" })
 hl.bind(mainMod .. " + L",           hl.dsp.focus({ workspace = "m+1" }), { description = "Next Workspace on Monitor" })
 hl.bind(mainMod .. " + H",           hl.dsp.focus({ workspace = "m-1" }), { description = "Previous Workspace on Monitor" })
-hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true, description = "Drag Window (hold + move mouse)" })
-hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true, description = "Resize Window (hold + move mouse)" })
 
 
 -- =======================================================

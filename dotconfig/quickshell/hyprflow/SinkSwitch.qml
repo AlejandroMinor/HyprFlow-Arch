@@ -19,19 +19,26 @@ Scope {
     readonly property string speaker: "󰕾"  // volume high, the Osd.qml glyph
     readonly property string check: "󰄬"
     property bool open: false
-    property var sinks: []  // [{id, label, default, kind, icon}]
-    property int play: 0    // bumped on every open: the rows slide in again
+    property var sinks: []    // [{id, label, default, kind, icon}]
+    property string query: ""  // typed in the search box: filters the list
+    property int play: 0       // bumped on every open: the rows slide in again
+
+    // Like rofi: every typed word somewhere in the label.
+    readonly property var shown: root.sinks.filter(s =>
+        root.query.toLowerCase().split(" ").every(word => s.label.toLowerCase().includes(word)))
 
     function current() {
-        const i = root.sinks.findIndex(s => s.default);
+        const i = root.shown.findIndex(s => s.default);
         return i < 0 ? 0 : i;
     }
 
     function show() {
+        search.text = "";  // typing broke its binding to query
+        root.query = "";
         view.currentIndex = root.current();
-        root.open = true;
         root.play = root.play + 1;
-        view.forceActiveFocus();
+        root.open = true;
+        search.forceActiveFocus();
     }
 
     IpcHandler {
@@ -75,7 +82,7 @@ Scope {
     }
 
     function chooseCurrent() {
-        const sink = root.sinks[view.currentIndex];
+        const sink = root.shown[view.currentIndex];
         if (sink)
             root.choose(sink);
     }
@@ -113,22 +120,32 @@ Scope {
                 }
                 Text {
                     visible: root.sinks.length > 1
-                    text: root.sinks.length + " outputs"
+                    text: root.query !== ""
+                          ? root.shown.length + " shown"
+                          : root.sinks.length + " outputs"
                     color: Qt.alpha(Colors.foreground, 0.3)
                     font { family: root.font; pixelSize: 11 }
                 }
             }
 
-            ListView {
-                id: view
+            // Typing filters; the arrows, Page Up/Down and Esc work from here too.
+            TextInput {
+                id: search
                 Layout.fillWidth: true
-                implicitHeight: contentHeight
-                interactive: false
-                focus: true
-                model: root.sinks
-                keyNavigationWraps: true
-                highlightMoveDuration: Motion.fast
-                highlightResizeDuration: 0
+                Layout.leftMargin: 8
+                Layout.bottomMargin: 4
+                onTextEdited: { root.query = text; view.currentIndex = 0; }
+                color: Colors.foreground
+                selectionColor: Qt.alpha(Colors.accent, 0.4)
+                font { family: root.font; pixelSize: 13 }
+
+                Text {
+                    visible: !search.text
+                    text: "Search outputs"
+                    color: Qt.alpha(Colors.foreground, 0.45)
+                    font: search.font
+                }
+
                 Keys.onUpPressed: view.decrementCurrentIndex()
                 Keys.onDownPressed: view.incrementCurrentIndex()
                 Keys.onTabPressed: view.incrementCurrentIndex()
@@ -141,13 +158,24 @@ Scope {
                 Keys.onReturnPressed: root.chooseCurrent()
                 Keys.onEnterPressed: root.chooseCurrent()
                 Keys.onEscapePressed: root.open = false
+            }
+
+            ListView {
+                id: view
+                Layout.fillWidth: true
+                implicitHeight: contentHeight
+                interactive: false
+                model: root.shown
+                keyNavigationWraps: true
+                highlightMoveDuration: Motion.fast
+                highlightResizeDuration: 0
 
                 // The layer maps after open: take the keys once it is up.
                 Connections {
                     target: overlay
                     function onVisibleChanged() {
                         if (overlay.visible && root.open)
-                            view.forceActiveFocus();
+                            search.forceActiveFocus();
                     }
                 }
 
@@ -168,7 +196,9 @@ Scope {
                     opacity: 0
                     transform: Translate { id: slide; x: 14 }
                     function enter() { entrance.restart(); }
-                    Component.onCompleted: enter()
+                    // Typing rebuilds a row while the panel is open: just show it.
+                    function appear() { slide.x = 0; row.opacity = 1; }
+                    Component.onCompleted: { if (root.query !== "") appear(); else enter(); }
                     Connections {
                         target: root
                         function onPlayChanged() { row.enter(); }
@@ -228,6 +258,17 @@ Scope {
                         }
                     }
                 }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                Layout.topMargin: 6
+                Layout.bottomMargin: 6
+                visible: root.open && root.query !== "" && root.shown.length === 0
+                text: "No matches"
+                color: Qt.alpha(Colors.foreground, 0.35)
+                font { family: root.font; pixelSize: 12 }
+                horizontalAlignment: Text.AlignHCenter
             }
         }
     }

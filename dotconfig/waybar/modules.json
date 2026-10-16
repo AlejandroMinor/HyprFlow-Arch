@@ -234,7 +234,7 @@
 "custom/theme-selector": {
     "format": "",
     "tooltip": false,
-    "on-click": "hyprctl dispatch 'hl.dsp.exec_cmd(\"[float; size 420 260; center] kitty --class kitty-theme-picker -e ~/.local/bin/theme-picker.sh\")'",
+    "on-click": "~/.local/bin/theme-picker.sh --toggle",
     "on-click-right": "waypaper",
     "on-click-middle": "waypaper --random"
 },

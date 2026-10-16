@@ -126,7 +126,7 @@ ACTIONS = [
     Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl", section="System"),
     Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
-    Action("󰏘", "Theme", ["kitty", "--class", "kitty-theme-picker", "-e", BIN / "theme-picker.sh"], section="Appearance"),
+    Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], section="Appearance"),
 ]
 
 

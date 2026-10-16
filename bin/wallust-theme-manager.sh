@@ -45,6 +45,11 @@ HOME_DIR="${HOME:-$(getent passwd "$(whoami)" | cut -d: -f6)}"
 WALLUST_CACHE="$HOME_DIR/.cache/wallust/colors"
 mkdir -p "$WALLUST_CACHE"
 
+# The theme in use, for theme-picker.sh to mark: "auto" or the preset's name.
+remember_theme() {
+    mkdir -p "$HYPRFLOW_STATE" && printf '%s\n' "$1" > "$HYPRFLOW_STATE/theme"
+}
+
 if [ "$ACTION" == "generate" ]; then
     FOCUSED=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused==true) | .name')
     WP_PATH=$(awww query 2>/dev/null | grep "^: ${FOCUSED}:" | grep -oP 'image: \K.*')
@@ -54,7 +59,7 @@ if [ "$ACTION" == "generate" ]; then
         exit 1
     fi
 
-    wallust run $SKIP_SEQUENCES "$WP_PATH"
+    wallust run $SKIP_SEQUENCES "$WP_PATH" && remember_theme auto
     RGB_ARG="$WP_PATH"
 
 elif [ "$ACTION" == "theme" ]; then
@@ -63,7 +68,7 @@ elif [ "$ACTION" == "theme" ]; then
         echo "Error: no theme '$THEME' ($THEME_FILE)" >&2
         exit 1
     fi
-    wallust cs $SKIP_SEQUENCES "$THEME_FILE"
+    wallust cs $SKIP_SEQUENCES "$THEME_FILE" && remember_theme "$THEME"
     killall -SIGUSR1 kitty 2>/dev/null
 fi
 

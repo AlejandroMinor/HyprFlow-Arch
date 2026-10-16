@@ -13,7 +13,7 @@
     `bin/` and `lib/` are.
 - `dotconfig/`: copied into `~/.config` by `install.sh config`.
   `dotconfig/quickshell/hyprflow/` holds the Quickshell panels (`qs -c hyprflow`):
-  the Super+K and Super+I panels, the audio output switcher, the
+  the Super+K and Super+I panels, the audio and theme pickers, the
   confirmations, the submap HUD and the
   level OSD the volume and brightness keys show (it also watches Pipewire, so
   a headset's own volume buttons show it too).

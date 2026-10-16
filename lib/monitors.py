@@ -44,8 +44,10 @@ ACTIVE_LUA = HYPR / "monitors_active.lua"
 WAYBAR_CONFIG = WAYBAR / "config"
 BARS_TEMPLATE = WAYBAR / "bars.json"
 GAME_MODE_STATE = paths.HYPRFLOW_STATE / "game-mode"
+HOTPLUG_STATE = paths.HYPRFLOW_STATE / "monitors-hotplug.json"  # {port: model} of the last apply
 LOCK = paths.HYPRFLOW_RUNTIME / "monitors-apply.lock"  # per user, not a shared /tmp
 LOCK_WAIT = 30  # seconds
+SETTLE = 2  # seconds a hotplug waits: a monitor that drops and comes back is not news
 
 USAGE = ("usage: monitors.sh [list|setup|apply|mirror [on [MONITOR]|off|toggle]|"
          "solo [on [MONITOR [MODE]]|off|toggle]]")
@@ -371,15 +373,45 @@ def restore_workspaces():
 HOTPLUG = {"connected": "Screen connected", "disconnected": "Screen disconnected"}
 
 
-def describe(profile, detected):
+def model_of(monitor):
+    return monitor.get("model") or monitor["description"]
+
+
+def describe(profile, detected, lead="On"):
     """The screens left on, by model, for a notification body."""
-    models = {m["description"]: m.get("model") or m["description"] for m in detected}
+    models = {m["description"]: model_of(m) for m in detected}
     on = [models[e["description"]] for e in profile
           if not e.get("disabled") and e["description"] in models]
-    return "On: " + " · ".join(on) if on else "No screens on"
+    return f"{lead}: " + " · ".join(on) if on else "No screens on"
 
 
-def apply(profile=None, announce=None):
+def last_seen():
+    """{port: model} as the last apply found them; {} when unknown."""
+    try:
+        return json.loads(HOTPLUG_STATE.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def hotplug_title(event):
+    """The notification title for a hotplug, naming the monitors that came or
+    went since the last apply; None when none did. A DisplayPort monitor waking
+    up (or refusing a mode) drops and comes back a few times: not news."""
+    if event not in HOTPLUG:
+        return "Screens changed"
+    before = last_seen()
+    now = {m["name"]: model_of(m) for m in detect()}
+    if event == "disconnected":
+        changed = [model for port, model in before.items() if port not in now]
+    else:
+        changed = [model for port, model in now.items() if port not in before]
+    if not changed:
+        msg(f"{event}, but the same monitors as before: not announced")
+        return None
+    return f"{HOTPLUG[event]} · " + " · ".join(changed)
+
+
+def apply(profile=None, announce=None, lead="On"):
     """Writes the layout for the monitors connected now and reloads what
     changed. Without a profile: solo while it is on, else the saved one for
     this set, else the default. announce is a notification title (hotplug,
@@ -387,6 +419,11 @@ def apply(profile=None, announce=None):
     detected = detect()
     sig = signature(detected)
     used_default = False
+
+    # The ports a hotplug compares against, with the model to name a gone one by.
+    HOTPLUG_STATE.parent.mkdir(parents=True, exist_ok=True)
+    HOTPLUG_STATE.write_text(json.dumps({m["name"]: model_of(m) for m in detected},
+                                        indent=2, ensure_ascii=False) + "\n")
 
     # Solo is a state, not a profile: a switched off DisplayPort monitor
     # reports itself disconnected once asleep, which changes the set; keyed on
@@ -443,7 +480,7 @@ def apply(profile=None, announce=None):
     if not lua_changed and not bars_changed:
         msg("no changes: layout and bars already up to date")
     if announce:
-        notify.send(announce, describe(profile, detected), app="Monitors", icon="video-display-symbolic")
+        notify.send(announce, describe(profile, detected, lead), app="Monitors", icon="video-display-symbolic")
     if used_default:
         notify.send("Monitors", "Using default layout. Run 'monitors.sh setup' to customize.", app="Monitors")
 
@@ -686,14 +723,18 @@ def main(argv):
             restore_workspaces()
         elif command in ("apply", "mirror", "solo"):
             # apply --notify connected|disconnected: a hotplug says which.
-            announce = None
+            event = None
             if "--notify" in args:
                 at = args.index("--notify")
-                announce = HOTPLUG.get(args[at + 1] if at + 1 < len(args) else "", "Screens changed")
+                event = args[at + 1] if at + 1 < len(args) else ""
                 args = args[:at]
+                time.sleep(SETTLE)  # let a flapping monitor come back first
             with take_lock():
                 if command == "apply":
-                    apply(announce=announce)
+                    # Compared under the lock: the apply before this one is done.
+                    announce = hotplug_title(event) if event is not None else None
+                    lead = "Still on" if event == "disconnected" else "On"
+                    apply(announce=announce, lead=lead)
                 elif command == "mirror":
                     cmd_mirror(*args[:2])
                 else:

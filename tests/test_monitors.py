@@ -114,10 +114,29 @@ def notes(mon):
 def test_apply_only_notifies_when_asked(mon):
     mon.run("apply")                                          # login: no hotplug title
     assert not any("Screen" in line for line in notes(mon))
-    mon.run("apply", "--notify", "connected")                 # a hotplug
-    assert any("Screen connected" in line and "On: " in line for line in notes(mon))
-    mon.run("apply", "--notify", "disconnected")
+    mon.connect(BIG)
+    mon.run("apply", "--notify", "disconnected")              # a hotplug
     assert any("Screen disconnected" in line for line in notes(mon))
+
+
+def test_a_hotplug_names_the_monitor(mon):
+    mon.run("apply")                                          # login: the ports are learnt
+    mon.connect(BIG)                                          # the AOC is unplugged
+    mon.run("apply", "--notify", "disconnected")
+    gone = [line for line in notes(mon) if "Screen disconnected" in line]
+    assert gone and "Screen disconnected · AOC 24B3HM" in gone[-1]
+    assert "Still on: NZXT Canvas 27Q" in gone[-1]
+    mon.connect(BIG, SMALL)                                   # and plugged back in
+    mon.run("apply", "--notify", "connected")
+    assert any("Screen connected · AOC 24B3HM" in line and "On: " in line for line in notes(mon))
+
+
+def test_a_monitor_that_comes_back_at_once_is_not_announced(mon):
+    mon.run("apply")
+    # Both still there after the wait: one dropped and came back (a DP monitor waking up).
+    mon.run("apply", "--notify", "disconnected")
+    mon.run("apply", "--notify", "connected")
+    assert not any("Screen" in line for line in notes(mon))
 
 
 def test_mirror_and_solo_say_what_changed(mon):

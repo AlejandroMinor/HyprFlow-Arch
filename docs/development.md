@@ -50,14 +50,18 @@ It also hooks `monitor.added` / `monitor.removed` to `monitors.sh apply`.
 
 ```
 Hyprland hotplug → monitors.sh apply --notify connected|disconnected → lib/monitors.py
+  wait 2 s, then compare the ports with the last apply's
+  (~/.local/state/hyprflow/monitors-hotplug.json): the one gone or new names
+  the notification; none (a DP monitor that dropped and came back) → no notice
   detect (hyprctl monitors) → pick a profile: solo state, else the saved one
   for this set of screens, else the default (largest is primary)
   → write ~/.config/hypr/monitors_active.lua and ~/.config/waybar/config
   → lua changed:  hyprctl reload, then `_after-reload` a second later
                   (awww restore, workspaces back to their monitor)
   → bars changed, or Waybar not running: waybar-restart.sh (not in game mode)
-  → notify (only with --notify): "Screen connected/disconnected" and the
-    screens left on; login passes none and stays quiet; mirror and solo say
+  → notify (only with --notify): "Screen connected/disconnected · MODEL" and
+    the screens on ("Still on" after an unplug); login passes none and stays
+    quiet; mirror and solo say
     "Mirror on/off", "Solo on/off"
 ```
 

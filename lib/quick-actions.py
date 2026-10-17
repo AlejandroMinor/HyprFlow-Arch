@@ -124,6 +124,7 @@ ACTIONS = [
     Action("󰂛", "Do not disturb", ["swaync-client", "-d"], dnd_on, needs="swaync-client", section="System"),
     Action("󰓅", "Power profile", [LIB / "power-profile.sh"], power_profile, needs="powerprofilesctl", section="System"),
     Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl", section="System"),
+    Action("󰐥", "Power menu", ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"], needs="qs", section="System"),
     Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
     Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], section="Appearance"),

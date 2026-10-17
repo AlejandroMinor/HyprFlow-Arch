@@ -255,6 +255,15 @@ def test_logout_asks_first_and_counts_the_windows(flow):
     assert menu.confirmed == [prompt]            # the confirmation panel, not a list
 
 
+def test_a_confirmed_logout_does_not_ask_again(flow):
+    build, layouts, _ = flow
+    manager, menu, desktop = build(None)         # would dismiss, if asked
+    manager.logout(confirmed=True)
+    assert menu.asked == []
+    assert layouts.names() == ["default"]
+    assert desktop.dispatched == ["hl.dsp.exit()"]
+
+
 def test_dismissing_logout_neither_saves_nor_exits(flow):
     build, layouts, notes = flow
     for answer in (None, "Cancel"):

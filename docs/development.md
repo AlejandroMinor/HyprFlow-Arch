@@ -14,7 +14,7 @@
 - `dotconfig/`: copied into `~/.config` by `install.sh config`.
   `dotconfig/quickshell/hyprflow/` holds the Quickshell panels (`qs -c hyprflow`):
   the Super+K and Super+I panels, the audio and theme pickers, the
-  confirmations, the submap HUD and the
+  confirmations, the power menu, the submap HUD and the
   level OSD the volume and brightness keys show (it also watches Pipewire, so
   a headset's own volume buttons show it too).
 - `packages/`: the package lists install.sh reads.
@@ -74,7 +74,7 @@ the watermark to the monitor holding workspace 1.
 waypaper (Super+K → Random wallpaper, or waypaper itself) → its post_command, which you set
   → wallust-theme-manager.sh --generate-palette
       → wallust run: rewrites every template (Hyprland colors.lua, Waybar CSS,
-        rofi, kitty, cava, wlogout, hyprlock theme)
+        rofi, kitty, cava, hyprlock theme)
       → ~/.local/state/hyprflow/theme = "auto" (the theme picker marks it)
       → hyprctl reload
       → rgb-sync.sh WALLPAPER: dominant hue → OpenRGB, cached for --last
@@ -93,7 +93,7 @@ runs `--set NAME`; the fzf picker itself in a terminal or over SSH) →
 ### Locking
 
 ```
-Super+Alt+L or wlogout → hyprlock-flow.sh
+Super+Alt+L or the power menu's Lock → hyprlock-flow.sh
   → hyprlock/geometry.sh: writes hyprlock-geometry.conf and -extras.conf for
     the monitor holding workspace 1 (avatar.sh, backdrop.sh on the way)
   → hyprlock, which then polls layout.sh (2 s), music.sh (5 s) and, on a
@@ -190,6 +190,7 @@ volume module, `sink-switch.py --toggle` (see above).
 | Super+Shift+Return | `master-pick.py` |
 | Super+K | `qs ipc call quickactions toggle` → QuickActions.qml (it reads `quick-actions.py --json`); without Quickshell, `quick-actions.py` → rofi |
 | Super+W / Super+Shift+W / Super+M | `session-manager.py` save / load / logout |
+| Waybar power button, Super+K → Power menu | `qs ipc call power toggle` → PowerMenu.qml: Lock (`hyprlock-flow.sh`) and Suspend at once; Log out (`session-manager.py logout --yes`), Reboot and Shut down on a second press |
 | Volume, mute and brightness keys | `volume.sh` / `brightness.sh` → the Quickshell OSD (a notification without it); the OSD also watches Pipewire, so a headset's own buttons show it |
 | Next and previous keys, Super+. / Super+, | `media.sh` → the Quickshell OSD (the skip glyph) |
 

@@ -3,6 +3,7 @@
 
     session-manager.py save      ask for a name (existing ones listed, to overwrite)
     session-manager.py logout    save as the last session, then leave Hyprland
+                                 (--yes: already confirmed, by the power menu)
     session-manager.py load      pick a layout and reopen its windows
 
 A layout is a JSON list in ~/.config/hypr/templates/, one entry per window:
@@ -242,12 +243,13 @@ class SessionManager:
         self.layouts.save(name, entries)
         self.notify(f"'{name}' {'updated' if existed else 'saved'}: {len(entries)} windows")
 
-    def logout(self):
+    def logout(self, confirmed=False):
         """Save the session as the last one and leave Hyprland. Confirms
-        first: one chord ends the session, and there is no undo."""
+        first unless the caller already did: one chord ends the session, and
+        there is no undo."""
         entries = self.desktop.capture()
-        if self.menu.confirm(f"  Save {len(entries)} windows and log out?",
-                             ["Cancel", "Log out"]) != "Log out":
+        if not confirmed and self.menu.confirm(f"  Save {len(entries)} windows and log out?",
+                                               ["Cancel", "Log out"]) != "Log out":
             return
         self.layouts.save(LAST, entries)
         self.notify(f"Session saved ({len(entries)} windows). Logging out…", "critical")
@@ -286,12 +288,16 @@ class SessionManager:
 
 
 def main(argv):
-    if len(argv) != 2 or argv[1] not in ("save", "logout", "load"):
+    args = argv[1:]
+    if args not in (["save"], ["logout"], ["logout", "--yes"], ["load"]):
         print(__doc__.split("\n\n")[1], file=sys.stderr)
         return 1
     # Composition root: the one place that chooses the concrete pieces.
     manager = SessionManager(Layouts(), QuickshellMenu(), Desktop(), notify)
-    getattr(manager, argv[1])()
+    if args[0] == "logout":
+        manager.logout(confirmed=args[1:] == ["--yes"])
+    else:
+        getattr(manager, args[0])()
     return 0
 
 

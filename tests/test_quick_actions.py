@@ -178,3 +178,9 @@ def test_run_picks_an_action_by_its_label(qa):
 def test_run_with_an_unknown_label_runs_nothing(qa, args):
     assert qa.main(actions=[qa.Action("a", "First", ["one"])], args=args) == 1
     assert qa.launched == []
+
+
+def test_power_menu_action_opens_the_quickshell_panel(qa):
+    action = next(a for a in qa.ACTIONS if a.label == "Power menu")
+    assert action.argv == ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"]
+    assert action.section == "System"

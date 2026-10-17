@@ -2,6 +2,5 @@
 
 wallust              # palettes from the wallpaper, and the static themes
 waypaper-git         # wallpaper picker
-wlogout              # power menu
 fzf-tab              # tab completion in the zsh step's .zshrc
 bibata-cursor-theme-bin

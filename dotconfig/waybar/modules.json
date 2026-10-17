@@ -159,7 +159,7 @@
 
     "custom/power": {
         "format": "<span color='#f7768e'>⏻</span>",
-        "on-click": "wlogout"
+        "on-click": "qs -c hyprflow ipc call power toggle"
     },
 
     "custom/claude-usage": {

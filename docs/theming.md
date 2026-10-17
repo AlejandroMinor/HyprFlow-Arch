@@ -1,7 +1,7 @@
 # Theming
 
 Colors come from `wallust`, regenerated on wallpaper change and pushed to Waybar,
-Hyprland, kitty, wlogout, hyprlock, and cava. Rofi, the Quickshell panels and the
+Hyprland, kitty, hyprlock, and cava. Rofi, the Quickshell panels and the
 swaync notifications keep fixed colors of their own.
 
 Wire it up in `~/.config/waypaper/config.ini`:
@@ -43,7 +43,7 @@ do the fzf pickers (`theme-picker.sh`, `pet-picker.sh`).
 
 `launcher-centered.rasi` is the launcher, reached by `Super + Space`, the
 four-finger pinch gesture and the Waybar launcher icon; it builds on
-`launcher-base.rasi`. Power menu is `wlogout`, also themed.
+`launcher-base.rasi`. The power menu is a Quickshell panel (`PowerMenu.qml`).
 
 ![Rofi launcher](../assets/screenshots/rofi.webp)
 

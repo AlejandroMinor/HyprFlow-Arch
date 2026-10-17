@@ -1,6 +1,6 @@
 // HyprFlow's Quickshell config: run with `qs -c hyprflow`. The Super+K and
 // Super+I panels, the audio and theme pickers, the confirmations, the submap
-// keys and the level OSD; without it, rofi and notifications stand in.
+// keys, the power menu and the level OSD; without it, rofi and notifications stand in.
 import Quickshell
 
 ShellRoot {
@@ -10,5 +10,6 @@ ShellRoot {
     KeyGuide {}
     Confirm {}
     SubmapHud {}
+    PowerMenu {}
     Osd {}
 }

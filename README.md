@@ -100,7 +100,7 @@ sudo pacman -S --needed hyprland hyprpm hyprlock cpio cmake waybar rofi swaync q
 ```
 
 ```bash
-yay -S --needed wallust waypaper-git wlogout fzf-tab bibata-cursor-theme-bin
+yay -S --needed wallust waypaper-git fzf-tab bibata-cursor-theme-bin
 ```
 
 </details>

@@ -55,7 +55,9 @@ Hyprland hotplug → monitors.sh apply --notify connected|disconnected → lib/m
   the notification; none (a DP monitor that dropped and came back) → no notice
   detect (hyprctl monitors) → pick a profile: solo state, else the saved one
   for this set of screens, else the default (largest is primary)
-  → write ~/.config/hypr/monitors_active.lua and ~/.config/waybar/config
+  → write ~/.config/hypr/monitors_active.lua and ~/.config/waybar/config,
+    and ~/.local/state/hyprflow/bars.json ({port: full|minimal}) for the
+    Quickshell bar, which reloads on its own
   → lua changed:  hyprctl reload, then `_after-reload` a second later
                   (awww restore, workspaces back to their monitor)
   → bars changed, or Waybar not running: waybar-restart.sh (not in game mode)

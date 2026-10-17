@@ -44,6 +44,7 @@ ACTIVE_LUA = HYPR / "monitors_active.lua"
 WAYBAR_CONFIG = WAYBAR / "config"
 BARS_TEMPLATE = WAYBAR / "bars.json"
 GAME_MODE_STATE = paths.HYPRFLOW_STATE / "game-mode"
+BAR_STATE = paths.HYPRFLOW_STATE / "bars.json"  # {port: bar type}, read by the Quickshell bar
 HOTPLUG_STATE = paths.HYPRFLOW_STATE / "monitors-hotplug.json"  # {port: model} of the last apply
 LOCK = paths.HYPRFLOW_RUNTIME / "monitors-apply.lock"  # per user, not a shared /tmp
 LOCK_WAIT = 30  # seconds
@@ -202,6 +203,22 @@ def solo_profile(detected, entry):
                       for m in detected if m["description"] != entry["description"]]
 
 
+def bar_outputs(profile, detected):
+    """(entry, port) for every screen that gets a bar: on, not mirrored, and
+    with a bar type other than none."""
+    for entry in profile:
+        if entry.get("bar") == "none" or entry.get("mirror") or entry.get("disabled"):
+            continue
+        port = port_for(detected, entry["description"])
+        if port is not None:
+            yield entry, port
+
+
+def bar_types(profile, detected):
+    """{port: bar type} for the Quickshell bar."""
+    return {port: entry.get("bar") for entry, port in bar_outputs(profile, detected)}
+
+
 def generate(profile, detected, bars_template=None, connected=lambda port: True):
     """(monitors_active.lua text, Waybar bars or None without a template).
 
@@ -244,12 +261,7 @@ def generate(profile, detected, bars_template=None, connected=lambda port: True)
         return lua, None
 
     bars = []
-    for entry in profile:
-        if entry.get("bar") == "none" or entry.get("mirror") or entry.get("disabled"):
-            continue
-        port = port_for(detected, entry["description"])
-        if port is None:
-            continue
+    for entry, port in bar_outputs(profile, detected):
         archetype = bars_template.get(entry.get("bar"))
         if not archetype:
             warn(f"bar type '{entry.get('bar')}' not in bars.json; skipping")
@@ -453,6 +465,8 @@ def apply(profile=None, announce=None, lead="On"):
     lua_changed = write_if_changed(ACTIVE_LUA, lua)
     bars_changed = bars is not None and write_if_changed(
         WAYBAR_CONFIG, json.dumps(bars, indent=2, ensure_ascii=False) + "\n")
+    BAR_STATE.parent.mkdir(parents=True, exist_ok=True)
+    write_if_changed(BAR_STATE, json.dumps(bar_types(profile, detected)) + "\n")
 
     if lua_changed:
         msg("monitor layout changed: reloading Hyprland")

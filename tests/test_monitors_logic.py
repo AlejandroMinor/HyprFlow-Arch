@@ -70,6 +70,14 @@ def test_generate_bars_take_the_archetype_and_a_fitting_width(mons):
                     {"name": "minimal", "width": 50, "output": ["HDMI-A-1"]}]
 
 
+def test_bar_types_skip_the_screens_without_a_bar(mons):
+    profile = [{"description": "NZXT Canvas 27Q", "bar": "full"},
+               {"description": "AOC 24B3HM", "bar": "none"}]
+    assert mons.bar_types(profile, [NZXT, AOC]) == {"DP-2": "full"}
+    profile[1].update(bar="minimal", mirror="DP-2")
+    assert mons.bar_types(profile, [NZXT, AOC]) == {"DP-2": "full"}
+
+
 def test_resolution_choices_group_rates_largest_first(mons):
     assert mons.resolution_choices(AOC) == [("1920x1080", ["75", "59.94"]), ("1280x720", ["60"])]
 

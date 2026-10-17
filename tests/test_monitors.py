@@ -173,6 +173,8 @@ def test_each_screen_gets_the_bar_its_profile_names(mon):
     assert "modules-right" in by_output["TEST-A"]            # full bar
     assert by_output["TEST-A"]["width"] == 2560 - 120
     assert by_output["TEST-B"]["name"] == "minimal"
+    state = json.loads((mon.root / "state" / "hyprflow" / "bars.json").read_text())
+    assert state == {"TEST-A": "full", "TEST-B": "minimal"}
 
 
 def test_apply_reloads_and_restarts_waybar_only_on_change(mon):

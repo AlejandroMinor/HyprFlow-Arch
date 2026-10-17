@@ -80,9 +80,19 @@ def test_upower_system_battery_is_the_laptop(hub):
     assert device.is_laptop and device.charging and device.percent == 64
 
 
-@pytest.mark.parametrize("state", [1, 4, 5])  # charging, fully charged, pending charge
+@pytest.mark.parametrize("state", [1, 5])  # charging, pending charge
 def test_upower_states_on_the_charger(hub, state):
     assert hub.UPowerSource.to_device({"Type": 5, "Percentage": 50, "State": state}).charging
+
+
+def test_a_full_peripheral_is_not_taken_for_one_on_the_charger(hub):
+    # The Magic Trackpad over Bluetooth: 100 %, fully charged, no cable.
+    assert not hub.UPowerSource.to_device({"Type": 5, "Percentage": 100, "State": 4}).charging
+
+
+def test_a_full_laptop_is_on_the_charger(hub):
+    device = hub.UPowerSource.to_device({"Type": 2, "PowerSupply": True, "Percentage": 100, "State": 4})
+    assert device.is_laptop and device.charging
 
 
 @pytest.mark.parametrize("props", [

@@ -11,8 +11,10 @@ def _xdg(variable, default):
 CONFIG = _xdg("XDG_CONFIG_HOME", ".config")
 STATE = _xdg("XDG_STATE_HOME", ".local/state")
 CACHE = _xdg("XDG_CACHE_HOME", ".cache")
+DATA = _xdg("XDG_DATA_HOME", ".local/share")
 RUNTIME = Path(os.environ.get("XDG_RUNTIME_DIR") or "/tmp")
 
 HYPRFLOW_CONFIG = CONFIG / "hyprflow"   # per machine, out of the repo (hooks)
 HYPRFLOW_STATE = STATE / "hyprflow"     # survives reboots
+HYPRFLOW_DATA = DATA / "hyprflow"       # kept: the calendar's history
 HYPRFLOW_RUNTIME = RUNTIME              # gone at reboot

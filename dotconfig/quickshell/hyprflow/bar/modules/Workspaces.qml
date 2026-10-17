@@ -1,6 +1,8 @@
-// This screen's workspaces. One pill slides and stretches to the active
-// one; a workspace asking for attention pulses. Click to go there, scroll
-// to step through them.
+// This screen's workspaces, then its scratchpad (special:magic, Super+Z)
+// while it has windows. One pill slides and stretches to the active one, the
+// scratchpad while it is open; a workspace asking for attention pulses.
+// Click to go there (the scratchpad: open or close it), scroll to step
+// through them.
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
@@ -14,11 +16,16 @@ Item {
     property string name
 
     readonly property string monitor: bar.screen?.name ?? ""
+    // Special workspaces have negative ids: after the others.
     readonly property var shown: Hyprland.workspaces.values
-        .filter(w => w.id > 0 && w.monitor?.name === monitor)
-        .sort((a, b) => a.id - b.id)
-    readonly property int activeId: Hyprland.monitors.values
-        .find(m => m.name === monitor)?.activeWorkspace?.id ?? -1
+        .filter(w => w.monitor?.name === monitor && (w.id > 0 || w.name.startsWith("special:")))
+        .sort((a, b) => (a.id < 0) - (b.id < 0) || a.id - b.id)
+    readonly property var screenMonitor: Hyprland.monitors.values.find(m => m.name === monitor) ?? null
+    // An open scratchpad is where you are.
+    readonly property string openSpecial: screenMonitor?.lastIpcObject?.specialWorkspace?.name ?? ""
+    readonly property int activeId: openSpecial
+        ? (shown.find(w => w.name === openSpecial)?.id ?? -1)
+        : (screenMonitor?.activeWorkspace?.id ?? -1)
     readonly property int activeIndex: shown.findIndex(w => w.id === activeId)
 
     readonly property var look: bar.style.workspaces
@@ -28,6 +35,18 @@ Item {
 
     function go(target) {
         Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + target + " })"]);
+    }
+    function open(workspace) {
+        if (workspace.id > 0) return go(workspace.id);
+        const special = workspace.name.replace("special:", "");
+        Quickshell.execDetached(["hyprctl", "dispatch", 'hl.dsp.workspace.toggle_special("' + special + '")']);
+    }
+    // The monitor's open scratchpad is only in its IPC object: ask again when it changes.
+    Connections {
+        target: Hyprland
+        function onRawEvent(event) {
+            if (event.name === "activespecial") Hyprland.refreshMonitors();
+        }
     }
 
     // The active pill, under the numbers.
@@ -91,7 +110,9 @@ Item {
                 }
                 Text {
                     anchors.centerIn: parent
-                    text: slot.modelData.id > 900 ? "\u{F02A0}" : slot.modelData.name
+                    // 901+: macOS-style fullscreen; special: the scratchpad (sparkles).
+                    text: slot.modelData.id < 0 ? "\u{F0674}"
+                        : slot.modelData.id > 900 ? "\u{F02A0}" : slot.modelData.name
                     color: Qt.alpha(Colors.foreground, slot.active ? 1 : ws.look.idle)
                     font { family: ws.bar.style.module.font; pixelSize: ws.look.fontSize; bold: slot.active }
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -100,7 +121,7 @@ Item {
                     id: hover
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: ws.go(slot.modelData.id)
+                    onClicked: ws.open(slot.modelData)
                 }
             }
         }

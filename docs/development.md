@@ -62,7 +62,8 @@ Hyprland hotplug → monitors.sh apply --notify connected|disconnected → lib/m
     Quickshell bar, which reloads on its own
   → lua changed:  hyprctl reload, then `_after-reload` a second later
                   (awww restore, workspaces back to their monitor)
-  → bars changed, or Waybar not running: waybar-restart.sh (not in game mode)
+  → bars changed, or Waybar not running: waybar-restart.sh (not in game mode;
+    with the Quickshell bar on it only makes sure Waybar is off)
   → notify (only with --notify): "Screen connected/disconnected · MODEL" and
     the screens on ("Still on" after an unplug); login passes none and stays
     quiet; mirror and solo say
@@ -110,7 +111,8 @@ Super+Alt+L or the power menu's Lock → hyprlock-flow.sh
 hold PS + Options (pad-listener.py) or `game-mode.sh on`
   → state file in ~/.local/state/hyprflow/game-mode, written first
   → monitors.sh solo on TV     (the other screens off)
-  → Waybar stopped, LEDs off, do not disturb, audio to the TV, Big Picture
+  → Waybar stopped (or the Quickshell bar hidden: `ipc call bar hide`), LEDs
+    off, do not disturb, audio to the TV, Big Picture
   → gamemode.lua keeps the game settings on every reload while the file exists
   → the OSD says "Game mode · On/Off" (do not disturb is on, so the panel
     ignores a notification; notify only if Quickshell is not running)
@@ -170,7 +172,8 @@ clears it.
 
 Two bars, one at a time; the flag file `~/.local/state/hyprflow/qs-bar` says
 which. `qs -c hyprflow ipc call bar enable` writes it and stops Waybar;
-`disable` removes it and starts Waybar again.
+`disable` removes it and starts Waybar again (`waybar-restart.sh` reads the
+flag, so nothing else brings Waybar back meanwhile).
 
 ```
 Quickshell bar (dotconfig/quickshell/hyprflow/bar/, see docs/bar.md)
@@ -179,6 +182,7 @@ Quickshell bar (dotconfig/quickshell/hyprflow/bar/, see docs/bar.md)
   → Cluster (left / center / right) → ModuleLoader: a name → modules/<Type>.qml
   → a module: native (Hyprland, Pipewire, Mpris, tray) or `custom`, which runs
     the same scripts as Waybar and reads their JSON
+Super+B → ipc call bar toggle, and SIGUSR1 to Waybar (whichever is up)
 a click on a module that opens a panel → bar.expand: its card grows down
   into it (calendar, volume / microphone views, the full player)
 calendar events: calendar-events.py add (or any sync) → ~/.local/share/

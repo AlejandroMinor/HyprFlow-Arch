@@ -9,7 +9,7 @@ qs -c hyprflow ipc call bar enable    # use it (stops Waybar)
 qs -c hyprflow ipc call bar disable   # back to Waybar
 ```
 
-Game mode hides it.
+`Super + B` hides and shows it; game mode hides it.
 
 ## Where things are
 

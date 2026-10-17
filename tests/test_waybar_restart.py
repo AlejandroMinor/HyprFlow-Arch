@@ -32,7 +32,8 @@ def env(tmp_path):
     log.write_text("")
     (tmp_path / "running").write_text("")
     return {**os.environ, "PATH": f"{fakes}:{os.environ['PATH']}", "FAKE_LOG": str(log),
-            "GTK_PATH": "/snap/gtk", "T": str(tmp_path), "XDG_RUNTIME_DIR": str(tmp_path)}
+            "GTK_PATH": "/snap/gtk", "T": str(tmp_path), "XDG_RUNTIME_DIR": str(tmp_path),
+            "XDG_STATE_HOME": str(tmp_path / "state")}
 
 
 def run(env, **extra):
@@ -61,3 +62,11 @@ def test_two_restarts_at_once_leave_one_waybar(env):
         assert proc.wait(timeout=15) == 0
     time.sleep(0.5)   # a dispatch that raced would start its Waybar by now
     assert Path(env["T"], "running").read_text().splitlines() == ["w"]
+
+
+def test_with_the_quickshell_bar_on_waybar_is_stopped_not_started(env, tmp_path):
+    flag = tmp_path / "state" / "hyprflow" / "qs-bar"
+    flag.parent.mkdir(parents=True)
+    flag.touch()
+    log = run(env)
+    assert log == ["killall waybar"]

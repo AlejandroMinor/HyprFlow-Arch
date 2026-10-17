@@ -17,6 +17,12 @@
 
 set -uo pipefail
 
+# The Quickshell bar is on (qs -c hyprflow ipc call bar enable): no Waybar.
+if [ -e "${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow/qs-bar" ]; then
+    killall waybar 2>/dev/null || true
+    exit 0
+fi
+
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/waybar-restart.lock"
 flock -w 15 9 || exit 0
 

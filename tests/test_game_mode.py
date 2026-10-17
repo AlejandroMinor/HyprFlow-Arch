@@ -163,6 +163,7 @@ def test_on_writes_the_state_and_quiets_the_desktop(gm):
     assert "hyprctl reload" in log
     assert "swaync-client -dn" in log
     assert "pkill -x waybar" in log
+    assert "qs -c hyprflow ipc call bar hide" in log      # the Quickshell bar, if it is the bar
     assert "rgb-sync.sh --off" in log
     assert any('focus({ monitor = \\"HDMI-A-1\\" })' in line or 'monitor = "HDMI-A-1"' in line
                for line in gm.called("hyprctl eval"))
@@ -250,6 +251,7 @@ def test_off_puts_everything_back(gm):
     assert "rgb-sync.sh --last" in log
     assert gm.sink() == "alsa_output.usb-headset"
     assert "waybar-restart.sh " in log
+    assert "qs -c hyprflow ipc call bar unhide" in log
 
 
 def test_off_keeps_do_not_disturb_if_it_was_on_before(gm):

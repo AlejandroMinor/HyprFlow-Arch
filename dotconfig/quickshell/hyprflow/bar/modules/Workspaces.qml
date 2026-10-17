@@ -52,10 +52,12 @@ Item {
     // The active pill, under the numbers.
     Rectangle {
         id: pill
-        readonly property Item at: rep.count, ws.activeIndex >= 0 ? rep.itemAt(ws.activeIndex) : null
-        visible: at !== null
-        x: row.x + (at?.x ?? 0)
-        width: at?.width ?? 0
+        // Where the active slot ends up, not where it is: the slots animate
+        // their widths too, and chasing their moving x restarted the pill's
+        // animation every frame.
+        visible: ws.activeIndex >= 0
+        x: row.x + Math.max(0, ws.activeIndex) * (ws.look.width + row.spacing)
+        width: ws.look.activeWidth
         height: ws.look.height
         anchors.verticalCenter: parent.verticalCenter
         radius: ws.look.radius

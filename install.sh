@@ -12,6 +12,7 @@ CONFIG_DEST="$HOME/.config"
 WITH_DEPS=false
 WITH_PLUGINS=false
 WITH_ZSH=false
+BAR=""   # quickshell | waybar; empty: a full run asks, anything else keeps it
 
 # Steps asked for on the command line. With none named, everything runs.
 declare -A RUN=()
@@ -37,6 +38,8 @@ Options:
   --with-deps      install the missing packages (pacman, then yay or paru)
   --with-plugins   install the missing Hyprland plugins (compiles, slow)
   --with-zsh       include the zsh step in a full run
+  --bar=quickshell|waybar
+                   which bar to use (a full run asks; otherwise it stays)
   -h, --help       show this
 
 Examples:
@@ -53,6 +56,7 @@ for arg in "$@"; do
         --with-deps)    WITH_DEPS=true ;;
         --with-plugins) WITH_PLUGINS=true ;;
         --with-zsh)     WITH_ZSH=true ;;
+        --bar=quickshell|--bar=waybar) BAR="${arg#--bar=}" ;;
         -h|--help)      usage; exit 0 ;;
         *)
             echo "install.sh: unknown argument '$arg'" >&2
@@ -547,6 +551,24 @@ setup_zsh() {
     fi
 }
 
+# The bar: the qs-bar flag file picks the Quickshell one over Waybar, read at
+# login and by bar-restart.sh. A running Quickshell is told too, to switch now.
+choose_bar() {
+    if [ -z "$BAR" ] && [ "$FULL_RUN" = true ] && [ -t 0 ]; then
+        if ask "Use the Quickshell bar instead of Waybar?" y; then BAR=quickshell; else BAR=waybar; fi
+    fi
+    [ -n "$BAR" ] || return 0
+    local flag="${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow/qs-bar"
+    if [ "$BAR" = quickshell ]; then
+        mkdir -p "$(dirname "$flag")" && touch "$flag"
+        qs -c hyprflow ipc call bar enable >/dev/null 2>&1 || true
+    else
+        rm -f "$flag"
+        qs -c hyprflow ipc call bar disable >/dev/null 2>&1 || true
+    fi
+    if [ "$BAR" = quickshell ]; then echo "󰍜 Bar: Quickshell"; else echo "󰍜 Bar: Waybar"; fi
+}
+
 restart_waybar() {
     "$REPO_PATH/lib/bar-restart.sh"
 }
@@ -585,6 +607,7 @@ fi
 
 want monitors && setup_monitors
 want zsh      && setup_zsh
+want config   && choose_bar
 
 # monitors.sh restarts Waybar itself after regenerating the bars, so only do it
 # here when that step did not run. A config sync regenerates the bars first:

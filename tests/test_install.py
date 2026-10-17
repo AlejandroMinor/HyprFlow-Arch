@@ -41,6 +41,7 @@ FAKES = {
                'case " $* " in *" -j "*) echo "[]" ;; esac; exit 0',
     "hyprpm": "",
     "killall": "",
+    "qs": "exit 1",   # Quickshell "not running": install.sh writes the flag itself
     "fc-cache": "",
     "notify-send": "",
     "rgb-sync.sh": "",
@@ -310,3 +311,34 @@ def test_the_readme_copy_and_paste_lines_match_the_package_files():
         wanted = [package for package in wanted if package]
         line = next(line for line in readme.splitlines() if line.startswith(command))
         assert line[len(command):].split() == wanted, f"README out of step with packages/{name}"
+
+
+def test_bar_quickshell_sets_the_flag_and_tells_quickshell(env):
+    flag = Path(env["HOME"]) / ".local" / "state" / "hyprflow" / "qs-bar"
+    result = run(env, "config", "--bar=quickshell")
+    assert result.returncode == 0
+    assert flag.exists()
+    assert "qs -c hyprflow ipc call bar enable" in log(env)
+    assert "Bar: Quickshell" in result.stdout
+
+
+def test_bar_waybar_removes_the_flag(env):
+    flag = Path(env["HOME"]) / ".local" / "state" / "hyprflow" / "qs-bar"
+    flag.parent.mkdir(parents=True)
+    flag.touch()
+    run(env, "config", "--bar=waybar")
+    assert not flag.exists()
+    assert "qs -c hyprflow ipc call bar disable" in log(env)
+
+
+def test_config_alone_leaves_the_bar_as_it_is(env):
+    flag = Path(env["HOME"]) / ".local" / "state" / "hyprflow" / "qs-bar"
+    flag.parent.mkdir(parents=True)
+    flag.touch()
+    run(env, "config")
+    assert flag.exists()
+    assert not any(line.startswith("qs ") for line in log(env))
+
+
+def test_an_unknown_bar_is_refused(env):
+    assert run(env, "config", "--bar=polybar").returncode == 1

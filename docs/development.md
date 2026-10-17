@@ -226,8 +226,10 @@ volume module, `sink-switch.py --toggle` (see above).
 
 `install.sh config` → copies `dotconfig/` into `~/.config` (keeping the
 palette, monitor layout and bars this machine generated), links `bin/` and
-`lib/`, then `monitors.sh apply` and a Waybar restart. Hyprland reloads by
-itself: autoreload picks up the copied .lua files.
+`lib/`, then `monitors.sh apply` and a bar restart (bar-restart.sh). With
+`--bar=quickshell|waybar` (a full run asks) it first writes or removes the
+qs-bar flag and tells a running Quickshell. Hyprland reloads by itself:
+autoreload picks up the copied .lua files.
 
 ## Patterns
 

@@ -5,9 +5,13 @@ drop in, a workspace pill that slides to the active one, drawers that slide
 open, a visualizer, a spinning cover, a calendar under the clock.
 
 ```bash
-qs -c hyprflow ipc call bar enable    # use it (stops Waybar)
-qs -c hyprflow ipc call bar disable   # back to Waybar
+bash install.sh config --bar=quickshell   # use it (a full install asks)
+bash install.sh config --bar=waybar       # back to Waybar
 ```
+
+The choice is kept (the flag file `~/.local/state/hyprflow/qs-bar`) and
+holds at every login. The same, live, without the installer:
+`qs -c hyprflow ipc call bar enable | disable`.
 
 `Super + B` hides and shows it; game mode hides it.
 

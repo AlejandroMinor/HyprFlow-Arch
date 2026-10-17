@@ -52,6 +52,7 @@ install.sh config theme     # steps combine
 | `--with-deps` | Install the missing packages (pacman, then yay or paru) |
 | `--with-plugins` | Install the missing Hyprland plugins (compiles, slow) |
 | `--with-zsh` | Include the zsh step in a full run |
+| `--bar=quickshell\|waybar` | Which bar to use (a full run asks; otherwise it stays as it is) |
 | `--help` | The list above |
 
 Cloned without `--recursive`? `install.sh` fetches the submodules itself.

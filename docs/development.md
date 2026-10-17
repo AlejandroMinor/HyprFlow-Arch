@@ -12,6 +12,8 @@
   - `lib/common.sh` (Bash): `msg`, `warn`, `notify`, `load_palette`, and where
     `bin/` and `lib/` are.
 - `dotconfig/`: copied into `~/.config` by `install.sh config`.
+  `dotconfig/quickshell/hyprflow/bar/` is the Quickshell bar (`bar.json` +
+  `modules/`, docs/bar.md).
   `dotconfig/quickshell/hyprflow/` holds the Quickshell panels (`qs -c hyprflow`):
   the Super+K and Super+I panels, the audio and theme pickers, the
   confirmations, the power menu, the submap HUD and the
@@ -138,7 +140,8 @@ Super+Shift+S submap (keybindings.lua) → r/w/s (region/window/screen) or
 ### Switching the audio output
 
 ```
-Waybar volume click or Super+K → Audio output → lib/sink-switch.py --toggle
+Waybar volume click, the Quickshell bar's volume right click (its click opens
+SoundView: outputs, apps, microphone) or Super+K → Audio output → lib/sink-switch.py --toggle
   → qs ipc call sinkswitch toggle → SinkSwitch.qml (rofi without Quickshell)
       → sink-switch.py --json: pw-dump sinks, minus ~/.config/hyprflow/sink-switch.conf
   → a pick runs sink-switch.py --set ID
@@ -164,6 +167,24 @@ The panel is `swaync`; the bar's `custom/swaync` widget drives it
 clears it.
 
 ### The bar
+
+Two bars, one at a time; the flag file `~/.local/state/hyprflow/qs-bar` says
+which. `qs -c hyprflow ipc call bar enable` writes it and stops Waybar;
+`disable` removes it and starts Waybar again.
+
+```
+Quickshell bar (dotconfig/quickshell/hyprflow/bar/, see docs/bar.md)
+  Bars.qml: one Bar per screen, its type from bars.json (monitors.py),
+            its layout from bar.json; hidden during game mode
+  → Cluster (left / center / right) → ModuleLoader: a name → modules/<Type>.qml
+  → a module: native (Hyprland, Pipewire, Mpris, tray) or `custom`, which runs
+    the same scripts as Waybar and reads their JSON
+a click on a module that opens a panel → bar.expand: its card grows down
+  into it (calendar, volume / microphone views, the full player)
+calendar events: calendar-events.py add (or any sync) → ~/.local/share/
+  hyprflow/calendar/YYYY-MM.json → CalendarPanel reads last, this and next
+  month (upcoming until each event ends) and the month on screen (its days)
+```
 
 Waybar starts each module in `modules.json` as a long running process.
 The Python ones are `WaybarModule`s: they print JSON whenever their events

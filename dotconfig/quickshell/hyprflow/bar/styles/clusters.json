@@ -1,0 +1,17 @@
+// The base style: every value the bar draws with. Another style lists only
+// what it changes (bar.json "style" picks it); the rest comes from here.
+// Opacities are 0..1 over Colors.qml's black and white.
+{
+  "cards": "clusters",     // clusters: left, center and right cards; single: one across
+  "height": 38,            // a card
+  "gap": 5,                // above and below the cards
+  "margin": 15,            // from the screen's sides
+
+  "card":       { "radius": 12, "fill": 0.38, "border": 0.08, "padding": 6 },
+  "module":     { "radius": 8, "hover": 0.08, "dim": 0.45,
+                  "font": "JetBrainsMono Nerd Font", "fontSize": 14, "iconSize": 14 },
+  "workspaces": { "width": 26, "activeWidth": 42, "height": 24, "radius": 12,
+                  "pill": 0.16, "pillBorder": 0.22, "idle": 0.4, "fontSize": 12 },
+  "tooltip":    { "radius": 10, "fontSize": 12 },
+  "popup":      { "radius": 16 }
+}

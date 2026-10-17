@@ -1,0 +1,166 @@
+# Quickshell bar
+
+The bar that replaces Waybar, with the panels' look and motion: clusters that
+drop in, a workspace pill that slides to the active one, drawers that slide
+open, a visualizer, a spinning cover, a calendar under the clock.
+
+```bash
+qs -c hyprflow ipc call bar enable    # use it (stops Waybar)
+qs -c hyprflow ipc call bar disable   # back to Waybar
+```
+
+Game mode hides it.
+
+## Where things are
+
+```
+dotconfig/quickshell/hyprflow/bar/
+  bar.json          what goes where, each module's settings, the style
+  styles/           the looks: clusters.json (every value), others on top
+  Bars.qml          a bar per screen (type from monitors.sh: full, minimal, none)
+  Bar.qml           the window and its three clusters
+  Cluster.qml       a card of modules
+  ModuleLoader.qml  a name from bar.json → modules/<Type>.qml
+  Module.qml        what a module is: icon, text, hover, clicks, tooltip, polling
+  SoundView.qml     the volume's and the microphone's full view
+  MediaPanel.qml    the full player
+  BarTooltip.qml    the tooltip
+  modules/          one file per kind of module
+```
+
+Motion and colours come from `Motion.qml` and `Colors.qml`, like the panels.
+The bar reloads on save.
+
+## Styles
+
+One line in bar.json picks the look, as Waybar's `@import 'style-….css'`:
+
+```jsonc
+"style": "clusters",     // a file in styles/
+```
+
+`styles/clusters.json` holds every value the bar draws with: card height,
+gaps and margin, radii, opacities, font sizes, the workspace pill. Another
+style lists only what it changes and takes the rest from clusters, one level
+deep, so `{"card": {"radius": 20}}` keeps the card's fill and border:
+
+```jsonc
+// styles/single.json: one card across the screen
+{ "cards": "single" }
+```
+
+A new style is a new file in `styles/` and its name in that line.
+
+## Opening a card downward
+
+A module can grow its card into a panel, the bar seeming to stretch open
+(the calendar, the volume and microphone views, the full player):
+
+```qml
+Module {
+    id: mod
+    onClicked: bar.expand(mod, panel, 320)   // again, or a click elsewhere, closes
+    Component { id: panel; Item { implicitHeight: 200; /* … */ } }
+}
+```
+
+The card widens to the width asked for and grows to the panel's
+`implicitHeight`; the panel sits under the module that opened it.
+
+## Calendar events
+
+The clock's panel lists what comes up, and a click on a day shows that day's
+events. They come from one JSON file per month, kept as history:
+
+```jsonc
+// ~/.local/share/hyprflow/calendar/2026-10.json
+[{ "title": "Daily", "start": "2026-10-17T10:00", "end": "2026-10-17T11:00", "where": "Teams" }]
+```
+
+An event stays in the list until its end, marked "now" while it runs.
+`calendar-events.py add TITLE START [END] [--where PLACE]` writes them;
+anything else may too (a sync from Outlook or Google), and the bar redraws
+when a file changes.
+
+## bar.json
+
+```jsonc
+{
+  "bars": {
+    "full":    { "left": ["launcher", "workspaces"], "center": ["media"], "right": ["clock"] },
+    "minimal": { "center": ["workspaces"] }
+  },
+  "modules": {
+    "clock": { "format": "dd/MM HH:mm" }
+  }
+}
+```
+
+A name loads `modules/<Name>.qml` (`clock` → `Clock.qml`,
+`system-tools` → `SystemTools.qml`) with `modules.<name>` as its settings.
+With a `"type"`, that file loads instead, so one kind serves many names.
+
+## Adding a module
+
+**A script**: anything that already works as a Waybar custom module.
+Same keys as Waybar:
+
+```jsonc
+"weather": {
+  "type": "custom",
+  "exec": "~/.local/lib/hyprflow/weather.sh",   // JSON or text, a line per update
+  "interval": 600,                              // without it: keeps running
+  "format": "{}",
+  "on-click": "xdg-open https://wttr.in"
+}
+```
+
+Also `tooltip`, `on-click-right`, `on-click-middle`, `on-scroll-up`,
+`on-scroll-down`, and `font` / `font-size` for glyph fonts. Without `exec`,
+`format` is a fixed label (the launcher and power buttons are this).
+A glyph the script puts first is shown as the icon. Beyond Waybar's keys:
+
+- `icon`: a glyph in place of the script's own.
+- `ring`: `true` draws a ring filled to the JSON's `percentage` instead of
+  the icon (claude-usage).
+- `classes`: per class the script reports, its own `format` and `dim`, the
+  way Waybar's CSS styled `#custom-vpn.vpn-status-warning`:
+
+```jsonc
+"classes": {
+  "vpn-status-active":  { "format": "\udb81\udc83" },
+  "vpn-status-warning": { "format": "\udb82\udd9e", "dim": true }
+}
+```
+
+**A drawer**: modules that slide out of a handle.
+
+```jsonc
+"hardware": { "type": "drawer", "modules": ["runcat", "cpu", "memory"] }
+```
+
+The first module is the handle, or set `"icon"` for a plain one.
+
+**A QML module**: when it needs a native source (Pipewire, Mpris,
+Hyprland) or its own drawing. A file in `modules/`, built on `Module`:
+
+```qml
+// modules/Uptime.qml
+import QtQuick
+import qs.bar
+
+Module {
+    icon: "\u{F0954}"
+    poll: ["cat", "/proc/uptime"]          // run every `interval` seconds
+    interval: 60
+    onPolled: out => text = Math.floor(out.split(" ")[0] / 3600) + "h"
+    onClicked: run("kitty -e btop")        // run(): through the shell, as Waybar
+}
+```
+
+Then `"uptime"` in a layout. `Module` gives `icon`, `text`, `dim`, `tooltip`,
+`hovered`, the click and scroll signals and `settings` (its bar.json entry).
+A module that draws its own content puts it inside `Module { … }` and that
+replaces the icon and text (see `Media.qml`, `Notifications.qml`).
+
+`tests/test_quickshell_bar.py` checks that every name in bar.json has its file.

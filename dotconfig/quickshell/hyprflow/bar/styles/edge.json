@@ -1,0 +1,10 @@
+// Edge to edge: one solid strip against the top of the screen, no corners,
+// no margins; the classic bar.
+{
+  "cards": "single",
+  "height": 36,
+  "gap": 0,
+  "margin": 0,
+  "card":       { "radius": 0, "fill": 0.62, "border": 0, "padding": 10 },
+  "workspaces": { "radius": 4, "activeWidth": 36 }
+}

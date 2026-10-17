@@ -1,0 +1,10 @@
+// Floating pills: fully round cards, a little shorter and further from the
+// edges, with more body (fill and border) and round hovers inside.
+{
+  "height": 34,
+  "gap": 8,
+  "margin": 22,
+  "card":       { "radius": 17, "fill": 0.55, "border": 0.14, "padding": 4 },
+  "module":     { "radius": 13, "hover": 0.12 },
+  "workspaces": { "height": 22, "radius": 11, "pill": 0.22, "pillBorder": 0 }
+}

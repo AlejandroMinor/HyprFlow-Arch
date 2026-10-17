@@ -1,0 +1,4 @@
+// One card across the screen instead of three; everything else as clusters.
+{
+  "cards": "single"
+}

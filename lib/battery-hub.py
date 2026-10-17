@@ -180,10 +180,13 @@ class UPowerSource:
         kind = props.get("Type", 0)
         if kind == LINE_POWER or not props.get("IsPresent", True):
             return None
-        charging = props.get("State") in (CHARGING, FULLY_CHARGED, PENDING_CHARGE)
+        state = props.get("State")
+        charging = state in (CHARGING, PENDING_CHARGE)
         percent = round(props.get("Percentage", 0))
         if kind == BATTERY and props.get("PowerSupply"):
-            return Device.laptop(percent, charging)
+            return Device.laptop(percent, charging or state == FULLY_CHARGED)
+        # A peripheral says fully charged at 100 % on its own battery too (the
+        # Magic Trackpad over Bluetooth), so for one only charging counts.
         # BatteryLevel 1 = none reported: a device with a battery UPower
         # cannot read, which shows as 0 %.
         if percent <= 0 and props.get("BatteryLevel", 0) == 1:

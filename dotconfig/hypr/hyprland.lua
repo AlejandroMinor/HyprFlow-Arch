@@ -310,14 +310,15 @@ hl.config({
 
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
 hl.device({
-    name        = "logitech-mx-master-3s",
+    name        = "logitech-usb-receiver-mouse", -- MX Master 3S via Bolt
     sensitivity = 0.3,
 })
 
 hl.device({
     name          = "apple-inc.-magic-trackpad",
-    sensitivity   = -0.3,
-    accel_profile = "adaptive",
+    -- macOS-like: slow moves stay precise, fast flicks travel far.
+    -- "custom <step> <points>": output speed every <step> of input speed.
+    accel_profile = "custom 0.25 0 0.1 0.25 0.42 0.6 0.75 0.9 1.07 1.25 1.42 1.6 1.8 2.0 2.2 2.4",
     natural_scroll = true,
 })
 

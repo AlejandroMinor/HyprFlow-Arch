@@ -21,10 +21,31 @@ hl.gesture({ fingers = 4, direction = "up",   action = mission_control, descript
 hl.gesture({ fingers = 3, direction = "down", action = "special", workspace_name = "magic", description = "Toggle Scratchpad" })
 hl.gesture({ fingers = 4, direction = "down", action = "special", workspace_name = "magic", description = "Toggle Scratchpad" })
 
--- Swipe HORIZONTAL -> Switch workspaces (macOS spaces). Both finger counts
--- too: the T14's Synaptics pad often reads a 3 finger swipe as 4.
-hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace", description = "Switch Workspace" })
-hl.gesture({ fingers = 4, direction = "horizontal", action = "workspace", description = "Switch Workspace" })
+-- Swipe LEFT/RIGHT -> Switch workspaces on this monitor (macOS spaces).
+-- Same dispatcher as Super+H/L, so it plays the keybind animation; the
+-- tracked "workspace" action can't use slidefade. Both finger counts too:
+-- the T14's Synaptics pad often reads a 3 finger swipe as 4.
+-- Past the last workspace of the monitor it opens an empty one, unless
+-- this one is empty already, like the tracked swipe did.
+local function next_workspace()
+    local monitor = hl.get_active_monitor()
+    local current = monitor.active_workspace.id
+    for _, ws in ipairs(hl.get_workspaces()) do
+        if ws.monitor.name == monitor.name and ws.id > current then
+            hl.dispatch(hl.dsp.focus({ workspace = "m+1" }))
+            return
+        end
+    end
+    if monitor.active_workspace.windows > 0 then
+        hl.dispatch(hl.dsp.focus({ workspace = "emptynm" }))
+    end
+end
+local function prev_workspace() hl.dispatch(hl.dsp.focus({ workspace = "m-1" })) end
+
+hl.gesture({ fingers = 3, direction = "left",  action = next_workspace, description = "Next Workspace on Monitor" })
+hl.gesture({ fingers = 3, direction = "right", action = prev_workspace, description = "Previous Workspace on Monitor" })
+hl.gesture({ fingers = 4, direction = "left",  action = next_workspace, description = "Next Workspace on Monitor" })
+hl.gesture({ fingers = 4, direction = "right", action = prev_workspace, description = "Previous Workspace on Monitor" })
 
 -- Pinch IN -> app launcher, where macOS has Launchpad.
 hl.gesture({ fingers = 4, direction = "pinchin",  action = function() hl.exec_cmd('sh -c "pkill -x rofi || ' .. menu .. '"') end, description = "App Launcher" })

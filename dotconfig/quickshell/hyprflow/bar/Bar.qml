@@ -33,6 +33,8 @@ PanelWindow {
     color: "transparent"
     WlrLayershell.namespace: "hyprflow-bar"
     WlrLayershell.layer: WlrLayer.Top
+    // Typing only into an open panel (the calendar's form), and only on a click.
+    WlrLayershell.keyboardFocus: expansion ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     // Only the clusters take clicks: the gaps between them belong to the
     // windows underneath.

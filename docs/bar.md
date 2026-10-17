@@ -74,13 +74,31 @@ events. They come from one JSON file per month, kept as history:
 
 ```jsonc
 // ~/.local/share/hyprflow/calendar/2026-10.json
-[{ "title": "Daily", "start": "2026-10-17T10:00", "end": "2026-10-17T11:00", "where": "Teams" }]
+[{ "title": "Daily", "start": "2026-10-17T10:00", "end": "2026-10-17T11:00", "where": "Teams",
+   "link": "https://teams.microsoft.com/l/meetup-join/…" }]
 ```
 
 An event stays in the list until its end, marked "now" while it runs.
-`calendar-events.py add TITLE START [END] [--where PLACE]` writes them;
-anything else may too (a sync from Outlook or Google), and the bar redraws
-when a file changes.
+In the panel, "+" adds one on the picked day (today if none), the pencil on a
+row edits it and × deletes it (a second click confirms). The same from a terminal, or over SSH:
+
+```bash
+calendar-events.py add "Daily" 2026-10-17T10:00 2026-10-17T11:00 --where Teams \
+    --link https://teams.microsoft.com/l/meetup-join/…   # two clicks on it open the call
+calendar-events.py add "Holiday" 2026-11-02          # a date alone: all day
+echo '[{"title": "Daily", "start": "2026-10-17T10:00"}]' | calendar-events.py add -
+#   one object, a list or several in a row (an iOS Shortcut's dictionaries);
+#   without "link", the call's URL is taken from "notes"
+calendar-events.py list 2026-10                       # each with its key
+calendar-events.py edit a5fbf0 --start 2026-10-17T12:00   # keeps its length
+calendar-events.py remove a5fbf0
+```
+
+A call shows its service's icon by the link (Teams, Meet, Discord, Slack,
+WhatsApp; `callIcons` in CalendarPanel.qml), any other link a camera.
+
+Anything else may write the files too (a sync from Outlook or Google), and
+the bar redraws when one changes.
 
 ## bar.json
 

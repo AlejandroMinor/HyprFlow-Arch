@@ -5,6 +5,10 @@
 // (~/.local/share/hyprflow/calendar/YYYY-MM.json, [{title, start, end,
 // where}]), read here directly and redrawn when they change. An event stays
 // in the list until its end: one in progress shows "now".
+// "+" adds one on the picked day (today if none), the pencil on a row edits
+// it in the same form, × deletes it (a second click confirms); both go through calendar-events.py, the same
+// command that works over SSH. An event with a link (a call) opens it on a
+// second click, the first asking "Join?".
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -17,6 +21,7 @@ Item {
     property date now: new Date()  // the clock's, by the minute
     property var look
     readonly property string root: Quickshell.env("HOME") + "/.local/share/hyprflow/calendar/"
+    readonly property string command: Quickshell.env("HOME") + "/.local/lib/hyprflow/calendar-events.py"
 
     property date shownMonth: new Date(now.getFullYear(), now.getMonth(), 1)
     property var picked: null  // a day clicked; null: what comes up
@@ -25,7 +30,136 @@ Item {
         picked = null;
     }
 
+    // ---- Adding and deleting ----
+
+    property bool adding: false
+    property var editing: null  // the event the form edits; null: a new one
+    onAddingChanged: if (!adding) editing = null
+    property string error: ""
+    // The day the form's event goes on.
+    readonly property date addDay: editing ? at(editing.start) : (picked ?? now)
+    function hours(text) { return text.slice(11, 16) === "00:00" ? "" : text.slice(11, 16); }
+    // The form, empty for a new event or filled with the one to edit.
+    function openForm(e) {
+        editing = e ?? null;
+        error = "";
+        title.text = e?.title ?? "";
+        from.text = e ? hours(e.start) : "";
+        to.text = e ? hours(e.end) : "";
+        where.text = e?.where ?? "";
+        link.text = e?.link ?? "";
+        adding = true;
+        title.field.forceActiveFocus();
+    }
+    // A call's icon by its link's host; any other link, a camera.
+    readonly property var callIcons: [
+        ["teams.microsoft.com", "\u{F02BB}"], ["teams.live.com", "\u{F02BB}"],  // Teams
+        ["meet.google.com", "\u{F02AD}"],                                       // Google
+        ["discord.", "\u{F1FF}"], ["slack.com", "\u{F198}"], ["whatsapp.com", "\u{F05A3}"],
+    ]  // Zoom has no glyph in the font: the camera
+    function callIcon(link) {
+        const host = (link.match(/^\w+:\/\/([^\/?#]+)/) ?? ["", ""])[1].toLowerCase();
+        const known = callIcons.find(([part]) => host.includes(part));
+        return known ? known[1] : "\u{F0567}";  // video
+    }
+
+    // The key calendar-events.py gives an event: md5 of "START TITLE".
+    function key(e) { return Qt.md5(e.start + " " + e.title).slice(0, 6); }
+
+    Process {
+        id: edit
+        stderr: StdioCollector { id: editErr }
+        onExited: code => {
+            panel.error = code === 0 ? "" : editErr.text.trim();
+            if (code === 0) panel.adding = false;
+        }
+    }
+    function save(title, from, to, where, link) {
+        if (!title.trim()) { error = "A title"; return; }
+        from = from.trim(); to = to.trim();
+        const day = Qt.formatDate(addDay, "yyyy-MM-dd");
+        // No start: all day.
+        const start = from ? day + "T" + from : day;
+        let argv;
+        if (editing) {
+            // The times only if changed: an event over several days keeps its end.
+            argv = [command, "edit", key(editing), "--title", title.trim(),
+                    "--where", where.trim(), "--link", link.trim()];
+            if (from !== hours(editing.start)) argv.push("--start", start);
+            if (to !== hours(editing.end) && from && to) argv.push("--end", day + "T" + to);
+        } else {
+            argv = [command, "add", title.trim(), start];
+            if (from && to) argv.push(day + "T" + to);
+            if (where.trim()) argv.push("--where", where.trim());
+            if (link.trim()) argv.push("--link", link.trim());
+        }
+        edit.command = argv;
+        edit.running = true;
+    }
+    function remove(e) {
+        edit.command = [command, "remove", key(e)];
+        edit.running = true;
+    }
+
     implicitHeight: column.implicitHeight + 28
+
+    // A text box like the rows: Tab to the next, Enter saves, Esc closes.
+    component Field: Rectangle {
+        id: box
+        property string hint
+        property alias text: input.text
+        property alias field: input
+        property Item next
+        implicitHeight: 28
+        radius: 8
+        color: Qt.alpha(Colors.foreground, input.activeFocus ? 0.12 : 0.06)
+        TextInput {
+            id: input
+            anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
+            verticalAlignment: TextInput.AlignVCenter
+            clip: true
+            color: Colors.foreground
+            selectionColor: Qt.alpha(Colors.foreground, 0.3)
+            font { family: panel.look.font; pixelSize: 12 }
+            KeyNavigation.tab: box.next?.field ?? null
+            Keys.onReturnPressed: form.submit()
+            Keys.onEnterPressed: form.submit()
+            Keys.onEscapePressed: panel.adding = false
+        }
+        Text {
+            visible: input.text === "" && !input.activeFocus
+            anchors { fill: parent; leftMargin: 10 }
+            verticalAlignment: Text.AlignVCenter
+            text: box.hint
+            color: Qt.alpha(Colors.foreground, 0.45)
+            font { family: panel.look.font; pixelSize: 12 }
+        }
+    }
+
+    // The form's buttons; the strong one filled, like today in the month.
+    component FormButton: Rectangle {
+        id: button
+        property string label
+        property bool strong: false
+        signal clicked()
+        implicitWidth: buttonText.implicitWidth + 24
+        implicitHeight: 28
+        radius: 8
+        color: strong ? Colors.foreground : Qt.alpha(Colors.foreground, buttonArea.containsMouse ? 0.12 : 0.06)
+        Text {
+            id: buttonText
+            anchors.centerIn: parent
+            text: button.label
+            color: button.strong ? Colors.background : Colors.foreground
+            font { family: panel.look.font; pixelSize: 12; bold: button.strong }
+        }
+        MouseArea {
+            id: buttonArea
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: button.clicked()
+        }
+    }
 
     // ---- The events ----
 
@@ -189,18 +323,75 @@ Item {
         // ---- The events ----
         ColumnLayout {
             id: events
-            visible: panel.picked !== null || panel.listed.length > 0
+            visible: panel.picked !== null || panel.listed.length > 0 || panel.adding
             Layout.fillWidth: true
             spacing: 6
 
-            Text {
-                text: panel.picked ? Qt.formatDate(panel.picked, "dddd d MMMM").toUpperCase() : "UPCOMING"
-                color: Qt.alpha(Colors.foreground, 0.45)
-                font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
+            RowLayout {
+                Layout.fillWidth: true
+                Text {
+                    Layout.fillWidth: true
+                    text: panel.picked ? Qt.formatDate(panel.picked, "dddd d MMMM").toUpperCase() : "UPCOMING"
+                    color: Qt.alpha(Colors.foreground, 0.45)
+                    font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
+                }
+                Text {
+                    text: panel.adding ? "\u{F0156}" : "\u{F0415}"  // close, plus
+                    color: Qt.alpha(Colors.foreground, plus.containsMouse ? 1 : 0.6)
+                    font { family: panel.look.font; pixelSize: 14 }
+                    MouseArea {
+                        id: plus
+                        anchors.fill: parent
+                        anchors.margins: -4
+                        hoverEnabled: true
+                        onClicked: panel.adding ? panel.adding = false : panel.openForm(null)
+                    }
+                }
+            }
+
+            // ---- A new event ----
+            ColumnLayout {
+                id: form
+                visible: panel.adding
+                Layout.fillWidth: true
+                spacing: 6
+
+                function submit() { panel.save(title.text, from.text, to.text, where.text, link.text); }
+
+                Text {
+                    text: (panel.editing ? "Editing · " : "") + Qt.formatDate(panel.addDay, "dddd d MMMM")
+                        + (from.text ? "" : " · all day")
+                    color: Qt.alpha(Colors.foreground, 0.6)
+                    font { family: panel.look.font; pixelSize: 11 }
+                }
+                Field { id: title; Layout.fillWidth: true; hint: "Title"; next: from }
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+                    Field { id: from; Layout.fillWidth: true; hint: "From 10:00"; next: to }
+                    Field { id: to; Layout.fillWidth: true; hint: "To 11:00"; next: where }
+                }
+                Field { id: where; Layout.fillWidth: true; hint: "Where (optional)"; next: link }
+                Field { id: link; Layout.fillWidth: true; hint: "Call link (optional)"; next: title }
+                Text {
+                    visible: panel.error !== ""
+                    Layout.fillWidth: true
+                    text: panel.error
+                    wrapMode: Text.Wrap
+                    color: "#f7768e"
+                    font { family: panel.look.font; pixelSize: 11 }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+                    Item { Layout.fillWidth: true }
+                    FormButton { label: "Cancel"; onClicked: panel.adding = false }
+                    FormButton { label: "Save"; strong: true; onClicked: form.submit() }
+                }
             }
 
             Text {
-                visible: panel.listed.length === 0
+                visible: panel.listed.length === 0 && !panel.adding
                 Layout.topMargin: 4
                 text: panel.picked ? "Nothing that day" : "Nothing coming up"
                 color: Qt.alpha(Colors.foreground, 0.45)
@@ -220,7 +411,8 @@ Item {
                     width: parent.width
                     spacing: 6
                     Repeater {
-                        model: panel.listed
+                        // The one being edited is in the form, not here.
+                        model: panel.editing ? panel.listed.filter(e => panel.key(e) !== panel.key(panel.editing)) : panel.listed
                         delegate: Rectangle {
                             id: row
                             required property var modelData
@@ -231,6 +423,22 @@ Item {
                             implicitHeight: lines.implicitHeight + 14
                             radius: 8
                             color: Qt.alpha(Colors.foreground, live ? 0.14 : 0.06)
+                            // Deleting: × on hover, then a second click.
+                            property bool armed: false
+                            property bool joining: false
+                            HoverHandler { id: rowHover; onHoveredChanged: if (!hovered) { row.armed = false; row.joining = false; } }
+                            // A call: a click on the row asks, a second opens it
+                            // (the pencil and × still work, on top).
+                            readonly property string link: modelData.link ?? ""
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: row.link !== ""
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (row.joining) Quickshell.execDetached(["xdg-open", row.link]);
+                                    row.joining = !row.joining;
+                                }
+                            }
 
                             // A line down the left, as a timeline.
                             Rectangle {
@@ -245,6 +453,12 @@ Item {
                                 RowLayout {
                                     Layout.fillWidth: true
                                     Text {
+                                        visible: row.link !== ""
+                                        text: panel.callIcon(row.link)
+                                        color: Qt.alpha(Colors.foreground, row.past ? 0.5 : 1)
+                                        font { family: panel.look.font; pixelSize: 13 }
+                                    }
+                                    Text {
                                         Layout.fillWidth: true
                                         text: row.modelData.title
                                         elide: Text.ElideRight
@@ -253,7 +467,7 @@ Item {
                                     }
                                     // In progress.
                                     Rectangle {
-                                        visible: row.live
+                                        visible: row.live && !rowHover.hovered
                                         implicitWidth: nowText.implicitWidth + 12
                                         implicitHeight: 16
                                         radius: 8
@@ -264,6 +478,34 @@ Item {
                                             text: "now"
                                             color: Colors.background
                                             font { family: panel.look.font; pixelSize: 9; bold: true }
+                                        }
+                                    }
+                                    Text {
+                                        visible: row.joining
+                                        text: "Join?"
+                                        color: Colors.foreground
+                                        font { family: panel.look.font; pixelSize: 11; bold: true }
+                                    }
+                                    Text {
+                                        visible: rowHover.hovered && !row.armed && !row.joining
+                                        text: "\u{F03EB}"  // pencil
+                                        color: Qt.alpha(Colors.foreground, 0.6)
+                                        font { family: panel.look.font; pixelSize: 14 }
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            anchors.margins: -4
+                                            onClicked: panel.openForm(row.modelData)
+                                        }
+                                    }
+                                    Text {
+                                        visible: rowHover.hovered && !row.joining
+                                        text: row.armed ? "Delete?" : "\u{F0156}"
+                                        color: row.armed ? "#f7768e" : Qt.alpha(Colors.foreground, 0.6)
+                                        font { family: panel.look.font; pixelSize: row.armed ? 11 : 14; bold: row.armed }
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            anchors.margins: -4
+                                            onClicked: row.armed ? panel.remove(row.modelData) : row.armed = true
                                         }
                                     }
                                 }

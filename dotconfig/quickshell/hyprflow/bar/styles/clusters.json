@@ -11,7 +11,8 @@
   "module":     { "radius": 8, "hover": 0.08, "dim": 0.45,
                   "font": "JetBrainsMono Nerd Font", "fontSize": 14, "iconSize": 14 },
   "workspaces": { "width": 26, "activeWidth": 42, "height": 24, "radius": 12,
-                  "pill": 0.16, "pillBorder": 0.22, "idle": 0.4, "fontSize": 12 },
+                  "pill": 0.16, "pillBorder": 0.22, "idle": 0.4, "fontSize": 12,
+                  "accentPill": 0.55, "accentPillBorder": 0.80 },
   "tooltip":    { "radius": 10, "fontSize": 12 },
   "popup":      { "radius": 16 }
 }

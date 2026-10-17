@@ -50,7 +50,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: mod.look.radius
-        color: Qt.alpha(Colors.foreground, mod.hoverable && mod.hovered ? mod.look.hover : 0)
+        color: mod.hoverable && mod.hovered ? BarTheme.tint(mod.look.hover) : "transparent"
         Behavior on color { ColorAnimation { duration: Motion.fast } }
     }
 
@@ -80,7 +80,9 @@ Item {
         Text {
             visible: mod.icon !== ""
             text: mod.icon
-            color: Qt.alpha(mod.iconColor, mod.dim ? mod.look.dim : 1)
+            // The module whose panel is open shows it in the accent.
+            color: mod.bar?.expansion?.owner === mod ? BarTheme.accent
+                 : Qt.alpha(mod.iconColor, mod.dim ? mod.look.dim : 1)
             font { family: mod.iconFont; pixelSize: mod.iconSize }
             rotation: mod.iconRotation
             Behavior on color { ColorAnimation { duration: Motion.fast } }

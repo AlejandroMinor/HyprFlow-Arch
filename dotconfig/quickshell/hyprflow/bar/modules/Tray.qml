@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.SystemTray
 import qs
+import qs.bar
 
 Row {
     id: tray
@@ -34,7 +35,7 @@ Row {
             Rectangle {
                 anchors.fill: parent
                 radius: tray.look.radius
-                color: Qt.alpha(Colors.foreground, area.containsMouse ? tray.look.hover : 0)
+                color: area.containsMouse ? BarTheme.tint(tray.look.hover) : "transparent"
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
             }
             IconImage {

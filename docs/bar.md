@@ -29,6 +29,7 @@ dotconfig/quickshell/hyprflow/bar/
   SoundView.qml     the volume's and the microphone's full view
   MediaPanel.qml    the full player
   BarTooltip.qml    the tooltip
+  BarTheme.qml      the theme's accent colour (wallust), or white
   modules/          one file per kind of module
 ```
 
@@ -54,6 +55,13 @@ deep, so `{"card": {"radius": 20}}` keeps the card's fill and border:
 ```
 
 A new style is a new file in `styles/` and its name in that line.
+
+The accents take the theme's colour (wallust's color5, `BarTheme.qml`): the
+active workspace, the sliders, the play button, today, Save, the event under
+way, the hovers, what is picked in a panel, the open panel's module, the
+Claude ring and the notification badge. Everything else stays black and
+white. `"colors": false` turns
+the accents white too.
 
 ## Opening a card downward
 

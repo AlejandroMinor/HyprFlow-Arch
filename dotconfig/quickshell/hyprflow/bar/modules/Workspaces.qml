@@ -7,6 +7,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import qs
+import qs.bar
 
 Item {
     id: ws
@@ -61,8 +62,10 @@ Item {
         height: ws.look.height
         anchors.verticalCenter: parent.verticalCenter
         radius: ws.look.radius
-        color: Qt.alpha(Colors.foreground, ws.look.pill)
-        border { width: 1; color: Qt.alpha(Colors.foreground, ws.look.pillBorder) }
+        // With the theme's colour, a stronger tint: at the white pill's
+        // strength it hardly showed.
+        color: Qt.alpha(BarTheme.accent, BarTheme.enabled ? ws.look.accentPill : ws.look.pill)
+        border { width: 1; color: Qt.alpha(BarTheme.accent, BarTheme.enabled ? ws.look.accentPillBorder : ws.look.pillBorder) }
         Behavior on x { Anim { duration: Motion.normal; curve: Motion.enter } }
         Behavior on width { Anim { duration: Motion.normal; curve: Motion.enter } }
     }
@@ -93,7 +96,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: ws.look.radius
-                    color: Qt.alpha(Colors.foreground, hover.containsMouse && !slot.active ? ws.bar.style.module.hover : 0)
+                    color: hover.containsMouse && !slot.active ? BarTheme.tint(ws.bar.style.module.hover) : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
                 }
                 Rectangle {

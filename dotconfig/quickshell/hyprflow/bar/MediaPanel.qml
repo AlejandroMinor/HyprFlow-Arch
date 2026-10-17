@@ -91,7 +91,7 @@ Item {
                         width: chipText.implicitWidth + 16
                         height: 20
                         radius: 10
-                        color: Qt.alpha(Colors.foreground, current ? 0.2 : chipHover.containsMouse ? 0.12 : 0.06)
+                        color: current ? BarTheme.tint(0.2) : chipHover.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
                         Text {
                             id: chipText
@@ -179,7 +179,7 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         radius: width / 2
-                        color: Qt.alpha(Colors.foreground, controlArea.containsMouse && control.available ? 0.12 : 0)
+                        color: controlArea.containsMouse && control.available ? BarTheme.tint(0.12) : "transparent"
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
                     }
                     Text {
@@ -214,7 +214,7 @@ Item {
                     implicitWidth: 40
                     implicitHeight: 40
                     radius: 20
-                    color: Colors.foreground
+                    color: BarTheme.accent
                     scale: playArea.pressed ? 0.9 : playArea.containsMouse ? 1.06 : 1
                     Behavior on scale { Anim { duration: Motion.fast } }
                     Text {

@@ -31,7 +31,7 @@ Item {
             }
         }
         ShapePath {
-            strokeColor: Colors.foreground
+            strokeColor: BarTheme.accent
             strokeWidth: ring.thickness
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap

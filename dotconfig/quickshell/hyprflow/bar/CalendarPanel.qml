@@ -145,7 +145,7 @@ Item {
         implicitWidth: buttonText.implicitWidth + 24
         implicitHeight: 28
         radius: 8
-        color: strong ? Colors.foreground : Qt.alpha(Colors.foreground, buttonArea.containsMouse ? 0.12 : 0.06)
+        color: strong ? BarTheme.accent : buttonArea.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
         Text {
             id: buttonText
             anchors.centerIn: parent
@@ -286,9 +286,9 @@ Item {
                         Layout.preferredWidth: 32
                         Layout.preferredHeight: 28
                         radius: 8
-                        color: today ? Colors.foreground
-                             : isPicked ? Qt.alpha(Colors.foreground, 0.18)
-                             : dayHover.containsMouse ? Qt.alpha(Colors.foreground, 0.08) : "transparent"
+                        color: today ? BarTheme.accent
+                             : isPicked ? BarTheme.tint(0.18)
+                             : dayHover.containsMouse ? BarTheme.tint(0.08) : "transparent"
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
                         Text {
                             anchors.centerIn: parent
@@ -302,7 +302,7 @@ Item {
                             visible: cell.busy && cell.inMonth
                             anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 3 }
                             width: 4; height: 4; radius: 2
-                            color: cell.today ? Colors.background : Colors.foreground
+                            color: cell.today ? Colors.background : BarTheme.accent
                         }
                         MouseArea {
                             id: dayHover
@@ -444,7 +444,7 @@ Item {
                             Rectangle {
                                 anchors { left: parent.left; top: parent.top; bottom: parent.bottom; margins: 7 }
                                 width: 3; radius: 1.5
-                                color: Qt.alpha(Colors.foreground, row.live ? 1 : row.past ? 0.25 : 0.6)
+                                color: row.live ? BarTheme.accent : Qt.alpha(Colors.foreground, row.past ? 0.25 : 0.6)
                             }
                             ColumnLayout {
                                 id: lines
@@ -471,7 +471,7 @@ Item {
                                         implicitWidth: nowText.implicitWidth + 12
                                         implicitHeight: 16
                                         radius: 8
-                                        color: Colors.foreground
+                                        color: BarTheme.accent
                                         Text {
                                             id: nowText
                                             anchors.centerIn: parent

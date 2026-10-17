@@ -7,6 +7,7 @@
 // a "custom" is any script that works as a Waybar custom module.
 {
   "style": "clusters",     // a file in styles/: clusters, single, pills, edge
+  "colors": true,          // the theme's accent (wallust color5); false: white
 
   "bars": {
     "full": {

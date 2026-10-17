@@ -16,6 +16,8 @@ Scope {
     property bool enabled: false
     property bool shown: true  // toggle hides without closing (Super+B)
     property var config: ({})
+    // Theme accents on or off (BarTheme): "colors" in bar.json, on unless false.
+    Binding { target: BarTheme; property: "enabled"; value: root.config.colors !== false }
     property var types: ({})
     property var baseStyle: ({})
     property var chosenStyle: ({})

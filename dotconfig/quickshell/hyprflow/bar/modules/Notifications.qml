@@ -56,7 +56,7 @@ Module {
             height: 14
             width: Math.max(14, label.implicitWidth + 6)
             radius: 7
-            color: Colors.foreground
+            color: BarTheme.accent
             Text {
                 id: label
                 anchors.centerIn: parent

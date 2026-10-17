@@ -29,14 +29,14 @@ Item {
             height: parent.height
             radius: 2
             width: parent.width * Math.max(0, Math.min(1, slider.shown))
-            color: Qt.alpha(Colors.foreground, slider.muted ? slider.dim : 0.9)
+            color: slider.muted ? Qt.alpha(Colors.foreground, slider.dim) : Qt.alpha(BarTheme.accent, 0.9)
         }
     }
     Rectangle {
         x: track.width * Math.max(0, Math.min(1, slider.shown)) - width / 2
         anchors.verticalCenter: parent.verticalCenter
         width: 10; height: 10; radius: 5
-        color: Colors.foreground
+        color: slider.muted ? Colors.foreground : BarTheme.accent
         scale: area.containsMouse || slider.dragging ? 1.2 : 1
         Behavior on scale { Anim {} }
     }

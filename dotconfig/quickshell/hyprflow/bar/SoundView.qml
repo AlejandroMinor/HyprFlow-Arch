@@ -130,8 +130,8 @@ Item {
                     Layout.fillWidth: true
                     implicitHeight: 30
                     radius: 8
-                    color: modelData.current ? Qt.alpha(Colors.foreground, 0.12)
-                         : hover.containsMouse ? Qt.alpha(Colors.foreground, view.look.hover) : "transparent"
+                    color: modelData.current ? BarTheme.tint(0.12)
+                         : hover.containsMouse ? BarTheme.tint(view.look.hover) : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
                     RowLayout {
                         anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
@@ -203,7 +203,7 @@ Item {
                 Layout.topMargin: 4
                 implicitHeight: 30
                 radius: 8
-                color: Qt.alpha(Colors.foreground, mixer.containsMouse ? 0.14 : 0.08)
+                color: mixer.containsMouse ? BarTheme.tint(0.14) : Qt.alpha(Colors.foreground, 0.08)
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
                 Text {
                     anchors.centerIn: parent

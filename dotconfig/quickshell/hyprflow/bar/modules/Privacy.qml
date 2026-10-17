@@ -11,6 +11,7 @@ import Quickshell.Io
 import Quickshell.Services.Pipewire
 import qs
 import qs.bar
+import qs.bar.services
 
 Module {
     id: mod
@@ -23,7 +24,7 @@ Module {
     LongProcess {
         id: watch
         running: true
-        argv: [Quickshell.env("HOME") + "/.local/lib/hyprflow/camera_status.py"]
+        argv: [Paths.lib + "camera_status.py"]
         stdout: SplitParser {
             onRead: line => {
                 try {

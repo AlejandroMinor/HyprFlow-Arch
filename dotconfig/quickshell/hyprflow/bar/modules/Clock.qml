@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import qs
 import qs.bar
+import qs.bar.panels
 
 Module {
     id: mod

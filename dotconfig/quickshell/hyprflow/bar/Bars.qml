@@ -8,11 +8,11 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.bar.services
 
 Scope {
     id: root
 
-    readonly property string state: Quickshell.env("HOME") + "/.local/state/hyprflow/"
     property bool enabled: false
     property bool shown: true  // toggle hides without closing (Super+B)
     property var config: ({})
@@ -83,7 +83,7 @@ Scope {
     }
 
     FileView {
-        path: root.state + "bars.json"
+        path: Paths.state + "bars.json"
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
@@ -93,14 +93,14 @@ Scope {
     }
 
     FileView {
-        path: root.state + "qs-bar"
+        path: Paths.state + "qs-bar"
         printErrors: false
         onLoaded: root.enabled = true
     }
 
     // Started during game mode (qs restarted): stay hidden like Waybar.
     FileView {
-        path: root.state + "game-mode"
+        path: Paths.state + "game-mode"
         printErrors: false
         onLoaded: root.shown = false
     }
@@ -108,13 +108,13 @@ Scope {
     IpcHandler {
         target: "bar"
         function enable(): void {
-            Quickshell.execDetached(["sh", "-c", 'mkdir -p "$1" && touch "$1/qs-bar" && killall waybar', "sh", root.state]);
+            Quickshell.execDetached(["sh", "-c", 'mkdir -p "$1" && touch "$1/qs-bar" && killall waybar', "sh", Paths.state]);
             root.enabled = true;
             root.shown = true;
         }
         function disable(): void {
-            Quickshell.execDetached(["sh", "-c", 'rm -f "$1/qs-bar" && "$2"', "sh", root.state,
-                                     Quickshell.env("HOME") + "/.local/lib/hyprflow/bar-restart.sh"]);
+            Quickshell.execDetached(["sh", "-c", 'rm -f "$1/qs-bar" && "$2"', "sh", Paths.state,
+                                     Paths.lib + "bar-restart.sh"]);
             root.enabled = false;
         }
         function toggle(): void { if (root.enabled) root.shown = !root.shown; }

@@ -116,3 +116,22 @@ def test_no_ipc_function_is_called_show():
     for qml in shell.rglob("*.qml"):
         for block in re.findall(r"IpcHandler \{.*?\n    \}", qml.read_text(), re.S):
             assert "function show(" not in block, qml.name
+
+
+def test_a_singleton_has_no_braces_before_its_pragma():
+    # Quickshell's scan then misses `pragma Singleton`: the file loads as a
+    # plain type and every property reads undefined, without an error.
+    for qml in (REPO / "dotconfig" / "quickshell" / "hyprflow").rglob("*.qml"):
+        text = qml.read_text()
+        if "pragma Singleton" in text:
+            before = text.split("pragma Singleton")[0]
+            assert "{" not in before and "}" not in before, qml
+
+
+def test_module_loader_imports_every_folder_the_modules_use():
+    # The modules load by URL, so Quickshell never scans their imports: a
+    # qs.bar.X folder no static file imports is "not installed".
+    loader = (BAR / "ModuleLoader.qml").read_text()
+    for folder in (p for p in BAR.iterdir() if p.is_dir() and any(p.glob("*.qml"))):
+        if folder.name != "modules":
+            assert f"import qs.bar.{folder.name}" in loader, folder.name

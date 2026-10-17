@@ -8,6 +8,7 @@ import Quickshell
 import Quickshell.Hyprland
 import qs
 import qs.bar
+import qs.bar.services
 
 Item {
     id: ws

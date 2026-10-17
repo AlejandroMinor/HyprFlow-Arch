@@ -4,6 +4,11 @@
 import QtQuick
 import QtQuick.Layouts
 import qs
+// The modules load by URL, so Quickshell never sees their imports: the
+// folders they use are imported here, or qs.bar.panels is "not installed".
+import qs.bar.panels
+import qs.bar.widgets
+import qs.bar.services
 
 Loader {
     id: loader

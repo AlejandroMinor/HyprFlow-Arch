@@ -5,6 +5,8 @@ import QtQuick
 import Quickshell
 import qs
 import qs.bar
+import qs.bar.panels
+import qs.bar.services
 
 Module {
     id: mod
@@ -21,7 +23,7 @@ Module {
         + "\nClick: more  ·  right click: output  ·  middle: mute"
 
     onClicked: bar.expand(mod, view, 0)  // the card's whole width
-    onRightClicked: Quickshell.execDetached([Quickshell.env("HOME") + "/.local/lib/hyprflow/sink-switch.py", "--toggle"])
+    onRightClicked: Quickshell.execDetached([Paths.lib + "sink-switch.py", "--toggle"])
     onMiddleClicked: AudioState.toggleMute(node)
     onScrolled: steps => AudioState.setVolume(node, volume + steps * 0.05)
 

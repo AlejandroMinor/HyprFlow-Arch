@@ -8,6 +8,8 @@ import QtQuick.Effects
 import Quickshell.Widgets
 import Quickshell.Services.Mpris
 import qs
+import qs.bar.widgets
+import qs.bar.services
 
 Item {
     id: panel

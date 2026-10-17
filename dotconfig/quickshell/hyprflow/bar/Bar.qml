@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import qs
+import qs.bar.widgets
 
 PanelWindow {
     id: bar

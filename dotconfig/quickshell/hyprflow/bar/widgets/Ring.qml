@@ -3,6 +3,7 @@
 import QtQuick
 import QtQuick.Shapes
 import qs
+import qs.bar.services
 
 Item {
     id: ring

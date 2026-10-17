@@ -12,6 +12,7 @@ import Quickshell.Widgets
 import Quickshell.Services.Mpris
 import qs
 import qs.bar
+import qs.bar.panels
 
 Module {
     id: mod

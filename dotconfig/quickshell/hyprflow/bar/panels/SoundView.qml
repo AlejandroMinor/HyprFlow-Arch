@@ -10,6 +10,8 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import qs
+import qs.bar.widgets
+import qs.bar.services
 
 Item {
     id: view
@@ -18,7 +20,7 @@ Item {
     property string kind: "output"
     readonly property bool output: kind === "output"
     readonly property var look: module.look
-    readonly property string lib: Quickshell.env("HOME") + "/.local/lib/hyprflow/"
+    readonly property string lib: Paths.lib
 
     readonly property var device: output ? AudioState.sink : AudioState.source
     readonly property var apps: output ? AudioState.playing : AudioState.recording

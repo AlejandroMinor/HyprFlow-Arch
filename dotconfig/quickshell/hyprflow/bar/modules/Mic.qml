@@ -5,6 +5,8 @@
 import QtQuick
 import qs
 import qs.bar
+import qs.bar.panels
+import qs.bar.services
 
 Module {
     id: mod

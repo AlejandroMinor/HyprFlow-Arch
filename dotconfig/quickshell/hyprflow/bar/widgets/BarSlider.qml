@@ -2,6 +2,7 @@
 // shown slides to each new one.
 import QtQuick
 import qs
+import qs.bar.services
 
 Item {
     id: slider

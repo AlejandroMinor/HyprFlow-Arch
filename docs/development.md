@@ -187,8 +187,9 @@ a click on a module that opens a panel → bar.expand: its card grows down
   into it (calendar, volume / microphone views, the full player)
 calendar events: calendar-events.py add / edit / remove (the panel's +, pencil and ×, a
   terminal, SSH or any sync) → ~/.local/share/
-  hyprflow/calendar/YYYY-MM.json → CalendarPanel reads last, this and next
-  month (upcoming until each event ends) and the month on screen (its days)
+  hyprflow/calendar/YYYY-MM.json → CalendarEvents (services/) reads last, this
+  and next month (upcoming until each event ends); CalendarPanel the month on
+  screen (its days)
 ```
 
 Waybar starts each module in `modules.json` as a long running process.

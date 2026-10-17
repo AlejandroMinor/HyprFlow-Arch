@@ -9,6 +9,7 @@ import Quickshell
 import Quickshell.Io
 import qs
 import qs.bar
+import qs.bar.services
 
 Module {
     id: cava
@@ -21,7 +22,7 @@ Module {
     property var gradient: []
 
     FileView {
-        path: Quickshell.env("HOME") + "/.config/cava/themes/wallust"
+        path: Paths.config + "cava/themes/wallust"
         watchChanges: true  // a new wallpaper, a new gradient
         printErrors: false
         onFileChanged: reload()
@@ -39,7 +40,7 @@ Module {
 
     LongProcess {
         running: true
-        argv: ["cava", "-p", Quickshell.env("HOME") + "/.config/cava/waybar.conf"]
+        argv: ["cava", "-p", Paths.config + "cava/waybar.conf"]
         stdout: SplitParser {
             onRead: line => cava.heights = line.trim().split(/[ ;]+/).map(Number).filter(n => !isNaN(n))
         }

@@ -22,7 +22,7 @@ Singleton {
     function tint(alpha) { return Qt.alpha(accent, enabled ? Math.min(1, alpha * strength) : alpha); }
 
     FileView {
-        path: Quickshell.env("HOME") + "/.cache/wallust/colors/colors-waybar.css"
+        path: Paths.cache + "wallust/colors/colors-waybar.css"
         printErrors: false
         watchChanges: true
         onFileChanged: reload()

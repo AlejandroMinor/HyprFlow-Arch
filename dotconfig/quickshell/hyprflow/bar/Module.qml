@@ -9,6 +9,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import qs
+import qs.bar.services
 
 Item {
     id: mod

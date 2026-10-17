@@ -6,6 +6,7 @@ import Quickshell.Widgets
 import Quickshell.Services.SystemTray
 import qs
 import qs.bar
+import qs.bar.services
 
 Row {
     id: tray

@@ -26,11 +26,14 @@ dotconfig/quickshell/hyprflow/bar/
   Cluster.qml       a card of modules
   ModuleLoader.qml  a name from bar.json → modules/<Type>.qml
   Module.qml        what a module is: icon, text, hover, clicks, tooltip, polling
-  SoundView.qml     the volume's and the microphone's full view
-  MediaPanel.qml    the full player
-  BarTooltip.qml    the tooltip
-  BarTheme.qml      the theme's accent colour (wallust), or white
-  modules/          one file per kind of module
+  modules/          one file per kind of module (what bar.json names)
+  panels/           what a card opens into (bar.expand): CalendarPanel,
+                    SoundView (volume and microphone), MediaPanel (the player)
+  widgets/          pieces the panels share: BarSlider, Ring, BarTooltip,
+                    TextField, PanelButton
+  services/         singletons with the data, no drawing: AudioState
+                    (Pipewire), BarTheme (the accent), CalendarEvents (the
+                    calendar's files and changes), Paths (where things live)
 ```
 
 Motion and colours come from `Motion.qml` and `Colors.qml`, like the panels.
@@ -56,7 +59,7 @@ deep, so `{"card": {"radius": 20}}` keeps the card's fill and border:
 
 A new style is a new file in `styles/` and its name in that line.
 
-The accents take the theme's colour (wallust's color5, `BarTheme.qml`): the
+The accents take the theme's colour (wallust's color5, `services/BarTheme.qml`): the
 active workspace, the sliders, the play button, today, Save, the event under
 way, the hovers, what is picked in a panel, the open panel's module, the
 Claude ring and the notification badge. Everything else stays black and
@@ -107,7 +110,7 @@ calendar-events.py remove a5fbf0
 ```
 
 A call shows its service's icon by the link (Teams, Meet, Discord, Slack,
-WhatsApp; `callIcons` in CalendarPanel.qml), any other link a camera.
+WhatsApp; `callIcons` in panels/CalendarPanel.qml), any other link a camera.
 
 Anything else may write the files too (a sync from Outlook or Google), and
 the bar redraws when one changes.

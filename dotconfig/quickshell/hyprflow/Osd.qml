@@ -95,9 +95,9 @@ Scope {
         || Pipewire.nodes.values.find(n => n.name === usedSourceName) || null
     onMicNodeChanged: seedAudio()
 
-    Process {
+    LongProcess {
         running: true
-        command: ["pw-metadata", "-m", "0", "default.audio.source"]
+        argv: ["pw-metadata", "-m", "0", "default.audio.source"]
         stdout: SplitParser {
             onRead: line => {
                 const found = line.match(/key:'default\.audio\.source' value:'\{ *"name": *"([^"]+)"/);

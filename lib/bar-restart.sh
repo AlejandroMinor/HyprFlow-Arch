@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Restarts Waybar, or starts it if it is not running. Every script that needs
-# a fresh Waybar calls this, so there is one way to do it:
+# Restarts the bar: Waybar, or starts it if it is not running; with the
+# Quickshell bar on, only makes sure Waybar is off (that bar reloads itself).
+# Every script that needs a fresh bar calls this, so there is one way to do it:
 #
 #   - the old one is gone before the new one starts (killall -w), so two never
 #     overlap and fight over the bar
@@ -23,7 +24,7 @@ if [ -e "${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow/qs-bar" ]; then
     exit 0
 fi
 
-exec 9>"${XDG_RUNTIME_DIR:-/tmp}/waybar-restart.lock"
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/bar-restart.lock"
 flock -w 15 9 || exit 0
 
 timeout 5 killall -w waybar 2>/dev/null || true

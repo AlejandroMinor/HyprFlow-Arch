@@ -42,7 +42,7 @@ def box(tmp_path):
 
     for name, body in FAKES.items():
         fake(tmp_path / "fakebin" / name, body)
-    fake(tmp_path / "lib" / "waybar-restart.sh", "")
+    fake(tmp_path / "lib" / "bar-restart.sh", "")
     themes = tmp_path / "config" / "wallust" / "themes"
     shutil.copytree(THEMES, themes)
     palette = tmp_path / "palette.sh"
@@ -93,7 +93,7 @@ def test_a_theme_goes_through_the_manager(box):
     themes = box[0] / ".config" / "wallust" / "themes"
     assert f"wallust cs {themes}/accent-blue.json" in log
     assert "hyprctl reload" in log
-    assert "waybar-restart.sh " in log
+    assert "bar-restart.sh " in log
 
 
 def test_the_wallpaper_entry_generates_a_palette(box):
@@ -123,7 +123,7 @@ def test_the_manager_refuses_an_unknown_theme(box):
 def test_restore_default_is_classic(box):
     _, log = pick(box, "", "wallust-theme-manager.sh", "--restore-default", "--no-restart")
     assert f"wallust cs {box[0]}/.config/wallust/themes/classic.json" in log
-    assert "waybar-restart.sh " not in log
+    assert "bar-restart.sh " not in log
 
 
 def test_the_manager_fails_on_an_unknown_argument(box):

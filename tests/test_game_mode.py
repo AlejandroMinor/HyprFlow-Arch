@@ -47,7 +47,7 @@ FAKES = {
     "setsid": 'exec "$@"',
     "monitors.sh": 'exit "${FAKE_SOLO_FAIL:-0}"',
     "rgb-sync.sh": "",
-    "waybar-restart.sh": "",   # lives in lib/, next to bin/
+    "bar-restart.sh": "",   # lives in lib/, next to bin/
     # The level OSD (osd in common.sh): the wrapper logs the call; FAKE_NO_QS
     # makes it exit 255, as qs does when Quickshell is not running.
     "qs": '[ -n "${FAKE_NO_QS:-}" ] && exit 255',
@@ -68,7 +68,7 @@ class GameMode:
         shutil.copy(REPO / "bin" / "game-mode.sh", bindir)
         shutil.copy(REPO / "lib" / "common.sh", root / "lib")
         for name, body in FAKES.items():
-            where = {"waybar-restart.sh": root / "lib"}.get(
+            where = {"bar-restart.sh": root / "lib"}.get(
                 name, bindir if name.endswith(".sh") else fakes)
             script = where / name
             script.write_text(f'#!/bin/bash\necho "{name} $*" >> "$T/log"\n{body}\n')
@@ -250,7 +250,7 @@ def test_off_puts_everything_back(gm):
     assert "swaync-client -df" in log
     assert "rgb-sync.sh --last" in log
     assert gm.sink() == "alsa_output.usb-headset"
-    assert "waybar-restart.sh " in log
+    assert "bar-restart.sh " in log
     assert "qs -c hyprflow ipc call bar unhide" in log
 
 

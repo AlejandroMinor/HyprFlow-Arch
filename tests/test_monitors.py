@@ -1,5 +1,5 @@
 """Tests for bin/monitors.sh. It runs from a copy in a temp folder with a fake
-hyprctl that reports two monitors, a fake waybar-restart.sh next to it, and a
+hyprctl that reports two monitors, a fake bar-restart.sh next to it, and a
 throwaway config dir, so no real screen is touched. The ports are made up
 (TEST-A, TEST-B) so the /sys/class/drm connector check finds nothing and
 treats them as connected."""
@@ -48,7 +48,7 @@ class Monitors:
         self.fake(root / "fakebin" / "pgrep", '[[ " ${FAKE_RUNNING:-} " == *" ${@: -1} "* ]]')
         self.fake(root / "fakebin" / "notify-send", "")
         self.fake(root / "fakebin" / "awww", "")        # the real one would repaint the wallpaper
-        self.fake(root / "lib" / "waybar-restart.sh", "")
+        self.fake(root / "lib" / "bar-restart.sh", "")
         (root / "log").write_text("")
         self.connect(BIG, SMALL)
         self.env = {k: v for k, v in os.environ.items() if not k.startswith(("XDG_", "HYPRLAND_"))}
@@ -181,11 +181,11 @@ def test_apply_reloads_and_restarts_waybar_only_on_change(mon):
     first = mon.run("apply")
     assert "monitor layout changed" in first.stdout and "bars changed" in first.stdout
     assert "hyprctl reload" in mon.log()
-    assert "waybar-restart.sh " in mon.log()
+    assert "bar-restart.sh " in mon.log()
     result = mon.run("apply", FAKE_RUNNING="waybar")
     assert "no changes" in result.stdout
     assert "hyprctl reload" not in mon.log()
-    assert "waybar-restart.sh " not in mon.log()
+    assert "bar-restart.sh " not in mon.log()
 
 
 def test_a_saved_profile_wins_and_portrait_screens_rotate_the_layout(mon):
@@ -210,7 +210,7 @@ def test_game_mode_keeps_waybar_hidden(mon):
     (state / "game-mode").write_text("solo=1\n")
     result = mon.run("apply")
     assert "leaving Waybar hidden" in result.stdout
-    assert "waybar-restart.sh " not in mon.log()
+    assert "bar-restart.sh " not in mon.log()
 
 
 # solo

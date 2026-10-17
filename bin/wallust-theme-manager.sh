@@ -76,7 +76,7 @@ hyprctl reload > /dev/null
 setsid "$HYPRFLOW_BIN/rgb-sync.sh" ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1 < /dev/null &
 sleep 0.5
 if [ "$RESTART_WAYBAR" = true ]; then
-    "$HYPRFLOW_LIB/waybar-restart.sh"
+    "$HYPRFLOW_LIB/bar-restart.sh"
 fi
 
 # Rebuild the lockscreen backdrop now rather than on the next lock. Blurring the

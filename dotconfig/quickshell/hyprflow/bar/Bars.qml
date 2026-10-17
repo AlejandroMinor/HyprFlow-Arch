@@ -1,7 +1,7 @@
 // Every bar: one per screen, of the type monitors.sh chose for it
 // (~/.local/state/hyprflow/bars.json, {port: type}), laid out by bar.json.
 // Off until enabled, while Waybar is still the bar; the flag file qs-bar
-// says which one is (waybar-restart.sh reads it too):
+// says which one is (bar-restart.sh reads it too):
 //   qs -c hyprflow ipc call bar enable | disable   switch to this bar or back
 //   qs -c hyprflow ipc call bar toggle | hide | unhide   Super+B, game mode
 // (not "show": `qs ipc call bar show` lists the functions instead)
@@ -112,7 +112,7 @@ Scope {
         }
         function disable(): void {
             Quickshell.execDetached(["sh", "-c", 'rm -f "$1/qs-bar" && "$2"', "sh", root.state,
-                                     Quickshell.env("HOME") + "/.local/lib/hyprflow/waybar-restart.sh"]);
+                                     Quickshell.env("HOME") + "/.local/lib/hyprflow/bar-restart.sh"]);
             root.enabled = false;
         }
         function toggle(): void { if (root.enabled) root.shown = !root.shown; }

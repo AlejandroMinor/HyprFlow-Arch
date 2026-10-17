@@ -548,7 +548,7 @@ setup_zsh() {
 }
 
 restart_waybar() {
-    "$REPO_PATH/lib/waybar-restart.sh"
+    "$REPO_PATH/lib/bar-restart.sh"
 }
 
 # ─────────────────────────────────────────

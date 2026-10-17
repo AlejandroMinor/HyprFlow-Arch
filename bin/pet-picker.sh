@@ -59,7 +59,7 @@ main() {
     if apply_runner "$font_family"; then
         # SIGUSR2 only refreshes module data, not the CSS stylesheet (see
         # wallust-theme-manager.sh); font-family needs a full restart.
-        "$HYPRFLOW_LIB/waybar-restart.sh"
+        "$HYPRFLOW_LIB/bar-restart.sh"
         command -v notify-send >/dev/null && notify-send -i "preferences-desktop-theme" "Pet Picker" "Applied runner: $name"
     else
         command -v notify-send >/dev/null && notify-send -i "dialog-error" "Pet Picker" "Failed to apply runner: $name"

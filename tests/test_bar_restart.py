@@ -1,4 +1,4 @@
-"""Tests for lib/waybar-restart.sh with fake killall, hyprctl and setsid."""
+"""Tests for lib/bar-restart.sh with fake killall, hyprctl and setsid."""
 
 import os
 import subprocess
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT = Path(__file__).resolve().parent.parent / "lib" / "waybar-restart.sh"
+SCRIPT = Path(__file__).resolve().parent.parent / "lib" / "bar-restart.sh"
 
 # $T/running holds one line per live Waybar. Hyprland starts one a moment after
 # the dispatch, as the real one does; killall -w removes them all.

@@ -214,7 +214,7 @@ cmd_off() {
     [ "$dnd" = "true" ] || swaync-client -df >/dev/null 2>&1 || true
     [ "$GAME_RGB" = "1" ] && rgb_sync --last
     [ -n "$sink_prev" ] && pactl set-default-sink "$sink_prev" 2>/dev/null
-    pgrep -x waybar >/dev/null || "$HYPRFLOW_LIB/waybar-restart.sh"
+    pgrep -x waybar >/dev/null || "$HYPRFLOW_LIB/bar-restart.sh"
     qs -c hyprflow ipc call bar unhide >/dev/null 2>&1 || true
 
     msg "off"

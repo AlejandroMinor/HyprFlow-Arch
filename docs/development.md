@@ -62,7 +62,7 @@ Hyprland hotplug → monitors.sh apply --notify connected|disconnected → lib/m
     Quickshell bar, which reloads on its own
   → lua changed:  hyprctl reload, then `_after-reload` a second later
                   (awww restore, workspaces back to their monitor)
-  → bars changed, or Waybar not running: waybar-restart.sh (not in game mode;
+  → bars changed, or Waybar not running: bar-restart.sh (not in game mode;
     with the Quickshell bar on it only makes sure Waybar is off)
   → notify (only with --notify): "Screen connected/disconnected · MODEL" and
     the screens on ("Still on" after an unplug); login passes none and stays
@@ -83,7 +83,7 @@ waypaper (Super+K → Random wallpaper, or waypaper itself) → its post_command
       → ~/.local/state/hyprflow/theme = "auto" (the theme picker marks it)
       → hyprctl reload
       → rgb-sync.sh WALLPAPER: dominant hue → OpenRGB, cached for --last
-      → waybar-restart.sh
+      → bar-restart.sh
       → hyprlock/geometry.sh --wait-backdrop (detached): rebuilds the blurred
         lockscreen backdrop
       → with --notify: the OSD says "Theme · Wallpaper" (or the preset's name)
@@ -172,7 +172,7 @@ clears it.
 
 Two bars, one at a time; the flag file `~/.local/state/hyprflow/qs-bar` says
 which. `qs -c hyprflow ipc call bar enable` writes it and stops Waybar;
-`disable` removes it and starts Waybar again (`waybar-restart.sh` reads the
+`disable` removes it and starts Waybar again (`bar-restart.sh` reads the
 flag, so nothing else brings Waybar back meanwhile).
 
 ```

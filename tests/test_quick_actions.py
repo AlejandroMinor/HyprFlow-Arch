@@ -184,3 +184,10 @@ def test_power_menu_action_opens_the_quickshell_panel(qa):
     action = next(a for a in qa.ACTIONS if a.label == "Power menu")
     assert action.argv == ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"]
     assert action.section == "System"
+
+
+def test_spectrum_style_reads_its_file(qa, monkeypatch, tmp_path):
+    monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
+    assert qa.spectrum_style() == "bars"            # never picked
+    (tmp_path / "cava-style").write_text("leds\n")
+    assert qa.spectrum_style() == "leds"

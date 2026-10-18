@@ -219,6 +219,7 @@ volume module, `sink-switch.py --toggle` (see above).
 | Super+Shift+Return | `master-pick.py` |
 | Super+K | `qs ipc call quickactions toggle` → QuickActions.qml (it reads `quick-actions.py --json`); without Quickshell, `quick-actions.py` → rofi |
 | Super+W / Super+Shift+W / Super+M | `session-manager.py` save / load / logout |
+| Super+K → Spectrum style | `qs ipc call spectrum toggle` → SpectrumPicker.qml: the six styles live; a pick writes `~/.local/state/hyprflow/cava-style`, which CavaLevels (bar/services) watches, so the bar switches at once |
 | Waybar power button, Super+K → Power menu | `qs ipc call power toggle` → PowerMenu.qml: Lock (`hyprlock-flow.sh`) and Suspend at once; Log out (`session-manager.py logout --yes`), Reboot and Shut down on a second press |
 | Volume, mute and brightness keys | `volume.sh` / `brightness.sh` → the Quickshell OSD (a notification without it); the OSD also watches Pipewire, so a headset's own buttons show it |
 | Next and previous keys, Super+. / Super+, | `media.sh` → the Quickshell OSD (the skip glyph) |

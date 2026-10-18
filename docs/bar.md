@@ -30,10 +30,11 @@ dotconfig/quickshell/hyprflow/bar/
   panels/           what a card opens into (bar.expand): CalendarPanel,
                     SoundView (volume and microphone), MediaPanel (the player)
   widgets/          pieces the panels share: BarSlider, Ring, BarTooltip,
-                    TextField, PanelButton
+                    TextField, PanelButton, Spectrum (cava's six styles)
   services/         singletons with the data, no drawing: AudioState
                     (Pipewire), BarTheme (the accent), CalendarEvents (the
-                    calendar's files and changes), Paths (where things live)
+                    calendar's files and changes), CavaLevels (one cava for
+                    every bar, and the style), Paths (where things live)
 ```
 
 Motion and colours come from `Motion.qml` and `Colors.qml`, like the panels.
@@ -81,6 +82,12 @@ Module {
 
 The card widens to the width asked for and grows to the panel's
 `implicitHeight`; the panel sits under the module that opened it.
+
+## The spectrum
+
+cava draws in one of six styles: bars, equalizer, LEDs, dots, wave or
+mirror. Super+K → Spectrum style shows them all live and saves the pick
+(`~/.local/state/hyprflow/cava-style`); the bar switches at once.
 
 ## Calendar events
 

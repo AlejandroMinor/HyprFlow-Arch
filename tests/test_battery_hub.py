@@ -579,6 +579,15 @@ def test_hidpp_a_first_slow_reading_waits_for_the_recheck(hub):
     assert source.devices(FakeHidpp({1: keyboard(60)}))[0].percent == 60
 
 
+def test_hidpp_a_device_that_always_answers_slowly_is_shown_once_it_repeats(hub):
+    # A receiver busy enough that awake devices take 0.25 to 1 s: waiting for
+    # a fast answer left the keyboard and mouse out of the bar for good.
+    now = [0.0]
+    source = hub.HidppSource(clock=lambda: now[0])
+    assert source.devices(SlowHidpp({1: keyboard(50)}, now, 0.8)) == []
+    assert source.devices(SlowHidpp({1: keyboard(50)}, now, 0.8))[0].percent == 50
+
+
 def test_the_module_lets_every_source_watch_its_own_events(hub, monkeypatch):
     watched = []
 

@@ -554,14 +554,16 @@ class HidppSource:
         slowly (it was asleep, and a device that just woke can report a stand
         in charge) or when it fell sharply without charging: such a reading
         is held back and read again a moment later, and it is only taken
-        when it repeats."""
+        when it repeats. A repeat counts even if slow again: with a busy
+        receiver awake devices answer slowly every time, and waiting for a
+        fast answer kept them out of the bar."""
         last = self.last.get(slot)
         dropped = last is not None and not charging and last.percent - percent > self.DROP
         if not (slow or dropped):
             self.suspect.pop(slot, None)
             return True
         repeated = self.suspect.get(slot) is not None and abs(self.suspect[slot] - percent) <= 2
-        if repeated and not slow:
+        if repeated:
             self.suspect.pop(slot, None)
             return True
         self.suspect[slot] = percent

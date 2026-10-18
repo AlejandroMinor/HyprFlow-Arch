@@ -134,6 +134,28 @@ up values:
 If the message arrives, the hook is ready: battery-hub will use it from the next
 warning on, no restart needed.
 
+## Batteries from other devices
+
+battery-hub reads the batteries this PC can reach. Others (a phone, a watch,
+a tablet, another laptop) can send theirs over SSH, whenever and however you
+like: an iOS Shortcut, a script on a Mac, a cron job.
+
+```bash
+echo '{"iPhone": 85, "Apple Watch": 67}' | ssh you@pc '~/.local/lib/hyprflow/battery-push.py add -'
+```
+
+- **What it takes:** `{"name": percent, …}`, or a list of
+  `{"name", "percent", "charging"}`. Text from an iOS Shortcut works as it
+  comes (a ```json fence, doubled braces, several dictionaries in a row).
+- **Where they show:** in the bar's battery panel, under "From other
+  devices", and in the tooltip; not in the bar's text, and no low battery
+  notice, since the device may not be at hand.
+- **For how long:** half an hour after each push. Send again to keep them;
+  `battery-push.py list` shows what is kept, `clear` forgets it all.
+- **Icons:** by name: Watch, MacBook, iPhone, iPad, AirPods (Max or not).
+- **Duplicates:** a device this PC also reads (AirPods Max over Bluetooth)
+  keeps its own reading.
+
 ## Logitech Bolt receiver
 
 A mouse or keyboard paired to a Logi Bolt receiver

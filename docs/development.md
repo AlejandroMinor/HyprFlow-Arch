@@ -191,6 +191,9 @@ calendar events: calendar-events.py add / edit / remove (the panel's +, pencil a
   hyprflow/calendar/YYYY-MM.json → CalendarEvents (services/) reads last, this
   and next month (upcoming until each event ends); CalendarPanel the month on
   screen (its days)
+batteries from other devices: ssh … battery-push.py add - (an iOS Shortcut)
+  → ~/.local/state/hyprflow/pushed-batteries.json → battery-hub's
+  PushedSource (half an hour each) → the panel's "From other devices"
 ```
 
 Waybar starts each module in `modules.json` as a long running process.
@@ -200,7 +203,7 @@ say something changed, and log failures to the journal
 
 | Module | Reads | Events |
 |--------|-------|--------|
-| `battery-hub.py` | UPower, headsetcontrol, the Bolt receiver, AirPods LE adverts | UPower signals, receiver reports, polls, short LE scans |
+| `battery-hub.py` | UPower, headsetcontrol, the Bolt receiver, AirPods LE adverts, what other devices push (`pushed-batteries.json`) | UPower signals, receiver reports, polls, short LE scans, a file monitor |
 | `mute_indicator.py` | `wpctl` | `pactl subscribe` |
 | `vpn_status.py` | `pgrep openconnect/vpnc` | `ip monitor link` |
 | `camera_status.py` | who holds `/dev/videoN` | inotify on `/dev` |

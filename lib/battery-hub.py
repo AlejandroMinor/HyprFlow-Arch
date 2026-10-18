@@ -62,6 +62,8 @@ HIDPP_POLL = 300   # seconds; batteries behind a Logitech receiver last weeks
 BLE_POLL = 600     # seconds between Bluetooth LE scans, while AirPods are connected
 BLE_SCAN = 6       # seconds a scan lasts; it shares the radio with the audio
 BLE_STALE = 1800   # seconds; an older AirPods reading is dropped
+PUSHED = paths.HYPRFLOW_STATE / "pushed-batteries.json"  # battery-push.py writes it
+PUSHED_STALE = 1800  # seconds; a pushed level older than this is dropped
 EXPANDED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-expanded")
 NOTIFIED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-notified.json")
 # headsetcontrol can set the headset lights but not read them back, so the
@@ -105,6 +107,7 @@ class Device:
     percent: int
     charging: bool = False
     is_laptop: bool = False
+    pushed: bool = False  # sent from another device (PushedSource), not read here
 
     @classmethod
     def laptop(cls, percent, charging):
@@ -135,7 +138,8 @@ class Device:
     def as_dict(self):
         """For the Quickshell bar's panel, which draws each one itself."""
         return {"name": self.name, "icon": self.icon, "percent": self.percent,
-                "charging": self.charging, "level": self.level, "laptop": self.is_laptop}
+                "charging": self.charging, "level": self.level, "laptop": self.is_laptop,
+                "pushed": self.pushed}
 
     def tooltip_line(self):
         bolt = f"  {CHARGING_ICON}" if self.charging and not self.is_laptop else ""
@@ -616,6 +620,44 @@ class HidppSource:
         return name.decode(errors="replace").strip("\0 ") or "Logitech device", kind[0] if kind else None
 
 
+class PushedSource:
+    """Adapter for the batteries other devices push (battery-push.py, an
+    iOS Shortcut over SSH): the iPhone, the Watch, the iPad, a MacBook. Each
+    is shown for PUSHED_STALE seconds after it came. Last among the sources,
+    so a device also read here (the AirPods Max over LE) keeps that reading."""
+
+    # By name: the Shortcut sends only names and levels.
+    KINDS = (("watch", "\U000F0589"), ("macbook", "\U000F0322"), ("iphone", "\U000F011C"),
+             ("ipad", "\U000F04F6"), ("airpods max", ICONS[19]), ("airpods", "\U000F184F"))
+
+    def __init__(self, path=PUSHED, clock=time.time):
+        self.path = Path(path)
+        self.clock = clock
+
+    def read(self):
+        try:
+            kept = json.loads(self.path.read_text())
+        except (OSError, ValueError):
+            return []
+        devices = []
+        for name, entry in kept.items():
+            try:
+                if self.clock() - entry["at"] > PUSHED_STALE:
+                    continue
+                icon = next((i for word, i in self.KINDS if word in name.lower()), OTHER_ICON)
+                devices.append(Device(name, icon, int(entry["percent"]), bool(entry.get("charging")),
+                                      pushed=True))
+            except (KeyError, TypeError, ValueError):
+                continue
+        return devices
+
+    def watch(self, changed):
+        # A push redraws at once; a minute's tick drops the stale ones.
+        self.monitor = Gio.File.new_for_path(str(self.path)).monitor_file(Gio.FileMonitorFlags.NONE, None)
+        self.monitor.connect("changed", lambda *_: changed())
+        GLib.timeout_add_seconds(60, lambda: changed() or True)
+
+
 class Batteries:
     """Every source put together: one laptop at most, and the peripherals,
     lowest first, each listed once even if two sources report it."""
@@ -671,15 +713,22 @@ class BatteryHub:
         self.expanded = expanded
         self.palette = palette
 
+    @property
+    def local(self):
+        """The peripherals read here: the bar text leaves out the pushed ones,
+        which only the tooltip and the panel list."""
+        return [p for p in self.peripherals if not p.pushed]
+
     def shown(self):
         """Devices in the bar text, in order."""
         head = [self.laptop] if self.laptop else []
+        local = self.local
         if self.expanded:
-            return head + self.peripherals
+            return head + local
         if not self.laptop:
-            return self.peripherals[:1]  # desktop: the lowest one stands for the rest
-        if self.peripherals and self.peripherals[0].low:
-            return head + self.peripherals[:1]
+            return local[:1]  # desktop: the lowest one stands for the rest
+        if local and local[0].low:
+            return head + local[:1]
         return head
 
     def paint(self, device):
@@ -703,7 +752,7 @@ class BatteryHub:
             "text": text,
             "tooltip": "\n".join(d.tooltip_line() for d in everyone) or "No batteries",
             "class": module_class,
-            "percentage": min((p.percent for p in self.peripherals),
+            "percentage": min((p.percent for p in self.local),
                               default=self.laptop.percent if self.laptop else 100),
             # Every device, for the Quickshell bar's panel (Waybar ignores it).
             "devices": [d.as_dict() for d in everyone],
@@ -810,7 +859,7 @@ class ViewState:
 
 def default_sources():
     """A fresh set: sources keep state (caches, a receiver's fd)."""
-    return [UPowerSource(), HeadsetControlSource(), HidppSource(), AppleBleSource()]
+    return [UPowerSource(), HeadsetControlSource(), HidppSource(), AppleBleSource(), PushedSource()]
 
 
 class BatteryHubModule(WaybarModule):
@@ -826,7 +875,8 @@ class BatteryHubModule(WaybarModule):
 
     def state(self):
         laptop, peripherals = Batteries(self.sources).collect()
-        self.notifier.notify(([laptop] if laptop else []) + peripherals)
+        # No low battery notice for a pushed device: it may not be at hand.
+        self.notifier.notify(([laptop] if laptop else []) + [p for p in peripherals if not p.pushed])
         return BatteryHub(laptop, peripherals, ViewState().expanded, Palette()).render()
 
     def events(self):

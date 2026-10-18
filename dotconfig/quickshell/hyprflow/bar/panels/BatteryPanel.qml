@@ -1,6 +1,7 @@
 // The batteries' panel, opened from battery-hub: every device with its
 // level, a bar in the theme's accent (red when critical), a bolt while
-// charging. Redrawn as battery-hub reports.
+// charging. The ones other devices sent (battery-push.py) go apart, under a
+// line. Redrawn as battery-hub reports.
 import QtQuick
 import QtQuick.Layouts
 import qs
@@ -11,6 +12,8 @@ Item {
 
     property var devices: []  // battery-hub's "devices"
     property var look
+    readonly property var here: devices.filter(d => !d.pushed)
+    readonly property var sent: devices.filter(d => d.pushed)
 
     implicitHeight: column.implicitHeight + 28
 
@@ -19,86 +22,97 @@ Item {
         anchors { left: parent.left; right: parent.right; top: parent.top; margins: 14 }
         spacing: 10
 
-        Text {
-            text: "BATTERIES"
-            color: Qt.alpha(Colors.foreground, 0.45)
-            font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
-        }
+        Heading { text: "BATTERIES" }
         Text {
             visible: panel.devices.length === 0
             text: "No batteries"
             color: Qt.alpha(Colors.foreground, 0.45)
             font { family: panel.look.font; pixelSize: 12 }
         }
+        Repeater { model: panel.here; delegate: Battery {} }
 
-        Repeater {
-            model: panel.devices
-            delegate: RowLayout {
-                id: row
-                required property var modelData
-                required property int index
-                readonly property bool critical: modelData.level === "critical"
+        // Sent from other devices.
+        Rectangle {
+            visible: panel.sent.length > 0
+            Layout.fillWidth: true
+            Layout.topMargin: 2
+            implicitHeight: 1
+            color: Qt.alpha(Colors.foreground, 0.1)
+        }
+        Heading { visible: panel.sent.length > 0; text: "FROM OTHER DEVICES" }
+        Repeater { model: panel.sent; delegate: Battery {} }
+    }
+
+    component Heading: Text {
+        color: Qt.alpha(Colors.foreground, 0.45)
+        font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
+    }
+
+    // One device: icon, name, level and its bar.
+    component Battery: RowLayout {
+        id: row
+        required property var modelData
+        required property int index
+        readonly property bool critical: modelData.level === "critical"
+        Layout.fillWidth: true
+        spacing: 12
+
+        Text {
+            Layout.preferredWidth: 20
+            horizontalAlignment: Text.AlignHCenter
+            text: row.modelData.icon
+            color: Colors.foreground
+            font { family: panel.look.font; pixelSize: 16 }
+        }
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 5
+            RowLayout {
                 Layout.fillWidth: true
-                spacing: 12
-
                 Text {
-                    Layout.preferredWidth: 20
-                    horizontalAlignment: Text.AlignHCenter
-                    text: row.modelData.icon
-                    color: Colors.foreground
-                    font { family: panel.look.font; pixelSize: 16 }
-                }
-                ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 5
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text {
-                            Layout.fillWidth: true
-                            text: row.modelData.name
-                            elide: Text.ElideRight
-                            color: Colors.foreground
-                            font { family: panel.look.font; pixelSize: 12 }
-                        }
-                        Text {
-                            // A bolt while charging.
-                            text: (row.modelData.charging ? "\u{F140B} " : "") + row.modelData.percent + "%"
-                            color: row.critical ? "#f7768e" : Colors.foreground
-                            font { family: panel.look.font; pixelSize: 12; bold: true }
-                        }
-                    }
-                    // The level, filling in as the panel opens.
-                    Rectangle {
-                        Layout.fillWidth: true
-                        implicitHeight: 4
-                        radius: 2
-                        color: Qt.alpha(Colors.foreground, 0.15)
-                        Rectangle {
-                            id: fill
-                            height: parent.height
-                            radius: 2
-                            width: 0
-                            color: row.critical ? "#f7768e" : BarTheme.accent
-                            readonly property real target: parent.width * Math.max(0, Math.min(1, row.modelData.percent / 100))
-                            onTargetChanged: grow.restart()
-                            SequentialAnimation {
-                                id: grow
-                                PauseAnimation { duration: row.index * 40 }
-                                Anim { target: fill; property: "width"; to: fill.target; duration: Motion.normal }
-                            }
-                        }
-                    }
+                    text: row.modelData.name
+                    elide: Text.ElideRight
+                    color: Colors.foreground
+                    font { family: panel.look.font; pixelSize: 12 }
                 }
-
-                // One after the other, like the calendar's rows.
-                opacity: 0
-                Component.onCompleted: show.start()
-                SequentialAnimation {
-                    id: show
-                    PauseAnimation { duration: row.index * 40 }
-                    Anim { target: row; property: "opacity"; to: 1; duration: Motion.normal }
+                Text {
+                    // A bolt while charging.
+                    text: (row.modelData.charging ? "\u{F140B} " : "") + row.modelData.percent + "%"
+                    color: row.critical ? "#f7768e" : Colors.foreground
+                    font { family: panel.look.font; pixelSize: 12; bold: true }
                 }
             }
+            // The level, filling in as the panel opens.
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: 4
+                radius: 2
+                color: Qt.alpha(Colors.foreground, 0.15)
+                Rectangle {
+                    id: fill
+                    height: parent.height
+                    radius: 2
+                    width: 0
+                    color: row.critical ? "#f7768e" : BarTheme.accent
+                    readonly property real target: parent.width * Math.max(0, Math.min(1, row.modelData.percent / 100))
+                    onTargetChanged: grow.restart()
+                    SequentialAnimation {
+                        id: grow
+                        PauseAnimation { duration: row.index * 40 }
+                        Anim { target: fill; property: "width"; to: fill.target; duration: Motion.normal }
+                    }
+                }
+            }
+        }
+
+        // One after the other, like the calendar's rows.
+        opacity: 0
+        Component.onCompleted: show.start()
+        SequentialAnimation {
+            id: show
+            PauseAnimation { duration: row.index * 40 }
+            Anim { target: row; property: "opacity"; to: 1; duration: Motion.normal }
         }
     }
 }

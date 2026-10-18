@@ -35,7 +35,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hyprflow import paths  # noqa: E402
+from hyprflow import paths, shortcuts  # noqa: E402
 
 ROOT = paths.HYPRFLOW_DATA / "calendar"
 
@@ -152,34 +152,6 @@ def edited(old, changes):
                  changes.get("where", old.get("where", "")), changes.get("link", old.get("link", "")))
 
 
-def unfenced(text):
-    """TEXT without the ```json … ``` a language model wraps its JSON in."""
-    text = text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1] if "\n" in text else ""
-        text = text.rsplit("```", 1)[0]
-    return text
-
-
-def read_many(text):
-    """The events in TEXT: one JSON object, a list, or several in a row (iOS
-    Shortcuts joining one dictionary per event)."""
-    # strict=False: notes keep their raw new lines, which strict JSON refuses.
-    decoder, found = json.JSONDecoder(strict=False), []
-    text = text.strip()
-    while text:
-        # The Shortcut wraps each dictionary in one more pair: {{"title": …}}.
-        wrapped = text.startswith("{{")
-        value, end = decoder.raw_decode(text, 1 if wrapped else 0)
-        if wrapped:
-            end = text.index("}", end) + 1
-        found += value if isinstance(value, list) else [value]
-        text = text[end:].lstrip(", \r\n\t ")
-    if not found:
-        raise ValueError("no events")
-    return found
-
-
 CALL_HOSTS = ("teams.microsoft.com", "teams.live.com", "meet.google.com", "zoom.us")
 
 
@@ -210,7 +182,7 @@ def main(args, calendar=None, now=None, stdin=None):
     now = now or datetime.now()
     if args == ["add", "-"]:
         try:
-            given = read_many(unfenced((stdin or sys.stdin).read()))
+            given = shortcuts.read_json((stdin or sys.stdin).read())
             new = [event(g["title"], g["start"], g.get("end") or None, g.get("where") or "",
                          g.get("link") or call_link(g.get("notes") or ""))
                    for g in given]

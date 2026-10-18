@@ -46,7 +46,7 @@
       "modules": ["cava", "media"]
     },
     "runcat": {
-      "type": "custom",
+      "type": "runcat",    // a custom whose font is pet-picker.sh's runner
       "exec": "~/.local/lib/hyprflow/runcat-text",
       "font": "runcat",
       "font-size": 22

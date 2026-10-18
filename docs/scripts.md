@@ -9,7 +9,7 @@
 | `wallust-theme-manager.sh` | Generate and apply color palettes |
 | `theme-picker.sh` | Picks the wallpaper palette or a preset from `~/.config/wallust/themes/`, each with its colours and the one in use marked; the Quickshell panel from `Super + K`, and the fzf picker in a terminal or over SSH (`--json` / `--set NAME` work without a display) |
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
-| `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
+| `pet-picker.sh` | Switch the bar's runner (cat / chicken): the Quickshell bar at once, Waybar after a restart |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
 | `trackpad-battery` | Apple Magic Trackpad battery, read from the trackpad itself |
 | `sinkswitch` | Pick the audio output from the terminal or over SSH (`sinkswitch --json` / `--set ID` work without a display); the short name for `lib/sink-switch.py` |

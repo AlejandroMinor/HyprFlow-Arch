@@ -9,6 +9,7 @@ import qs
 import qs.bar.panels
 import qs.bar.widgets
 import qs.bar.services
+import qs.bar.modules  // a module built on another (Battery on Custom)
 
 Loader {
     id: loader

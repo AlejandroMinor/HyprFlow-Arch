@@ -20,7 +20,7 @@ each one by its full path:
 
 | Script | Called by | Description |
 |--------|-----------|-------------|
-| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them, right click for the headset lights, notifications when one runs low (the laptop's with a "Power saver" button) |
+| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them (the Quickshell bar: a panel with each one, the middle click switches the view), right click for the headset lights, notifications when one runs low (the laptop's with a "Power saver" button) |
 | `mute_indicator.py` | Waybar | Audio at a glance: output muted, and a badge while the microphone is muted |
 | `volume.sh` | Volume and mute keys | Change volume or mute; the level shows on the Quickshell OSD (it watches Pipewire, so the headset's own buttons show it too), or a transient notification without Quickshell |
 | `brightness.sh` | Brightness keys | Change the panel backlight; the level shows on the Quickshell OSD, or a notification without it |

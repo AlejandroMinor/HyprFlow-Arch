@@ -28,6 +28,7 @@ Module {
     readonly property bool continuous: !!settings.exec && !settings.interval
     property string output: ""
     property real percentage: 0
+    property var latest: ({})  // the last JSON, whole: a module built on this reads its own keys
 
     // A leading Nerd Font glyph ("󰚩 46%") is shown as the icon, so the gap
     // to the text is the module's, not a space's.
@@ -52,6 +53,7 @@ Module {
         let data;
         try { data = JSON.parse(line); } catch (e) { data = { text: line }; }
         if (typeof data !== "object" || data === null) data = { text: String(data) };
+        latest = data;
         output = pango(String(data.text ?? "").trim());
         if (data.tooltip) tooltip = pango(String(data.tooltip));
         if (data.percentage !== undefined) percentage = Number(data.percentage) || 0;

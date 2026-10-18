@@ -28,7 +28,8 @@ dotconfig/quickshell/hyprflow/bar/
   Module.qml        what a module is: icon, text, hover, clicks, tooltip, polling
   modules/          one file per kind of module (what bar.json names)
   panels/           what a card opens into (bar.expand): CalendarPanel,
-                    SoundView (volume and microphone), MediaPanel (the player)
+                    SoundView (volume and microphone), MediaPanel (the player),
+                    BatteryPanel
   widgets/          pieces the panels share: BarSlider, Ring, BarTooltip,
                     TextField, PanelButton, Spectrum (cava's six styles)
   services/         singletons with the data, no drawing: AudioState
@@ -70,7 +71,8 @@ the accents white too.
 ## Opening a card downward
 
 A module can grow its card into a panel, the bar seeming to stretch open
-(the calendar, the volume and microphone views, the full player):
+(the calendar, the volume and microphone views, the full player, every
+battery):
 
 ```qml
 Module {

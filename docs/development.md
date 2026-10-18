@@ -184,7 +184,8 @@ Quickshell bar (dotconfig/quickshell/hyprflow/bar/, see docs/bar.md)
     the same scripts as Waybar and reads their JSON
 Super+B → ipc call bar toggle, and SIGUSR1 to Waybar (whichever is up)
 a click on a module that opens a panel → bar.expand: its card grows down
-  into it (calendar, volume / microphone views, the full player)
+  into it (calendar, volume / microphone views, the full player, the
+  batteries: battery-hub's "devices" list)
 calendar events: calendar-events.py add / edit / remove (the panel's +, pencil and ×, a
   terminal, SSH or any sync) → ~/.local/share/
   hyprflow/calendar/YYYY-MM.json → CalendarEvents (services/) reads last, this
@@ -205,7 +206,8 @@ say something changed, and log failures to the journal
 | `camera_status.py` | who holds `/dev/videoN` | inotify on `/dev` |
 | `cava_waybar.py` | cava's bars | cava itself |
 
-Clicks: battery-hub `--toggle` (all devices) and `--lights` (headset); the
+Clicks: battery-hub `--toggle` (all devices; the Quickshell bar opens its
+panel instead and toggles on the middle click) and `--lights` (headset); the
 volume module, `sink-switch.py --toggle` (see above).
 
 ### Keybindings that run scripts

@@ -78,9 +78,9 @@
       "on-click": "~/.local/lib/hyprflow/claude-usage.sh --refresh"
     },
     "battery-hub": {
-      "type": "custom",
+      "type": "battery",   // a custom whose click opens every device's battery
       "exec": "~/.local/lib/hyprflow/battery-hub.py",
-      "on-click": "~/.local/lib/hyprflow/battery-hub.py --toggle",
+      "on-click-middle": "~/.local/lib/hyprflow/battery-hub.py --toggle",
       "on-click-right": "~/.local/lib/hyprflow/battery-hub.py --lights"
     },
     "vpn": {

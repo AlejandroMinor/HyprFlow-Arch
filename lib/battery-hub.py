@@ -132,6 +132,11 @@ class Device:
         bolt = CHARGING_ICON if self.charging and not self.is_laptop else ""
         return f"{bolt}{self.icon} {self.percent}%"
 
+    def as_dict(self):
+        """For the Quickshell bar's panel, which draws each one itself."""
+        return {"name": self.name, "icon": self.icon, "percent": self.percent,
+                "charging": self.charging, "level": self.level, "laptop": self.is_laptop}
+
     def tooltip_line(self):
         bolt = f"  {CHARGING_ICON}" if self.charging and not self.is_laptop else ""
         return f"{self.icon}  {GLib.markup_escape_text(self.name)}  {self.percent}%{bolt}"
@@ -698,6 +703,8 @@ class BatteryHub:
             "class": module_class,
             "percentage": min((p.percent for p in self.peripherals),
                               default=self.laptop.percent if self.laptop else 100),
+            # Every device, for the Quickshell bar's panel (Waybar ignores it).
+            "devices": [d.as_dict() for d in everyone],
         }
 
 

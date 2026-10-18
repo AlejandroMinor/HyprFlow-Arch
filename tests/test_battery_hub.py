@@ -231,6 +231,14 @@ def test_tooltip_lists_everyone_and_percentage_is_the_lowest(hub, plain_palette)
     assert view["percentage"] == 30
 
 
+def test_every_device_is_listed_for_the_panel(hub, plain_palette):
+    d = devices(hub)
+    view = hub.BatteryHub(d["laptop"], [d["keys"], d["mouse"]], False, plain_palette).render()
+    assert [x["name"] for x in view["devices"]] == ["Laptop", "Keys", "Mouse"]
+    assert view["devices"][1] == {"name": "Keys", "icon": "K", "percent": 30, "charging": False,
+                                  "level": "warning", "laptop": False}
+
+
 def test_no_batteries_hides_the_module(hub, plain_palette):
     view = hub.BatteryHub(None, [], False, plain_palette).render()
     assert view["text"] == "" and view["tooltip"] == "No batteries"

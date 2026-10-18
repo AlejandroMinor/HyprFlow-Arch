@@ -102,7 +102,10 @@ events. They come from one JSON file per month, kept as history:
    "link": "https://teams.microsoft.com/l/meetup-join/…" }]
 ```
 
-An event stays in the list until its end, marked "now" while it runs.
+An event stays in the list until its end, marked "now" while it runs. On
+the bar, a dot by the clock's icon says today still has events; it pulses
+while one runs or starts within fifteen minutes. Its tooltip names the next
+one.
 In the panel, "+" adds one on the picked day (today if none), the pencil on a
 row edits it and × deletes it (a second click confirms). The same from a terminal, or over SSH:
 

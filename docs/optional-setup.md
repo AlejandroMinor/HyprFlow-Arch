@@ -39,6 +39,25 @@ sudo systemctl enable --now openrgb
 The colour applies on the next wallpaper or theme change, or right away with
 `rgb-sync.sh`.
 
+### RGB keyboard
+
+A keyboard OpenRGB does not know, with a Sinowealth chip (USB `258a:0049`):
+`lib/keyboard-rgb.py` drives it on its own, and `rgb-sync.sh` gives it the
+theme colour too. Its palette has seven colours (red, yellow, green, cyan,
+blue, purple, white), so it gets the nearest one. Super+K > Keyboard effect
+picks one of its 20 effects. Only this keyboard is driven: others on the same
+chip may speak the same protocol, but untested. It needs write access to the
+keyboard, once:
+
+```bash
+sudo cp ~/HyprFlow-Arch/system/udev/42-bytech-keyboard.rules /etc/udev/rules.d/
+sudo udevadm control --reload && sudo udevadm trigger -s hidraw
+```
+
+The rule grants the logged in user its settings interface only; the other
+one, which carries the typing, stays root's. Without the rule the lights just
+do not follow the theme (`keyboard-rgb.py --json` says Permission denied).
+
 ## Battery notifications
 
 `battery-hub.py` shows a desktop notification when a device drops below 35 %, and

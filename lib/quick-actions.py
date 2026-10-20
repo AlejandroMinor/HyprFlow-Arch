@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Quick actions menu (Super+K): screens, game mode, lights, audio, notifications,
-power profile, wallpaper, theme, the bar's spectrum style.
+power profile, wallpaper, theme, the bar's spectrum style, the keyboard effect.
 
 Each entry is a Command: its name, how to read its state (for the switches),
 what to run and its section. A new action is one more entry in ACTIONS, tagged
-with one of SECTIONS; an action whose program is missing (needs) is left out.
+with one of SECTIONS; an action whose program is missing (needs), or whose
+device is not plugged in (when), is left out.
 
 The menu is rofi (a bold heading row per section), or the Quickshell panel,
 which reads `--json`, groups by section and runs its pick with `--run LABEL`.
@@ -19,7 +20,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hyprflow import paths  # noqa: E402
+from hyprflow import keyboard_rgb, paths  # noqa: E402
 from hyprflow.menu import RofiMenu  # noqa: E402
 
 LIB = Path(__file__).resolve().parent
@@ -34,9 +35,12 @@ class Action:
     state: Callable[[], bool | str | None] | None = None  # on/off, or a word
     needs: str | None = None  # program that must be installed
     section: str = ""  # heading it is filed under; see SECTIONS
+    when: Callable[[], bool] | None = None  # e.g. its device is plugged in
 
     def available(self):
-        return self.needs is None or shutil.which(self.needs) is not None
+        if self.needs is not None and shutil.which(self.needs) is None:
+            return False
+        return self.when is None or self.when()
 
     def state_word(self):
         state = self.state() if self.state else None
@@ -112,6 +116,24 @@ def spectrum_style():
         return "bars"
 
 
+def keyboard_present():
+    return keyboard_rgb.find() is not None
+
+
+def keyboard_effect():
+    try:
+        device = keyboard_rgb.Hidraw(keyboard_rgb.find())
+    except (OSError, TypeError):
+        return None
+    try:
+        number = keyboard_rgb.Keyboard(device).effect()
+        return keyboard_rgb.EFFECTS[number - 1]
+    except (OSError, IndexError):
+        return None
+    finally:
+        device.close()
+
+
 def power_profile():
     return output(["powerprofilesctl", "get"]) or None
 
@@ -134,6 +156,8 @@ ACTIONS = [
     Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl", section="System"),
     Action("󰐥", "Power menu", ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"], needs="qs", section="System"),
     Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
+    Action("", "Keyboard effect", ["qs", "-c", "hyprflow", "ipc", "call", "keyboardfx", "toggle"],
+           keyboard_effect, needs="qs", section="Appearance", when=keyboard_present),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
     Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], section="Appearance"),
     Action("󰺢", "Spectrum style", ["qs", "-c", "hyprflow", "ipc", "call", "spectrum", "toggle"],

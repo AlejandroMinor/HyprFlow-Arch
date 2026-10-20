@@ -31,6 +31,9 @@ def rgb(tmp_path):
     (fakes / "openrgb").write_text('#!/bin/bash\necho "openrgb $*" >> "$HOME/log"\n'
                                    '[ "$1" = -ld ] && cat "$HOME/detailed"\nexit 0\n')
     (fakes / "openrgb").chmod(0o755)
+    # Never the real keyboard: it would repaint the one on this desk.
+    (fakes / "keyboard-rgb").write_text('#!/bin/bash\necho "keyboard $*" >> "$HOME/log"\n')
+    (fakes / "keyboard-rgb").chmod(0o755)
     # A stand-in for the OpenRGB server port: never the real one, which is up
     # on this machine and would make the tests depend on it.
     server = socket.socket()
@@ -42,7 +45,7 @@ def rgb(tmp_path):
     (fakes / "systemctl").chmod(0o755)
     (tmp_path / ".cache" / "wallust" / "colors").mkdir(parents=True)
     env = {**os.environ, "HOME": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}",
-           "RGB_PORT": str(server.getsockname()[1])}
+           "RGB_PORT": str(server.getsockname()[1]), "KEYBOARD_RGB": str(fakes / "keyboard-rgb")}
 
     def run(*args, palette=None, path=None):
         if palette is not None:
@@ -242,3 +245,17 @@ def test_rescan_with_a_silent_server_still_applies_the_colour(rgb):
     rescan(root, server.getsockname()[1], wait="1")
     server.close()
     assert log(root)[-1] == "openrgb -m static -c D6FF00"
+
+
+def test_the_keyboard_gets_the_same_colour(rgb):
+    run, root = rgb
+    run(palette={"color5": "#FF0000"})
+    assert "keyboard color FF0000" in log(root)
+
+
+def test_the_keyboard_follows_off_and_reset(rgb):
+    run, root = rgb
+    run("--off")
+    run("--reset")
+    keyboard = [line for line in log(root) if line.startswith("keyboard")]
+    assert keyboard == ["keyboard off", "keyboard rainbow"]

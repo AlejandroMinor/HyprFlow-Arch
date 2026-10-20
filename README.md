@@ -87,6 +87,11 @@ Hyprland, so they follow its version.
 No kernel has a driver for the Logi Bolt receiver yet (checked on 7.2), so
 battery-hub reads it directly; see [Logitech Bolt receiver](docs/optional-setup.md#logitech-bolt-receiver).
 
+The keyboard lighting (theme colour and Super+K > Keyboard effect) is written
+for one keyboard chip (Sinowealth, USB `258a:0049`); others are left alone,
+and OpenRGB covers the ones it supports. It needs a udev rule, see
+[RGB keyboard](docs/optional-setup.md#rgb-keyboard).
+
 <details>
 <summary>Full package list</summary>
 

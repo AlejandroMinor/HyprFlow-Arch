@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154  # color0..15 come from the wallust palette (load_palette)
 
-# Paint every OpenRGB device to match the current theme.
+# Paint every OpenRGB device, and the keyboard OpenRGB does not know
+# (lib/keyboard-rgb.py), to match the current theme.
 #
 #   rgb-sync.sh IMAGE   take the dominant vivid hue of the wallpaper
 #   rgb-sync.sh         take it from the wallust palette (static themes)
@@ -21,6 +22,10 @@
 . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
 LAST="$HOME/.cache/wallust/led-color"
 LIGHTS_OFF="$HOME/.cache/wallust/led-off"  # there while --off holds
+KEYBOARD_RGB="${KEYBOARD_RGB:-$HYPRFLOW_LIB/keyboard-rgb.py}"
+
+# The keyboard is not behind the OpenRGB server: it goes first, on its own.
+keyboard() { "$KEYBOARD_RGB" "$@" >/dev/null 2>&1 || true; }
 
 # Prints the hue covering the most area among saturated, lit pixels, at full
 # saturation and value. Area beats wallust's palette here: the palette is
@@ -198,6 +203,7 @@ fi
 
 case "$1" in
     --reset|--off)
+        if [ "$1" = "--reset" ]; then keyboard rainbow; else keyboard off; fi
         wait_for_server || exit 0
         if [ "$1" = "--reset" ]; then reset_to_factory; exit 0; fi
         # Marked only if they went off: --toggle reads it.
@@ -215,6 +221,7 @@ esac
 
 # Cached first, so --last can apply it later if the server never answers.
 mkdir -p "$(dirname "$LAST")" && echo "$led" > "$LAST"
+keyboard color "$led"
 
 wait_for_server || exit 0
 openrgb -m static -c "$led" >/dev/null 2>&1 && rm -f "$LIGHTS_OFF"

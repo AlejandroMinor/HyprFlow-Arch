@@ -1,0 +1,8 @@
+# Lets the logged in user drive the lights of the BY Tech gaming keyboard
+# (258a:0049), which OpenRGB does not know: keyboard-rgb.py writes its
+# settings through hidraw. Only interface 01, the one with the settings; 00
+# carries the typing. uaccess grants the seat's user only.
+# ATTRS{} all match on one parent, and vendor and interface sit on two:
+# usb_id brings the interface number to the device itself.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="0049", IMPORT{builtin}="usb_id"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="0049", ENV{ID_USB_INTERFACE_NUM}=="01", TAG+="uaccess"

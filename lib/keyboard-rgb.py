@@ -35,9 +35,9 @@ def theme_colour():
 def run(keyboard, args):
     match args:
         case ["color", hex_colour]:
-            keyboard.set_light(keyboard_rgb.nearest(hex_colour), keyboard_rgb.MAX_BRIGHTNESS)
+            keyboard.paint(keyboard_rgb.nearest(hex_colour), keyboard_rgb.MAX_BRIGHTNESS)
         case ["off"]:
-            keyboard.set_light(brightness=0)
+            keyboard.paint(brightness=0)
         case ["rainbow"]:
             keyboard.set_light(keyboard_rgb.MULTICOLOUR, keyboard_rgb.MAX_BRIGHTNESS)
         case ["effect", number]:

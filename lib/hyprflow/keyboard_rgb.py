@@ -32,6 +32,7 @@ TABLE = 0x26
 
 MAX_BRIGHTNESS = 4
 MULTICOLOUR = 7
+OWN_COLOURS = (3, 15, 16)  # effects with their own colours: paint() skips them
 
 # Index -> (name, hue in degrees, how a preview draws it); white has no hue.
 PALETTE = {
@@ -118,7 +119,11 @@ class Keyboard:
         for attempt in range(5):
             try:
                 self.device.set_feature([5, READ, PAGE, 0, 0, 0])
-                return self.device.get_feature(6, BLOCK)
+                block = self.device.get_feature(6, BLOCK)
+                # Another page would be written back over this one.
+                if block[1:3] != bytes([READ, PAGE]):
+                    raise OSError(f"answered page {block[2]:02x}, not {PAGE:02x}")
+                return block
             except OSError:
                 if attempt == 4:
                     raise
@@ -137,6 +142,18 @@ class Keyboard:
             raise ValueError(f"no effect {number}")
         block = self.read()
         block[EFFECT] = number
+        self.write(block)
+
+    def paint(self, colour=None, brightness=None):
+        """Colour and/or brightness of every effect, each keeping its speed:
+        an effect switched to later (the Fn keys) shows the theme too."""
+        block = self.read()
+        for n in range(1, len(EFFECTS) + 1):
+            at = TABLE + 2 * (n - 1)
+            if colour is not None and n not in OWN_COLOURS:
+                block[at] = colour
+            if brightness is not None:
+                block[at + 1] = (block[at + 1] & 0xF0) | brightness
         self.write(block)
 
     def set_light(self, colour=None, brightness=None):

@@ -69,19 +69,23 @@ def test_a_colour_becomes_the_nearest_of_the_palette(colour, index):
     assert keyboard_rgb.nearest(colour) == index
 
 
-def test_a_theme_colour_lights_the_effect_in_use_at_full_brightness(cli):
+def test_a_theme_colour_lights_every_effect_at_full_brightness(cli):
     kb = FakeKeyboard(effect=5)
+    kb.block[keyboard_rgb.TABLE + 2 * 3 + 1] = 0x10  # effect 4: slow, dim
     assert cli.main(["color", "0000FF"], kb) == 0
-    assert kb.pair(5) == (4, 0x34 & 0xF0 | 4)
-    assert kb.pair(4) == (7, 0x34)   # the other effects keep theirs
+    assert kb.pair(5) == (4, 0x34)
+    assert kb.pair(4) == (4, 0x14)   # the Fn keys may switch to it: its speed stays
+    assert all(kb.pair(n) == (7, 0x34) for n in keyboard_rgb.OWN_COLOURS)
     assert kb.block[keyboard_rgb.EFFECT] == 5
+    assert len(kb.writes) == 1
 
 
-def test_off_only_darkens_and_keeps_colour_and_speed(cli):
+def test_off_darkens_every_effect_and_keeps_colour_and_speed(cli):
     kb = FakeKeyboard(effect=9)
     cli.main(["color", "00FF00"], kb)
     cli.main(["off"], kb)
-    assert kb.pair(9) == (2, 0x30)
+    assert kb.pair(9) == (2, 0x30) and kb.pair(11) == (2, 0x30)
+    assert kb.pair(3) == (7, 0x30)
 
 
 def test_rainbow_is_multicolour(cli):
@@ -127,6 +131,20 @@ def test_json_lists_the_effects_with_the_one_in_use(cli, capsys):
     assert len(effects) == 20
     assert effects[3] == {"number": 4, "name": "Typed keys", "current": True}
     assert [e["number"] for e in effects if e["current"]] == [4]
+
+
+def test_an_answer_from_another_page_is_never_written_back(cli):
+    kb = FakeKeyboard()
+    answer = kb.get_feature
+
+    def other_page(report, size):
+        block = answer(report, size)
+        block[2] = 0xB8
+        return block
+
+    kb.get_feature = other_page
+    assert cli.main(["off"], kb) == 1
+    assert kb.writes == []
 
 
 def test_a_busy_keyboard_is_asked_again(cli):

@@ -19,6 +19,13 @@ def load_script(filename):
     return module
 
 
+@pytest.fixture(autouse=True)
+def no_real_keyboard(monkeypatch):
+    """rgb-sync.sh paints the real keyboard unless KEYBOARD_RGB says otherwise:
+    every test, and every script it starts, gets a no-op instead."""
+    monkeypatch.setenv("KEYBOARD_RGB", "/usr/bin/true")
+
+
 @pytest.fixture(scope="session")
 def hub():
     return load_script("battery-hub.py")

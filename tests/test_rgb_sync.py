@@ -163,10 +163,11 @@ def test_a_server_still_scanning_is_waited_for(rgb):
     probe.chmod(0o755)
     (root / ".cache/wallust/colors/colors-rofi-sh.conf").write_text("color5='#778D01'\n")
     env = {**os.environ, "HOME": str(root), "PATH": f"{root / 'fakebin'}:{os.environ['PATH']}",
-           "RGB_WAIT_STEPS": "2", "RGB_PORT": "1"}   # nothing listens on port 1
+           "RGB_WAIT_STEPS": "2", "RGB_PORT": "1",   # nothing listens on port 1
+           "KEYBOARD_RGB": str(root / "fakebin/keyboard-rgb")}
     subprocess.run(["/usr/bin/bash", str(SCRIPT)], env=env, check=True, timeout=30)
     assert (root / "polls").read_text().split() == ["poll"] * 3   # polled, slept, gave up
-    assert not (root / "log").exists()                           # gave up before openrgb
+    assert log(root) == ["keyboard color D6FF00"]                # gave up before openrgb
 
 
 def test_off_reads_the_detailed_list_and_switches_every_device_off(rgb):
@@ -231,7 +232,7 @@ def openrgb_server(answer=True):
 
 def rescan(root, port, wait="5"):
     env = {**os.environ, "HOME": str(root), "PATH": f"{root / 'fakebin'}:{os.environ['PATH']}",
-           "RGB_PORT": str(port), "RGB_RESCAN_WAIT": wait}
+           "RGB_PORT": str(port), "RGB_RESCAN_WAIT": wait, "KEYBOARD_RGB": str(root / "fakebin/keyboard-rgb")}
     subprocess.run(["/usr/bin/bash", str(SCRIPT), "--rescan"], env=env, check=True, timeout=30)
 
 

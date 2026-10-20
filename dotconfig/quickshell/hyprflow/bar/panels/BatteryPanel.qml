@@ -1,7 +1,7 @@
 // The batteries' panel, opened from battery-hub: every device with its
 // level, a bar in the theme's accent (red when critical), a bolt while
 // charging. The ones other devices sent (battery-push.py) go apart, under a
-// line. Redrawn as battery-hub reports.
+// line, with the time the last one came. Redrawn as battery-hub reports.
 import QtQuick
 import QtQuick.Layouts
 import qs
@@ -14,6 +14,7 @@ Item {
     property var look
     readonly property var here: devices.filter(d => !d.pushed)
     readonly property var sent: devices.filter(d => d.pushed)
+    readonly property real sentLast: Math.max(0, ...sent.map(d => d.at ?? 0))
 
     implicitHeight: column.implicitHeight + 28
 
@@ -39,8 +40,18 @@ Item {
             implicitHeight: 1
             color: Qt.alpha(Colors.foreground, 0.1)
         }
-        Heading { visible: panel.sent.length > 0; text: "FROM OTHER DEVICES" }
+        Heading {
+            visible: panel.sent.length > 0
+            text: "FROM OTHER DEVICES" + (panel.sentLast ? " · " + panel.sentAt(panel.sentLast).toUpperCase() : "")
+        }
         Repeater { model: panel.sent; delegate: Battery {} }
+    }
+
+    // When a pushed level came: "14:00", or "yesterday 14:00".
+    function sentAt(at) {
+        const when = new Date(at * 1000);
+        const time = Qt.formatTime(when, "HH:mm");
+        return when.toDateString() === new Date().toDateString() ? time : "yesterday " + time;
     }
 
     component Heading: Text {

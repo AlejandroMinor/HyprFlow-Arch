@@ -63,7 +63,7 @@ BLE_POLL = 600     # seconds between Bluetooth LE scans, while AirPods are conne
 BLE_SCAN = 6       # seconds a scan lasts; it shares the radio with the audio
 BLE_STALE = 1800   # seconds; an older AirPods reading is dropped
 PUSHED = paths.HYPRFLOW_STATE / "pushed-batteries.json"  # battery-push.py writes it
-PUSHED_STALE = 1800  # seconds; a pushed level older than this is dropped
+PUSHED_STALE = 86400  # seconds; a pushed level older than this is dropped
 EXPANDED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-expanded")
 NOTIFIED = str(paths.HYPRFLOW_RUNTIME / "battery-hub-notified.json")
 # headsetcontrol can set the headset lights but not read them back, so the
@@ -108,6 +108,7 @@ class Device:
     charging: bool = False
     is_laptop: bool = False
     pushed: bool = False  # sent from another device (PushedSource), not read here
+    at: float | None = None  # when a pushed level came (epoch seconds)
 
     @classmethod
     def laptop(cls, percent, charging):
@@ -139,7 +140,7 @@ class Device:
         """For the Quickshell bar's panel, which draws each one itself."""
         return {"name": self.name, "icon": self.icon, "percent": self.percent,
                 "charging": self.charging, "level": self.level, "laptop": self.is_laptop,
-                "pushed": self.pushed}
+                "pushed": self.pushed, "at": self.at}
 
     def tooltip_line(self):
         bolt = f"  {CHARGING_ICON}" if self.charging and not self.is_laptop else ""
@@ -623,7 +624,7 @@ class HidppSource:
 class PushedSource:
     """Adapter for the batteries other devices push (battery-push.py, an
     iOS Shortcut over SSH): the iPhone, the Watch, the iPad, a MacBook. Each
-    is shown for PUSHED_STALE seconds after it came. Last among the sources,
+    is shown for PUSHED_STALE seconds after it came, with that time. Last among the sources,
     so a device also read here (the AirPods Max over LE) keeps that reading."""
 
     # By name: the Shortcut sends only names and levels.
@@ -646,7 +647,7 @@ class PushedSource:
                     continue
                 icon = next((i for word, i in self.KINDS if word in name.lower()), OTHER_ICON)
                 devices.append(Device(name, icon, int(entry["percent"]), bool(entry.get("charging")),
-                                      pushed=True))
+                                      pushed=True, at=entry["at"]))
             except (KeyError, TypeError, ValueError):
                 continue
         return devices
@@ -744,6 +745,9 @@ class BatteryHub:
         if self.expanded or not shown:
             module_class = "expanded" if shown else "fine"
             text = "  ".join(self.paint(d) for d in shown)
+            # Only pushed ones: an icon, so the module stays there to open.
+            if not text and self.peripherals:
+                text = OTHER_ICON
         else:
             module_class = shown[0].level
             text = "  ".join([shown[0].label()] + [self.paint(d) for d in shown[1:]])

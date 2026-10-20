@@ -236,7 +236,8 @@ def test_every_device_is_listed_for_the_panel(hub, plain_palette):
     view = hub.BatteryHub(d["laptop"], [d["keys"], d["mouse"]], False, plain_palette).render()
     assert [x["name"] for x in view["devices"]] == ["Laptop", "Keys", "Mouse"]
     assert view["devices"][1] == {"name": "Keys", "icon": "K", "percent": 30, "charging": False,
-                                  "level": "warning", "laptop": False, "pushed": False}
+                                  "level": "warning", "laptop": False, "pushed": False,
+                                  "at": None}
 
 
 def test_no_batteries_hides_the_module(hub, plain_palette):
@@ -746,7 +747,7 @@ def test_pushed_batteries_show_until_they_are_stale(hub, tmp_path):
     devices = hub.PushedSource(state, clock=lambda: 1000).read()
     assert [(d.name, d.percent, d.charging) for d in devices] == [
         ("Alejandro’s Apple Watch", 67, False), ("iPhone de Alejandro", 85, True)]
-    assert all(d.pushed for d in devices)
+    assert all(d.pushed for d in devices) and devices[0].at == 1000
     assert devices[0].icon == "\U000F0589" and devices[1].icon == "\U000F011C"  # watch, phone
 
 
@@ -771,6 +772,17 @@ def test_pushed_devices_stay_out_of_the_bar_text_but_not_the_list(hub, plain_pal
     assert view["text"] == "M 80%" and view["percentage"] == 80
     assert "iPhone" in view["tooltip"]
     assert [x["name"] for x in view["devices"]] == ["iPhone", "Mouse"]
+
+
+def test_only_pushed_devices_leave_an_icon_to_open_the_panel(hub, plain_palette):
+    phone = hub.Device("iPhone", "P", 10, pushed=True, at=1000)
+    view = hub.BatteryHub(None, [phone], False, plain_palette).render()
+    assert view["text"] == hub.OTHER_ICON
+    assert view["devices"][0]["at"] == 1000
+
+
+def test_without_any_battery_the_module_is_empty(hub, plain_palette):
+    assert hub.BatteryHub(None, [], False, plain_palette).render()["text"] == ""
 
 
 def test_a_low_pushed_device_sends_no_notice(hub, tmp_path, monkeypatch):

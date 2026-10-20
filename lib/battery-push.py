@@ -10,7 +10,7 @@ the iPhone's, the Watch's, the iPad's… over SSH.
 
 Kept in ~/.local/state/hyprflow/pushed-batteries.json, {name: {percent,
 charging, at}}; a push replaces only the devices it names. battery-hub shows
-each one for half an hour after it came (PushedSource), then drops it: a
+each one for a day after it came, with that time, (PushedSource), then drops it: a
 level that stopped coming is not shown as if it were current.
 """
 import json

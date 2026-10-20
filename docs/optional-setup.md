@@ -169,7 +169,8 @@ echo '{"iPhone": 85, "Apple Watch": 67}' | ssh you@pc '~/.local/lib/hyprflow/bat
 - **Where they show:** in the bar's battery panel, under "From other
   devices", and in the tooltip; not in the bar's text, and no low battery
   notice, since the device may not be at hand.
-- **For how long:** half an hour after each push. Send again to keep them;
+- **For how long:** a day after each push, with the time it came ("14:00",
+  "yesterday 14:00"). Send again to keep them;
   `battery-push.py list` shows what is kept, `clear` forgets it all.
 - **Icons:** by name: Watch, MacBook, iPhone, iPad, AirPods (Max or not).
 - **Duplicates:** a device this PC also reads (AirPods Max over Bluetooth)

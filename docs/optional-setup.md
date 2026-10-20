@@ -13,7 +13,7 @@ syntax highlighting, fzf-tab with `bat` preview, and zoxide (`z`, `zi`).
 With [OpenRGB](https://openrgb.org) the case lighting follows
 the theme: a wallpaper sets it to the image's dominant vivid hue, a preset to its
 accent colour, always at full saturation since LEDs wash dim tones out to white.
-Without OpenRGB or its server, `rgb-sync.sh` does nothing.
+Without OpenRGB or its server, `rgb-sync.sh` only picks the accent colour (bar, focus border).
 
 First check that OpenRGB sees your hardware. If an ARGB strip or fan only lights
 up partly, open the `openrgb` GUI, resize its zone and save.

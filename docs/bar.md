@@ -61,7 +61,9 @@ deep, so `{"card": {"radius": 20}}` keeps the card's fill and border:
 
 A new style is a new file in `styles/` and its name in that line.
 
-The accents take the theme's colour (wallust's color5, `services/BarTheme.qml`): the
+The accents take the LED colour (`~/.cache/wallust/led-color`, the dominant hue
+of the wallpaper that rgb-sync.sh picks; `services/BarTheme.qml`), like the
+focus border: the
 active workspace, the sliders, the play button, today, Save, the event under
 way, the hovers, what is picked in a panel, the open panel's module, the
 Claude ring and the notification badge. Everything else stays black and

@@ -43,6 +43,7 @@ def box(tmp_path):
     for name, body in FAKES.items():
         fake(tmp_path / "fakebin" / name, body)
     fake(tmp_path / "lib" / "bar-restart.sh", "")
+    fake(tmp_path / "bin" / "rgb-sync.sh", "")
     themes = tmp_path / "config" / "wallust" / "themes"
     shutil.copytree(THEMES, themes)
     palette = tmp_path / "palette.sh"
@@ -140,7 +141,13 @@ def test_the_manager_help_still_exits_cleanly(box):
 
 def test_the_manager_calls_rgb_sync_by_its_path_not_the_path_variable(box):
     _, log = pick(box, "", "wallust-theme-manager.sh", "--restore-default", "--no-restart")
-    assert f"setsid {box[0]}/bin/rgb-sync.sh" in log
+    assert f"setsid {box[0]}/bin/rgb-sync.sh --last" in log
+
+
+def test_the_accent_is_picked_before_the_reload_and_the_leds_follow(box):
+    _, log = pick(box, "", "wallust-theme-manager.sh", "--restore-default", "--no-restart")
+    assert log.index("rgb-sync.sh --pick") < log.index("hyprctl reload")
+    assert f"setsid {box[0]}/bin/rgb-sync.sh --last" in log
 
 
 def test_without_theme_files_the_list_has_no_stray_star(box):

@@ -81,8 +81,10 @@ waypaper (Super+K → Random wallpaper, or waypaper itself) → its post_command
       → wallust run: rewrites every template (Hyprland colors.lua, Waybar CSS,
         rofi, kitty, cava, hyprlock theme)
       → ~/.local/state/hyprflow/theme = "auto" (the theme picker marks it)
+      → rgb-sync.sh --pick WALLPAPER: dominant hue → ~/.cache/wallust/led-color,
+        the accent of the focus border (hyprland.lua) and the bar (BarTheme)
       → hyprctl reload
-      → rgb-sync.sh WALLPAPER: dominant hue → OpenRGB, cached for --last;
+      → rgb-sync.sh --last (detached): that colour → OpenRGB;
         keyboard-rgb.py color: the keyboard's nearest palette colour
       → bar-restart.sh
       → hyprlock/geometry.sh --wait-backdrop (detached): rebuilds the blurred

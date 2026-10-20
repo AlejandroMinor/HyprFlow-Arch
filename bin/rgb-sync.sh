@@ -12,6 +12,8 @@
 #   rgb-sync.sh --toggle  --off, or --last when they are off already
 #   rgb-sync.sh --rescan  detect devices again (a headset just turned on),
 #                         then --last, or --off while they are off
+#   rgb-sync.sh --pick [IMAGE]  only choose and cache the colour, LEDs
+#                         untouched: the bar and the focus border use it too
 #
 # Talks to the OpenRGB server on localhost (openrgb.service, see
 # system/openrgb.service.d/). Without it the CLI rescans the hardware on every
@@ -141,6 +143,19 @@ lights_off() {
     [ ${#args[@]} -gt 0 ] && openrgb "${args[@]}" >/dev/null 2>&1
 }
 
+# The colour for IMAGE, or the palette without one.
+choose() {
+    if [ -z "${1:-}" ]; then palette_colour; else dominant_hue "$1" || palette_colour; fi
+}
+
+# Cached even without OpenRGB (the laptop): the accent depends on it.
+if [ "${1:-}" = "--pick" ]; then
+    led=$(choose "${2:-}")
+    is_hex "$led" || exit 0
+    mkdir -p "$(dirname "$LAST")" && echo "$led" > "$LAST"
+    exit 0
+fi
+
 command -v openrgb >/dev/null 2>&1 || exit 0
 
 # Something listening on the OpenRGB port (RGB_PORT: for the tests).
@@ -214,8 +229,7 @@ esac
 case "$1" in
     # An empty or damaged cache (a crash mid write) falls back to the palette.
     --last) led=$(cat "$LAST" 2>/dev/null); is_hex "$led" || led=$(palette_colour) ;;
-    "")     led=$(palette_colour) ;;
-    *)      led=$(dominant_hue "$1") || led=$(palette_colour) ;;
+    *)      led=$(choose "$1") ;;
 esac
 [ -n "$led" ] || exit 0
 

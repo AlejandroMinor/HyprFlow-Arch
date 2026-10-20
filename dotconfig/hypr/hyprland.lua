@@ -16,6 +16,17 @@
 
 require("colors")
 
+-- The accent follows the LEDs: rgb-sync.sh picks it from the wallpaper.
+local led_file = io.open(os.getenv("HOME") .. "/.cache/wallust/led-color")
+local led = led_file and led_file:read("l")
+if led_file then led_file:close() end
+if led and led:match("^%x%x%x%x%x%x$") then
+    active_border_main  = "rgba(" .. led .. "ee)"
+    active_border_fade  = "rgba(" .. led .. "10)"
+    group_border_active = "rgba(" .. led .. "ee)"
+    group_bar_active    = "rgba(" .. led .. "ff)"
+end
+
 
 ------------------
 ---- MONITORS ----

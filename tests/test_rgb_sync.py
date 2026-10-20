@@ -137,6 +137,22 @@ def test_without_openrgb_it_does_nothing(rgb):
     assert run(palette={"color5": "#778D01"}, path=str(root / "empty")) is None
 
 
+def test_pick_caches_the_colour_without_touching_the_leds(rgb):
+    run, root = rgb
+    wall = image(root / "wall.png", ((20, 40, 230), 100))
+    assert bytes.fromhex(run("--pick", wall, palette={"color5": "#778D01"}))[2] == 255
+    assert log(root) == []
+
+
+def test_pick_without_an_image_takes_the_palette_even_without_openrgb(rgb):
+    run, root = rgb
+    # Only what the script needs, never the real openrgb.
+    (root / "tools").mkdir()
+    for tool in ("dirname", "readlink", "mkdir"):
+        (root / "tools" / tool).symlink_to(f"/usr/bin/{tool}")
+    assert run("--pick", palette={"color5": "#778D01"}, path=str(root / "tools")) == "D6FF00"
+
+
 def test_a_server_still_scanning_is_waited_for(rgb):
     """openrgb.service binds the port ~21 s into its hardware scan, and a
     session start landing in that window used to skip the LEDs until the next

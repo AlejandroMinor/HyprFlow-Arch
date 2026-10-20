@@ -17,7 +17,7 @@ Item {
     property var media             // the Media module: player, players, look
     readonly property var player: media.player
     readonly property var look: media.look
-    readonly property string art: player?.trackArtUrl ?? ""
+    readonly property string art: media.art
 
     function clock(seconds) {
         const s = Math.max(0, Math.floor(seconds));

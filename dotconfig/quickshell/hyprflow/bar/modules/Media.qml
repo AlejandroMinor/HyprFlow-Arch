@@ -23,8 +23,15 @@ Module {
     readonly property var player: (players.includes(chosen) ? chosen : null)
         ?? players.find(p => p.isPlaying) ?? players[0] ?? null
     readonly property bool playing: player?.isPlaying ?? false
+    // Browsers often send no cover: for YouTube, use the video thumbnail.
+    readonly property string art: player?.trackArtUrl || youtubeThumb(player?.metadata?.["xesam:url"] ?? "")
     readonly property int maxText: settings["max-width"] ?? 220
     readonly property string track: [player?.trackArtist, player?.trackTitle].filter(s => s).join(" - ")
+
+    function youtubeThumb(url) {
+        const m = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+        return m ? "https://i.ytimg.com/vi/" + m[1] + "/mqdefault.jpg" : "";
+    }
 
     visible: player !== null
     readonly property bool expanded: bar.expansion?.owner === mod
@@ -58,14 +65,14 @@ Module {
             color: Qt.alpha(Colors.foreground, 0.1)
             Image {
                 anchors.fill: parent
-                source: mod.player?.trackArtUrl ?? ""
+                source: mod.art
                 fillMode: Image.PreserveAspectCrop
                 sourceSize { width: 64; height: 64 }
                 asynchronous: true
             }
             Text {
                 anchors.centerIn: parent
-                visible: !(mod.player?.trackArtUrl)
+                visible: !mod.art
                 text: "\u{F075A}"
                 color: Colors.foreground
                 font { family: "JetBrainsMono Nerd Font"; pixelSize: 12 }

@@ -64,6 +64,7 @@ def cli(tmp_path, monkeypatch):
 @pytest.mark.parametrize("colour, index", [
     ("FF0000", 0), ("#FF1100", 0), ("FFF000", 1), ("00FF00", 2), ("00FFFF", 3),
     ("0000FF", 4), ("9000FF", 5), ("FF00FF", 5), ("FF00C0", 5), ("FFFFFF", 6), ("808080", 6),
+    ("FF0028", 5), ("FF0060", 5), ("FF000F", 0),   # pinkish reds: purple; near pure red: red
 ])
 def test_a_colour_becomes_the_nearest_of_the_palette(colour, index):
     assert keyboard_rgb.nearest(colour) == index

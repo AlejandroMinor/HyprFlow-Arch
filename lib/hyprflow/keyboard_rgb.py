@@ -32,6 +32,7 @@ TABLE = 0x26
 
 MAX_BRIGHTNESS = 4
 MULTICOLOUR = 7
+PINKISH = (330, 355)  # hue degrees that go to purple (5), not red
 OWN_COLOURS = (3, 15, 16)  # effects with their own colours: paint() skips them
 
 # Index -> (name, hue in degrees, how a preview draws it); white has no hue.
@@ -103,6 +104,10 @@ def nearest(hex_colour):
     if saturation < 0.15:
         return 6
     degrees = hue * 360
+    # Reds leaning to blue show pink on the case LEDs; the keyboard's light
+    # purple looks closer than its red.
+    if PINKISH[0] <= degrees < PINKISH[1]:
+        return 5
     hues = {i: h for i, (_, h, _) in PALETTE.items() if h is not None}
     return min(hues, key=lambda i: min(abs(degrees - hues[i]), 360 - abs(degrees - hues[i])))
 

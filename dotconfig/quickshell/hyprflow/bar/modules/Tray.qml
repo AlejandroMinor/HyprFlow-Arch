@@ -1,11 +1,12 @@
 // The system tray. Icons pop in as apps arrive; click activates, right
-// click opens the app's menu.
+// click opens the app's menu in the card (panels/TrayMenu).
 import QtQuick
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.SystemTray
 import qs
 import qs.bar
+import qs.bar.panels
 import qs.bar.services
 
 Row {
@@ -44,13 +45,14 @@ Row {
                 implicitSize: tray.look.iconSize
                 source: slot.modelData.icon
             }
-            QsMenuAnchor {
+            Component {
                 id: menu
-                menu: slot.modelData.menu
-                anchor.window: tray.bar
-                anchor.item: slot
-                anchor.edges: Edges.Bottom
-                anchor.gravity: Edges.Bottom
+                TrayMenu {
+                    menu: slot.modelData.menu
+                    title: slot.modelData.tooltipTitle || slot.modelData.title || slot.modelData.id
+                    look: tray.look
+                    onDone: tray.bar.collapse()
+                }
             }
             MouseArea {
                 id: area
@@ -59,7 +61,7 @@ Row {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                 onClicked: e => {
                     if (e.button === Qt.RightButton || slot.modelData.onlyMenu) {
-                        if (slot.modelData.hasMenu) menu.open();
+                        if (slot.modelData.hasMenu) tray.bar.expand(slot, menu, 0, 0, 220);
                     } else if (e.button === Qt.MiddleButton) {
                         slot.modelData.secondaryActivate();
                     } else {

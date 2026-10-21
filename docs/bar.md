@@ -29,7 +29,7 @@ dotconfig/quickshell/hyprflow/bar/
   modules/          one file per kind of module (what bar.json names)
   panels/           what a card opens into (bar.expand): CalendarPanel,
                     SoundView (volume and microphone), MediaPanel (the player),
-                    BatteryPanel
+                    BatteryPanel, TrayMenu (a tray app's menu)
   widgets/          pieces the panels share: BarSlider, Ring, BarTooltip,
                     TextField, PanelButton, Spectrum (cava's six styles)
   services/         singletons with the data, no drawing: AudioState

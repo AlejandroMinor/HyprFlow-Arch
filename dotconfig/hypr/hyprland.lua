@@ -113,7 +113,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("qs -n -d -c hyprflow")
     -- OSD for play/pause, Caps/Num Lock and Do Not Disturb.
     hl.exec_cmd("~/.local/lib/hyprflow/osd-watch.py")
-    hl.exec_cmd("nm-applet --indicator")
+    -- Only where NetworkManager runs (this PC uses systemd-networkd).
+    hl.exec_cmd("systemctl is-active -q NetworkManager && nm-applet --indicator")
     -- Bluetooth agent: shows the pairing and authorization prompts of any device
     -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ
     -- cancels those requests. Also adds a tray icon.

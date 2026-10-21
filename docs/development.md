@@ -44,7 +44,7 @@ the next. Start here when you want to know which file to open.
    - `qs -n -d -c hyprflow`: the Quickshell panels and the OSD.
    - `osd-watch.py`: play/pause, Caps/Num Lock and do not disturb → the OSD.
    - `pad-listener.py`: the controller combo for game mode.
-5. `nm-applet`, `blueman-applet`, the polkit agent, `hyprpm reload`.
+5. `nm-applet` (only with NetworkManager), `blueman-applet`, the polkit agent, `hyprpm reload`.
 
 It also hooks `monitor.added` / `monitor.removed` to `monitors.sh apply`.
 

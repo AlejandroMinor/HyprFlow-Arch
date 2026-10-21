@@ -13,6 +13,7 @@ waybar
 rofi
 swaync
 quickshell           # Super+K panel (rofi when it is not running)
+papirus-icon-theme   # monochrome tray icons in the Quickshell bar
 libnotify            # notify-send, used by most scripts
 
 # Wallpaper and look

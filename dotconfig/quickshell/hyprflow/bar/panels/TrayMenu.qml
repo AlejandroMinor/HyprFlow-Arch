@@ -16,13 +16,52 @@ Item {
     property var look
     signal done()
 
-    // The submenus opened, the last one shown.
-    property var stack: []
-    readonly property var current: stack.length ? stack[stack.length - 1] : menu
+    // The submenus opened, by their text: the app may rebuild its menu while
+    // it shows (nm-applet does on each scan), its entries with it, so each
+    // level finds its submenu again among the live entries.
+    property var path: []
+    // The entries of the last level, the one shown.
+    property var entries: null
 
     implicitHeight: column.implicitHeight + 28
 
-    QsMenuOpener { id: opener; menu: panel.current }
+    function find(entries, text) {
+        return (entries?.values ?? []).find(e => e.text === text) ?? null;
+    }
+
+    // One level of the path: its opener, and the next level inside it.
+    Component {
+        id: level
+        Item {
+            id: lvl
+            property var handle
+            property int depth
+            readonly property var next: depth < panel.path.length
+                ? panel.find(opener.children, panel.path[depth]) : null
+            QsMenuOpener { id: opener; menu: lvl.handle }
+            Binding {
+                target: panel
+                property: "entries"
+                value: opener.children
+                when: lvl.depth === panel.path.length
+            }
+            Loader {
+                active: lvl.next !== null
+                sourceComponent: level
+                onLoaded: {
+                    item.depth = lvl.depth + 1;
+                    item.handle = Qt.binding(() => lvl.next);
+                }
+            }
+        }
+    }
+    Loader {
+        sourceComponent: level
+        onLoaded: {
+            item.depth = 0;
+            item.handle = Qt.binding(() => panel.menu);
+        }
+    }
 
     ColumnLayout {
         id: column
@@ -32,14 +71,14 @@ Item {
         Heading { text: panel.title.toUpperCase(); Layout.bottomMargin: 8 }
 
         MenuRow {
-            visible: panel.stack.length > 0
+            visible: panel.path.length > 0
             icon: "󰁍"
             label: "Back"
-            onPicked: panel.stack = panel.stack.slice(0, -1)
+            onPicked: panel.path = panel.path.slice(0, -1)
         }
 
         Repeater {
-            model: opener.children
+            model: panel.entries
             delegate: Loader {
                 id: entry
                 required property var modelData
@@ -68,7 +107,7 @@ Item {
                         submenu: entry.modelData.hasChildren
                         onPicked: {
                             if (entry.modelData.hasChildren) {
-                                panel.stack = [...panel.stack, entry.modelData];
+                                panel.path = [...panel.path, entry.modelData.text];
                             } else {
                                 entry.modelData.triggered();
                                 panel.done();

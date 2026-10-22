@@ -39,7 +39,7 @@ each one by its full path:
 | `hyprland-show-desktop.sh` | `Super + D` | Show the desktop |
 | `battery-push.py` | SSH from another device (an iOS Shortcut) | Keeps the batteries other devices send (`add -`, JSON on stdin) for battery-hub, each for a day; `list`, `clear`. See optional-setup.md |
 | `calendar-events.py` | the calendar's +, pencil and ×, you (or SSH), a sync later | Adds (also as JSON on stdin), edits, removes and lists the events the bar's calendar shows: one JSON file per month in `~/.local/share/hyprflow/calendar/`, kept as history |
-| `session-manager.py` | `Super + W` / `Shift + W` / `M` | Save window layouts and reopen them from a menu; `Super + M` saves the session and logs out |
+| `session-manager.py` | `Super + W` / `Shift + W` | Save window layouts and reopen them from a menu; `logout` saves the session and leaves (Log out in the power menu) |
 | `quick-actions.py` | `Super + K` | The Quickshell panel (rofi when Quickshell is not running) to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, switch the keyboard layout, open the power menu, change the wallpaper, the theme or the bar's spectrum style; switches show their state, and actions whose program is missing are hidden |
 | `confirm.py` | `close-workspace.sh` | Asks a yes/no question on the Quickshell panel (rofi when it is not running) and prints the answer |
 | `power-profile.sh` | `Super + K` | Switches to the next power profile and says which one is on (the Quickshell OSD, or a notification without it) |

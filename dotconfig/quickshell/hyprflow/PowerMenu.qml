@@ -17,7 +17,7 @@ Scope {
     readonly property int tileWidth: 104
     readonly property int gap: 8
 
-    // Log out saves the session first, like Super+M; --yes: confirmed here.
+    // Log out saves the session first (session-manager); --yes: confirmed here.
     readonly property var actions: [
         { icon: "\u{F033E}", label: "Lock",      key: "l", confirm: false, argv: [root.bin + "hyprlock-flow.sh"] },
         { icon: "\u{F0343}", label: "Log out",   key: "e", confirm: true,  argv: [root.lib + "session-manager.py", "logout", "--yes"] },

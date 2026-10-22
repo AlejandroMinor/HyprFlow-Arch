@@ -226,10 +226,10 @@ volume module, `sink-switch.py --toggle` (see above).
 | Alt+G | `hyprland-group-all.sh` |
 | Super+Shift+Return | `master-pick.py` |
 | Super+K | `qs ipc call quickactions toggle` → QuickActions.qml (it reads `quick-actions.py --json`); without Quickshell, `quick-actions.py` → rofi |
-| Super+W / Super+Shift+W / Super+M | `session-manager.py` save / load / logout |
+| Super+W / Super+Shift+W | `session-manager.py` save / load |
 | Super+K → Spectrum style | `qs ipc call spectrum toggle` → SpectrumPicker.qml: the six styles live; a pick writes `~/.local/state/hyprflow/cava-style`, which CavaLevels (bar/services) watches, so the bar switches at once |
 | Super+K → Keyboard effect | `qs ipc call keyboardfx toggle` → KeyboardEffects.qml: a live KeyPreview per effect in the theme colour (`keyboard-rgb.py --json` gives both); a pick runs `keyboard-rgb.py effect N`, which also gives it the cached LED colour (dark while `led-off` is there). Listed only with the keyboard plugged in |
-| Waybar power button, Super+K → Power menu | `qs ipc call power toggle` → PowerMenu.qml: Lock (`hyprlock-flow.sh`) and Suspend at once; Log out (`session-manager.py logout --yes`), Reboot and Shut down on a second press |
+| Waybar power button, Super+M, Super+K → Power menu | `qs ipc call power toggle` → PowerMenu.qml: Lock (`hyprlock-flow.sh`) and Suspend at once; Log out (`session-manager.py logout --yes`), Reboot and Shut down on a second press |
 | Volume, mute and brightness keys | `volume.sh` / `brightness.sh` → the Quickshell OSD (a notification without it); the OSD also watches Pipewire, so a headset's own buttons show it |
 | Next and previous keys, Super+. / Super+, | `media.sh` → the Quickshell OSD (the skip glyph) |
 

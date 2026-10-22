@@ -345,6 +345,6 @@ hl.bind(mainMod .. " + SHIFT + Y", hl.dsp.layout("removemaster"),          { des
 --  SESSION & LAYOUT MANAGEMENT
 -- =======================================================
 
-hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py logout"), { description = "Save & Exit" })
+hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("qs -c hyprflow ipc call power toggle"), { description = "Power Menu" })
 hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py save"), { description = "Save Layout" })
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py load"),        { description = "Open Saved Layout" })

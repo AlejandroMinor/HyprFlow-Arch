@@ -115,7 +115,8 @@ MiniDisc or Walkman, spinning with the track, or the flat ones: Pixel,
 Polaroid, CRT, ASCII, Hologram and Foil.
 Its cog shows every skin live with what is playing, and under the picked one its own options (tonearm, turntable, disc side, clear shell,
 pixel size, ASCII columns and colour, CRT bezel and glitch, Polaroid stack,
-hologram colour, motion, glitch, alpha and base, foil finish, motion and tilt, and
+hologram colour, motion, glitch, alpha and base, foil finish, the light's
+Drift (moving on its own) and Hover (following the pointer) where a skin has them, and
 Tint for the skins with an accent: the LEDs' colour, one from the cover, or none,
 and Shadow, a soft drop shadow, for the skins that cast none of their own),
 then Background sliders for the opacity and blur of the cover behind the player.

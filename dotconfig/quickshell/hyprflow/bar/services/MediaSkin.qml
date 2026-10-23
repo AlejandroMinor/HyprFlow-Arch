@@ -51,8 +51,9 @@ Singleton {
         { key: "holoBase", label: "Base", values: [true, false], names: ["On", "Off"] },
         { key: "foilStyle", label: "Foil", values: ["rainbow", "gold", "silver", "art"],
           names: ["Rainbow", "Gold", "Silver", "Accent"] },
-        { key: "foilMotion", label: "Motion", values: [true, false], names: ["On", "Off"] },
-        { key: "foilTilt", label: "Tilt", values: [true, false], names: ["On", "Off"] },
+        // The light most skins carry: drifting on its own, following the pointer.
+        { key: "lightMotion", label: "Drift", values: [true, false], names: ["On", "Off"] },
+        { key: "lightTilt", label: "Hover", values: [true, false], names: ["On", "Off"] },
         { key: "showStack", label: "Stack", values: [true, false], names: ["On", "Off"] },
         { key: "shellOpacity", label: "Shell", values: [1, 0.45], names: ["Solid", "Clear"] }
     ]

@@ -18,8 +18,11 @@ import qs.bar.services
 Module {
     id: mod
 
+    // A real player: a track with a length, or one with a title that is
+    // playing or can skip on (Spotify's DJ has no length); not a page's
+    // stray voice note.
     readonly property var players: Mpris.players.values.filter(p =>
-        (p.lengthSupported && p.length > 0) || (p.isPlaying && !!p.trackTitle))
+        (p.lengthSupported && p.length > 0) || (!!p.trackTitle && (p.isPlaying || p.canGoNext)))
     property var chosen: null  // picked in the full player
     readonly property var player: (players.includes(chosen) ? chosen : null)
         ?? players.find(p => p.isPlaying) ?? players[0] ?? null
@@ -31,6 +34,9 @@ Module {
     // With "Lyrics in bar", the line being sung takes the track's place.
     readonly property bool singing: MediaSkin.lyricsBar && LyricsState.synced && LyricsState.current !== ""
     Component.onCompleted: LyricsState.player = Qt.binding(() => mod.player)
+    // Singletons start when first used: PopOut must be up from the start
+    // to keep a popped-out NowSpinning in step with the cog.
+    readonly property bool poppedOut: PopOut.running
 
     // The last track's cover and title: the module outlives the panel, so a
     // skin made again on reopening (the Polaroid's stack) gets them here.

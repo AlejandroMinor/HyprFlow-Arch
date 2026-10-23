@@ -67,6 +67,7 @@ Singleton {
     property bool lyricsPanel: false  // the full player shows lyrics instead of the track
     property bool lyricsBar: false    // the bar's module shows the current line
     property int lyricsLines: 3       // how many the full player shows, 1..4
+    property string pickerTab: "skin"  // the cog's open tab; not saved
 
     function url(name) {
         const entry = skins.find(s => s.name === name);

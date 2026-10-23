@@ -96,6 +96,8 @@ Item {
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            // Clear of the buttons in the top right corner (pop out, lyrics, cog).
+            Layout.topMargin: 14
             spacing: 4
 
             // Which player, when there is a choice.

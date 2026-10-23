@@ -104,7 +104,9 @@ wearing the bar's look: PopOut (bar/services) writes the skin, its options,
 the shadow and the tint from `media-skin.json` into
 `~/.local/state/hyprflow/nowspinning/config.json` and starts the submodule's
 NowSpinning with `NOWSPINNING_CONFIG_DIR` pointing there, so the standalone
-widget keeps its own config. The button is lit while it runs; pressing it
+widget keeps its own config. While it runs, the cog's changes reach it at once (it
+reloads its config on save), and what its own settings card picks comes back to
+the cog. The button is lit while it runs; pressing it
 again (or NowSpinning's own close button) closes it.
 
 ## Lyrics

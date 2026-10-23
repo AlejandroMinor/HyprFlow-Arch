@@ -1,7 +1,8 @@
-// The full player's cog, in three sections: Skin (a live preview of every
-// skin with the track that is playing, then the picked one's options),
-// Spectrum (cava's styles for the bar; CavaLevels.setStyle, the bar
-// switches at once) and Background (the blurred cover's opacity and blur).
+// The full player's cog, in tabs: Skin (a live preview of every skin with
+// the track that is playing, then the picked one's options), Spectrum
+// (cava's styles for the bar; CavaLevels.setStyle, the bar switches at
+// once), Lyrics (in the bar, how many lines) and Background (the blurred
+// cover's opacity and blur). The panel grows to the open tab.
 import QtQuick
 import QtQuick.Layouts
 import qs
@@ -17,12 +18,6 @@ ColumnLayout {
 
     spacing: 8
 
-    // A section's title, like Super+K's headings.
-    component Heading: Text {
-        Layout.leftMargin: 2
-        color: Qt.alpha(Colors.foreground, 0.45)
-        font { family: picker.panel.look.font; pixelSize: 10; weight: Font.DemiBold }
-    }
     component Divider: Rectangle {
         Layout.fillWidth: true
         Layout.topMargin: 4
@@ -69,12 +64,48 @@ ColumnLayout {
             color: Colors.foreground
             font { family: picker.panel.look.font; pixelSize: 12; bold: true }
         }
+        Item { Layout.fillWidth: true }
+
+        // The tabs: one section at a time, the one picked underlined.
+        Repeater {
+            model: [["skin", "Skin"], ["spectrum", "Spectrum"], ["lyrics", "Lyrics"], ["background", "Background"]]
+            delegate: Item {
+                id: tabItem
+                required property var modelData
+                readonly property bool current: MediaSkin.pickerTab === modelData[0]
+                implicitWidth: tabText.implicitWidth + 12
+                implicitHeight: 22
+                Text {
+                    id: tabText
+                    anchors.centerIn: parent
+                    text: tabItem.modelData[1]
+                    color: Qt.alpha(Colors.foreground, tabItem.current ? 1 : tabArea.containsMouse ? 0.8 : 0.5)
+                    font { family: picker.panel.look.font; pixelSize: 11; bold: tabItem.current }
+                }
+                Rectangle {
+                    anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+                    width: tabText.implicitWidth
+                    height: 2
+                    radius: 1
+                    color: BarTheme.accent
+                    opacity: tabItem.current ? 1 : 0
+                    Behavior on opacity { Anim {} }
+                }
+                MouseArea {
+                    id: tabArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: MediaSkin.pickerTab = tabItem.modelData[0]
+                }
+            }
+        }
     }
 
-    Heading { text: "Skin" }
+    Divider {}
 
     // Six to a row, the width of the panel.
     Grid {
+        visible: MediaSkin.pickerTab === "skin"
         Layout.alignment: Qt.AlignHCenter
         columns: 6
         spacing: 8
@@ -130,6 +161,7 @@ ColumnLayout {
     // The picked skin's options, each a chip that steps through its values;
     // wrapped, since a row wider than the panel widens the whole column.
     Flow {
+        visible: MediaSkin.pickerTab === "skin"
         Layout.fillWidth: true
         spacing: 6
         Repeater {
@@ -147,14 +179,12 @@ ColumnLayout {
         }
     }
 
-    Divider {}
-    Heading { text: "Spectrum" }
 
     // Silent: a made-up spectrum, so the previews still move.
     property var demo: []
     property real phase: 0
     Timer {
-        running: picker.visible && CavaLevels.silent
+        running: picker.visible && MediaSkin.pickerTab === "spectrum" && CavaLevels.silent
         interval: 70
         repeat: true
         onTriggered: {
@@ -173,6 +203,7 @@ ColumnLayout {
 
     // Narrower than the skins' tiles: all the styles fit on one row.
     Row {
+        visible: MediaSkin.pickerTab === "spectrum"
         Layout.alignment: Qt.AlignHCenter
         spacing: 4
         Repeater {
@@ -208,11 +239,10 @@ ColumnLayout {
         }
     }
 
-    Divider {}
-    Heading { text: "Lyrics" }
     // The bar's media module showing the line being sung, and how many
     // lines the full player shows.
     Row {
+        visible: MediaSkin.pickerTab === "lyrics"
         spacing: 6
         PanelButton {
             label: "In bar: " + (MediaSkin.lyricsBar ? "On" : "Off")
@@ -233,16 +263,16 @@ ColumnLayout {
         }
     }
 
-    Divider {}
-    Heading { text: "Background" }
 
     // The blurred cover behind the player: how strong, how blurred.
     SliderRow {
+        visible: MediaSkin.pickerTab === "background"
         label: "Opacity"
         value: MediaSkin.backdrop / MediaSkin.backdropMax
         onMoved: v => MediaSkin.backdrop = v * MediaSkin.backdropMax
     }
     SliderRow {
+        visible: MediaSkin.pickerTab === "background"
         label: "Blur"
         value: MediaSkin.backdropBlur
         onMoved: v => MediaSkin.backdropBlur = v

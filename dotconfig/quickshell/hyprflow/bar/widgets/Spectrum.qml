@@ -1,5 +1,6 @@
-// The spectrum, drawn one of six ways (CavaLevels.styles): bars from the
-// middle, an equalizer from the floor, stacked LEDs, floating dots on stems,
+// The spectrum, drawn one of seven ways (CavaLevels.styles): bars from the
+// middle, an equalizer from the floor, the same with falling peak caps
+// (peaks), stacked LEDs, floating dots on stems,
 // a wave, or thin lines mirrored around the centre. LEVELS are 0..1, one per
 // band; coloured by cava's gradient, the higher the warmer (white with
 // `colored` false), faint while silent.
@@ -58,6 +59,39 @@ Item {
             x: index * 6
             height: 3 + level * 14
             y: spectrum.height / 2 + 6 - height
+        }
+    }
+
+    // peaks: the equalizer with a cap that holds the band's peak, then falls.
+    Repeater {
+        model: spectrum.style === "peaks" ? spectrum.count : 0
+        delegate: Item {
+            id: band
+            required property int index
+            readonly property real level: spectrum.level(index)
+            readonly property real floor: spectrum.height / 2 + 6
+            property real peak: 0
+            onLevelChanged: if (level >= peak) { peak = level; hold.restart(); }
+            Timer { id: hold; interval: 300 }
+            Timer {
+                interval: 50
+                repeat: true
+                running: !hold.running && band.peak > band.level
+                onTriggered: band.peak = Math.max(band.level, band.peak - 0.04)
+            }
+            Band {
+                index: band.index
+                level: band.level
+                x: band.index * 6
+                height: 3 + level * 12
+                y: band.floor - height
+            }
+            Rectangle {
+                x: band.index * 6
+                y: band.floor - (3 + band.peak * 12) - 3
+                width: 3; height: 1.5; radius: 0.75
+                color: spectrum.tint(band.peak)
+            }
         }
     }
 

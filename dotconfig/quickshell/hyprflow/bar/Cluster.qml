@@ -35,7 +35,8 @@ Rectangle {
     // arriving curve and closing the leaving one (a Behavior would read the
     // curve of the change before).
     property real openness: 0
-    readonly property real grow: (panel.item?.implicitHeight || (shown?.height ?? 0)) * openness
+    // The panel's height plus the card's padding under it, like at the sides.
+    readonly property real grow: ((panel.item?.implicitHeight || (shown?.height ?? 0)) + bar.style.card.padding) * openness
     readonly property real widen: Math.max(0, panelWidth + 2 * bar.style.card.padding - baseWidth) * openness
     Anim {
         id: unfold

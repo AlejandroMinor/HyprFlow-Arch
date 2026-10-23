@@ -32,7 +32,7 @@ dotconfig/quickshell/hyprflow/bar/
                     and MediaSkinPicker (its cog), BatteryPanel, TrayMenu (a
                     tray app's menu)
   widgets/          pieces the panels share: BarSlider, Ring, BarTooltip,
-                    TextField, PanelButton, Spectrum (cava's six styles),
+                    TextField, PanelButton, Spectrum (cava's seven styles),
                     SkinFace (the cover, or a NowSpinning skin)
   services/         singletons with the data, no drawing: AudioState
                     (Pipewire), BarTheme (the accent), CalendarEvents (the
@@ -93,8 +93,8 @@ The card widens to the width asked for and grows to the panel's
 
 ## The spectrum
 
-cava draws in one of six styles: bars, equalizer, LEDs, dots, wave or
-mirror. Super+K → Spectrum style shows them all live and saves the pick
+cava draws in one of seven styles: bars, equalizer, peaks, LEDs, dots, wave or
+mirror. The media panel's cog shows them all live, under the skins, and saves the pick
 (`~/.local/state/hyprflow/cava-style`); the bar switches at once.
 
 ## The player's skin

@@ -12,7 +12,7 @@ Singleton {
     id: root
 
     // What widgets/Spectrum.qml draws, in the picker's order.
-    readonly property var styles: ["bars", "equalizer", "leds", "dots", "wave", "mirror"]
+    readonly property var styles: ["bars", "equalizer", "peaks", "leds", "dots", "wave", "mirror"]
     property string style: "bars"
     property var levels: []
     readonly property bool silent: levels.every(l => l === 0)

@@ -15,7 +15,6 @@ ShellRoot {
     Confirm {}
     SubmapHud {}
     PowerMenu {}
-    SpectrumPicker {}
     KeyboardEffects {}
     Osd {}
     Bars {}

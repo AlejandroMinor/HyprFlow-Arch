@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Quick actions menu (Super+K): screens, game mode, lights, audio, notifications,
-power profile, wallpaper, theme, the bar's spectrum style, the keyboard effect.
+power profile, wallpaper, theme, the keyboard effect.
 
 Each entry is a Command: its name, how to read its state (for the switches),
 what to run and its section. A new action is one more entry in ACTIONS, tagged
@@ -112,14 +112,6 @@ def mic_on():
     return "MUTED" not in volume if volume else None
 
 
-def spectrum_style():
-    """The bar's cava style (CavaLevels.qml writes it); bars without the file."""
-    try:
-        return (paths.HYPRFLOW_STATE / "cava-style").read_text().strip() or "bars"
-    except OSError:
-        return "bars"
-
-
 def keyboard_present():
     return keyboard_rgb.find() is not None
 
@@ -165,8 +157,6 @@ ACTIONS = [
     Action("", "Activate Linux", [LIB / "activate-linux.py", "--toggle"], watermark_on, section="Appearance"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
     Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], section="Appearance"),
-    Action("󰺢", "Spectrum style", ["qs", "-c", "hyprflow", "ipc", "call", "spectrum", "toggle"],
-           spectrum_style, needs="qs", section="Appearance"),
 ]
 
 

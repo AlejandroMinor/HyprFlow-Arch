@@ -195,13 +195,6 @@ def test_activate_linux_action_toggles_the_watermark(qa, monkeypatch, tmp_path):
     assert action.state_word() == "off"
 
 
-def test_spectrum_style_reads_its_file(qa, monkeypatch, tmp_path):
-    monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
-    assert qa.spectrum_style() == "bars"            # never picked
-    (tmp_path / "cava-style").write_text("leds\n")
-    assert qa.spectrum_style() == "leds"
-
-
 def test_an_action_for_a_missing_device_is_left_out(qa, capsys):
     import json
     qa.main(actions=[qa.Action("a", "Keyboard", ["one"], when=lambda: False),

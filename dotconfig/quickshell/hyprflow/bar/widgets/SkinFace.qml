@@ -5,7 +5,10 @@ import Quickshell.Widgets
 import qs
 import qs.bar.services
 // Never used by name: it makes Quickshell scan the skins and the parts they
-// import, which loading them by URL alone does not.
+// import, which loading them by URL alone does not. Without the submodule
+// the folder is missing, which is fine (the skins fail, the cover shows);
+// an empty folder is not: Quickshell calls it "not installed" and the
+// whole bar fails to load.
 import "../nowspinning/skins" as NowSpinning
 
 Item {

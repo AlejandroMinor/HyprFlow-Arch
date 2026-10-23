@@ -20,6 +20,9 @@ Item {
     readonly property var look: media.look
     readonly property string art: media.art
     property bool picking: false   // the cog's skin picker instead of the player
+    // The card grows to fit the picker while it is open.
+    implicitHeight: picking ? picker.implicitHeight + 32 : 200
+    Behavior on implicitHeight { Anim {} }
 
     function clock(seconds) {
         const s = Math.max(0, Math.floor(seconds));
@@ -243,13 +246,14 @@ Item {
     }
 
     MediaSkinPicker {
+        id: picker
         anchors { fill: parent; margins: 16 }
         visible: panel.picking
         panel: panel
         onBack: panel.picking = false
     }
 
-    // The cog: pick how the cover is drawn.
+    // The cog: pick how the cover and the bar's spectrum are drawn.
     Text {
         anchors { top: parent.top; right: parent.right; margins: 14 }
         visible: !panel.picking

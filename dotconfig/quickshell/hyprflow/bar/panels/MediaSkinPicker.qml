@@ -1,5 +1,6 @@
 // The full player's cog: a live preview of every skin with the track that
-// is playing, and under them the options of the one picked.
+// is playing, the options of the one picked, and under a line cava's
+// styles for the bar (CavaLevels.setStyle; the bar switches at once).
 import QtQuick
 import QtQuick.Layouts
 import qs
@@ -103,5 +104,69 @@ ColumnLayout {
         }
     }
 
-    Item { Layout.fillHeight: true }
+    Rectangle {
+        Layout.fillWidth: true
+        Layout.topMargin: 4
+        Layout.bottomMargin: 4
+        implicitHeight: 1
+        color: Qt.alpha(Colors.foreground, 0.08)
+    }
+
+    // Silent: a made-up spectrum, so the previews still move.
+    property var demo: []
+    property real phase: 0
+    Timer {
+        running: picker.visible && CavaLevels.silent
+        interval: 70
+        repeat: true
+        onTriggered: {
+            picker.phase += 0.35;
+            const levels = [];
+            for (let i = 0; i < 10; i++)
+                levels.push(Math.max(0, Math.min(1, 0.45 + 0.35 * Math.sin(picker.phase + i * 0.8) + 0.2 * Math.sin(picker.phase * 2.3 - i))));
+            picker.demo = levels;
+        }
+    }
+
+    readonly property var spectrumNames: ({
+        bars: "Bars", equalizer: "Equalizer", peaks: "Peaks", leds: "LEDs",
+        dots: "Dots", wave: "Wave", mirror: "Mirror"
+    })
+
+    // Narrower than the skins' tiles: all the styles fit on one row.
+    Row {
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 4
+        Repeater {
+            model: CavaLevels.styles
+            delegate: Rectangle {
+                id: styleTile
+                required property string modelData
+                readonly property bool current: CavaLevels.style === modelData
+                width: 60
+                height: 64
+                radius: 10
+                color: current ? BarTheme.tint(0.2) : styleArea.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
+                Behavior on color { ColorAnimation { duration: Motion.fast } }
+
+                Spectrum {
+                    anchors { top: parent.top; horizontalCenter: parent.horizontalCenter; topMargin: 8 }
+                    style: styleTile.modelData
+                    levels: CavaLevels.silent ? picker.demo : CavaLevels.levels
+                }
+                Text {
+                    anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter; bottomMargin: 6 }
+                    text: picker.spectrumNames[styleTile.modelData] ?? styleTile.modelData
+                    color: Qt.alpha(Colors.foreground, styleTile.current ? 1 : 0.6)
+                    font { family: picker.panel.look.font; pixelSize: 10; bold: styleTile.current }
+                }
+                MouseArea {
+                    id: styleArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: CavaLevels.setStyle(styleTile.modelData)
+                }
+            }
+        }
+    }
 }

@@ -232,7 +232,8 @@ while the pointer is over it instead (folded a moment after it leaves, and
 kept open while one of its modules has its panel out), leaving the handle's
 click to the handle. The media drawer does that: hover for the track and its
 controls, click the spectrum (or the track) for the full player, right click
-the track to play or pause.
+the track to play or pause, middle click either to keep it open (again to
+let it fold).
 
 
 The first module is the handle, or set `"icon"` for a plain one.

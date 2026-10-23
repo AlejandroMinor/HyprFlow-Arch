@@ -3,7 +3,8 @@
 //   modules   the names inside, the first one the handle unless `icon`
 //   icon      a glyph for the handle instead
 //   toggle    "hover": opens while the pointer is over it, leaving the
-//             handle's click to the handle (the media's cava opens the panel)
+//             handle's click to the handle (the media's cava opens the panel);
+//             a middle click on any of its modules pins it open, another unpins
 import QtQuick
 import QtQuick.Layouts
 import qs
@@ -31,7 +32,19 @@ Item {
     Timer {
         id: fold
         interval: 400
-        onTriggered: if (!drawer.holding) drawer.open = false
+        onTriggered: if (!drawer.holding && !drawer.pinned) drawer.open = false
+    }
+    // Middle click pins a hover drawer open until the next middle click.
+    property bool pinned: false
+    function togglePin() {
+        if (!byHover) return;
+        pinned = !pinned;
+        if (pinned) {
+            fold.stop();
+            open = true;
+        } else if (!hover.hovered) {
+            fold.restart();
+        }
     }
     // Kept open while one of its modules has its panel out: the panel hangs
     // under that module, and folding would pull it sideways.
@@ -78,6 +91,7 @@ Item {
             target: handle.item
             ignoreUnknownSignals: true
             function onClicked() { if (!drawer.byHover) drawer.open = !drawer.open; }
+            function onMiddleClicked() { drawer.togglePin(); }
         }
 
         // The rest. Opening, each grows from nothing in its place, one a beat
@@ -92,6 +106,11 @@ Item {
                 name: modelData
                 bar: drawer.bar
                 animateWidth: false
+                Connections {
+                    target: child.item
+                    ignoreUnknownSignals: true
+                    function onMiddleClicked() { drawer.togglePin(); }
+                }
 
                 // Started by hand on each change: a Behavior would read the
                 // delays from the state before it, and run them backwards.

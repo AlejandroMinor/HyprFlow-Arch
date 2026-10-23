@@ -209,6 +209,21 @@ ColumnLayout {
     }
 
     Divider {}
+    Heading { text: "Lyrics" }
+    // The bar's media module showing the line being sung.
+    Row {
+        spacing: 6
+        PanelButton {
+            label: "In bar: " + (MediaSkin.lyricsBar ? "On" : "Off")
+            fontFamily: picker.panel.look.font
+            onClicked: {
+                MediaSkin.lyricsBar = !MediaSkin.lyricsBar;
+                MediaSkin.save();
+            }
+        }
+    }
+
+    Divider {}
     Heading { text: "Background" }
 
     // The blurred cover behind the player: how strong, how blurred.

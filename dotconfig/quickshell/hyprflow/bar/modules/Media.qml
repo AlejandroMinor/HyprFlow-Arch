@@ -13,6 +13,7 @@ import Quickshell.Services.Mpris
 import qs
 import qs.bar
 import qs.bar.panels
+import qs.bar.services
 
 Module {
     id: mod
@@ -27,6 +28,9 @@ Module {
     readonly property string art: player?.trackArtUrl || youtubeThumb(player?.metadata?.["xesam:url"] ?? "")
     readonly property int maxText: settings["max-width"] ?? 220
     readonly property string track: [player?.trackArtist, player?.trackTitle].filter(s => s).join(" - ")
+    // With "Lyrics in bar", the line being sung takes the track's place.
+    readonly property bool singing: MediaSkin.lyricsBar && LyricsState.synced && LyricsState.current !== ""
+    Component.onCompleted: LyricsState.player = Qt.binding(() => mod.player)
 
     // The last track's cover and title: the module outlives the panel, so a
     // skin made again on reopening (the Polaroid's stack) gets them here.
@@ -127,7 +131,7 @@ Module {
             Text {
                 id: title
                 anchors.verticalCenter: parent.verticalCenter
-                text: mod.track
+                text: mod.singing ? LyricsState.current : mod.track
                 color: Qt.alpha(Colors.foreground, mod.playing ? 1 : 0.45)
                 font { family: mod.look.font; pixelSize: mod.look.fontSize; bold: true }
                 Behavior on color { ColorAnimation { duration: Motion.normal } }

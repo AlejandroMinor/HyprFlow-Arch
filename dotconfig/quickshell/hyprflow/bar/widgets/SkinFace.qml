@@ -122,14 +122,16 @@ Item {
             // the disc waits for NowSpinning's 6 s fallback.
             if (item.trackChangeToken !== undefined)
                 item.trackChangeToken += 1;
-            item.artUrl = Qt.binding(() => face.art);
-            item.playing = Qt.binding(() => face.playing);
-            if (item.title !== undefined)
-                item.title = Qt.binding(() => face.title);
+            // Before the cover: setting it drops the Polaroid's photo, and
+            // the stack under it starts from the last track's.
             if (item.previousArt !== undefined) {
                 item.previousArt = Qt.binding(() => face.previousArt);
                 item.previousTitle = Qt.binding(() => face.previousTitle);
             }
+            item.artUrl = Qt.binding(() => face.art);
+            item.playing = Qt.binding(() => face.playing);
+            if (item.title !== undefined)
+                item.title = Qt.binding(() => face.title);
             if (item.progress !== undefined)
                 item.progress = Qt.binding(() => face.progress);
             if (item.accent !== undefined)

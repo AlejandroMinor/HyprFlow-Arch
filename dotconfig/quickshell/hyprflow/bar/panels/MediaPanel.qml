@@ -20,6 +20,8 @@ Item {
     readonly property var look: media.look
     readonly property string art: media.art
     property bool picking: false   // the cog's skin picker instead of the player
+    // The lyrics in place of the track, once there are synced ones.
+    readonly property bool lyricsShown: MediaSkin.lyricsPanel && LyricsState.synced
     // How far the backdrop is past its default, 0..1: drives the scrim and
     // the text shadow, so the default look is unchanged.
     readonly property real strength: Math.max(0, (MediaSkin.backdrop - 0.35) / (MediaSkin.backdropMax - 0.35))
@@ -132,6 +134,7 @@ Item {
 
             Text {
                 Layout.fillWidth: true
+                visible: !panel.lyricsShown
                 text: panel.player?.trackTitle || "Nothing playing"
                 elide: Text.ElideRight
                 color: Colors.foreground
@@ -139,7 +142,7 @@ Item {
             }
             Text {
                 Layout.fillWidth: true
-                visible: text !== ""
+                visible: text !== "" && !panel.lyricsShown
                 text: panel.player?.trackArtist ?? ""
                 elide: Text.ElideRight
                 color: Qt.alpha(Colors.foreground, 0.75)
@@ -147,10 +150,46 @@ Item {
             }
             Text {
                 Layout.fillWidth: true
-                visible: text !== ""
+                visible: text !== "" && !panel.lyricsShown
                 text: panel.player?.trackAlbum ?? ""
                 elide: Text.ElideRight
                 color: Qt.alpha(Colors.foreground, 0.45)
+                font { family: panel.look.font; pixelSize: 11 }
+            }
+            // Asked for lyrics, none to show (yet).
+            Text {
+                Layout.fillWidth: true
+                visible: MediaSkin.lyricsPanel && !panel.lyricsShown
+                text: LyricsState.status === "loading" ? "Looking for lyrics…" : "No synced lyrics"
+                color: Qt.alpha(Colors.foreground, 0.45)
+                font { family: panel.look.font; pixelSize: 10; italic: true }
+            }
+
+            // The lyrics: the line being sung, the ones around it faded.
+            Text {
+                Layout.fillWidth: true
+                visible: panel.lyricsShown
+                text: LyricsState.previous
+                elide: Text.ElideRight
+                color: Qt.alpha(Colors.foreground, 0.4)
+                font { family: panel.look.font; pixelSize: 11 }
+            }
+            Text {
+                Layout.fillWidth: true
+                visible: panel.lyricsShown
+                text: LyricsState.current || "\u266A"
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+                color: Colors.foreground
+                font { family: panel.look.font; pixelSize: 14; bold: true }
+            }
+            Text {
+                Layout.fillWidth: true
+                visible: panel.lyricsShown
+                text: LyricsState.next
+                elide: Text.ElideRight
+                color: Qt.alpha(Colors.foreground, 0.4)
                 font { family: panel.look.font; pixelSize: 11 }
             }
 
@@ -274,8 +313,28 @@ Item {
         onBack: panel.picking = false
     }
 
+    // Lyrics on or off, left of the cog.
+    Text {
+        anchors { top: parent.top; right: cog.left; topMargin: 14; rightMargin: 12 }
+        visible: !panel.picking
+        text: "\u{F1021}"
+        color: MediaSkin.lyricsPanel ? BarTheme.accent
+            : Qt.alpha(Colors.foreground, lyricsArea.containsMouse ? 1 : 0.5)
+        font { family: panel.look.font; pixelSize: 14 }
+        MouseArea {
+            id: lyricsArea
+            anchors { fill: parent; margins: -6 }
+            hoverEnabled: true
+            onClicked: {
+                MediaSkin.lyricsPanel = !MediaSkin.lyricsPanel;
+                MediaSkin.save();
+            }
+        }
+    }
+
     // The cog: pick how the cover and the bar's spectrum are drawn.
     Text {
+        id: cog
         anchors { top: parent.top; right: parent.right; margins: 14 }
         visible: !panel.picking
         text: "\u{F0493}"

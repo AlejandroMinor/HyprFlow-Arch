@@ -39,10 +39,11 @@
     },
     "cava": {
       "colors": true,      // the wallpaper's gradient; false: white
-      "panel": "media"     // right click opens this module's panel
+      "panel": "media"     // a click opens this module's panel
     },
     "media-player": {
       "type": "drawer",
+      "toggle": "hover",   // hovering slides the media out; a click opens the panel
       "modules": ["cava", "media"]
     },
     "runcat": {

@@ -225,6 +225,13 @@ A glyph the script puts first is shown as the icon. Beyond Waybar's keys:
 ```jsonc
 "hardware": { "type": "drawer", "modules": ["runcat", "cpu", "memory"] }
 ```
+A click on the handle slides the rest out; `"toggle": "hover"` opens it
+while the pointer is over it instead (folded a moment after it leaves, and
+kept open while one of its modules has its panel out), leaving the handle's
+click to the handle. The media drawer does that: hover for the track and its
+controls, click the spectrum (or the track) for the full player, right click
+the track to play or pause.
+
 
 The first module is the handle, or set `"icon"` for a plain one.
 

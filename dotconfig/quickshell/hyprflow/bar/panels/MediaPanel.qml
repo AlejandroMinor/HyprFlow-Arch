@@ -1,4 +1,4 @@
-// The full player, opened under the media module (its right click): the
+// The full player, opened under the media module (its click, or cava's): the
 // cover (or a NowSpinning skin, picked with the cog) over a blurred copy of
 // itself, the track, a seek bar with the times, and shuffle, previous,
 // play/pause, next and repeat. With more than one player, chips to pick

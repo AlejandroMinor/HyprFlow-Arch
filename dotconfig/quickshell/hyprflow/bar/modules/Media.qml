@@ -56,8 +56,9 @@ Module {
     visible: player !== null
     readonly property bool expanded: bar.expansion?.owner === mod
     tooltip: player && !expanded ? (player.trackTitle + "\n" + (player.trackArtist ?? "") + "\n" + (player.identity ?? "")) : ""
-    onClicked: player?.togglePlaying()
-    onRightClicked: openPanel()
+    // A click opens the full player; a right click plays or pauses.
+    onClicked: openPanel()
+    onRightClicked: player?.togglePlaying()
     function openPanel() {
         if (player) bar.expand(mod, full, 480, 200);
     }

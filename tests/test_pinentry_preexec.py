@@ -51,3 +51,11 @@ def test_a_terminal_without_a_display_gets_curses(tmp_path):
                          input="GETINFO flavor\nBYE\n", text=True, capture_output=True,
                          env={**os.environ, "PINENTRY_USER_DATA": "tty"}).stdout
     assert "D curses" in out
+
+
+def test_only_ssh_hands_its_tty_to_the_agent():
+    # On the login TTY, updatestartuptty would start the agent before Hyprland
+    # with tty defaults, and GUI commits would wait on tty1.
+    zshrc = (Path(__file__).resolve().parent.parent / "dotconfig" / "zsh" / ".zshrc").read_text()
+    line = next(l for l in zshrc.splitlines() if "updatestartuptty" in l)
+    assert '[[ -n "$SSH_CONNECTION" ]] &&' in line

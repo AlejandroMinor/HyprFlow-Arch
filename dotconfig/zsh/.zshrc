@@ -30,7 +30,9 @@ if [[ -n "$WAYLAND_DISPLAY" || -n "$DISPLAY" ]]; then
     export PINENTRY_USER_DATA=gui
 else
     export PINENTRY_USER_DATA=tty
-    gpg-connect-agent updatestartuptty /bye >/dev/null
+    # SSH only: on the login TTY this would start the agent with tty defaults,
+    # and GUI apps (VS Code) would get the prompt on tty1.
+    [[ -n "$SSH_CONNECTION" ]] && gpg-connect-agent updatestartuptty /bye >/dev/null
 fi
 
 # zsh-syntax-highlighting (always last)

@@ -50,7 +50,7 @@ each one by its full path:
 | `rgb-hotplug.py` | Hyprland | Rescans OpenRGB when a USB device is plugged in, so it takes the LED colour (or stays off) like the rest |
 | `mic-mute-watch.py` | Hyprland | A headset's own mic mute button (any with the standard Phone Mute control) mutes its microphone in Pipewire too, so the bar and the OSD show it |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
-| `activate-linux.py` | Hyprland | The "Activate Linux" watermark, click-through, bottom right |
+| `activate-linux.py` | Hyprland, Super+K | The "Activate Linux" watermark, click-through, bottom right; `--toggle` switches it off/on |
 | `monitors.py` | `monitors.sh` | The monitor logic behind the command |
 | `hyprflow/` | the Python scripts | Shared package: paths, hyprctl, notifications, palette, the Waybar module base |
 | `common.sh` | the Bash scripts | Shared paths, messages, notifications (with urgency, icon, timeout, category and an action button), the Quickshell level OSD (`osd`, `quickshell_up`) and palette |

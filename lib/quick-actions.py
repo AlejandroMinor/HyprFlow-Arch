@@ -92,6 +92,10 @@ def lights_on():
     return not (paths.CACHE / "wallust" / "led-off").exists()
 
 
+def watermark_on():
+    return not (paths.HYPRFLOW_STATE / "watermark-off").exists()
+
+
 def output(argv):
     try:
         return subprocess.run(argv, capture_output=True, text=True, timeout=2).stdout.strip()
@@ -158,6 +162,7 @@ ACTIONS = [
     Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
     Action("", "Keyboard effect", ["qs", "-c", "hyprflow", "ipc", "call", "keyboardfx", "toggle"],
            keyboard_effect, needs="qs", section="Appearance", when=keyboard_present),
+    Action("", "Activate Linux", [LIB / "activate-linux.py", "--toggle"], watermark_on, section="Appearance"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
     Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], section="Appearance"),
     Action("󰺢", "Spectrum style", ["qs", "-c", "hyprflow", "ipc", "call", "spectrum", "toggle"],

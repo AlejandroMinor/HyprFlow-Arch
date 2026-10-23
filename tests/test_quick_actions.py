@@ -186,6 +186,15 @@ def test_power_menu_action_opens_the_quickshell_panel(qa):
     assert action.section == "System"
 
 
+def test_activate_linux_action_toggles_the_watermark(qa, monkeypatch, tmp_path):
+    action = next(a for a in qa.ACTIONS if a.label == "Activate Linux")
+    assert action.argv[1:] == ["--toggle"] and action.argv[0].name == "activate-linux.py"
+    monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
+    assert action.state_word() == "on"
+    (tmp_path / "watermark-off").touch()
+    assert action.state_word() == "off"
+
+
 def test_spectrum_style_reads_its_file(qa, monkeypatch, tmp_path):
     monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
     assert qa.spectrum_style() == "bars"            # never picked

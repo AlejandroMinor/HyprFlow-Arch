@@ -1,6 +1,7 @@
-// The full player's cog: a live preview of every skin with the track that
-// is playing, the options of the one picked, and under a line cava's
-// styles for the bar (CavaLevels.setStyle; the bar switches at once).
+// The full player's cog, in three sections: Skin (a live preview of every
+// skin with the track that is playing, then the picked one's options),
+// Spectrum (cava's styles for the bar; CavaLevels.setStyle, the bar
+// switches at once) and Background (the blurred cover's opacity and blur).
 import QtQuick
 import QtQuick.Layouts
 import qs
@@ -15,6 +16,39 @@ ColumnLayout {
     signal back()
 
     spacing: 8
+
+    // A section's title, like Super+K's headings.
+    component Heading: Text {
+        Layout.leftMargin: 2
+        color: Qt.alpha(Colors.foreground, 0.45)
+        font { family: picker.panel.look.font; pixelSize: 10; weight: Font.DemiBold }
+    }
+    component Divider: Rectangle {
+        Layout.fillWidth: true
+        Layout.topMargin: 4
+        implicitHeight: 1
+        color: Qt.alpha(Colors.foreground, 0.08)
+    }
+    // A label and a slider; saved once the drag ends.
+    component SliderRow: RowLayout {
+        property alias label: name.text
+        property alias value: slider.value
+        signal moved(real value)
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 10
+        Text {
+            id: name
+            Layout.preferredWidth: 50
+            color: Qt.alpha(Colors.foreground, 0.6)
+            font { family: picker.panel.look.font; pixelSize: 10 }
+        }
+        BarSlider {
+            id: slider
+            Layout.preferredWidth: 200
+            onMoved: v => parent.moved(v)
+            onDraggingChanged: if (!dragging) MediaSkin.save()
+        }
+    }
 
     RowLayout {
         Layout.fillWidth: true
@@ -37,6 +71,8 @@ ColumnLayout {
         }
     }
 
+    Heading { text: "Skin" }
+
     Row {
         Layout.alignment: Qt.AlignHCenter
         spacing: 8
@@ -48,8 +84,8 @@ ColumnLayout {
                 readonly property bool current: MediaSkin.skin === modelData.name
                 // A skin missing from the submodule's checkout is left out.
                 visible: modelData.file === "" || tileFace.drawn
-                width: 80
-                height: 96
+                width: 68  // six skins fill the 448 px row
+                height: 88
                 radius: 10
                 color: current ? BarTheme.tint(0.2) : tileArea.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -57,8 +93,8 @@ ColumnLayout {
                 SkinFace {
                     id: tileFace
                     anchors { top: parent.top; horizontalCenter: parent.horizontalCenter; topMargin: 6 }
-                    width: 68
-                    height: 68
+                    width: 60
+                    height: 60
                     skin: tile.modelData.name
                     art: picker.panel.art
                     playing: picker.panel.player?.isPlaying ?? false
@@ -104,13 +140,8 @@ ColumnLayout {
         }
     }
 
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.topMargin: 4
-        Layout.bottomMargin: 4
-        implicitHeight: 1
-        color: Qt.alpha(Colors.foreground, 0.08)
-    }
+    Divider {}
+    Heading { text: "Spectrum" }
 
     // Silent: a made-up spectrum, so the previews still move.
     property var demo: []
@@ -168,5 +199,20 @@ ColumnLayout {
                 }
             }
         }
+    }
+
+    Divider {}
+    Heading { text: "Background" }
+
+    // The blurred cover behind the player: how strong, how blurred.
+    SliderRow {
+        label: "Opacity"
+        value: MediaSkin.backdrop / MediaSkin.backdropMax
+        onMoved: v => MediaSkin.backdrop = v * MediaSkin.backdropMax
+    }
+    SliderRow {
+        label: "Blur"
+        value: MediaSkin.backdropBlur
+        onMoved: v => MediaSkin.backdropBlur = v
     }
 }

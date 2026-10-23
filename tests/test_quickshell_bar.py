@@ -149,7 +149,9 @@ def test_the_full_player_skins_are_the_nowspinning_submodules():
     assert files and keys
     if not (NOWSPINNING / "skins").is_dir():
         return  # submodule not checked out
+    # Our own skins ("pixel") declare theirs in SkinFace.qml.
     skins = "".join((NOWSPINNING / "skins" / f).read_text() for f in files)
+    skins += (BAR / "widgets" / "SkinFace.qml").read_text()
     for key in keys:
         assert re.search(rf"property \w+ {key}\b", skins), key
 

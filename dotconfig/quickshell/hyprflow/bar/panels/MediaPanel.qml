@@ -20,6 +20,9 @@ Item {
     readonly property var look: media.look
     readonly property string art: media.art
     property bool picking: false   // the cog's skin picker instead of the player
+    // How far the backdrop is past its default, 0..1: drives the scrim and
+    // the text shadow, so the default look is unchanged.
+    readonly property real strength: Math.max(0, (MediaSkin.backdrop - 0.35) / (MediaSkin.backdropMax - 0.35))
     // The card grows to fit the picker while it is open.
     implicitHeight: picking ? picker.implicitHeight + 32 : 200
     Behavior on implicitHeight { Anim {} }
@@ -29,7 +32,7 @@ Item {
         return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
     }
 
-    // The cover, blurred and faint, behind everything.
+    // The cover, blurred and faint, behind everything (both set in the cog).
     ClippingRectangle {
         anchors { fill: parent; margins: 6 }
         radius: 10
@@ -46,10 +49,16 @@ Item {
             anchors.fill: parent
             source: backdrop
             blurEnabled: true
-            blur: 1.0
+            blur: MediaSkin.backdropBlur
             blurMax: 48
-            opacity: panel.art ? 0.35 : 0
+            opacity: panel.art ? MediaSkin.backdrop : 0
             Behavior on opacity { Anim { duration: Motion.normal } }
+        }
+        // Darkens a strong backdrop so the text stays readable.
+        Rectangle {
+            anchors.fill: parent
+            color: "black"
+            opacity: panel.art ? panel.strength * 0.2 : 0
         }
     }
 
@@ -57,6 +66,15 @@ Item {
         anchors { fill: parent; margins: 16 }
         spacing: 16
         visible: !panel.picking
+        layer.enabled: panel.strength > 0
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowColor: "black"
+            shadowBlur: 0.5
+            shadowVerticalOffset: 1
+            shadowHorizontalOffset: 0
+            shadowOpacity: 0.8 * panel.strength
+        }
 
         // The cover, or the NowSpinning skin picked with the cog.
         SkinFace {

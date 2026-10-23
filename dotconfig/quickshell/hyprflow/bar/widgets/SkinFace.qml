@@ -1,5 +1,6 @@
 // The cover drawn by a NowSpinning skin, scaled to fit its box, or the
-// plain cover for "cover" (and for a skin whose file is not there).
+// plain cover for "cover" (and for a skin whose file is not there), or
+// that cover pixelated for "pixel".
 import QtQuick
 import Quickshell.Widgets
 import qs
@@ -20,7 +21,15 @@ Item {
     property real progress: 0
     property string iconFont
     readonly property bool drawn: skinLoader.status === Loader.Ready  // a skin, not the cover
-    readonly property var item: skinLoader.item
+    readonly property bool pixel: skin === "pixel"
+    // What the picker reads the skin's options from: the loaded skin, or
+    // for "pixel" its one option and the default.
+    readonly property var item: skinLoader.item ?? (pixel ? pixelDefaults : null)
+    QtObject {
+        id: pixelDefaults
+        property int pixels: 32
+    }
+    readonly property int pixels: MediaSkin.option("pixel", "pixels") ?? pixelDefaults.pixels
 
     clip: true
 
@@ -35,7 +44,9 @@ Item {
             anchors.fill: parent
             source: face.art
             fillMode: Image.PreserveAspectCrop
-            sourceSize { width: 300; height: 300 }
+            // Pixel: loaded tiny and scaled up without smoothing.
+            sourceSize { width: face.pixel ? face.pixels : 300; height: face.pixel ? face.pixels : 300 }
+            smooth: !face.pixel
             asynchronous: true
         }
         Text {

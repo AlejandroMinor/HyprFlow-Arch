@@ -28,14 +28,18 @@ dotconfig/quickshell/hyprflow/bar/
   Module.qml        what a module is: icon, text, hover, clicks, tooltip, polling
   modules/          one file per kind of module (what bar.json names)
   panels/           what a card opens into (bar.expand): CalendarPanel,
-                    SoundView (volume and microphone), MediaPanel (the player),
-                    BatteryPanel, TrayMenu (a tray app's menu)
+                    SoundView (volume and microphone), MediaPanel (the player)
+                    and MediaSkinPicker (its cog), BatteryPanel, TrayMenu (a
+                    tray app's menu)
   widgets/          pieces the panels share: BarSlider, Ring, BarTooltip,
-                    TextField, PanelButton, Spectrum (cava's six styles)
+                    TextField, PanelButton, Spectrum (cava's six styles),
+                    SkinFace (the cover, or a NowSpinning skin)
   services/         singletons with the data, no drawing: AudioState
                     (Pipewire), BarTheme (the accent), CalendarEvents (the
                     calendar's files and changes), CavaLevels (one cava for
-                    every bar, and the style), Paths (where things live)
+                    every bar, and the style), MediaSkin (the player's
+                    skin), Paths (where things live)
+  nowspinning/      link to the NowSpinning submodule (install.sh config)
 ```
 
 Motion and colours come from `Motion.qml` and `Colors.qml`, like the panels.
@@ -92,6 +96,16 @@ The card widens to the width asked for and grows to the panel's
 cava draws in one of six styles: bars, equalizer, LEDs, dots, wave or
 mirror. Super+K → Spectrum style shows them all live and saves the pick
 (`~/.local/state/hyprflow/cava-style`); the bar switches at once.
+
+## The player's skin
+
+The full player draws its cover plain or with a skin from
+[NowSpinning](https://github.com/AlejandroMinor/NowSpinning) (the
+`modules/NowSpinning` submodule): vinyl, CD, bare disc or cassette, spinning
+with the track. Its cog shows every skin live with what is playing, and under
+the picked one its own options (tonearm, turntable, disc side, clear shell).
+Both are saved in `~/.local/state/hyprflow/media-skin.json`. A skin missing
+from the submodule's checkout is left out of the picker.
 
 ## Calendar events
 

@@ -135,3 +135,27 @@ def test_module_loader_imports_every_folder_the_modules_use():
     for folder in (p for p in BAR.iterdir() if p.is_dir() and any(p.glob("*.qml"))):
         if folder.name != "modules":
             assert f"import qs.bar.{folder.name}" in loader, folder.name
+
+
+NOWSPINNING = REPO / "modules" / "NowSpinning" / "nowspinning"
+
+
+def test_the_full_player_skins_are_the_nowspinning_submodules():
+    # MediaSkin.qml lists NowSpinning's skins by file, and its options by
+    # the property each skin declares; a rename there would hide one quietly.
+    media_skin = (BAR / "services" / "MediaSkin.qml").read_text()
+    files = re.findall(r'file: "(\w+\.qml)"', media_skin)
+    keys = re.findall(r'key: "(\w+)"', media_skin)
+    assert files and keys
+    if not (NOWSPINNING / "skins").is_dir():
+        return  # submodule not checked out
+    skins = "".join((NOWSPINNING / "skins" / f).read_text() for f in files)
+    for key in keys:
+        assert re.search(rf"property \w+ {key}\b", skins), key
+
+
+def test_install_links_nowspinning_where_skin_face_imports_it():
+    face = (BAR / "widgets" / "SkinFace.qml").read_text()
+    assert 'import "../nowspinning/skins"' in face
+    install = (REPO / "install.sh").read_text()
+    assert 'modules/NowSpinning/nowspinning" "$CONFIG_DEST/quickshell/hyprflow/bar/nowspinning"' in install

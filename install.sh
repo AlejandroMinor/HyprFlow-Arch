@@ -391,6 +391,11 @@ copy_configs() {
         cp -f "$REPO_PATH/dotconfig/$path" "$CONFIG_DEST/$path"
     done
 
+    # The full player's NowSpinning skins come from the submodule.
+    if [ -d "$REPO_PATH/modules/NowSpinning/nowspinning" ]; then
+        ln -sfn "$REPO_PATH/modules/NowSpinning/nowspinning" "$CONFIG_DEST/quickshell/hyprflow/bar/nowspinning"
+    fi
+
     # qt5ct/qt6ct want the stylesheet as an absolute path; the repo says ~.
     local qt
     for qt in qt5ct qt6ct; do

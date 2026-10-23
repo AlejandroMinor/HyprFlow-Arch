@@ -228,6 +228,7 @@ volume module, `sink-switch.py --toggle` (see above).
 | Super+K | `qs ipc call quickactions toggle` → QuickActions.qml (it reads `quick-actions.py --json`); without Quickshell, `quick-actions.py` → rofi |
 | Super+W / Super+Shift+W | `session-manager.py` save / load |
 | Super+K → Spectrum style | `qs ipc call spectrum toggle` → SpectrumPicker.qml: the six styles live; a pick writes `~/.local/state/hyprflow/cava-style`, which CavaLevels (bar/services) watches, so the bar switches at once |
+| Media panel → cog | MediaSkinPicker.qml: NowSpinning's skins live (SkinFace loads `bar/nowspinning/skins/<X>.qml`, the submodule install.sh links); a pick or an option writes `~/.local/state/hyprflow/media-skin.json`, which MediaSkin (bar/services) watches |
 | Super+K → Activate Linux | `activate-linux.py --toggle` flips `~/.local/state/hyprflow/watermark-off`; the running watermark watches it (like `game-mode`) and hides or shows |
 | Super+K → Keyboard effect | `qs ipc call keyboardfx toggle` → KeyboardEffects.qml: a live KeyPreview per effect in the theme colour (`keyboard-rgb.py --json` gives both); a pick runs `keyboard-rgb.py effect N`, which also gives it the cached LED colour (dark while `led-off` is there). Listed only with the keyboard plugged in |
 | Waybar power button, Super+M, Super+K → Power menu | `qs ipc call power toggle` → PowerMenu.qml: Lock (`hyprlock-flow.sh`) and Suspend at once; Log out (`session-manager.py logout --yes`), Reboot and Shut down on a second press |

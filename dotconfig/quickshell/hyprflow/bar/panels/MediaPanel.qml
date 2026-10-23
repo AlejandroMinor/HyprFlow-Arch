@@ -1,7 +1,8 @@
 // The full player, opened under the media module (its right click): the
-// cover big over a blurred copy of itself, the track, a seek bar with the
-// times, and shuffle, previous, play/pause, next and repeat. With more than
-// one player, chips to pick which one the bar follows.
+// cover (or a NowSpinning skin, picked with the cog) over a blurred copy of
+// itself, the track, a seek bar with the times, and shuffle, previous,
+// play/pause, next and repeat. With more than one player, chips to pick
+// which one the bar follows.
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
@@ -18,6 +19,7 @@ Item {
     readonly property var player: media.player
     readonly property var look: media.look
     readonly property string art: media.art
+    property bool picking: false   // the cog's skin picker instead of the player
 
     function clock(seconds) {
         const s = Math.max(0, Math.floor(seconds));
@@ -51,28 +53,18 @@ Item {
     RowLayout {
         anchors { fill: parent; margins: 16 }
         spacing: 16
+        visible: !panel.picking
 
-        // The cover.
-        ClippingRectangle {
+        // The cover, or the NowSpinning skin picked with the cog.
+        SkinFace {
             Layout.preferredWidth: 150
             Layout.preferredHeight: 150
             Layout.alignment: Qt.AlignVCenter
-            radius: 10
-            color: Qt.alpha(Colors.foreground, 0.08)
-            Image {
-                anchors.fill: parent
-                source: panel.art
-                fillMode: Image.PreserveAspectCrop
-                sourceSize { width: 300; height: 300 }
-                asynchronous: true
-            }
-            Text {
-                anchors.centerIn: parent
-                visible: !panel.art
-                text: "\u{F0387}"
-                color: Qt.alpha(Colors.foreground, 0.5)
-                font { family: panel.look.font; pixelSize: 40 }
-            }
+            skin: MediaSkin.skin
+            art: panel.art
+            playing: panel.player?.isPlaying ?? false
+            progress: panel.player && panel.player.length > 0 ? panel.player.position / panel.player.length : 0
+            iconFont: panel.look.font
         }
 
         ColumnLayout {
@@ -247,6 +239,28 @@ Item {
                         : loop === MprisLoopState.Playlist ? MprisLoopState.Track : MprisLoopState.None
                 }
             }
+        }
+    }
+
+    MediaSkinPicker {
+        anchors { fill: parent; margins: 16 }
+        visible: panel.picking
+        panel: panel
+        onBack: panel.picking = false
+    }
+
+    // The cog: pick how the cover is drawn.
+    Text {
+        anchors { top: parent.top; right: parent.right; margins: 14 }
+        visible: !panel.picking
+        text: "\u{F0493}"
+        color: Qt.alpha(Colors.foreground, cogArea.containsMouse ? 1 : 0.5)
+        font { family: panel.look.font; pixelSize: 14 }
+        MouseArea {
+            id: cogArea
+            anchors { fill: parent; margins: -6 }
+            hoverEnabled: true
+            onClicked: panel.picking = true
         }
     }
 }

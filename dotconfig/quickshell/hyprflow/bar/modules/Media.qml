@@ -69,6 +69,15 @@ Module {
                 fillMode: Image.PreserveAspectCrop
                 sourceSize { width: 64; height: 64 }
                 asynchronous: true
+                // Turn the image, not the clip: a 22 px clip turned is resampled
+                // whole and looks jagged at in-between angles.
+                mipmap: true
+                RotationAnimation on rotation {
+                    running: mod.playing
+                    from: 0; to: 360
+                    duration: 8000
+                    loops: Animation.Infinite
+                }
             }
             Text {
                 anchors.centerIn: parent
@@ -76,12 +85,6 @@ Module {
                 text: "\u{F075A}"
                 color: Colors.foreground
                 font { family: "JetBrainsMono Nerd Font"; pixelSize: 12 }
-            }
-            RotationAnimation on rotation {
-                running: mod.playing
-                from: 0; to: 360
-                duration: 8000
-                loops: Animation.Infinite
             }
         }
 

@@ -7,3 +7,6 @@
 [submodule "modules/runcat-text"]
 	path = modules/runcat-text
 	url = https://github.com/AlejandroMinor/runcat-text
+[submodule "modules/NowSpinning"]
+	path = modules/NowSpinning
+	url = https://github.com/AlejandroMinor/NowSpinning.git

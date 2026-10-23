@@ -97,10 +97,20 @@ cava draws in one of seven styles: bars, equalizer, peaks, LEDs, dots, wave or
 mirror. The media panel's cog shows them all live, under the skins, and saves the pick
 (`~/.local/state/hyprflow/cava-style`); the bar switches at once.
 
+## Pop out
+
+The full player's picture-in-picture button runs NowSpinning on its own,
+wearing the bar's look: PopOut (bar/services) writes the skin, its options,
+the shadow and the tint from `media-skin.json` into
+`~/.local/state/hyprflow/nowspinning/config.json` and starts the submodule's
+NowSpinning with `NOWSPINNING_CONFIG_DIR` pointing there, so the standalone
+widget keeps its own config. The button is lit while it runs; pressing it
+again (or NowSpinning's own close button) closes it.
+
 ## Lyrics
 
 The full player's lyrics button (a quote bubble, left of the cog) swaps the track for synced lyrics: the
-line being sung, the ones around it faded. The cog's "In bar" makes the bar's
+line being sung, the ones around it faded (the cog's Lines: 1 to 4). Its "In bar" makes the bar's
 media module show the line too. LyricsState (bar/services) feeds both with one
 lookup, NowSpinning's own (`Lyrics.qml`: LRCLIB, cached per track), loaded
 from the submodule by URL; without it there are no lyrics. Both switches are

@@ -18,6 +18,11 @@ Singleton {
     readonly property string previous: lyrics.item?.previous ?? ""
     readonly property string current: lyrics.item?.current ?? ""
     readonly property string next: lyrics.item?.next ?? ""
+    readonly property int index: lyrics.item?.index ?? -1
+    // The line `offset` away from the one being sung (-1 the last, 1 the next).
+    function line(offset) {
+        return lyrics.item ? lyrics.item.lineAt(index + offset) : "";
+    }
 
     // What Lyrics.qml reads, in the shape of NowSpinning's MprisSource.
     // MPRIS reports the position only when asked: asked every second, and

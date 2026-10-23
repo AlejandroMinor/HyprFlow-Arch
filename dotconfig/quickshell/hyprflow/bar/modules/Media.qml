@@ -132,13 +132,18 @@ Module {
                 id: title
                 anchors.verticalCenter: parent.verticalCenter
                 text: mod.singing ? LyricsState.current : mod.track
+                // A lyric changes every few seconds, too fast to scroll:
+                // cut with an ellipsis instead. Any new text starts at 0.
+                width: mod.singing ? Math.min(implicitWidth, mod.maxText) : implicitWidth
+                elide: mod.singing ? Text.ElideRight : Text.ElideNone
+                onTextChanged: x = 0
                 color: Qt.alpha(Colors.foreground, mod.playing ? 1 : 0.45)
                 font { family: mod.look.font; pixelSize: mod.look.fontSize; bold: true }
                 Behavior on color { ColorAnimation { duration: Motion.normal } }
 
                 readonly property real overflow: implicitWidth - mod.maxText
                 SequentialAnimation on x {
-                    running: title.overflow > 0 && mod.playing
+                    running: title.overflow > 0 && mod.playing && !mod.singing
                     loops: Animation.Infinite
                     PauseAnimation { duration: 2500 }
                     NumberAnimation { to: -title.overflow; duration: Math.max(0, title.overflow * 30); easing.type: Easing.InOutSine }

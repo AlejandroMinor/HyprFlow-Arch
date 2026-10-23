@@ -165,32 +165,22 @@ Item {
                 font { family: panel.look.font; pixelSize: 10; italic: true }
             }
 
-            // The lyrics: the line being sung, the ones around it faded.
-            Text {
-                Layout.fillWidth: true
-                visible: panel.lyricsShown
-                text: LyricsState.previous
-                elide: Text.ElideRight
-                color: Qt.alpha(Colors.foreground, 0.4)
-                font { family: panel.look.font; pixelSize: 11 }
-            }
-            Text {
-                Layout.fillWidth: true
-                visible: panel.lyricsShown
-                text: LyricsState.current || "\u266A"
-                wrapMode: Text.WordWrap
-                maximumLineCount: 2
-                elide: Text.ElideRight
-                color: Colors.foreground
-                font { family: panel.look.font; pixelSize: 14; bold: true }
-            }
-            Text {
-                Layout.fillWidth: true
-                visible: panel.lyricsShown
-                text: LyricsState.next
-                elide: Text.ElideRight
-                color: Qt.alpha(Colors.foreground, 0.4)
-                font { family: panel.look.font; pixelSize: 11 }
+            // The lyrics: the line being sung, the ones around it faded; how
+            // many, per the cog's Lines (1: just it, 2: and the next, 3: one
+            // either side, 4: and one more after).
+            Repeater {
+                model: ({ 1: [0], 2: [0, 1], 3: [-1, 0, 1], 4: [-1, 0, 1, 2] })[MediaSkin.lyricsLines] ?? [-1, 0, 1]
+                delegate: Text {
+                    required property int modelData
+                    Layout.fillWidth: true
+                    visible: panel.lyricsShown
+                    text: modelData === 0 ? (LyricsState.current || "\u266A") : LyricsState.line(modelData)
+                    wrapMode: modelData === 0 ? Text.WordWrap : Text.NoWrap
+                    maximumLineCount: modelData === 0 ? 2 : 1
+                    elide: Text.ElideRight
+                    color: modelData === 0 ? Colors.foreground : Qt.alpha(Colors.foreground, 0.4)
+                    font { family: panel.look.font; pixelSize: modelData === 0 ? 14 : 11; bold: modelData === 0 }
+                }
             }
 
             Item { Layout.fillHeight: true }
@@ -313,8 +303,33 @@ Item {
         onBack: panel.picking = false
     }
 
+    // Pop out: NowSpinning on its own with the bar's look, like picture-in-
+    // picture (PopOut); lit while it runs, and pressed again closes it.
+    Text {
+        anchors { top: parent.top; right: lyricsButton.left; topMargin: 14; rightMargin: 12 }
+        visible: !panel.picking
+        text: "\u{F0E57}"
+        color: PopOut.running ? BarTheme.accent
+            : Qt.alpha(Colors.foreground, popArea.containsMouse ? 1 : 0.5)
+        font { family: panel.look.font; pixelSize: 14 }
+        Component.onCompleted: PopOut.watchers++
+        Component.onDestruction: PopOut.watchers--
+        MouseArea {
+            id: popArea
+            anchors { fill: parent; margins: -6 }
+            hoverEnabled: true
+            onClicked: {
+                const opening = !PopOut.running;
+                PopOut.toggle();
+                if (opening)
+                    panel.media.bar.collapse();
+            }
+        }
+    }
+
     // Lyrics on or off, left of the cog.
     Text {
+        id: lyricsButton
         anchors { top: parent.top; right: cog.left; topMargin: 14; rightMargin: 12 }
         visible: !panel.picking
         text: "\u{F1021}"

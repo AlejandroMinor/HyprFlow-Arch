@@ -66,6 +66,7 @@ Singleton {
     property real backdropBlur: 1  // MultiEffect's blur, 0..1
     property bool lyricsPanel: false  // the full player shows lyrics instead of the track
     property bool lyricsBar: false    // the bar's module shows the current line
+    property int lyricsLines: 3       // how many the full player shows, 1..4
 
     function url(name) {
         const entry = skins.find(s => s.name === name);
@@ -87,7 +88,8 @@ Singleton {
     }
     function save() {
         file.setText(JSON.stringify({ skin: root.skin, settings: root.settings, backdrop: root.backdrop, backdropBlur: root.backdropBlur,
-                                     lyricsPanel: root.lyricsPanel, lyricsBar: root.lyricsBar }, null, 2) + "\n");
+                                     lyricsPanel: root.lyricsPanel, lyricsBar: root.lyricsBar,
+                                     lyricsLines: root.lyricsLines }, null, 2) + "\n");
     }
 
     FileView {
@@ -105,6 +107,7 @@ Singleton {
                 root.backdropBlur = Math.max(0, Math.min(1, data.backdropBlur ?? 1));
                 root.lyricsPanel = data.lyricsPanel === true;
                 root.lyricsBar = data.lyricsBar === true;
+                root.lyricsLines = Math.max(1, Math.min(4, data.lyricsLines ?? 3));
             } catch (e) {
                 root.skin = "cover";
             }

@@ -210,7 +210,8 @@ ColumnLayout {
 
     Divider {}
     Heading { text: "Lyrics" }
-    // The bar's media module showing the line being sung.
+    // The bar's media module showing the line being sung, and how many
+    // lines the full player shows.
     Row {
         spacing: 6
         PanelButton {
@@ -218,6 +219,15 @@ ColumnLayout {
             fontFamily: picker.panel.look.font
             onClicked: {
                 MediaSkin.lyricsBar = !MediaSkin.lyricsBar;
+                MediaSkin.save();
+            }
+        }
+        // How many lines the full player shows.
+        PanelButton {
+            label: "Lines: " + MediaSkin.lyricsLines
+            fontFamily: picker.panel.look.font
+            onClicked: {
+                MediaSkin.lyricsLines = MediaSkin.lyricsLines % 4 + 1;
                 MediaSkin.save();
             }
         }

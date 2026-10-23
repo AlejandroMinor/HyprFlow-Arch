@@ -73,8 +73,10 @@ ColumnLayout {
 
     Heading { text: "Skin" }
 
-    Row {
+    // Six to a row, the width of the panel.
+    Grid {
         Layout.alignment: Qt.AlignHCenter
+        columns: 6
         spacing: 8
         Repeater {
             model: MediaSkin.skins
@@ -98,6 +100,9 @@ ColumnLayout {
                     skin: tile.modelData.name
                     art: picker.panel.art
                     playing: picker.panel.player?.isPlaying ?? false
+                    title: picker.panel.player?.trackTitle ?? ""
+                    previousArt: picker.panel.media.previousArt
+                    previousTitle: picker.panel.media.previousTitle
                     iconFont: picker.panel.look.font
                 }
                 Text {
@@ -122,15 +127,17 @@ ColumnLayout {
         }
     }
 
-    // The picked skin's options, each a chip that steps through its values.
-    Row {
-        Layout.alignment: Qt.AlignHCenter
+    // The picked skin's options, each a chip that steps through its values;
+    // wrapped, since a row wider than the panel widens the whole column.
+    Flow {
+        Layout.fillWidth: true
         spacing: 6
         Repeater {
-            model: MediaSkin.options.filter(o => picker.sample && picker.sample[o.key] !== undefined)
+            model: MediaSkin.options.filter(o => picker.sample && (o.unless
+                ? picker.sample[o.unless] !== true : picker.sample[o.needs ?? o.key] !== undefined))
             delegate: PanelButton {
                 required property var modelData
-                readonly property var value: MediaSkin.option(MediaSkin.skin, modelData.key) ?? picker.sample[modelData.key]
+                readonly property var value: MediaSkin.option(MediaSkin.skin, modelData.key) ?? picker.sample[modelData.key] ?? modelData.values[0]
                 readonly property int step: Math.max(0, modelData.values.indexOf(value))
                 label: modelData.label + ": " + modelData.names[step]
                 fontFamily: picker.panel.look.font

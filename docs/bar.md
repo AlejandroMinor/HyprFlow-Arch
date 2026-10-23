@@ -101,10 +101,14 @@ mirror. The media panel's cog shows them all live, under the skins, and saves th
 
 The full player draws its cover plain or with a skin from
 [NowSpinning](https://github.com/AlejandroMinor/NowSpinning) (the
-`modules/NowSpinning` submodule): vinyl, CD, bare disc or cassette, spinning
-with the track. Its cog shows every skin live with what is playing, and under
-the picked one its own options (tonearm, turntable, disc side, clear shell,
-pixel size for our Pixel skin, the cover pixelated),
+`modules/NowSpinning` submodule): vinyl, 7" single, CD, bare disc, cassette,
+MiniDisc or Walkman, spinning with the track, or the flat ones: Pixel,
+Polaroid, CRT, ASCII, Hologram and Foil.
+Its cog shows every skin live with what is playing, and under the picked one its own options (tonearm, turntable, disc side, clear shell,
+pixel size, ASCII columns and colour, CRT bezel and glitch, Polaroid stack,
+hologram colour, motion, glitch, alpha and base, foil finish, motion and tilt, and
+Tint for the skins with an accent: the LEDs' colour, one from the cover, or none,
+and Shadow, a soft drop shadow, for the skins that cast none of their own),
 then Background sliders for the opacity and blur of the cover behind the player.
 All are saved in `~/.local/state/hyprflow/media-skin.json`. A skin missing
 from the submodule's checkout is left out of the picker.

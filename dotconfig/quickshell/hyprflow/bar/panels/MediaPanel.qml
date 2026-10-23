@@ -84,6 +84,9 @@ Item {
             skin: MediaSkin.skin
             art: panel.art
             playing: panel.player?.isPlaying ?? false
+            title: panel.player?.trackTitle ?? ""
+            previousArt: panel.media.previousArt
+            previousTitle: panel.media.previousTitle
             progress: panel.player && panel.player.length > 0 ? panel.player.position / panel.player.length : 0
             iconFont: panel.look.font
         }

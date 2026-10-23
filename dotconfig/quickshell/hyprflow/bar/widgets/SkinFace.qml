@@ -1,7 +1,7 @@
 // The cover drawn by a NowSpinning skin, scaled to fit its box, or the
-// plain cover for "cover" (and for a skin whose file is not there), or
-// that cover pixelated for "pixel".
+// plain cover for "cover" (and for a skin whose file is not there).
 import QtQuick
+import QtQuick.Effects
 import Quickshell.Widgets
 import qs
 import qs.bar.services
@@ -21,15 +21,10 @@ Item {
     property real progress: 0
     property string iconFont
     readonly property bool drawn: skinLoader.status === Loader.Ready  // a skin, not the cover
-    readonly property bool pixel: skin === "pixel"
-    // What the picker reads the skin's options from: the loaded skin, or
-    // for "pixel" its one option and the default.
-    readonly property var item: skinLoader.item ?? (pixel ? pixelDefaults : null)
-    QtObject {
-        id: pixelDefaults
-        property int pixels: 32
-    }
-    readonly property int pixels: MediaSkin.option("pixel", "pixels") ?? pixelDefaults.pixels
+    readonly property var item: skinLoader.item
+    property string title  // for skins that write it (Polaroid)
+    property string previousArt    // the last track's, for the Polaroid's stack
+    property string previousTitle
 
     clip: true
 
@@ -44,9 +39,7 @@ Item {
             anchors.fill: parent
             source: face.art
             fillMode: Image.PreserveAspectCrop
-            // Pixel: loaded tiny and scaled up without smoothing.
-            sourceSize { width: face.pixel ? face.pixels : 300; height: face.pixel ? face.pixels : 300 }
-            smooth: !face.pixel
+            sourceSize { width: 300; height: 300 }
             asynchronous: true
         }
         Text {
@@ -74,7 +67,40 @@ Item {
         default: return Qt.rect(f.x, f.y, f.width + peek, f.height);
         }
     }
-    readonly property real fit: Math.min(width / shown.width, height / shown.height)
+    // A soft shadow under the skin, unless it casts its own (ownShadow).
+    readonly property bool shadowOn: drawn && item.ownShadow !== true
+        && (MediaSkin.option(skin, "shadow") ?? true)
+    readonly property real pad: shadowOn ? Math.min(width, height) * 0.06 : 0  // room for its blur
+    readonly property real fit: Math.min((width - 2 * pad) / shown.width, (height - 2 * pad) / shown.height)
+
+    // Drawn once from the face's outline (the whole skin, for a solid one)
+    // and blurred once, like NowSpinning's: spinning costs nothing.
+    Item {
+        id: shadow
+        visible: face.shadowOn
+        readonly property bool round: face.item ? face.item.faceIsCircle === true && face.item.solidBox !== true : false
+        readonly property rect outline: !face.item ? Qt.rect(0, 0, 0, 0)
+            // The CD's box has room for its disc pulled out: shade the case.
+            : round || face.item.peekFraction !== undefined ? face.item.faceRect
+            : Qt.rect(0, 0, face.item.implicitWidth, face.item.implicitHeight)
+        x: skinLoader.x + outline.x * face.fit
+        y: skinLoader.y + outline.y * face.fit + face.pad * 0.35
+        width: outline.width * face.fit
+        height: outline.height * face.fit
+        opacity: 0.5
+        Rectangle {
+            anchors.fill: parent
+            radius: shadow.round ? width / 2 : width * 0.05
+            color: "black"
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                blurEnabled: true
+                blur: 1
+                blurMax: 32
+                autoPaddingEnabled: true
+            }
+        }
+    }
 
     // Drawn at NowSpinning's medium size, then scaled into the box.
     Loader {
@@ -98,17 +124,36 @@ Item {
                 item.trackChangeToken += 1;
             item.artUrl = Qt.binding(() => face.art);
             item.playing = Qt.binding(() => face.playing);
+            if (item.title !== undefined)
+                item.title = Qt.binding(() => face.title);
+            if (item.previousArt !== undefined) {
+                item.previousArt = Qt.binding(() => face.previousArt);
+                item.previousTitle = Qt.binding(() => face.previousTitle);
+            }
             if (item.progress !== undefined)
                 item.progress = Qt.binding(() => face.progress);
             if (item.accent !== undefined)
-                item.accent = Qt.binding(() => BarTheme.accent);
+                item.accent = Qt.binding(() => face.accent);
             for (const option of MediaSkin.options) {
-                if (item[option.key] === undefined)
+                if (option.needs || option.unless || item[option.key] === undefined)
                     continue;
                 const fallback = item[option.key];
                 item[option.key] = Qt.binding(() => MediaSkin.option(face.skin, option.key) ?? fallback);
             }
         }
+    }
+
+    // The skin's accent, per its Tint: the LEDs' colour, one picked out of
+    // the cover (NowSpinning's ArtAccent, loaded by URL so a missing
+    // submodule only loses this), or plain white.
+    readonly property string tint: MediaSkin.option(skin, "tint") ?? "leds"
+    readonly property color accent: tint === "album" ? (artAccent.item?.accent ?? "white")
+        : tint === "off" ? "white" : BarTheme.accent
+    Loader {
+        id: artAccent
+        active: face.tint === "album"
+        source: Qt.resolvedUrl("../nowspinning/ArtAccent.qml")
+        onLoaded: item.source = Qt.binding(() => face.art)
     }
 
     // A new track: the CD skin swaps discs.

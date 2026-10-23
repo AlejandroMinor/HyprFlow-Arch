@@ -28,6 +28,22 @@ Module {
     readonly property int maxText: settings["max-width"] ?? 220
     readonly property string track: [player?.trackArtist, player?.trackTitle].filter(s => s).join(" - ")
 
+    // The last track's cover and title: the module outlives the panel, so a
+    // skin made again on reopening (the Polaroid's stack) gets them here.
+    property string previousArt: ""
+    property string previousTitle: ""
+    property string lastArt: ""
+    property string lastTitle: ""
+    onArtChanged: {
+        if (lastArt && art && art !== lastArt) previousArt = lastArt;
+        if (art) lastArt = art;
+    }
+    readonly property string trackTitle: player?.trackTitle ?? ""
+    onTrackTitleChanged: {
+        if (lastTitle && trackTitle && trackTitle !== lastTitle) previousTitle = lastTitle;
+        if (trackTitle) lastTitle = trackTitle;
+    }
+
     function youtubeThumb(url) {
         const m = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
         return m ? "https://i.ytimg.com/vi/" + m[1] + "/mqdefault.jpg" : "";

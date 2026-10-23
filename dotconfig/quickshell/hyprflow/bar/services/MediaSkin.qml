@@ -10,22 +10,50 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    // "cover" and "pixel" are ours; the rest are NowSpinning's skins/<File>.qml.
+    // "cover" is ours; the rest are NowSpinning's skins/<File>.qml.
     readonly property var skins: [
         { name: "cover", label: "Cover", file: "" },
-        { name: "pixel", label: "Pixel", file: "" },
         { name: "vinyl", label: "Vinyl", file: "VinylSkin.qml" },
         { name: "cd", label: "CD", file: "CdSkin.qml" },
         { name: "disc", label: "Disc", file: "DiscSkin.qml" },
-        { name: "cassette", label: "Cassette", file: "CassetteSkin.qml" }
+        { name: "cassette", label: "Cassette", file: "CassetteSkin.qml" },
+        { name: "minidisc", label: "MiniDisc", file: "MiniDiscSkin.qml" },
+        { name: "walkman", label: "Walkman", file: "WalkmanSkin.qml" },
+        { name: "single", label: "7\" single", file: "SingleSkin.qml" },
+        { name: "pixel", label: "Pixel", file: "PixelSkin.qml" },
+        { name: "polaroid", label: "Polaroid", file: "PolaroidSkin.qml" },
+        { name: "crt", label: "CRT", file: "CrtSkin.qml" },
+        { name: "ascii", label: "ASCII", file: "AsciiSkin.qml" },
+        { name: "hologram", label: "Hologram", file: "HologramSkin.qml" },
+        { name: "foil", label: "Foil", file: "FoilSkin.qml" }
     ]
 
-    // The options a skin can have; a skin shows the ones it declares.
+    // The options a skin can have; a skin shows the ones it declares (or,
+    // with `needs`, the ones whose property it has: Tint sets `accent`;
+    // with `unless`, the ones whose flag it lacks: Shadow, unless ownShadow).
     readonly property var options: [
+        { key: "shadow", unless: "ownShadow", label: "Shadow", values: [true, false], names: ["On", "Off"] },
+        { key: "tint", needs: "accent", label: "Tint", values: ["leds", "album", "off"], names: ["LEDs", "Album", "Off"] },
         { key: "showArm", label: "Tonearm", values: [false, true], names: ["Off", "On"] },
         { key: "showDeck", label: "Turntable", values: [false, true], names: ["Off", "On"] },
         { key: "peekSide", label: "Disc side", values: ["right", "left", "top", "bottom"], names: ["Right", "Left", "Top", "Bottom"] },
         { key: "pixels", label: "Pixels", values: [64, 32, 24, 16], names: ["64", "32", "24", "16"] },
+        { key: "columns", label: "Columns", values: [32, 48, 64], names: ["32", "48", "64"] },
+        { key: "colored", label: "Color", values: [true, false], names: ["On", "Off"] },
+        { key: "effect", label: "Glitch", values: ["random", "slices", "roll", "static", "split", "channel"],
+          names: ["Random", "Slices", "Roll", "Static", "Split", "Channel"] },
+        { key: "showBezel", label: "Bezel", values: [true, false], names: ["On", "Off"] },
+        { key: "holoColor", label: "Colour", values: ["cyan", "green", "pink", "amber", "art"],
+          names: ["Cyan", "Green", "Pink", "Amber", "Accent"] },
+        { key: "holoMotion", label: "Motion", values: [true, false], names: ["On", "Off"] },
+        { key: "holoGlitch", label: "Glitch", values: [true, false], names: ["On", "Off"] },
+        { key: "holoOpacity", label: "Alpha", values: [1, 0.75, 0.5], names: ["100%", "75%", "50%"] },
+        { key: "holoBase", label: "Base", values: [true, false], names: ["On", "Off"] },
+        { key: "foilStyle", label: "Foil", values: ["rainbow", "gold", "silver", "art"],
+          names: ["Rainbow", "Gold", "Silver", "Accent"] },
+        { key: "foilMotion", label: "Motion", values: [true, false], names: ["On", "Off"] },
+        { key: "foilTilt", label: "Tilt", values: [true, false], names: ["On", "Off"] },
+        { key: "showStack", label: "Stack", values: [true, false], names: ["On", "Off"] },
         { key: "shellOpacity", label: "Shell", values: [1, 0.45], names: ["Solid", "Clear"] }
     ]
 

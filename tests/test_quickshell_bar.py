@@ -145,13 +145,14 @@ def test_the_full_player_skins_are_the_nowspinning_submodules():
     # the property each skin declares; a rename there would hide one quietly.
     media_skin = (BAR / "services" / "MediaSkin.qml").read_text()
     files = re.findall(r'file: "(\w+\.qml)"', media_skin)
-    keys = re.findall(r'key: "(\w+)"', media_skin)
+    # An option with `needs` or `unless` hangs on another property (Tint on
+    # accent, Shadow on ownShadow).
+    keys = [other or key for key, other in
+            re.findall(r'key: "(\w+)"(?:, (?:needs|unless): "(\w+)")?', media_skin)]
     assert files and keys
     if not (NOWSPINNING / "skins").is_dir():
         return  # submodule not checked out
-    # Our own skins ("pixel") declare theirs in SkinFace.qml.
     skins = "".join((NOWSPINNING / "skins" / f).read_text() for f in files)
-    skins += (BAR / "widgets" / "SkinFace.qml").read_text()
     for key in keys:
         assert re.search(rf"property \w+ {key}\b", skins), key
 

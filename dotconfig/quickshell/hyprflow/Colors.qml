@@ -41,6 +41,7 @@ Singleton {
     property real preview: -1
     readonly property real card: preview >= 0 ? preview : (tweaks.card ?? palette.card ?? 0.38)
     readonly property real blur: tweaks.blur ?? palette.glass?.blur ?? 1.5
+    readonly property bool glass: saved.glass ?? true  // hyprglass on the panels, every tone
 
     // The foreground at ALPHA. On a light tone grey on white fades much faster
     // than white on black, so secondary text (0.3 and up) is drawn stronger.

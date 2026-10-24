@@ -50,6 +50,17 @@ def test_a_tone_writes_rofi_swaync_and_the_glass(app):
     assert "swaync-client -rs" in app.calls() and "hyprctl reload" in app.calls()
 
 
+def test_glass_off_keeps_plain_blur_for_every_tone(app):
+    app.main(["tone", "light"])
+    assert app.main(["glass", "off"]) == 0
+    assert app.saved()["glass"] is False
+    assert app.GLASS.read_text().endswith("return false\n")
+    app.main(["tone", "slate"])
+    assert "return false" in app.GLASS.read_text()
+    app.main(["glass", "on"])
+    assert "blur_strength" in app.GLASS.read_text()
+
+
 def test_nothing_changed_reloads_nothing(app):
     app.main(["tone", "slate"])
     (app.GLASS.parent.parent / "calls").unlink()
@@ -109,7 +120,7 @@ def test_the_text_colour_is_a_tweak_too(app):
     assert "foreground: #3C3C43;" in app.ROFI.read_text()
 
 
-@pytest.mark.parametrize("args", [["set", "size", "1"], ["set", "card", "x"], ["set", "text", "red"],
+@pytest.mark.parametrize("args", [["glass", "maybe"], ["set", "size", "1"], ["set", "card", "x"], ["set", "text", "red"],
                                   ["tone", "pink"], ["what"]])
 def test_bad_arguments_change_nothing(app, args):
     assert app.main(args) == 2

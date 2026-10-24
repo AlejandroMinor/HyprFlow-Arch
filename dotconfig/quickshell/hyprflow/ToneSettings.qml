@@ -1,6 +1,6 @@
 // Appearance's "Panels" tab: the tones of palettes.json, each drawn in its
 // own colours (darks first), and for the tone in use how see-through the card
-// is and how much the glass blurs. Everything runs lib/appearance.py, which
+// is, whether the panels get the glass and how much it blurs. Everything runs lib/appearance.py, which
 // Colors.qml follows. The text colour is a row of swatches, the tone's own
 // first. A transparency drag shows at once (Colors.preview) and
 // is saved on release; blur reloads Hyprland, so it applies on release.
@@ -103,18 +103,34 @@ ColumnLayout {
         }
 
         Text {
+            text: "Glass"
+            color: Colors.foreground
+            font { family: settings.font; pixelSize: 12 }
+        }
+        Item { Layout.fillWidth: true }
+        PanelButton {
+            Layout.alignment: Qt.AlignRight
+            label: Colors.glass ? "On" : "Off"
+            fontFamily: settings.font
+            onClicked: settings.run(["glass", Colors.glass ? "off" : "on"])
+        }
+
+        Text {
+            visible: Colors.glass
             text: "Blur"
             color: Colors.foreground
             font { family: settings.font; pixelSize: 12 }
         }
         BarSlider {
             id: blur
+            visible: Colors.glass
             Layout.fillWidth: true
             value: (blur.dragging ? settings.blurShown : Colors.blur) / settings.blurMax
             onMoved: v => settings.blurShown = v * settings.blurMax
             onDraggingChanged: if (!dragging) settings.run(["set", "blur", settings.blurShown.toFixed(2)])
         }
         Text {
+            visible: Colors.glass
             Layout.preferredWidth: 34
             horizontalAlignment: Text.AlignRight
             text: (blur.dragging ? settings.blurShown : Colors.blur).toFixed(1)

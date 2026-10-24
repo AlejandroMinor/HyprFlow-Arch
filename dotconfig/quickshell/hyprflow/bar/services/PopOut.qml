@@ -70,11 +70,12 @@ Singleton {
         }
     }
     // The folder, the config, and (when `launch`) NowSpinning, in order.
+    // Swapped in whole: a half-written file reads as its defaults (ring, medium).
     property real quietUntil: 0  // our own write, not to be read back
     function write(launch) {
         quietUntil = Date.now() + 1000;
         Quickshell.execDetached(["sh", "-c",
-            'mkdir -p "$1" && printf "%s\\n" "$2" > "$1/config.json"'
+            'mkdir -p "$1" && printf "%s\\n" "$2" > "$1/config.json.tmp" && mv -f "$1/config.json.tmp" "$1/config.json"'
                 + (launch ? ' && NOWSPINNING_CONFIG_DIR="$1" exec qs -d -p "$3"' : ""),
             "sh", root.configDir, JSON.stringify(config(saved()), null, 4), root.path]);
     }

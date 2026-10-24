@@ -44,6 +44,7 @@ def box(tmp_path):
         fake(tmp_path / "fakebin" / name, body)
     fake(tmp_path / "lib" / "bar-restart.sh", "")
     fake(tmp_path / "bin" / "rgb-sync.sh", "")
+    fake(tmp_path / "lib" / "appearance.py", "")
     themes = tmp_path / "config" / "wallust" / "themes"
     shutil.copytree(THEMES, themes)
     palette = tmp_path / "palette.sh"
@@ -150,6 +151,11 @@ def test_the_accent_is_picked_before_the_reload_and_the_leds_follow(box):
     assert f"setsid {box[0]}/bin/rgb-sync.sh --last" in log
 
 
+def test_the_panels_follow_the_new_palette_after_the_led_colour(box):
+    _, log = pick(box, "", "wallust-theme-manager.sh", "--restore-default", "--no-restart")
+    assert log.index("rgb-sync.sh --pick") < log.index("appearance.py apply") < log.index("hyprctl reload")
+
+
 def test_without_theme_files_the_list_has_no_stray_star(box):
     root, _ = box
     for theme in (root / "config" / "wallust" / "themes").glob("*.json"):
@@ -209,6 +215,11 @@ def test_set_applies_the_theme_without_a_menu(box):
     themes = box[0] / ".config" / "wallust" / "themes"
     assert f"wallust cs {themes}/accent-blue.json" in log
     assert not any(line.startswith("fzf") for line in log)
+
+
+def test_set_says_nothing_the_open_panel_shows_it(box):
+    _, log = run(box, "--set", "nord")
+    assert not any(line.startswith(("notify-send", "qs -c hyprflow ipc call osd")) for line in log)
 
 
 def test_set_auto_generates_the_palette(box):

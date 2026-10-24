@@ -15,7 +15,7 @@ Rectangle {
     implicitWidth: buttonText.implicitWidth + 24
     implicitHeight: 28
     radius: 8
-    color: strong ? BarTheme.accent : buttonArea.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
+    color: strong ? BarTheme.accent : buttonArea.containsMouse ? BarTheme.tint(0.12) : Colors.fg(0.06)
 
     Text {
         id: buttonText

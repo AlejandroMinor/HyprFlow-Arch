@@ -34,7 +34,7 @@ Item {
         height: width
         visible: !face.drawn
         radius: 10
-        color: Qt.alpha(Colors.foreground, 0.08)
+        color: Colors.fg(0.08)
         Image {
             anchors.fill: parent
             source: face.art
@@ -46,7 +46,7 @@ Item {
             anchors.centerIn: parent
             visible: !face.art
             text: "\u{F0387}"
-            color: Qt.alpha(Colors.foreground, 0.5)
+            color: Colors.fg(0.5)
             font { family: face.iconFont; pixelSize: parent.width * 0.27 }
         }
     }

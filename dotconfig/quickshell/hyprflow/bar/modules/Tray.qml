@@ -1,6 +1,8 @@
-// The system tray. Icons pop in as apps arrive; click activates, right
-// click opens the app's menu in the card (panels/TrayMenu).
+// The system tray. Icons pop in as apps arrive (bar.json "icons" swaps them
+// for a glyph or an .svg); click activates, right click opens the app's menu
+// in the card (panels/TrayMenu).
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.SystemTray
@@ -40,10 +42,33 @@ Row {
                 color: area.containsMouse ? BarTheme.tint(tray.look.hover) : "transparent"
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
             }
+            // bar.json "icons", by the app's id or tooltip title: a Nerd Font
+            // glyph, or an .svg of bar/icons/ drawn in the text colour. Apps
+            // with none keep their own icon, in greys.
+            readonly property string mapped: (tray.settings.icons ?? {})[slot.modelData.id]
+                ?? (tray.settings.icons ?? {})[slot.modelData.tooltipTitle] ?? ""
+            readonly property bool svg: mapped.endsWith(".svg")
+
+            Text {
+                anchors.centerIn: parent
+                visible: slot.mapped !== "" && !slot.svg
+                text: slot.mapped
+                color: Colors.foreground
+                font { family: tray.look.font; pixelSize: tray.look.iconSize }
+            }
             IconImage {
                 anchors.centerIn: parent
+                visible: slot.mapped === "" || slot.svg
                 implicitSize: tray.look.iconSize
-                source: slot.modelData.icon
+                source: slot.svg ? Qt.resolvedUrl("../icons/" + slot.mapped) : slot.modelData.icon
+                layer.enabled: true
+                layer.effect: MultiEffect {
+                    saturation: -1
+                    // brightness lifts a black drawing to white, then it takes the colour.
+                    brightness: slot.svg ? 1 : 0
+                    colorization: slot.svg ? 1 : 0
+                    colorizationColor: Colors.foreground
+                }
             }
             Component {
                 id: menu

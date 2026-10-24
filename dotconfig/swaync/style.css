@@ -1,20 +1,10 @@
 /* swaync's own stylesheet, restyled as the Quickshell card: only what
    differs is here. */
 @import url("file:///etc/xdg/swaync/style.css");
+/* The colours: lib/appearance.py writes them from the tone (palettes.json). */
+@import url("colors.css");
 
 :root {
-  --cc-bg: rgba(0, 0, 0, 0.38);
-  --noti-border-color: rgba(255, 255, 255, 0.08);
-  --noti-bg: 0, 0, 0;
-  --noti-bg-alpha: 0.38;
-  --noti-bg-darker: rgba(0, 0, 0, 0.55);
-  --noti-bg-hover: rgba(0, 0, 0, 0.55);
-  --noti-bg-focus: transparent;  /* no box behind the focused row */
-  --noti-close-bg: rgba(255, 255, 255, 0.08);
-  --noti-close-bg-hover: rgba(255, 255, 255, 0.15);
-  --text-color: #ffffff;
-  --text-color-disabled: rgba(255, 255, 255, 0.45);
-  --bg-selected: #3dff3d;
   --notification-icon-size: 20px;
   --notification-group-icon-size: 20px;
   --border-radius: 16px;
@@ -33,12 +23,12 @@
   padding: 12px;
 }
 
-/* White like the OSD glyphs (symbolic icons take the colour). No rounding:
+/* The text colour, like the OSD glyphs (symbolic icons take the colour). No rounding:
    it clips glyphs that reach the corner, like network-offline's x. */
 .notification-row .notification-background .notification .notification-default-action .notification-content .image {
   border-radius: 0;
   background-color: transparent;
-  color: #ffffff;
+  color: var(--text-color);
   margin: 4px 12px 4px 4px;
 }
 
@@ -52,5 +42,5 @@
 }
 
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-color-body);
 }

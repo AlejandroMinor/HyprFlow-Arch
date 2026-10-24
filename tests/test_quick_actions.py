@@ -195,6 +195,16 @@ def test_activate_linux_action_toggles_the_watermark(qa, monkeypatch, tmp_path):
     assert action.state_word() == "off"
 
 
+def test_appearance_action_opens_the_panel_and_names_the_tone(qa, monkeypatch, tmp_path):
+    action = next(a for a in qa.ACTIONS if a.label == "Appearance")
+    assert action.argv == ["qs", "-c", "hyprflow", "ipc", "call", "appearance", "toggle"]
+    assert action.section == "Appearance"
+    monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
+    assert action.state_word() == "black"
+    (tmp_path / "appearance.json").write_text('{"tone": "slate"}')
+    assert action.state_word() == "slate"
+
+
 def test_an_action_for_a_missing_device_is_left_out(qa, capsys):
     import json
     qa.main(actions=[qa.Action("a", "Keyboard", ["one"], when=lambda: False),

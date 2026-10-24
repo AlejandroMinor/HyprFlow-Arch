@@ -92,11 +92,13 @@ waypaper (Super+K → Random wallpaper, or waypaper itself) → its post_command
       → with --notify: the OSD says "Theme · Wallpaper" (or the preset's name)
 ```
 
-A preset instead: Super+K → Theme →
-`theme-picker.sh --toggle` → the Quickshell panel (`--json` lists them, a pick
-runs `--set NAME`; the fzf picker itself in a terminal or over SSH) →
-`wallust-theme-manager.sh --theme NAME` → `wallust cs`, then the same chain
-(the state file gets NAME).
+A preset instead: Super+K → Appearance → Theme tab (AppearancePanel.qml,
+ThemeList.qml; `theme-picker.sh --toggle` opens it there) → `--json` lists
+them, a pick runs `--set NAME` and the panel stays open, the mark moving once
+applied (no notice: the change shows); the fzf picker itself in a terminal or
+over SSH → `wallust-theme-manager.sh --theme NAME` → `wallust cs`, then the
+same chain (the state file gets NAME). The chain also runs `appearance.py
+apply`, so the panels' "Theme" tone takes the new palette.
 
 ### Locking
 
@@ -166,10 +168,34 @@ timeout, category, an action button). A button is an `-A key=label` action; the
 command it runs is matched on the app name in
 `dotconfig/swaync/config.json` (`scripts`, `run-on: action`), so a
 notification carries a single action. `style.css` imports swaync's own and
-restyles it like the OSD card (white symbolic icons, same type and spacing).
+restyles it like the OSD card (symbolic icons in the text colour, same type
+and spacing); its colours are `colors.css`, from the tone (below).
 The panel is `swaync`; the bar's `custom/swaync` widget drives it
 (`swaync-client -swb/-t/-d`); `Super+N` toggles the panel, `Super+Shift+N`
 clears it.
+
+### The panels' tone
+
+```
+Super+K → "Appearance" → AppearancePanel.qml (qs ipc call appearance toggle)
+  → a tone (Black, Slate, Light: quickshell/hyprflow/palettes.json), a
+    transparency, a blur or a text colour → lib/appearance.py tone |
+    set card|blur|text | reset
+  → ~/.local/state/hyprflow/appearance.json: the tone and its tweaks
+  → Colors.qml watches it and palettes.json: every panel and the bar follow
+    (a transparency drag shows at once through Colors.preview)
+  → rofi/hyprflow/colors.rasi and swaync/colors.css written from the tone;
+    swaync-client -rs reloads the notifications' CSS
+  → ~/.local/state/hyprflow/glass.lua, then hyprctl reload: plugins.lua puts
+    the panels, rofi and swaync through HyprGlass (preset "panels")
+```
+
+`Colors.fg(alpha)` lifts secondary text by the tone's `lift` (Light: grey on
+white fades faster than white on black). The two colour files are generated,
+so `install.sh config` never overwrites the chosen tone. A new tone is one
+more entry in palettes.json; `"from": "wallust"` (the Theme tone) takes the
+background and text from the wallust palette and the accent from the LED
+colour, and follows each theme or wallpaper change.
 
 ### The bar
 
@@ -231,6 +257,7 @@ volume module, `sink-switch.py --toggle` (see above).
 | Media panel → lyrics button, cog → Lyrics in bar | LyricsState (bar/services) loads NowSpinning's `Lyrics.qml` by URL and feeds it the bar's player, its position run on a local clock between MPRIS polls; MediaPanel shows previous/current/next in place of the track, Media.qml the current line in place of the title. Both switches live in `media-skin.json` |
 | Media panel → cog | MediaSkinPicker.qml, in tabs (Skin, Spectrum, Lyrics, Background; MediaSkin.pickerTab, not saved): every skin live (SkinFace loads `bar/nowspinning/skins/<X>.qml`, the submodule install.sh links); a pick or an option writes `~/.local/state/hyprflow/media-skin.json`, which MediaSkin (bar/services) watches. Then cava's seven styles live (a pick writes `~/.local/state/hyprflow/cava-style`, which CavaLevels watches), and last Background sliders for the blurred cover's opacity (0–0.8) and blur (in media-skin.json; past the default a scrim and a text shadow keep it readable) |
 | Super+K → Activate Linux | `activate-linux.py --toggle` flips `~/.local/state/hyprflow/watermark-off`; the running watermark watches it (like `game-mode`) and hides or shows |
+| Super+K → Appearance | `qs ipc call appearance toggle` → AppearancePanel.qml, two tabs (Ctrl+Tab): Panels (ToneSettings.qml: the tones of palettes.json in their own colours, Transparency, Blur, Text colour and Reset, each running `appearance.py`; see The panels' tone) and Theme (ThemeList.qml, the wallust themes; see The wallpaper changes) |
 | Super+K → Keyboard effect | `qs ipc call keyboardfx toggle` → KeyboardEffects.qml: a live KeyPreview per effect in the theme colour (`keyboard-rgb.py --json` gives both); a pick runs `keyboard-rgb.py effect N`, which also gives it the cached LED colour (dark while `led-off` is there). Listed only with the keyboard plugged in |
 | Waybar power button, Super+M, Super+K → Power menu | `qs ipc call power toggle` → PowerMenu.qml: Lock (`hyprlock-flow.sh`) and Suspend at once; Log out, Reboot and Shut down (`session-manager.py logout|reboot|poweroff --yes`, the session saved first) on a second press |
 | Volume, mute and brightness keys | `volume.sh` / `brightness.sh` → the Quickshell OSD (a notification without it); the OSD also watches Pipewire, so a headset's own buttons show it |
@@ -266,7 +293,7 @@ autoreload picks up the copied .lua files.
   `HyprlandError`, an `OSError`.
 - **Quickshell panels**: every panel is an `Overlay` (the window, the fold
   open and closed, keyboard and click outside) plus its content; durations
-  and curves live only in `Motion`, colours in `Colors` (fixed). The data
+  and curves live only in `Motion`, colours in `Colors` (fixed, by tone: palettes.json). The data
   stays in Python: the Super+K panel draws `quick-actions.py --json` and
   runs `--run LABEL`, so rofi and Quickshell share one list of actions; the
   audio switcher the same way (`sink-switch.py --json` / `--set ID`).

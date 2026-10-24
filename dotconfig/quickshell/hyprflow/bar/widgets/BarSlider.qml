@@ -25,12 +25,12 @@ Item {
         width: parent.width
         height: 4
         radius: 2
-        color: Qt.alpha(Colors.foreground, 0.15)
+        color: Colors.fg(0.15)
         Rectangle {
             height: parent.height
             radius: 2
             width: parent.width * Math.max(0, Math.min(1, slider.shown))
-            color: slider.muted ? Qt.alpha(Colors.foreground, slider.dim) : Qt.alpha(BarTheme.accent, 0.9)
+            color: slider.muted ? Colors.fg(slider.dim) : Qt.alpha(BarTheme.accent, 0.9)
         }
     }
     Rectangle {

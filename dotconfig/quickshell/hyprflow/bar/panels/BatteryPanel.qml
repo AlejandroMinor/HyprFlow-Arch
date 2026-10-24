@@ -27,7 +27,7 @@ Item {
         Text {
             visible: panel.devices.length === 0
             text: "No batteries"
-            color: Qt.alpha(Colors.foreground, 0.45)
+            color: Colors.fg(0.45)
             font { family: panel.look.font; pixelSize: 12 }
         }
         Repeater { model: panel.here; delegate: Battery {} }
@@ -38,7 +38,7 @@ Item {
             Layout.fillWidth: true
             Layout.topMargin: 2
             implicitHeight: 1
-            color: Qt.alpha(Colors.foreground, 0.1)
+            color: Colors.fg(0.1)
         }
         Heading {
             visible: panel.sent.length > 0
@@ -55,7 +55,7 @@ Item {
     }
 
     component Heading: Text {
-        color: Qt.alpha(Colors.foreground, 0.45)
+        color: Colors.fg(0.45)
         font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
     }
 
@@ -99,7 +99,7 @@ Item {
                 Layout.fillWidth: true
                 implicitHeight: 4
                 radius: 2
-                color: Qt.alpha(Colors.foreground, 0.15)
+                color: Colors.fg(0.15)
                 Rectangle {
                     id: fill
                     height: parent.height

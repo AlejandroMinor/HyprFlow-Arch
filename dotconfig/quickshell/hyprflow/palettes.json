@@ -1,0 +1,80 @@
+{
+  "black": {
+    "label": "Black",
+    "background": "#000000",
+    "foreground": "#FFFFFF",
+    "accent": "#3DFF3D",
+    "selection": ["#000000", 0.55],
+    "border": ["#FFFFFF", 0.08],
+    "card": 0.38,
+    "lift": 0,
+    "glass": { "blur": 1.5, "brightness": 0.82, "contrast": 0.9, "saturation": 1.0, "tint": ["#000000", 0] }
+  },
+  "slate": {
+    "label": "Slate",
+    "background": "#1B1F26",
+    "foreground": "#FFFFFF",
+    "accent": "#3DFF3D",
+    "selection": ["#000000", 0.55],
+    "border": ["#FFFFFF", 0.08],
+    "card": 0.6,
+    "lift": 0,
+    "glass": { "blur": 1.5, "brightness": 0.82, "contrast": 0.9, "saturation": 1.0, "tint": ["#000000", 0] }
+  },
+  "espresso": {
+    "label": "Espresso",
+    "background": "#1E1A17",
+    "foreground": "#F2EDE6",
+    "accent": "#3DFF3D",
+    "selection": ["#000000", 0.55],
+    "border": ["#F2EDE6", 0.08],
+    "card": 0.6,
+    "lift": 0,
+    "glass": { "blur": 1.5, "brightness": 0.82, "contrast": 0.9, "saturation": 1.0, "tint": ["#000000", 0] }
+  },
+  "light": {
+    "label": "Light",
+    "background": "#FFFFFF",
+    "foreground": "#3C3C43",
+    "accent": "#1F9D3A",
+    "selection": ["#000000", 0.1],
+    "border": ["#FFFFFF", 0.5],
+    "card": 0.65,
+    "lift": 0.25,
+    "glass": { "blur": 1.5, "brightness": 1.5, "contrast": 0.9, "saturation": 1.2, "tint": ["#FFFFFF", 0.375] }
+  },
+  "mist": {
+    "label": "Mist",
+    "background": "#F2F2F7",
+    "foreground": "#1C1C1E",
+    "accent": "#1F9D3A",
+    "selection": ["#000000", 0.1],
+    "border": ["#FFFFFF", 0.5],
+    "card": 0.65,
+    "lift": 0.25,
+    "glass": { "blur": 1.5, "brightness": 1.5, "contrast": 0.9, "saturation": 1.2, "tint": ["#F2F2F7", 0.375] }
+  },
+  "ivory": {
+    "label": "Ivory",
+    "background": "#FAF7F0",
+    "foreground": "#3B3630",
+    "accent": "#1F9D3A",
+    "selection": ["#000000", 0.1],
+    "border": ["#FFFFFF", 0.5],
+    "card": 0.65,
+    "lift": 0.25,
+    "glass": { "blur": 1.5, "brightness": 1.5, "contrast": 0.9, "saturation": 1.2, "tint": ["#FAF7F0", 0.375] }
+  },
+  "theme": {
+    "label": "Theme",
+    "from": "wallust",
+    "background": "#000000",
+    "foreground": "#FFFFFF",
+    "accent": "#3DFF3D",
+    "selection": ["#000000", 0.55],
+    "border": ["#FFFFFF", 0.08],
+    "card": 0.6,
+    "lift": 0,
+    "glass": { "blur": 1.5, "brightness": 0.82, "contrast": 0.9, "saturation": 1.0, "tint": ["#000000", 0] }
+  }
+}

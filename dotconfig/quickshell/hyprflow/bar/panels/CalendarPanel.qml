@@ -181,7 +181,7 @@ Item {
                         Layout.preferredWidth: 32
                         horizontalAlignment: Text.AlignHCenter
                         text: modelData
-                        color: Qt.alpha(Colors.foreground, 0.45)
+                        color: Colors.fg(0.45)
                         font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold }
                     }
                 }
@@ -205,7 +205,7 @@ Item {
                             anchors.centerIn: parent
                             text: cell.modelData.getDate()
                             color: cell.today ? Colors.background
-                                 : Qt.alpha(Colors.foreground, cell.inMonth ? 1 : 0.25)
+                                 : Colors.fg(cell.inMonth ? 1 : 0.25)
                             font { family: panel.look.font; pixelSize: 12; bold: cell.today }
                         }
                         // A day with events.
@@ -243,12 +243,12 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     text: panel.picked ? Qt.formatDate(panel.picked, "dddd d MMMM").toUpperCase() : "UPCOMING"
-                    color: Qt.alpha(Colors.foreground, 0.45)
+                    color: Colors.fg(0.45)
                     font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
                 }
                 Text {
                     text: panel.adding ? "\u{F0156}" : "\u{F0415}"  // close, plus
-                    color: Qt.alpha(Colors.foreground, plus.containsMouse ? 1 : 0.6)
+                    color: Colors.fg(plus.containsMouse ? 1 : 0.6)
                     font { family: panel.look.font; pixelSize: 14 }
                     MouseArea {
                         id: plus
@@ -271,7 +271,7 @@ Item {
                 Text {
                     text: (panel.editing ? "Editing · " : "") + Qt.formatDate(panel.addDay, "dddd d MMMM")
                         + (from.text ? "" : " · all day")
-                    color: Qt.alpha(Colors.foreground, 0.6)
+                    color: Colors.fg(0.6)
                     font { family: panel.look.font; pixelSize: 11 }
                 }
                 Field { id: title; hint: "Title"; next: from }
@@ -304,7 +304,7 @@ Item {
                 visible: panel.listed.length === 0 && !panel.adding
                 Layout.topMargin: 4
                 text: panel.picked ? "Nothing that day" : "Nothing coming up"
-                color: Qt.alpha(Colors.foreground, 0.45)
+                color: Colors.fg(0.45)
                 font { family: panel.look.font; pixelSize: 12 }
             }
 
@@ -332,7 +332,7 @@ Item {
                             Layout.fillWidth: true
                             implicitHeight: lines.implicitHeight + 14
                             radius: 8
-                            color: Qt.alpha(Colors.foreground, live ? 0.14 : 0.06)
+                            color: Colors.fg(live ? 0.14 : 0.06)
                             // Deleting: × on hover, then a second click.
                             property bool armed: false
                             property bool joining: false
@@ -354,7 +354,7 @@ Item {
                             Rectangle {
                                 anchors { left: parent.left; top: parent.top; bottom: parent.bottom; margins: 7 }
                                 width: 3; radius: 1.5
-                                color: row.live ? BarTheme.accent : Qt.alpha(Colors.foreground, row.past ? 0.25 : 0.6)
+                                color: row.live ? BarTheme.accent : Colors.fg(row.past ? 0.25 : 0.6)
                             }
                             ColumnLayout {
                                 id: lines
@@ -365,14 +365,14 @@ Item {
                                     Text {
                                         visible: row.link !== ""
                                         text: panel.callIcon(row.link)
-                                        color: Qt.alpha(Colors.foreground, row.past ? 0.5 : 1)
+                                        color: Colors.fg(row.past ? 0.5 : 1)
                                         font { family: panel.look.font; pixelSize: 13 }
                                     }
                                     Text {
                                         Layout.fillWidth: true
                                         text: row.modelData.title
                                         elide: Text.ElideRight
-                                        color: Qt.alpha(Colors.foreground, row.past ? 0.5 : 1)
+                                        color: Colors.fg(row.past ? 0.5 : 1)
                                         font { family: panel.look.font; pixelSize: 12; bold: true }
                                     }
                                     // In progress.
@@ -399,7 +399,7 @@ Item {
                                     Text {
                                         visible: rowHover.hovered && !row.armed && !row.joining
                                         text: "\u{F03EB}"  // pencil
-                                        color: Qt.alpha(Colors.foreground, 0.6)
+                                        color: Colors.fg(0.6)
                                         font { family: panel.look.font; pixelSize: 14 }
                                         MouseArea {
                                             anchors.fill: parent
@@ -410,7 +410,7 @@ Item {
                                     Text {
                                         visible: rowHover.hovered && !row.joining
                                         text: row.armed ? "Delete?" : "\u{F0156}"
-                                        color: row.armed ? "#f7768e" : Qt.alpha(Colors.foreground, 0.6)
+                                        color: row.armed ? "#f7768e" : Colors.fg(0.6)
                                         font { family: panel.look.font; pixelSize: row.armed ? 11 : 14; bold: row.armed }
                                         MouseArea {
                                             anchors.fill: parent
@@ -423,7 +423,7 @@ Item {
                                     Layout.fillWidth: true
                                     text: panel.when(row.modelData) + (row.modelData.where ? "  ·  " + row.modelData.where : "")
                                     elide: Text.ElideRight
-                                    color: Qt.alpha(Colors.foreground, 0.6)
+                                    color: Colors.fg(0.6)
                                     font { family: panel.look.font; pixelSize: 11 }
                                 }
                             }

@@ -89,7 +89,7 @@ Scope {
             id: title
             x: 22; y: 14
             text: "Keyboard effect"
-            color: Qt.alpha(Colors.foreground, 0.45)
+            color: Colors.fg(0.45)
             font { family: root.font; pixelSize: 13 }
         }
 

@@ -92,7 +92,7 @@ Item {
                         Rectangle {
                             anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter }
                             height: 1
-                            color: Qt.alpha(Colors.foreground, 0.1)
+                            color: Colors.fg(0.1)
                         }
                     }
                 }
@@ -120,7 +120,7 @@ Item {
     }
 
     component Heading: Text {
-        color: Qt.alpha(Colors.foreground, 0.45)
+        color: Colors.fg(0.45)
         font { family: panel.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
     }
 

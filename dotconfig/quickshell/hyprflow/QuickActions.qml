@@ -108,7 +108,7 @@ Scope {
                 Text {
                     visible: !search.text
                     text: "Quick actions"
-                    color: Qt.alpha(Colors.foreground, 0.45)
+                    color: Colors.fg(0.45)
                     font: search.font
                 }
 
@@ -140,7 +140,7 @@ Scope {
                     Text {
                         anchors { left: parent.left; leftMargin: 12; bottom: parent.bottom; bottomMargin: 4 }
                         text: section
-                        color: Qt.alpha(Colors.foreground, 0.45)
+                        color: Colors.fg(0.45)
                         font { family: root.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
                     }
                 }
@@ -192,13 +192,13 @@ Scope {
                             radius: height / 2
                             implicitWidth: stateText.implicitWidth + 16
                             implicitHeight: 22
-                            color: row.on ? Colors.accent : Qt.alpha(Colors.foreground, 0.08)
+                            color: row.on ? Colors.accent : Colors.fg(0.08)
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
                             Text {
                                 id: stateText
                                 anchors.centerIn: parent
                                 text: row.modelData.state
-                                color: row.on ? Colors.background : Qt.alpha(Colors.foreground, 0.7)
+                                color: row.on ? Colors.background : Colors.fg(0.7)
                                 font { family: root.font; pixelSize: 11; weight: Font.DemiBold }
                             }
                         }

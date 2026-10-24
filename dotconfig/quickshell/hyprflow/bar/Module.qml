@@ -93,7 +93,7 @@ Item {
             visible: mod.text !== ""
             text: mod.text
             textFormat: Text.StyledText
-            color: Qt.alpha(Colors.foreground, mod.dim ? mod.look.dim : 1)
+            color: Colors.fg(mod.dim ? mod.look.dim : 1)
             font { family: mod.look.font; pixelSize: mod.look.fontSize }
             Behavior on color { ColorAnimation { duration: Motion.fast } }
         }

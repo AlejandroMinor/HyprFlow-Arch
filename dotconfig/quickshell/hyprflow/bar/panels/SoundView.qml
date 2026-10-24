@@ -50,7 +50,7 @@ Item {
     component Heading: Text {
         Layout.fillWidth: true
         Layout.topMargin: 12
-        color: Qt.alpha(Colors.foreground, 0.45)
+        color: Colors.fg(0.45)
         font { family: view.look.font; pixelSize: 10; weight: Font.DemiBold; letterSpacing: 1.2 }
     }
 
@@ -66,7 +66,7 @@ Item {
         spacing: 10
         Text {
             text: levelRow.rowMuted ? levelRow.glyphOff : levelRow.glyphOn
-            color: Qt.alpha(Colors.foreground, levelRow.rowMuted ? view.look.dim : 1)
+            color: Colors.fg(levelRow.rowMuted ? view.look.dim : 1)
             font { family: view.look.font; pixelSize: 16 }
             Layout.preferredWidth: 20
             MouseArea { anchors.fill: parent; onClicked: AudioState.toggleMute(levelRow.node) }
@@ -85,7 +85,7 @@ Item {
                 }
                 Text {
                     text: levelRow.rowMuted ? "off" : Math.round(slider.shown * 100) + "%"
-                    color: Qt.alpha(Colors.foreground, 0.6)
+                    color: Colors.fg(0.6)
                     font { family: view.look.font; pixelSize: 11 }
                 }
             }
@@ -148,7 +148,7 @@ Item {
                             Layout.fillWidth: true
                             text: deviceRow.modelData.label
                             elide: Text.ElideRight
-                            color: Qt.alpha(Colors.foreground, deviceRow.modelData.current ? 1 : 0.7)
+                            color: Colors.fg(deviceRow.modelData.current ? 1 : 0.7)
                             font { family: view.look.font; pixelSize: 12; bold: deviceRow.modelData.current }
                         }
                     }
@@ -205,7 +205,7 @@ Item {
                 Layout.topMargin: 4
                 implicitHeight: 30
                 radius: 8
-                color: mixer.containsMouse ? BarTheme.tint(0.14) : Qt.alpha(Colors.foreground, 0.08)
+                color: mixer.containsMouse ? BarTheme.tint(0.14) : Colors.fg(0.08)
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
                 Text {
                     anchors.centerIn: parent

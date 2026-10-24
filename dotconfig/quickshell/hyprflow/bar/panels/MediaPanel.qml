@@ -113,13 +113,13 @@ Item {
                         width: chipText.implicitWidth + 16
                         height: 20
                         radius: 10
-                        color: current ? BarTheme.tint(0.2) : chipHover.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
+                        color: current ? BarTheme.tint(0.2) : chipHover.containsMouse ? BarTheme.tint(0.12) : Colors.fg(0.06)
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
                         Text {
                             id: chipText
                             anchors.centerIn: parent
                             text: chip.modelData.identity || "Player"
-                            color: Qt.alpha(Colors.foreground, chip.current ? 1 : 0.6)
+                            color: Colors.fg(chip.current ? 1 : 0.6)
                             font { family: panel.look.font; pixelSize: 10; bold: chip.current }
                         }
                         MouseArea {
@@ -147,7 +147,7 @@ Item {
                 visible: text !== "" && !panel.lyricsShown
                 text: panel.player?.trackArtist ?? ""
                 elide: Text.ElideRight
-                color: Qt.alpha(Colors.foreground, 0.75)
+                color: Colors.fg(0.75)
                 font { family: panel.look.font; pixelSize: 12 }
             }
             Text {
@@ -155,7 +155,7 @@ Item {
                 visible: text !== "" && !panel.lyricsShown
                 text: panel.player?.trackAlbum ?? ""
                 elide: Text.ElideRight
-                color: Qt.alpha(Colors.foreground, 0.45)
+                color: Colors.fg(0.45)
                 font { family: panel.look.font; pixelSize: 11 }
             }
             // Asked for lyrics, none to show (yet).
@@ -163,7 +163,7 @@ Item {
                 Layout.fillWidth: true
                 visible: MediaSkin.lyricsPanel && !panel.lyricsShown
                 text: LyricsState.status === "loading" ? "Looking for lyrics…" : "No synced lyrics"
-                color: Qt.alpha(Colors.foreground, 0.45)
+                color: Colors.fg(0.45)
                 font { family: panel.look.font; pixelSize: 10; italic: true }
             }
 
@@ -180,7 +180,7 @@ Item {
                     wrapMode: modelData === 0 ? Text.WordWrap : Text.NoWrap
                     maximumLineCount: modelData === 0 ? 2 : 1
                     elide: Text.ElideRight
-                    color: modelData === 0 ? Colors.foreground : Qt.alpha(Colors.foreground, 0.4)
+                    color: modelData === 0 ? Colors.foreground : Colors.fg(0.4)
                     font { family: panel.look.font; pixelSize: modelData === 0 ? 14 : 11; bold: modelData === 0 }
                 }
             }
@@ -199,13 +199,13 @@ Item {
                 Layout.fillWidth: true
                 Text {
                     text: panel.clock(panel.player?.position ?? 0)
-                    color: Qt.alpha(Colors.foreground, 0.6)
+                    color: Colors.fg(0.6)
                     font { family: panel.look.font; pixelSize: 10 }
                 }
                 Item { Layout.fillWidth: true }
                 Text {
                     text: panel.player?.length > 0 ? panel.clock(panel.player.length) : "live"
-                    color: Qt.alpha(Colors.foreground, 0.6)
+                    color: Colors.fg(0.6)
                     font { family: panel.look.font; pixelSize: 10 }
                 }
             }
@@ -234,7 +234,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: control.glyph
-                        color: Qt.alpha(Colors.foreground, control.on ? 1 : 0.7)
+                        color: Colors.fg(control.on ? 1 : 0.7)
                         font { family: panel.look.font; pixelSize: control.size }
                         scale: controlArea.pressed ? 0.85 : 1
                         Behavior on scale { Anim { duration: Motion.fast } }
@@ -312,7 +312,7 @@ Item {
         visible: !panel.picking
         text: "\u{F0E57}"
         color: PopOut.running ? BarTheme.accent
-            : Qt.alpha(Colors.foreground, popArea.containsMouse ? 1 : 0.5)
+            : Colors.fg(popArea.containsMouse ? 1 : 0.5)
         font { family: panel.look.font; pixelSize: 14 }
         Component.onCompleted: PopOut.watchers++
         Component.onDestruction: PopOut.watchers--
@@ -336,7 +336,7 @@ Item {
         visible: !panel.picking
         text: "\u{F1021}"
         color: MediaSkin.lyricsPanel ? BarTheme.accent
-            : Qt.alpha(Colors.foreground, lyricsArea.containsMouse ? 1 : 0.5)
+            : Colors.fg(lyricsArea.containsMouse ? 1 : 0.5)
         font { family: panel.look.font; pixelSize: 14 }
         MouseArea {
             id: lyricsArea
@@ -355,7 +355,7 @@ Item {
         anchors { top: parent.top; right: parent.right; margins: 14 }
         visible: !panel.picking
         text: "\u{F0493}"
-        color: Qt.alpha(Colors.foreground, cogArea.containsMouse ? 1 : 0.5)
+        color: Colors.fg(cogArea.containsMouse ? 1 : 0.5)
         font { family: panel.look.font; pixelSize: 14 }
         MouseArea {
             id: cogArea

@@ -119,7 +119,7 @@ Item {
                     // 901+: macOS-style fullscreen; special: the scratchpad (sparkles).
                     text: slot.modelData.id < 0 ? "\u{F0674}"
                         : slot.modelData.id > 900 ? "\u{F02A0}" : slot.modelData.name
-                    color: Qt.alpha(Colors.foreground, slot.active ? 1 : ws.look.idle)
+                    color: Colors.fg(slot.active ? 1 : ws.look.idle)
                     font { family: ws.bar.style.module.font; pixelSize: ws.look.fontSize; bold: slot.active }
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
                 }

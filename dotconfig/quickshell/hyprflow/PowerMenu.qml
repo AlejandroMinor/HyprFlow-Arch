@@ -130,7 +130,7 @@ Scope {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: tile.modelData.key.toUpperCase()
-                        color: Qt.alpha(Colors.foreground, 0.45)
+                        color: Colors.fg(0.45)
                         font { family: root.font; pixelSize: 10; weight: Font.DemiBold }
                     }
                 }

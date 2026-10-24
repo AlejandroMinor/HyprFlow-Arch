@@ -19,9 +19,9 @@ Item {
     function level(i) { return levels[i] ?? 0; }
 
     function tint(level) {
-        if (silent) return Qt.alpha(Colors.foreground, 0.25);
+        if (silent) return Colors.fg(0.25);
         const gradient = CavaLevels.gradient;
-        if (!colored || !gradient.length) return Qt.alpha(Colors.foreground, 0.45 + level * 0.55);
+        if (!colored || !gradient.length) return Colors.fg(0.45 + level * 0.55);
         return gradient[Math.round(level * (gradient.length - 1))];
     }
 
@@ -110,8 +110,8 @@ Item {
                 y: (spectrum.height + 22) / 2 - index * 3.2 - 2.2
                 width: 3; height: 2.2; radius: 0.6
                 visible: index < column.lit
-                color: spectrum.silent ? Qt.alpha(Colors.foreground, 0.25)
-                     : !spectrum.colored || !CavaLevels.gradient.length ? Qt.alpha(Colors.foreground, 0.45 + index / 6 * 0.55)
+                color: spectrum.silent ? Colors.fg(0.25)
+                     : !spectrum.colored || !CavaLevels.gradient.length ? Colors.fg(0.45 + index / 6 * 0.55)
                      : CavaLevels.gradient[Math.min(index, CavaLevels.gradient.length - 1)]
             }
         }

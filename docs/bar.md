@@ -65,6 +65,9 @@ deep, so `{"card": {"radius": 20}}` keeps the card's fill and border:
 
 A new style is a new file in `styles/` and its name in that line.
 
+The card's fill and border follow the tone (Super+K → Appearance: its colours
+and transparency); a style that sets `card.fill` or `card.border` keeps its own.
+
 The accents take the LED colour (`~/.cache/wallust/led-color`, the dominant hue
 of the wallpaper that rgb-sync.sh picks; `services/BarTheme.qml`), like the
 focus border: the
@@ -221,6 +224,18 @@ A glyph the script puts first is shown as the icon. Beyond Waybar's keys:
   "vpn-status-warning": { "format": "\udb82\udd9e", "dim": true }
 }
 ```
+
+**The tray**: each app shows its own icon, in greys. `icons` swaps it, by
+the app's id or its tooltip title, for a Nerd Font glyph or an `.svg` of
+`bar/icons/` (a black drawing; it takes the text colour):
+
+```jsonc
+"tray": {
+  "icons": { "Microsoft Edge": "\udb80\udde9", "spotify-client": "\uf1bc", "Some App": "some-app.svg" }
+}
+```
+
+Chromium apps share the id `chrome_status_icon_1`, so use their title.
 
 **A drawer**: modules that slide out of a handle.
 

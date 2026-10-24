@@ -89,7 +89,7 @@ Module {
             implicitWidth: 22
             implicitHeight: 22
             radius: 11
-            color: Qt.alpha(Colors.foreground, 0.1)
+            color: Colors.fg(0.1)
             Image {
                 anchors.fill: parent
                 source: mod.art
@@ -144,7 +144,7 @@ Module {
                 width: mod.singing ? Math.min(implicitWidth, mod.maxText) : implicitWidth
                 elide: mod.singing ? Text.ElideRight : Text.ElideNone
                 onTextChanged: x = 0
-                color: Qt.alpha(Colors.foreground, mod.playing ? 1 : 0.45)
+                color: Colors.fg(mod.playing ? 1 : 0.45)
                 font { family: mod.look.font; pixelSize: mod.look.fontSize; bold: true }
                 Behavior on color { ColorAnimation { duration: Motion.normal } }
 
@@ -165,11 +165,11 @@ Module {
                 height: 2
                 radius: 1
                 width: parent.width
-                color: Qt.alpha(Colors.foreground, 0.12)
+                color: Colors.fg(0.12)
                 Rectangle {
                     height: parent.height
                     radius: 1
-                    color: Qt.alpha(Colors.foreground, 0.7)
+                    color: Colors.fg(0.7)
                     width: mod.player && mod.player.length > 0
                         ? parent.width * Math.min(1, mod.player.position / mod.player.length) : 0
                     Behavior on width { Anim { duration: 1000; curve: [0, 0, 1, 1, 1, 1] } }

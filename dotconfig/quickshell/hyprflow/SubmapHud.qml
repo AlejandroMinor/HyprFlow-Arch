@@ -93,7 +93,7 @@ Scope {
                 }
                 Text {
                     text: root.exitKey + "  ·  Esc to exit"
-                    color: Qt.alpha(Colors.foreground, 0.55)
+                    color: Colors.fg(0.55)
                     font { family: root.font; pixelSize: 11 }
                 }
             }
@@ -116,7 +116,7 @@ Scope {
                             radius: 6
                             implicitWidth: Math.max(keyText.implicitWidth + 12, 28)
                             implicitHeight: 22
-                            color: Qt.alpha(Colors.foreground, 0.08)
+                            color: Colors.fg(0.08)
                             Text {
                                 id: keyText
                                 anchors.centerIn: parent
@@ -127,7 +127,7 @@ Scope {
                         }
                         Text {
                             text: modelData.description
-                            color: Qt.alpha(Colors.foreground, 0.85)
+                            color: Colors.fg(0.85)
                             font { family: root.font; pixelSize: 12 }
                             elide: Text.ElideRight
                             Layout.fillWidth: true

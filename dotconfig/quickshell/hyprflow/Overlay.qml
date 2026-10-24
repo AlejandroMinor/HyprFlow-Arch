@@ -50,9 +50,9 @@ PanelWindow {
         height: overlay.cardHeight
         radius: 16
         // rofi's bg-window: see-through enough for the blur and glass behind.
-        color: Qt.alpha(Colors.background, 0.38)
+        color: Qt.alpha(Colors.background, Colors.card)
         border.width: 1
-        border.color: Qt.alpha(Colors.foreground, 0.08)
+        border.color: Colors.border
 
         // Filtering changes the height: follow it instead of jumping.
         Behavior on height { Anim {} }

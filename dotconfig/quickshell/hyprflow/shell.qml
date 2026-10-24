@@ -10,7 +10,7 @@ import qs.bar
 ShellRoot {
     QuickActions {}
     SinkSwitch {}
-    ThemePicker {}
+    AppearancePanel {}
     KeyGuide {}
     Confirm {}
     SubmapHud {}

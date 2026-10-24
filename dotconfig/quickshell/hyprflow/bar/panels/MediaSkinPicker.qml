@@ -22,7 +22,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.topMargin: 4
         implicitHeight: 1
-        color: Qt.alpha(Colors.foreground, 0.08)
+        color: Colors.fg(0.08)
     }
     // A label and a slider; saved once the drag ends.
     component SliderRow: RowLayout {
@@ -34,7 +34,7 @@ ColumnLayout {
         Text {
             id: name
             Layout.preferredWidth: 50
-            color: Qt.alpha(Colors.foreground, 0.6)
+            color: Colors.fg(0.6)
             font { family: picker.panel.look.font; pixelSize: 10 }
         }
         BarSlider {
@@ -50,7 +50,7 @@ ColumnLayout {
         spacing: 6
         Text {
             text: "\u{F004D}"
-            color: Qt.alpha(Colors.foreground, backArea.containsMouse ? 1 : 0.7)
+            color: Colors.fg(backArea.containsMouse ? 1 : 0.7)
             font { family: picker.panel.look.font; pixelSize: 16 }
             MouseArea {
                 id: backArea
@@ -79,7 +79,7 @@ ColumnLayout {
                     id: tabText
                     anchors.centerIn: parent
                     text: tabItem.modelData[1]
-                    color: Qt.alpha(Colors.foreground, tabItem.current ? 1 : tabArea.containsMouse ? 0.8 : 0.5)
+                    color: Colors.fg(tabItem.current ? 1 : tabArea.containsMouse ? 0.8 : 0.5)
                     font { family: picker.panel.look.font; pixelSize: 11; bold: tabItem.current }
                 }
                 Rectangle {
@@ -120,7 +120,7 @@ ColumnLayout {
                 width: 68  // six skins fill the 448 px row
                 height: 88
                 radius: 10
-                color: current ? BarTheme.tint(0.2) : tileArea.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
+                color: current ? BarTheme.tint(0.2) : tileArea.containsMouse ? BarTheme.tint(0.12) : Colors.fg(0.06)
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                 SkinFace {
@@ -139,7 +139,7 @@ ColumnLayout {
                 Text {
                     anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter; bottomMargin: 6 }
                     text: tile.modelData.label
-                    color: Qt.alpha(Colors.foreground, tile.current ? 1 : 0.6)
+                    color: Colors.fg(tile.current ? 1 : 0.6)
                     font { family: picker.panel.look.font; pixelSize: 10; bold: tile.current }
                 }
                 MouseArea {
@@ -215,7 +215,7 @@ ColumnLayout {
                 width: 60
                 height: 64
                 radius: 10
-                color: current ? BarTheme.tint(0.2) : styleArea.containsMouse ? BarTheme.tint(0.12) : Qt.alpha(Colors.foreground, 0.06)
+                color: current ? BarTheme.tint(0.2) : styleArea.containsMouse ? BarTheme.tint(0.12) : Colors.fg(0.06)
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                 Spectrum {
@@ -226,7 +226,7 @@ ColumnLayout {
                 Text {
                     anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter; bottomMargin: 6 }
                     text: picker.spectrumNames[styleTile.modelData] ?? styleTile.modelData
-                    color: Qt.alpha(Colors.foreground, styleTile.current ? 1 : 0.6)
+                    color: Colors.fg(styleTile.current ? 1 : 0.6)
                     font { family: picker.panel.look.font; pixelSize: 10; bold: styleTile.current }
                 }
                 MouseArea {

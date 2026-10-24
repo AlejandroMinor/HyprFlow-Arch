@@ -68,6 +68,9 @@
       "format": " {}",
       "on-click": "kitty --class updates-float -e paru -Syu"
     },
+    "tray": {
+      "icons": { "Microsoft Edge": "󰇩", "spotify-client": "", "blueman": "󰂯" }
+    },
     "language": {
       "names": { "Spanish": "ES", "English (US)": "EN" }
     },

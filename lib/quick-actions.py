@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Quick actions menu (Super+K): screens, game mode, lights, audio, notifications,
-power profile, wallpaper, theme, the keyboard effect.
+power profile, wallpaper, appearance (tone and theme), the keyboard effect.
 
 Each entry is a Command: its name, how to read its state (for the switches),
 what to run and its section. A new action is one more entry in ACTIONS, tagged
@@ -96,6 +96,13 @@ def watermark_on():
     return not (paths.HYPRFLOW_STATE / "watermark-off").exists()
 
 
+def appearance_tone():
+    try:
+        return json.loads((paths.HYPRFLOW_STATE / "appearance.json").read_text())["tone"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return "black"
+
+
 def output(argv):
     try:
         return subprocess.run(argv, capture_output=True, text=True, timeout=2).stdout.strip()
@@ -155,8 +162,9 @@ ACTIONS = [
     Action("", "Keyboard effect", ["qs", "-c", "hyprflow", "ipc", "call", "keyboardfx", "toggle"],
            keyboard_effect, needs="qs", section="Appearance", when=keyboard_present),
     Action("", "Activate Linux", [LIB / "activate-linux.py", "--toggle"], watermark_on, section="Appearance"),
+    Action("󰔎", "Appearance", ["qs", "-c", "hyprflow", "ipc", "call", "appearance", "toggle"],
+           appearance_tone, needs="qs", section="Appearance"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
-    Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], section="Appearance"),
 ]
 
 

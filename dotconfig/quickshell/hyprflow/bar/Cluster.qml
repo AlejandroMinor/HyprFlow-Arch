@@ -61,8 +61,8 @@ Rectangle {
     // In the single style the bar draws the one card; these are bare,
     // unless open, when the card below needs its own fill.
     radius: bar.style.card.radius
-    color: bar.single && grow < 0.5 ? "transparent" : Qt.alpha(Colors.background, bar.style.card.fill)
-    border { width: bar.single && grow < 0.5 ? 0 : 1; color: Qt.alpha(Colors.foreground, bar.style.card.border) }
+    color: bar.single && grow < 0.5 ? "transparent" : Qt.alpha(Colors.background, bar.style.card.fill ?? Colors.card)
+    border { width: bar.single && grow < 0.5 ? 0 : 1; color: bar.style.card.border == null ? Colors.border : Colors.fg(bar.style.card.border) }
 
     // Starts above the screen; `bar.shown` brings it down. A value, set once
     // (not a binding): a style with another height re-ran the binding and

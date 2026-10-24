@@ -22,7 +22,7 @@ Item {
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
-            strokeColor: Qt.alpha(Colors.foreground, 0.18)
+            strokeColor: Colors.fg(0.18)
             strokeWidth: ring.thickness
             fillColor: "transparent"
             PathAngleArc {

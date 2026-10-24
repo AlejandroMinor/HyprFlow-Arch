@@ -53,8 +53,8 @@ PanelWindow {
         width: parent.width
         height: bar.clusterHeight
         radius: bar.style.card.radius
-        color: Qt.alpha(Colors.background, bar.style.card.fill)
-        border { width: 1; color: Qt.alpha(Colors.foreground, bar.style.card.border) }
+        color: Qt.alpha(Colors.background, bar.style.card.fill ?? Colors.card)
+        border { width: 1; color: bar.style.card.border == null ? Colors.border : Colors.fg(bar.style.card.border) }
         opacity: left.opacity
         transform: Translate { y: left.offset }
     }

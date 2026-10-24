@@ -44,7 +44,7 @@ Module {
             id: bell
             anchors.centerIn: parent
             text: mod.dnd ? "\u{F009B}" : "\u{F009A}"
-            color: Qt.alpha(Colors.foreground, mod.dnd ? 0.45 : 1)
+            color: Colors.fg(mod.dnd ? 0.45 : 1)
             font { family: mod.look.font; pixelSize: mod.iconSize }
             transformOrigin: Item.Top
         }

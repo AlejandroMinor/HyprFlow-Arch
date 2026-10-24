@@ -52,8 +52,8 @@ PanelWindow {
         width: text.implicitWidth + 24
         height: text.implicitHeight + 16
         radius: tip.bar.style.tooltip.radius
-        color: Qt.alpha(Colors.background, tip.bar.style.card.fill)
-        border { width: 1; color: Qt.alpha(Colors.foreground, tip.bar.style.card.border) }
+        color: Qt.alpha(Colors.background, tip.bar.style.card.fill ?? Colors.card)
+        border { width: 1; color: tip.bar.style.card.border == null ? Colors.border : Colors.fg(tip.bar.style.card.border) }
         Behavior on width { Anim { duration: Motion.fast } }
         Behavior on height { Anim { duration: Motion.fast } }
 

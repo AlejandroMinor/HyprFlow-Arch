@@ -371,13 +371,15 @@ copy_configs() {
 
     # The repo ships starting copies of files that are generated on your
     # machine afterwards: the wallust palette and the monitor layout and
-    # Waybar bars (the theme and monitors steps write their own). Those are
+    # Waybar bars (the theme and monitors steps write their own), and which
+    # colours rofi and swaync use (lib/appearance.py, the tone). Those are
     # never written over, not even for a moment: Hyprland reloads on every
     # config change, and a moment with the repo's generic monitors_active.lua
     # switched every screen to it and back. A fresh machine still gets them.
     local generated=(
         hypr/colors.lua cava/themes/wallust
         hypr/monitors_active.lua waybar/config
+        rofi/hyprflow/colors.rasi swaync/colors.css
     )
 
     local excludes=() path

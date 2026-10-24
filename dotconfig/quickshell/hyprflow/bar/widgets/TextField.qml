@@ -16,7 +16,7 @@ Rectangle {
 
     implicitHeight: 28
     radius: 8
-    color: Qt.alpha(Colors.foreground, input.activeFocus ? 0.12 : 0.06)
+    color: Colors.fg(input.activeFocus ? 0.12 : 0.06)
 
     TextInput {
         id: input
@@ -24,7 +24,7 @@ Rectangle {
         verticalAlignment: TextInput.AlignVCenter
         clip: true
         color: Colors.foreground
-        selectionColor: Qt.alpha(Colors.foreground, 0.3)
+        selectionColor: Colors.fg(0.3)
         font { family: box.fontFamily; pixelSize: 12 }
         KeyNavigation.tab: box.next?.field ?? null
         Keys.onReturnPressed: box.accepted()
@@ -36,7 +36,7 @@ Rectangle {
         anchors { fill: parent; leftMargin: 10 }
         verticalAlignment: Text.AlignVCenter
         text: box.hint
-        color: Qt.alpha(Colors.foreground, 0.45)
+        color: Colors.fg(0.45)
         font { family: box.fontFamily; pixelSize: 12 }
     }
 }

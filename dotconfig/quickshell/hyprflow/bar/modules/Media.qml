@@ -69,6 +69,7 @@ Module {
         if (player) bar.expand(mod, full, 480, 200);
     }
     Component { id: full; MediaPanel { media: mod } }
+    SkinGallery { media: mod }
     onScrolled: steps => steps > 0 ? player?.previous() : player?.next()
 
     // Mpris only reports the position when asked.

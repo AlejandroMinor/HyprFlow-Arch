@@ -29,11 +29,12 @@ dotconfig/quickshell/hyprflow/bar/
   modules/          one file per kind of module (what bar.json names)
   panels/           what a card opens into (bar.expand): CalendarPanel,
                     SoundView (volume and microphone), MediaPanel (the player)
-                    and MediaSkinPicker (its cog), BatteryPanel, TrayMenu (a
-                    tray app's menu)
+                    and MediaSkinPicker (its cog), SkinGallery (every skin,
+                    bigger), BatteryPanel, TrayMenu (a tray app's menu)
   widgets/          pieces the panels share: BarSlider, Ring, BarTooltip,
                     TextField, PanelButton, Spectrum (cava's seven styles),
-                    SkinFace (the cover, or a NowSpinning skin)
+                    SkinFace (the cover, or a NowSpinning skin), SkinTile
+                    (a skin to pick), SkinOptions (the picked one's options)
   services/         singletons with the data, no drawing: AudioState
                     (Pipewire), BarTheme (the accent), CalendarEvents (the
                     calendar's files and changes), CavaLevels (one cava for
@@ -126,15 +127,21 @@ saved in `media-skin.json`.
 The full player draws its cover plain or with a skin from
 [NowSpinning](https://github.com/AlejandroMinor/NowSpinning) (the
 `modules/NowSpinning` submodule): vinyl, 7" single, CD, bare disc, cassette,
-MiniDisc or Walkman, spinning with the track, or the flat ones: Pixel,
-Polaroid, CRT, ASCII, Hologram and Foil.
-Its cog shows every skin live with what is playing, and under the picked one its own options (tonearm, turntable, disc side, clear shell,
+MiniDisc or Walkman, spinning with the track, the flat ones (Pixel,
+Polaroid, CRT, ASCII, Hologram, Foil), the cyber ones (HUD, Shard, Neon,
+Neon disc, Matrix, Terminal), the print ones (Sleeve, Deco, Gallery, Ticket,
+Magazine, Stamp) and the anime ones (Session, Episode, Phantom).
+Its cog shows the skins live with what is playing, one group at a time
+(opening on the picked one's); the button beside the groups opens the
+gallery, every skin bigger in one card. Under the picked one its own options (tonearm, turntable, disc side, clear shell,
 pixel size, ASCII columns and colour, CRT bezel and glitch, Polaroid stack,
-hologram colour, motion, glitch, alpha and base, foil finish, the light's
+hologram colour, motion, glitch, alpha and base, foil finish, sleeve colour,
+Beat (the skins with a pulse of their own pulse with the bar's cava), the light's
 Drift (moving on its own) and Hover (following the pointer) where a skin has them, and
 Tint for the skins with an accent: the LEDs' colour, one from the cover, or none,
 and Shadow, a soft drop shadow, for the skins that cast none of their own),
-then Background sliders for the opacity and blur of the cover behind the player.
+then Background sliders for the opacity and blur of the cover behind the player,
+and Pop-out, the monitor the popped-out player sits on (Auto lets Hyprland pick).
 All are saved in `~/.local/state/hyprflow/media-skin.json`. A skin missing
 from the submodule's checkout is left out of the picker.
 

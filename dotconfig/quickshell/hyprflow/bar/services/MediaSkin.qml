@@ -10,23 +10,49 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    // "cover" is ours; the rest are NowSpinning's skins/<File>.qml.
-    readonly property var skins: [
-        { name: "cover", label: "Cover", file: "" },
-        { name: "vinyl", label: "Vinyl", file: "VinylSkin.qml" },
-        { name: "cd", label: "CD", file: "CdSkin.qml" },
-        { name: "disc", label: "Disc", file: "DiscSkin.qml" },
-        { name: "cassette", label: "Cassette", file: "CassetteSkin.qml" },
-        { name: "minidisc", label: "MiniDisc", file: "MiniDiscSkin.qml" },
-        { name: "walkman", label: "Walkman", file: "WalkmanSkin.qml" },
-        { name: "single", label: "7\" single", file: "SingleSkin.qml" },
-        { name: "pixel", label: "Pixel", file: "PixelSkin.qml" },
-        { name: "polaroid", label: "Polaroid", file: "PolaroidSkin.qml" },
-        { name: "crt", label: "CRT", file: "CrtSkin.qml" },
-        { name: "ascii", label: "ASCII", file: "AsciiSkin.qml" },
-        { name: "hologram", label: "Hologram", file: "HologramSkin.qml" },
-        { name: "foil", label: "Foil", file: "FoilSkin.qml" }
+    // "cover" is ours; the rest are NowSpinning's skins/<File>.qml, in its
+    // groups (the cog shows one group at a time).
+    readonly property var groups: [
+        { name: "physical", label: "Physical" },
+        { name: "flat", label: "Flat" },
+        { name: "cyber", label: "Cyber" },
+        { name: "print", label: "Print" },
+        { name: "anime", label: "Anime" }
     ]
+    readonly property var skins: [
+        { name: "cover", label: "Cover", file: "", group: "physical" },
+        { name: "vinyl", label: "Vinyl", file: "VinylSkin.qml", group: "physical" },
+        { name: "cd", label: "CD", file: "CdSkin.qml", group: "physical" },
+        { name: "disc", label: "Disc", file: "DiscSkin.qml", group: "physical" },
+        { name: "cassette", label: "Cassette", file: "CassetteSkin.qml", group: "physical" },
+        { name: "minidisc", label: "MiniDisc", file: "MiniDiscSkin.qml", group: "physical" },
+        { name: "walkman", label: "Walkman", file: "WalkmanSkin.qml", group: "physical" },
+        { name: "single", label: "7\" single", file: "SingleSkin.qml", group: "physical" },
+        { name: "crt", label: "CRT", file: "CrtSkin.qml", group: "flat" },
+        { name: "ascii", label: "ASCII", file: "AsciiSkin.qml", group: "flat" },
+        { name: "pixel", label: "Pixel", file: "PixelSkin.qml", group: "flat" },
+        { name: "polaroid", label: "Polaroid", file: "PolaroidSkin.qml", group: "flat" },
+        { name: "hologram", label: "Hologram", file: "HologramSkin.qml", group: "flat" },
+        { name: "foil", label: "Foil", file: "FoilSkin.qml", group: "flat" },
+        { name: "hud", label: "HUD", file: "HudSkin.qml", group: "cyber" },
+        { name: "shard", label: "Shard", file: "ShardSkin.qml", group: "cyber" },
+        { name: "neon", label: "Neon", file: "NeonSkin.qml", group: "cyber" },
+        { name: "neondisc", label: "Neon disc", file: "NeonDiscSkin.qml", group: "cyber" },
+        { name: "matrix", label: "Matrix", file: "MatrixSkin.qml", group: "cyber" },
+        { name: "terminal", label: "Terminal", file: "TerminalSkin.qml", group: "cyber" },
+        { name: "sleeve", label: "Sleeve", file: "SleeveSkin.qml", group: "print" },
+        { name: "deco", label: "Deco", file: "DecoSkin.qml", group: "print" },
+        { name: "gallery", label: "Gallery", file: "GallerySkin.qml", group: "print" },
+        { name: "ticket", label: "Ticket", file: "TicketSkin.qml", group: "print" },
+        { name: "magazine", label: "Magazine", file: "MagazineSkin.qml", group: "print" },
+        { name: "stamp", label: "Stamp", file: "StampSkin.qml", group: "print" },
+        { name: "session", label: "Session", file: "SessionSkin.qml", group: "anime" },
+        { name: "episode", label: "Episode", file: "EpisodeSkin.qml", group: "anime" },
+        { name: "phantom", label: "Phantom", file: "PhantomSkin.qml", group: "anime" }
+    ]
+    function groupOf(name) {
+        return skins.find(s => s.name === name)?.group ?? "physical";
+    }
 
     // The options a skin can have; a skin shows the ones it declares (or,
     // with `needs`, the ones whose property it has: Tint sets `accent`;
@@ -49,6 +75,7 @@ Singleton {
         { key: "holoGlitch", label: "Glitch", values: [true, false], names: ["On", "Off"] },
         { key: "holoOpacity", label: "Alpha", values: [1, 0.75, 0.5], names: ["100%", "75%", "50%"] },
         { key: "holoBase", label: "Base", values: [true, false], names: ["On", "Off"] },
+        { key: "sleeveColor", label: "Colour", values: ["art", "palette"], names: ["Cover", "Palette"] },
         { key: "foilStyle", label: "Foil", values: ["rainbow", "gold", "silver", "art"],
           names: ["Rainbow", "Gold", "Silver", "Accent"] },
         // The light most skins carry: drifting on its own, following the pointer.
@@ -68,6 +95,10 @@ Singleton {
     property bool lyricsBar: false    // the bar's module shows the current line
     property int lyricsLines: 3       // how many the full player shows, 1..4
     property string pickerTab: "skin"  // the cog's open tab; not saved
+    property string pickerGroup: groupOf(skin)  // the cog's skin group; not saved
+    property string popOutScreen: ""  // the pop-out's monitor; "" lets Hyprland pick
+    property bool beat: true  // skins with a pulse of their own pulse with the bass
+    property var galleryOwner: null  // the Media module whose gallery is open
 
     function url(name) {
         const entry = skins.find(s => s.name === name);
@@ -90,7 +121,8 @@ Singleton {
     function save() {
         file.setText(JSON.stringify({ skin: root.skin, settings: root.settings, backdrop: root.backdrop, backdropBlur: root.backdropBlur,
                                      lyricsPanel: root.lyricsPanel, lyricsBar: root.lyricsBar,
-                                     lyricsLines: root.lyricsLines }, null, 2) + "\n");
+                                     lyricsLines: root.lyricsLines, beat: root.beat,
+                                     popOutScreen: root.popOutScreen }, null, 2) + "\n");
     }
 
     FileView {
@@ -109,6 +141,8 @@ Singleton {
                 root.lyricsPanel = data.lyricsPanel === true;
                 root.lyricsBar = data.lyricsBar === true;
                 root.lyricsLines = Math.max(1, Math.min(4, data.lyricsLines ?? 3));
+                root.beat = data.beat !== false;
+                root.popOutScreen = data.popOutScreen ?? "";
             } catch (e) {
                 root.skin = "cover";
             }

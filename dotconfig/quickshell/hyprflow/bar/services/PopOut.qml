@@ -48,6 +48,8 @@ Singleton {
         }
         // NowSpinning tints from the cover or not at all: the LEDs count as tinted.
         out.tintFromArt = (options.tint ?? "leds") !== "off";
+        out.audioReact = MediaSkin.beat;
+        out.monitor = MediaSkin.popOutScreen;
         out.lyrics = MediaSkin.lyricsPanel;
         out.lyricsLines = MediaSkin.lyricsLines === 1 ? 1 : 3;  // it has 1 or 3
         return out;
@@ -92,6 +94,8 @@ Singleton {
         function onSkinChanged() { sync.restart(); }
         function onSettingsChanged() { sync.restart(); }
         function onLyricsPanelChanged() { sync.restart(); }
+        function onBeatChanged() { sync.restart(); }
+        function onPopOutScreenChanged() { sync.restart(); }
         function onLyricsLinesChanged() { sync.restart(); }
     }
 
@@ -160,6 +164,14 @@ Singleton {
             const all = Object.assign({}, MediaSkin.settings);
             all[skin] = options;
             MediaSkin.settings = all;
+        }
+        if (typeof d.audioReact === "boolean" && d.audioReact !== MediaSkin.beat) {
+            MediaSkin.beat = d.audioReact;
+            changed = true;
+        }
+        if (typeof d.monitor === "string" && d.monitor !== MediaSkin.popOutScreen) {
+            MediaSkin.popOutScreen = d.monitor;
+            changed = true;
         }
         if (typeof d.lyrics === "boolean" && d.lyrics !== MediaSkin.lyricsPanel) {
             MediaSkin.lyricsPanel = d.lyrics;

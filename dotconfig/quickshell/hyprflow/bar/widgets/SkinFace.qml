@@ -23,6 +23,8 @@ Item {
     readonly property bool drawn: skinLoader.status === Loader.Ready  // a skin, not the cover
     readonly property var item: skinLoader.item
     property string title  // for skins that write it (Polaroid)
+    property string artist  // HUD, neon, the print ones
+    property real duration: 0  // seconds; the stamp's value
     property string previousArt    // the last track's, for the Polaroid's stack
     property string previousTitle
 
@@ -132,8 +134,14 @@ Item {
             item.playing = Qt.binding(() => face.playing);
             if (item.title !== undefined)
                 item.title = Qt.binding(() => face.title);
+            if (item.artist !== undefined)
+                item.artist = Qt.binding(() => face.artist);
+            if (item.duration !== undefined)
+                item.duration = Qt.binding(() => face.duration);
             if (item.progress !== undefined)
                 item.progress = Qt.binding(() => face.progress);
+            if (item.audioLevel !== undefined)
+                item.audioLevel = Qt.binding(() => MediaSkin.beat && face.playing ? face.bass : 0);
             if (item.accent !== undefined)
                 item.accent = Qt.binding(() => face.accent);
             for (const option of MediaSkin.options) {
@@ -156,6 +164,15 @@ Item {
         active: face.tint === "album"
         source: Qt.resolvedUrl("../nowspinning/ArtAccent.qml")
         onLoaded: item.source = Qt.binding(() => face.art)
+    }
+
+    // The low end from the bar's own cava, for the skins that pulse with it.
+    readonly property real bass: {
+        const levels = CavaLevels.levels, n = Math.min(3, levels.length);
+        let sum = 0;
+        for (let i = 0; i < n; i++)
+            sum += levels[i];
+        return n > 0 ? sum / n : 0;
     }
 
     // A new track: the CD skin swaps discs.

@@ -4,5 +4,11 @@
 # dark like the rest; without it installed, the wrapper carries on as usual.
 # The same check the wrapper does for its own picks: a pinentry-qt whose Qt
 # libraries do not load would fail the prompt instead of falling back.
+# The agent keeps the DISPLAY it started with, so a terminal without one
+# (SSH, TTY) says so through PINENTRY_USER_DATA, set in .zshrc.
+[[ "$PINENTRY_USER_DATA" == tty ]] && exec /usr/bin/pinentry-curses "$@"
+# The agent may start before Hyprland exports its environment (env.lua), and
+# Qt without a platform theme falls back to a light Fusion.
+export QT_QPA_PLATFORMTHEME="${QT_QPA_PLATFORMTHEME:-qt6ct}"
 _hyprflow_qt="$(command -v pinentry-qt)" && ! ldd "$_hyprflow_qt" 2>/dev/null | grep -q 'not found' &&
     exec "$_hyprflow_qt" "$@"

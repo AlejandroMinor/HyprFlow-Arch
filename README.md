@@ -52,6 +52,7 @@ install.sh config theme     # steps combine
 | `--with-deps` | Install the missing packages (pacman, then yay or paru) |
 | `--with-plugins` | Install the missing Hyprland plugins (compiles, slow) |
 | `--with-zsh` | Include the zsh step in a full run |
+| `--bar=quickshell\|waybar` | Which bar to use (a full run asks; otherwise it stays as it is) |
 | `--help` | The list above |
 
 Cloned without `--recursive`? `install.sh` fetches the submodules itself.
@@ -86,6 +87,11 @@ Hyprland, so they follow its version.
 No kernel has a driver for the Logi Bolt receiver yet (checked on 7.2), so
 battery-hub reads it directly; see [Logitech Bolt receiver](docs/optional-setup.md#logitech-bolt-receiver).
 
+The keyboard lighting (theme colour and Super+K > Keyboard effect) is written
+for one keyboard chip (Sinowealth, USB `258a:0049`); others are left alone,
+and OpenRGB covers the ones it supports. It needs a udev rule, see
+[RGB keyboard](docs/optional-setup.md#rgb-keyboard).
+
 <details>
 <summary>Full package list</summary>
 
@@ -96,7 +102,7 @@ grouped and with what it is for: [`packages/pacman.txt`](packages/pacman.txt),
 [`packages/aur.txt`](packages/aur.txt). By hand:
 
 ```bash
-sudo pacman -S --needed hyprland hyprpm hyprlock cpio cmake waybar rofi swaync quickshell libnotify awww gnome-themes-extra qt5ct qt6ct ttf-jetbrains-mono-nerd noto-fonts-cjk noto-fonts-emoji gnu-free-fonts imagemagick kitty yazi satty hyprshot hyprpicker wl-clipboard btop fastfetch fzf gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit cava headsetcontrol bluez bluez-utils blueman network-manager-applet openconnect upower power-profiles-daemon brightnessctl playerctl polkit-gnome xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gtk4 gtk4-layer-shell pacman-contrib python python-gobject python-cairo python-pillow python-evdev jq curl
+sudo pacman -S --needed hyprland hyprpm hyprlock cpio cmake waybar rofi swaync quickshell papirus-icon-theme libnotify awww gnome-themes-extra qt5ct qt6ct ttf-jetbrains-mono-nerd noto-fonts-cjk noto-fonts-emoji gnu-free-fonts imagemagick kitty yazi satty hyprshot hyprpicker wl-clipboard btop fastfetch fzf gnome-disk-utility pipewire pipewire-pulse wireplumber pavucontrol rtkit cava headsetcontrol bluez bluez-utils blueman network-manager-applet openconnect upower power-profiles-daemon brightnessctl playerctl polkit-gnome xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland gtk4 gtk4-layer-shell pacman-contrib python python-gobject python-cairo python-pillow python-evdev jq curl
 ```
 
 ```bash

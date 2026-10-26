@@ -16,6 +16,17 @@
 
 require("colors")
 
+-- The accent follows the LEDs: rgb-sync.sh picks it from the wallpaper.
+local led_file = io.open(os.getenv("HOME") .. "/.cache/wallust/led-color")
+local led = led_file and led_file:read("l")
+if led_file then led_file:close() end
+if led and led:match("^%x%x%x%x%x%x$") then
+    active_border_main  = "rgba(" .. led .. "ee)"
+    active_border_fade  = "rgba(" .. led .. "10)"
+    group_border_active = "rgba(" .. led .. "ee)"
+    group_bar_active    = "rgba(" .. led .. "ff)"
+end
+
 
 ------------------
 ---- MONITORS ----
@@ -102,7 +113,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("qs -n -d -c hyprflow")
     -- OSD for play/pause, Caps/Num Lock and Do Not Disturb.
     hl.exec_cmd("~/.local/lib/hyprflow/osd-watch.py")
-    hl.exec_cmd("nm-applet --indicator")
+    -- Only where NetworkManager runs (this PC uses systemd-networkd).
+    hl.exec_cmd("systemctl is-active -q NetworkManager && nm-applet --indicator")
     -- Bluetooth agent: shows the pairing and authorization prompts of any device
     -- (passkeys, confirmations, controllers asking to connect). Without one BlueZ
     -- cancels those requests. Also adds a tray icon.

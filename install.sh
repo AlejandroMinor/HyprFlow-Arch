@@ -12,6 +12,7 @@ CONFIG_DEST="$HOME/.config"
 WITH_DEPS=false
 WITH_PLUGINS=false
 WITH_ZSH=false
+BAR=""   # quickshell | waybar; empty: a full run asks, anything else keeps it
 
 # Steps asked for on the command line. With none named, everything runs.
 declare -A RUN=()
@@ -37,6 +38,8 @@ Options:
   --with-deps      install the missing packages (pacman, then yay or paru)
   --with-plugins   install the missing Hyprland plugins (compiles, slow)
   --with-zsh       include the zsh step in a full run
+  --bar=quickshell|waybar
+                   which bar to use (a full run asks; otherwise it stays)
   -h, --help       show this
 
 Examples:
@@ -53,6 +56,7 @@ for arg in "$@"; do
         --with-deps)    WITH_DEPS=true ;;
         --with-plugins) WITH_PLUGINS=true ;;
         --with-zsh)     WITH_ZSH=true ;;
+        --bar=quickshell|--bar=waybar) BAR="${arg#--bar=}" ;;
         -h|--help)      usage; exit 0 ;;
         *)
             echo "install.sh: unknown argument '$arg'" >&2
@@ -367,13 +371,15 @@ copy_configs() {
 
     # The repo ships starting copies of files that are generated on your
     # machine afterwards: the wallust palette and the monitor layout and
-    # Waybar bars (the theme and monitors steps write their own). Those are
+    # Waybar bars (the theme and monitors steps write their own), and which
+    # colours rofi and swaync use (lib/appearance.py, the tone). Those are
     # never written over, not even for a moment: Hyprland reloads on every
     # config change, and a moment with the repo's generic monitors_active.lua
     # switched every screen to it and back. A fresh machine still gets them.
     local generated=(
         hypr/colors.lua cava/themes/wallust
         hypr/monitors_active.lua waybar/config
+        rofi/hyprflow/colors.rasi swaync/colors.css
     )
 
     local excludes=() path
@@ -386,6 +392,11 @@ copy_configs() {
         mkdir -p "$CONFIG_DEST/$(dirname "$path")"
         cp -f "$REPO_PATH/dotconfig/$path" "$CONFIG_DEST/$path"
     done
+
+    # The full player's NowSpinning skins come from the submodule.
+    if [ -d "$REPO_PATH/modules/NowSpinning/nowspinning" ]; then
+        ln -sfn "$REPO_PATH/modules/NowSpinning/nowspinning" "$CONFIG_DEST/quickshell/hyprflow/bar/nowspinning"
+    fi
 
     # qt5ct/qt6ct want the stylesheet as an absolute path; the repo says ~.
     local qt
@@ -547,8 +558,26 @@ setup_zsh() {
     fi
 }
 
+# The bar: the qs-bar flag file picks the Quickshell one over Waybar, read at
+# login and by bar-restart.sh. A running Quickshell is told too, to switch now.
+choose_bar() {
+    if [ -z "$BAR" ] && [ "$FULL_RUN" = true ] && [ -t 0 ]; then
+        if ask "Use the Quickshell bar instead of Waybar?" y; then BAR=quickshell; else BAR=waybar; fi
+    fi
+    [ -n "$BAR" ] || return 0
+    local flag="${XDG_STATE_HOME:-$HOME/.local/state}/hyprflow/qs-bar"
+    if [ "$BAR" = quickshell ]; then
+        mkdir -p "$(dirname "$flag")" && touch "$flag"
+        qs -c hyprflow ipc call bar enable >/dev/null 2>&1 || true
+    else
+        rm -f "$flag"
+        qs -c hyprflow ipc call bar disable >/dev/null 2>&1 || true
+    fi
+    if [ "$BAR" = quickshell ]; then echo "󰍜 Bar: Quickshell"; else echo "󰍜 Bar: Waybar"; fi
+}
+
 restart_waybar() {
-    "$REPO_PATH/lib/waybar-restart.sh"
+    "$REPO_PATH/lib/bar-restart.sh"
 }
 
 # ─────────────────────────────────────────
@@ -585,6 +614,7 @@ fi
 
 want monitors && setup_monitors
 want zsh      && setup_zsh
+want config   && choose_bar
 
 # monitors.sh restarts Waybar itself after regenerating the bars, so only do it
 # here when that step did not run. A config sync regenerates the bars first:

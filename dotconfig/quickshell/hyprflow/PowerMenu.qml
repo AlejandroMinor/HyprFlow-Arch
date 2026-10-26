@@ -17,13 +17,14 @@ Scope {
     readonly property int tileWidth: 104
     readonly property int gap: 8
 
-    // Log out saves the session first, like Super+M; --yes: confirmed here.
+    // Log out, reboot and shut down save the session first (session-manager);
+    // --yes: confirmed here.
     readonly property var actions: [
         { icon: "\u{F033E}", label: "Lock",      key: "l", confirm: false, argv: [root.bin + "hyprlock-flow.sh"] },
         { icon: "\u{F0343}", label: "Log out",   key: "e", confirm: true,  argv: [root.lib + "session-manager.py", "logout", "--yes"] },
         { icon: "\u{F0904}", label: "Suspend",   key: "u", confirm: false, argv: ["systemctl", "suspend"] },
-        { icon: "\u{F0709}", label: "Reboot",    key: "r", confirm: true,  argv: ["systemctl", "reboot"] },
-        { icon: "\u{F0425}", label: "Shut down", key: "s", confirm: true,  argv: ["systemctl", "poweroff"] }
+        { icon: "\u{F0709}", label: "Reboot",    key: "r", confirm: true,  argv: [root.lib + "session-manager.py", "reboot", "--yes"] },
+        { icon: "\u{F0425}", label: "Shut down", key: "s", confirm: true,  argv: [root.lib + "session-manager.py", "poweroff", "--yes"] }
     ]
 
     IpcHandler {
@@ -129,7 +130,7 @@ Scope {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: tile.modelData.key.toUpperCase()
-                        color: Qt.alpha(Colors.foreground, 0.45)
+                        color: Colors.fg(0.45)
                         font { family: root.font; pixelSize: 10; weight: Font.DemiBold }
                     }
                 }

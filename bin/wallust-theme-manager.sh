@@ -72,11 +72,16 @@ elif [ "$ACTION" == "theme" ]; then
     killall -SIGUSR1 kitty 2>/dev/null
 fi
 
+# The LED colour is the accent too (bar, focus border): chosen before the
+# reload so Hyprland reads the new one; the LEDs follow in the background.
+"$HYPRFLOW_BIN/rgb-sync.sh" --pick ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1
+# The panels' "Theme" tone follows the new palette (rofi and swaync too).
+[ -x "$HYPRFLOW_LIB/appearance.py" ] && "$HYPRFLOW_LIB/appearance.py" apply >/dev/null 2>&1
 hyprctl reload > /dev/null
-setsid "$HYPRFLOW_BIN/rgb-sync.sh" ${RGB_ARG:+"$RGB_ARG"} >/dev/null 2>&1 < /dev/null &
+setsid "$HYPRFLOW_BIN/rgb-sync.sh" --last >/dev/null 2>&1 < /dev/null &
 sleep 0.5
 if [ "$RESTART_WAYBAR" = true ]; then
-    "$HYPRFLOW_LIB/waybar-restart.sh"
+    "$HYPRFLOW_LIB/bar-restart.sh"
 fi
 
 # Rebuild the lockscreen backdrop now rather than on the next lock. Blurring the

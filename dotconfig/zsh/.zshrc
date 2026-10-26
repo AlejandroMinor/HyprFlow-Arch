@@ -24,6 +24,17 @@ eval "$(zoxide init zsh)"
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
+# gpg: passphrase in a window when there is a display, in the terminal otherwise
+export GPG_TTY=$(tty)
+if [[ -n "$WAYLAND_DISPLAY" || -n "$DISPLAY" ]]; then
+    export PINENTRY_USER_DATA=gui
+else
+    export PINENTRY_USER_DATA=tty
+    # SSH only: on the login TTY this would start the agent with tty defaults,
+    # and GUI apps (VS Code) would get the prompt on tty1.
+    [[ -n "$SSH_CONNECTION" ]] && gpg-connect-agent updatestartuptty /bye >/dev/null
+fi
+
 # zsh-syntax-highlighting (always last)
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 

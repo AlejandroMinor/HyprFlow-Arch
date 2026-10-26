@@ -82,5 +82,6 @@ and opens the hardware drawer. It comes from the
 [runcat-text](https://github.com/AlejandroMinor/runcat-text) submodule, which ships
 two runner fonts (cat and chicken, sharing codepoints `U+E900`-`U+E904`). Run
 `pet-picker.sh` to switch, or edit `runcat-runner.css`, the one file all four
-styles import. Tunables (icons, CPU thresholds, FPS) live in the submodule's
+styles import. The pick is also kept in `~/.local/state/hyprflow/runner`,
+which the Quickshell bar follows at once. Tunables (icons, CPU thresholds, FPS) live in the submodule's
 `config.json`.

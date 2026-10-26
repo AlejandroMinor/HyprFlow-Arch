@@ -13,7 +13,7 @@ syntax highlighting, fzf-tab with `bat` preview, and zoxide (`z`, `zi`).
 With [OpenRGB](https://openrgb.org) the case lighting follows
 the theme: a wallpaper sets it to the image's dominant vivid hue, a preset to its
 accent colour, always at full saturation since LEDs wash dim tones out to white.
-Without OpenRGB or its server, `rgb-sync.sh` does nothing.
+Without OpenRGB or its server, `rgb-sync.sh` only picks the accent colour (bar, focus border).
 
 First check that OpenRGB sees your hardware. If an ARGB strip or fan only lights
 up partly, open the `openrgb` GUI, resize its zone and save.
@@ -38,6 +38,25 @@ sudo systemctl enable --now openrgb
 
 The colour applies on the next wallpaper or theme change, or right away with
 `rgb-sync.sh`.
+
+### RGB keyboard
+
+A keyboard OpenRGB does not know, with a Sinowealth chip (USB `258a:0049`):
+`lib/keyboard-rgb.py` drives it on its own, and `rgb-sync.sh` gives it the
+theme colour too. Its palette has seven colours (red, yellow, green, cyan,
+blue, purple, white), so it gets the nearest one. Super+K > Keyboard effect
+picks one of its 20 effects. Only this keyboard is driven: others on the same
+chip may speak the same protocol, but untested. It needs write access to the
+keyboard, once:
+
+```bash
+sudo cp ~/HyprFlow-Arch/system/udev/42-bytech-keyboard.rules /etc/udev/rules.d/
+sudo udevadm control --reload && sudo udevadm trigger -s hidraw
+```
+
+The rule grants the logged in user its settings interface only; the other
+one, which carries the typing, stays root's. Without the rule the lights just
+do not follow the theme (`keyboard-rgb.py --json` says Permission denied).
 
 ## Battery notifications
 
@@ -133,6 +152,29 @@ up values:
 
 If the message arrives, the hook is ready: battery-hub will use it from the next
 warning on, no restart needed.
+
+## Batteries from other devices
+
+battery-hub reads the batteries this PC can reach. Others (a phone, a watch,
+a tablet, another laptop) can send theirs over SSH, whenever and however you
+like: an iOS Shortcut, a script on a Mac, a cron job.
+
+```bash
+echo '{"iPhone": 85, "Apple Watch": 67}' | ssh you@pc '~/.local/lib/hyprflow/battery-push.py add -'
+```
+
+- **What it takes:** `{"name": percent, …}`, or a list of
+  `{"name", "percent", "charging"}`. Text from an iOS Shortcut works as it
+  comes (a ```json fence, doubled braces, several dictionaries in a row).
+- **Where they show:** in the bar's battery panel, under "From other
+  devices", and in the tooltip; not in the bar's text, and no low battery
+  notice, since the device may not be at hand.
+- **For how long:** a day after each push, with the time it came ("14:00",
+  "yesterday 14:00"). Send again to keep them;
+  `battery-push.py list` shows what is kept, `clear` forgets it all.
+- **Icons:** by name: Watch, MacBook, iPhone, iPad, AirPods (Max or not).
+- **Duplicates:** a device this PC also reads (AirPods Max over Bluetooth)
+  keeps its own reading.
 
 ## Logitech Bolt receiver
 

@@ -487,7 +487,7 @@ def apply(profile=None, announce=None, lead="On"):
         try:
             # Its own lock and wait take seconds at most; a hang must not
             # keep the apply lock held.
-            subprocess.run([str(LIB / "waybar-restart.sh")], timeout=30)
+            subprocess.run([str(LIB / "bar-restart.sh")], timeout=30)
         except subprocess.TimeoutExpired:
             warn("Waybar did not restart in time")
 

@@ -52,7 +52,6 @@ hl.config({
             layout_scale_weight  = 1.0,
             layout_space_weight  = 0.10,
 
-            expand_selected_window             = 1,
             overview_focus_follows_mouse       = 1,
             multi_workspace_sort_recent_first  = 1,
             niri_mode                          = 0,
@@ -136,8 +135,8 @@ if hl.plugin.hyprglass then
         -- hides the effect except while dragging.
         manage_window_blur = true,
 
-        -- Opt-in per namespace below. Off for always-on bars: expensive, and
-        -- the liquid band is only ~3px on a 46px waybar.
+        -- Opt-in per namespace below. Waybar stays out: the liquid band is
+        -- only ~3px on a 46px waybar.
         layers = { enabled = true },
     })
 
@@ -163,4 +162,25 @@ if hl.plugin.hyprglass then
     -- Namespace match is exact, not regex. mask_threshold keeps the pill's
     -- anti-aliased edge from counting as content.
     hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.05 })
+
+    -- The panels' glass (Super+K > Appearance): lib/appearance.py writes the
+    -- tone's values to state/glass.lua; without it, or with the glass turned
+    -- off there (it returns false), the panels keep plain blur.
+    -- A layer takes default_theme's variant, so the values go in `dark`.
+    local state_home = os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state")
+    local ok, glass = pcall(dofile, state_home .. "/hyprflow/glass.lua")
+    if ok and type(glass) == "table" then
+        glass.vibrancy = 0.2
+        glass.adaptive_dim = 0.0
+        hg.preset("panels", { inherits = "minor", dark = glass })
+        for _, ns in ipairs({
+            "hyprflow-quickactions", "hyprflow-keyguide", "hyprflow-power",
+            "hyprflow-confirm", "hyprflow-osd", "hyprflow-submap",
+            "hyprflow-sinkswitch", "hyprflow-keyboardfx",
+            "hyprflow-appearance", "hyprflow-bar",
+            "rofi", "swaync-notification-window", "swaync-control-center",
+        }) do
+            hg.layer(ns, { preset = "panels", mask_threshold = 0.05 })
+        end
+    end
 end

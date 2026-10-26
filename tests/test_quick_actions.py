@@ -184,3 +184,29 @@ def test_power_menu_action_opens_the_quickshell_panel(qa):
     action = next(a for a in qa.ACTIONS if a.label == "Power menu")
     assert action.argv == ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"]
     assert action.section == "System"
+
+
+def test_activate_linux_action_toggles_the_watermark(qa, monkeypatch, tmp_path):
+    action = next(a for a in qa.ACTIONS if a.label == "Activate Linux")
+    assert action.argv[1:] == ["--toggle"] and action.argv[0].name == "activate-linux.py"
+    monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
+    assert action.state_word() == "on"
+    (tmp_path / "watermark-off").touch()
+    assert action.state_word() == "off"
+
+
+def test_appearance_action_opens_the_panel_and_names_the_tone(qa, monkeypatch, tmp_path):
+    action = next(a for a in qa.ACTIONS if a.label == "Appearance")
+    assert action.argv == ["qs", "-c", "hyprflow", "ipc", "call", "appearance", "toggle"]
+    assert action.section == "Appearance"
+    monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
+    assert action.state_word() == "black"
+    (tmp_path / "appearance.json").write_text('{"tone": "slate"}')
+    assert action.state_word() == "slate"
+
+
+def test_an_action_for_a_missing_device_is_left_out(qa, capsys):
+    import json
+    qa.main(actions=[qa.Action("a", "Keyboard", ["one"], when=lambda: False),
+                     qa.Action("b", "Here", ["two"], when=lambda: True)], args=["--json"])
+    assert [a["label"] for a in json.loads(capsys.readouterr().out)] == ["Here"]

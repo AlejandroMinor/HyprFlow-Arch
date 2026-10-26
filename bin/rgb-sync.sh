@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154  # color0..15 come from the wallust palette (load_palette)
 
-# Paint every OpenRGB device to match the current theme.
+# Paint every OpenRGB device, and the keyboard OpenRGB does not know
+# (lib/keyboard-rgb.py), to match the current theme.
 #
 #   rgb-sync.sh IMAGE   take the dominant vivid hue of the wallpaper
 #   rgb-sync.sh         take it from the wallust palette (static themes)
@@ -11,6 +12,8 @@
 #   rgb-sync.sh --toggle  --off, or --last when they are off already
 #   rgb-sync.sh --rescan  detect devices again (a headset just turned on),
 #                         then --last, or --off while they are off
+#   rgb-sync.sh --pick [IMAGE]  only choose and cache the colour, LEDs
+#                         untouched: the bar and the focus border use it too
 #
 # Talks to the OpenRGB server on localhost (openrgb.service, see
 # system/openrgb.service.d/). Without it the CLI rescans the hardware on every
@@ -21,6 +24,10 @@
 . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
 LAST="$HOME/.cache/wallust/led-color"
 LIGHTS_OFF="$HOME/.cache/wallust/led-off"  # there while --off holds
+KEYBOARD_RGB="${KEYBOARD_RGB:-$HYPRFLOW_LIB/keyboard-rgb.py}"
+
+# The keyboard is not behind the OpenRGB server: it goes first, on its own.
+keyboard() { "$KEYBOARD_RGB" "$@" >/dev/null 2>&1 || true; }
 
 # Prints the hue covering the most area among saturated, lit pixels, at full
 # saturation and value. Area beats wallust's palette here: the palette is
@@ -136,6 +143,19 @@ lights_off() {
     [ ${#args[@]} -gt 0 ] && openrgb "${args[@]}" >/dev/null 2>&1
 }
 
+# The colour for IMAGE, or the palette without one.
+choose() {
+    if [ -z "${1:-}" ]; then palette_colour; else dominant_hue "$1" || palette_colour; fi
+}
+
+# Cached even without OpenRGB (the laptop): the accent depends on it.
+if [ "${1:-}" = "--pick" ]; then
+    led=$(choose "${2:-}")
+    is_hex "$led" || exit 0
+    mkdir -p "$(dirname "$LAST")" && echo "$led" > "$LAST"
+    exit 0
+fi
+
 command -v openrgb >/dev/null 2>&1 || exit 0
 
 # Something listening on the OpenRGB port (RGB_PORT: for the tests).
@@ -198,6 +218,7 @@ fi
 
 case "$1" in
     --reset|--off)
+        if [ "$1" = "--reset" ]; then keyboard rainbow; else keyboard off; fi
         wait_for_server || exit 0
         if [ "$1" = "--reset" ]; then reset_to_factory; exit 0; fi
         # Marked only if they went off: --toggle reads it.
@@ -208,13 +229,13 @@ esac
 case "$1" in
     # An empty or damaged cache (a crash mid write) falls back to the palette.
     --last) led=$(cat "$LAST" 2>/dev/null); is_hex "$led" || led=$(palette_colour) ;;
-    "")     led=$(palette_colour) ;;
-    *)      led=$(dominant_hue "$1") || led=$(palette_colour) ;;
+    *)      led=$(choose "$1") ;;
 esac
 [ -n "$led" ] || exit 0
 
 # Cached first, so --last can apply it later if the server never answers.
 mkdir -p "$(dirname "$LAST")" && echo "$led" > "$LAST"
+keyboard color "$led"
 
 wait_for_server || exit 0
 openrgb -m static -c "$led" >/dev/null 2>&1 && rm -f "$LIGHTS_OFF"

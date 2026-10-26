@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Quick actions menu (Super+K): screens, game mode, lights, audio, notifications,
-power profile, wallpaper, theme.
+power profile, wallpaper, appearance (tone and theme), the keyboard effect.
 
 Each entry is a Command: its name, how to read its state (for the switches),
 what to run and its section. A new action is one more entry in ACTIONS, tagged
-with one of SECTIONS; an action whose program is missing (needs) is left out.
+with one of SECTIONS; an action whose program is missing (needs), or whose
+device is not plugged in (when), is left out.
 
 The menu is rofi (a bold heading row per section), or the Quickshell panel,
 which reads `--json`, groups by section and runs its pick with `--run LABEL`.
@@ -19,7 +20,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hyprflow import paths  # noqa: E402
+from hyprflow import keyboard_rgb, paths  # noqa: E402
 from hyprflow.menu import RofiMenu  # noqa: E402
 
 LIB = Path(__file__).resolve().parent
@@ -34,9 +35,12 @@ class Action:
     state: Callable[[], bool | str | None] | None = None  # on/off, or a word
     needs: str | None = None  # program that must be installed
     section: str = ""  # heading it is filed under; see SECTIONS
+    when: Callable[[], bool] | None = None  # e.g. its device is plugged in
 
     def available(self):
-        return self.needs is None or shutil.which(self.needs) is not None
+        if self.needs is not None and shutil.which(self.needs) is None:
+            return False
+        return self.when is None or self.when()
 
     def state_word(self):
         state = self.state() if self.state else None
@@ -88,6 +92,17 @@ def lights_on():
     return not (paths.CACHE / "wallust" / "led-off").exists()
 
 
+def watermark_on():
+    return not (paths.HYPRFLOW_STATE / "watermark-off").exists()
+
+
+def appearance_tone():
+    try:
+        return json.loads((paths.HYPRFLOW_STATE / "appearance.json").read_text())["tone"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return "black"
+
+
 def output(argv):
     try:
         return subprocess.run(argv, capture_output=True, text=True, timeout=2).stdout.strip()
@@ -102,6 +117,24 @@ def dnd_on():
 def mic_on():
     volume = output(["wpctl", "get-volume", "@DEFAULT_AUDIO_SOURCE@"])
     return "MUTED" not in volume if volume else None
+
+
+def keyboard_present():
+    return keyboard_rgb.find() is not None
+
+
+def keyboard_effect():
+    try:
+        device = keyboard_rgb.Hidraw(keyboard_rgb.find())
+    except (OSError, TypeError):
+        return None
+    try:
+        number = keyboard_rgb.Keyboard(device).effect()
+        return keyboard_rgb.EFFECTS[number - 1]
+    except (OSError, IndexError):
+        return None
+    finally:
+        device.close()
 
 
 def power_profile():
@@ -126,8 +159,12 @@ ACTIONS = [
     Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl", section="System"),
     Action("󰐥", "Power menu", ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"], needs="qs", section="System"),
     Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
+    Action("", "Keyboard effect", ["qs", "-c", "hyprflow", "ipc", "call", "keyboardfx", "toggle"],
+           keyboard_effect, needs="qs", section="Appearance", when=keyboard_present),
+    Action("", "Activate Linux", [LIB / "activate-linux.py", "--toggle"], watermark_on, section="Appearance"),
+    Action("󰔎", "Appearance", ["qs", "-c", "hyprflow", "ipc", "call", "appearance", "toggle"],
+           appearance_tone, needs="qs", section="Appearance"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
-    Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], section="Appearance"),
 ]
 
 

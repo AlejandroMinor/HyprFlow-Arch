@@ -282,7 +282,7 @@ Scope {
                 }
                 Text {
                     text: root.caption
-                    color: Qt.alpha(Colors.foreground, 0.6)
+                    color: Colors.fg(0.6)
                     font { family: root.font; pixelSize: 12 }
                     Layout.maximumWidth: 140
                     elide: Text.ElideRight
@@ -296,13 +296,13 @@ Scope {
                 Layout.fillWidth: true
                 implicitHeight: 6
                 radius: 3
-                color: Qt.alpha(Colors.foreground, 0.12)
+                color: Colors.fg(0.12)
 
                 Rectangle {
                     width: track.width * Math.max(0, Math.min(100, root.value)) / 100
                     height: parent.height
                     radius: parent.radius
-                    color: Qt.alpha(Colors.foreground, 0.85)
+                    color: Colors.fg(0.85)
                     Behavior on width { Anim {} }
                 }
 

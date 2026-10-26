@@ -180,7 +180,7 @@ class FakeMenu:
 class FakeDesktop:
     def __init__(self, windows=2, opens=True):
         self.windows, self.opens = windows, opens
-        self.dispatched, self.reopened = [], []
+        self.dispatched, self.reopened, self.left = [], [], []
 
     def capture(self):
         return [{"class": f"app{i}", "workspace": 1} for i in range(self.windows)]
@@ -190,6 +190,9 @@ class FakeDesktop:
 
     def dispatch(self, expr):
         self.dispatched.append(expr)
+
+    def leave(self, how):
+        self.left.append(how)
 
     def reopen(self, entry, monitors):
         self.reopened.append(entry["class"])
@@ -240,15 +243,15 @@ def test_dismissing_save_saves_nothing(flow):
 def test_logout_saves_the_last_session_and_exits(flow):
     build, layouts, _ = flow
     manager, _, desktop = build("Log out")
-    manager.logout()
+    manager.end()
     assert layouts.names() == ["default"]
-    assert desktop.dispatched == ["hl.dsp.exit()"]
+    assert desktop.left == ["logout"]
 
 
 def test_logout_asks_first_and_counts_the_windows(flow):
     build, _, _ = flow
     manager, menu, _ = build("Log out")
-    manager.logout()
+    manager.end()
     prompt, options = menu.asked[0]
     assert "2 windows" in prompt
     assert options == ["Cancel", "Log out"]      # Cancel first: Enter is the safe answer
@@ -258,19 +261,40 @@ def test_logout_asks_first_and_counts_the_windows(flow):
 def test_a_confirmed_logout_does_not_ask_again(flow):
     build, layouts, _ = flow
     manager, menu, desktop = build(None)         # would dismiss, if asked
-    manager.logout(confirmed=True)
+    manager.end(confirmed=True)
     assert menu.asked == []
     assert layouts.names() == ["default"]
-    assert desktop.dispatched == ["hl.dsp.exit()"]
+    assert desktop.left == ["logout"]
+
+
+@pytest.mark.parametrize("how, button", [("reboot", "Reboot"), ("poweroff", "Shut down")])
+def test_reboot_and_shut_down_save_the_session_first(flow, how, button):
+    build, layouts, notes = flow
+    manager, menu, desktop = build(button)
+    manager.end(how)
+    assert menu.asked[0][1] == ["Cancel", button]
+    assert layouts.names() == ["default"]
+    assert desktop.left == [how]
+    assert notes[0].startswith("Session saved (2 windows)")
+
+
+def test_desktop_reboots_and_shuts_down_with_systemctl(session, monkeypatch):
+    desktop, launched, dispatched = session.Desktop(), [], []
+    monkeypatch.setattr(desktop, "launch", launched.append)
+    monkeypatch.setattr(desktop, "dispatch", dispatched.append)
+    for how in ("logout", "reboot", "poweroff"):
+        desktop.leave(how)
+    assert dispatched == ["hl.dsp.exit()"]
+    assert launched == [["systemctl", "reboot"], ["systemctl", "poweroff"]]
 
 
 def test_dismissing_logout_neither_saves_nor_exits(flow):
     build, layouts, notes = flow
     for answer in (None, "Cancel"):
         manager, _, desktop = build(answer)
-        manager.logout()
+        manager.end()
         assert layouts.names() == []
-        assert desktop.dispatched == []
+        assert desktop.left == []
         assert notes == []
 
 
@@ -310,4 +334,5 @@ def test_load_without_layouts_says_so(flow):
 
 def test_unknown_subcommand_prints_usage(session, capsys):
     assert session.main(["x", "dance"]) == 1
+    assert session.main(["x", "reboot", "--now"]) == 1
     assert "session-manager.py save" in capsys.readouterr().err

@@ -56,4 +56,4 @@ them are set up dark:
 |------|--------|
 | GTK 4, libadwaita, GTK 3 | the theme step, through `gsettings` (`prefer-dark`, `Adwaita-dark`) |
 | Qt 5 and 6 | `qt5ct`/`qt6ct`: Fusion with a dark palette, plus `qss/hyprflow.qss` for rounded buttons and inputs |
-| GPG's passphrase prompt | `pinentry/preexec`: the Qt prompt instead of the GTK 2 one, which has no dark theme |
+| GPG's passphrase prompt | `pinentry/preexec`: the Qt prompt instead of the GTK 2 one, which has no dark theme. It sets `QT_QPA_PLATFORMTHEME=qt6ct` itself, since `gpg-agent` can start before Hyprland exports it |

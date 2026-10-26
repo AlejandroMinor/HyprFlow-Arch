@@ -231,6 +231,15 @@ def test_tooltip_lists_everyone_and_percentage_is_the_lowest(hub, plain_palette)
     assert view["percentage"] == 30
 
 
+def test_every_device_is_listed_for_the_panel(hub, plain_palette):
+    d = devices(hub)
+    view = hub.BatteryHub(d["laptop"], [d["keys"], d["mouse"]], False, plain_palette).render()
+    assert [x["name"] for x in view["devices"]] == ["Laptop", "Keys", "Mouse"]
+    assert view["devices"][1] == {"name": "Keys", "icon": "K", "percent": 30, "charging": False,
+                                  "level": "warning", "laptop": False, "pushed": False,
+                                  "at": None}
+
+
 def test_no_batteries_hides_the_module(hub, plain_palette):
     view = hub.BatteryHub(None, [], False, plain_palette).render()
     assert view["text"] == "" and view["tooltip"] == "No batteries"
@@ -571,6 +580,15 @@ def test_hidpp_a_first_slow_reading_waits_for_the_recheck(hub):
     assert source.devices(FakeHidpp({1: keyboard(60)}))[0].percent == 60
 
 
+def test_hidpp_a_device_that_always_answers_slowly_is_shown_once_it_repeats(hub):
+    # A receiver busy enough that awake devices take 0.25 to 1 s: waiting for
+    # a fast answer left the keyboard and mouse out of the bar for good.
+    now = [0.0]
+    source = hub.HidppSource(clock=lambda: now[0])
+    assert source.devices(SlowHidpp({1: keyboard(50)}, now, 0.8)) == []
+    assert source.devices(SlowHidpp({1: keyboard(50)}, now, 0.8))[0].percent == 50
+
+
 def test_the_module_lets_every_source_watch_its_own_events(hub, monkeypatch):
     watched = []
 
@@ -715,3 +733,64 @@ def test_ble_does_not_scan_in_game_mode(hub, monkeypatch, tmp_path):
     (tmp_path / "game-mode").write_text("solo=1\n")
     monkeypatch.setattr(hub.Gio, "bus_get_sync", lambda *a: pytest.fail("scanned while gaming"))
     assert source.scan() is True
+
+
+# ---- PushedSource ---------------------------------------------------------------
+
+def test_pushed_batteries_show_until_they_are_stale(hub, tmp_path):
+    state = tmp_path / "pushed.json"
+    state.write_text(json.dumps({
+        "Alejandro’s Apple Watch": {"percent": 67, "charging": False, "at": 1000},
+        "iPhone de Alejandro": {"percent": 85, "charging": True, "at": 1000},
+        "Old iPad": {"percent": 80, "charging": False, "at": 1000 - hub.PUSHED_STALE - 1},
+    }))
+    devices = hub.PushedSource(state, clock=lambda: 1000).read()
+    assert [(d.name, d.percent, d.charging) for d in devices] == [
+        ("Alejandro’s Apple Watch", 67, False), ("iPhone de Alejandro", 85, True)]
+    assert all(d.pushed for d in devices) and devices[0].at == 1000
+    assert devices[0].icon == "\U000F0589" and devices[1].icon == "\U000F011C"  # watch, phone
+
+
+def test_pushed_batteries_without_a_file_or_broken_are_none(hub, tmp_path):
+    assert hub.PushedSource(tmp_path / "none.json").read() == []
+    (tmp_path / "bad.json").write_text("{")
+    assert hub.PushedSource(tmp_path / "bad.json").read() == []
+
+
+def test_a_device_read_here_wins_over_its_pushed_copy(hub, tmp_path):
+    state = tmp_path / "pushed.json"
+    state.write_text(json.dumps({"AirPods Max de Alejandro": {"percent": 94, "at": 1000}}))
+    local = FakeSource([hub.Device("AirPods Max", "H", 90)])
+    _, peripherals = hub.Batteries([local, hub.PushedSource(state, clock=lambda: 1000)]).collect()
+    assert [(d.name, d.percent) for d in peripherals] == [("AirPods Max", 90)]
+
+
+def test_pushed_devices_stay_out_of_the_bar_text_but_not_the_list(hub, plain_palette):
+    d = devices(hub)
+    phone = hub.Device("iPhone", "P", 10, pushed=True)
+    view = hub.BatteryHub(None, [phone, d["mouse"]], False, plain_palette).render()
+    assert view["text"] == "M 80%" and view["percentage"] == 80
+    assert "iPhone" in view["tooltip"]
+    assert [x["name"] for x in view["devices"]] == ["iPhone", "Mouse"]
+
+
+def test_only_pushed_devices_leave_an_icon_to_open_the_panel(hub, plain_palette):
+    phone = hub.Device("iPhone", "P", 10, pushed=True, at=1000)
+    view = hub.BatteryHub(None, [phone], False, plain_palette).render()
+    assert view["text"] == hub.OTHER_ICON
+    assert view["devices"][0]["at"] == 1000
+
+
+def test_without_any_battery_the_module_is_empty(hub, plain_palette):
+    assert hub.BatteryHub(None, [], False, plain_palette).render()["text"] == ""
+
+
+def test_a_low_pushed_device_sends_no_notice(hub, tmp_path, monkeypatch):
+    sent = []
+    monkeypatch.setattr(hub.subprocess, "run", lambda cmd, *a, **k: sent.append(cmd))
+    monkeypatch.setattr(hub, "ViewState", lambda: type("V", (), {"expanded": False})())
+    module = hub.BatteryHubModule(sources=[FakeSource([hub.Device("iPhone", "P", 5, pushed=True)])])
+    module.notifier = hub.LowBatteryNotifier(state=str(tmp_path / "n.json"),
+                                             hook=str(tmp_path / "no-hook"))
+    module.state()
+    assert sent == []

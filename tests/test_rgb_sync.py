@@ -31,6 +31,9 @@ def rgb(tmp_path):
     (fakes / "openrgb").write_text('#!/bin/bash\necho "openrgb $*" >> "$HOME/log"\n'
                                    '[ "$1" = -ld ] && cat "$HOME/detailed"\nexit 0\n')
     (fakes / "openrgb").chmod(0o755)
+    # Never the real keyboard: it would repaint the one on this desk.
+    (fakes / "keyboard-rgb").write_text('#!/bin/bash\necho "keyboard $*" >> "$HOME/log"\n')
+    (fakes / "keyboard-rgb").chmod(0o755)
     # A stand-in for the OpenRGB server port: never the real one, which is up
     # on this machine and would make the tests depend on it.
     server = socket.socket()
@@ -42,7 +45,7 @@ def rgb(tmp_path):
     (fakes / "systemctl").chmod(0o755)
     (tmp_path / ".cache" / "wallust" / "colors").mkdir(parents=True)
     env = {**os.environ, "HOME": str(tmp_path), "PATH": f"{fakes}:{os.environ['PATH']}",
-           "RGB_PORT": str(server.getsockname()[1])}
+           "RGB_PORT": str(server.getsockname()[1]), "KEYBOARD_RGB": str(fakes / "keyboard-rgb")}
 
     def run(*args, palette=None, path=None):
         if palette is not None:
@@ -134,6 +137,22 @@ def test_without_openrgb_it_does_nothing(rgb):
     assert run(palette={"color5": "#778D01"}, path=str(root / "empty")) is None
 
 
+def test_pick_caches_the_colour_without_touching_the_leds(rgb):
+    run, root = rgb
+    wall = image(root / "wall.png", ((20, 40, 230), 100))
+    assert bytes.fromhex(run("--pick", wall, palette={"color5": "#778D01"}))[2] == 255
+    assert log(root) == []
+
+
+def test_pick_without_an_image_takes_the_palette_even_without_openrgb(rgb):
+    run, root = rgb
+    # Only what the script needs, never the real openrgb.
+    (root / "tools").mkdir()
+    for tool in ("dirname", "readlink", "mkdir"):
+        (root / "tools" / tool).symlink_to(f"/usr/bin/{tool}")
+    assert run("--pick", palette={"color5": "#778D01"}, path=str(root / "tools")) == "D6FF00"
+
+
 def test_a_server_still_scanning_is_waited_for(rgb):
     """openrgb.service binds the port ~21 s into its hardware scan, and a
     session start landing in that window used to skip the LEDs until the next
@@ -144,10 +163,11 @@ def test_a_server_still_scanning_is_waited_for(rgb):
     probe.chmod(0o755)
     (root / ".cache/wallust/colors/colors-rofi-sh.conf").write_text("color5='#778D01'\n")
     env = {**os.environ, "HOME": str(root), "PATH": f"{root / 'fakebin'}:{os.environ['PATH']}",
-           "RGB_WAIT_STEPS": "2", "RGB_PORT": "1"}   # nothing listens on port 1
+           "RGB_WAIT_STEPS": "2", "RGB_PORT": "1",   # nothing listens on port 1
+           "KEYBOARD_RGB": str(root / "fakebin/keyboard-rgb")}
     subprocess.run(["/usr/bin/bash", str(SCRIPT)], env=env, check=True, timeout=30)
     assert (root / "polls").read_text().split() == ["poll"] * 3   # polled, slept, gave up
-    assert not (root / "log").exists()                           # gave up before openrgb
+    assert log(root) == ["keyboard color D6FF00"]                # gave up before openrgb
 
 
 def test_off_reads_the_detailed_list_and_switches_every_device_off(rgb):
@@ -212,7 +232,7 @@ def openrgb_server(answer=True):
 
 def rescan(root, port, wait="5"):
     env = {**os.environ, "HOME": str(root), "PATH": f"{root / 'fakebin'}:{os.environ['PATH']}",
-           "RGB_PORT": str(port), "RGB_RESCAN_WAIT": wait}
+           "RGB_PORT": str(port), "RGB_RESCAN_WAIT": wait, "KEYBOARD_RGB": str(root / "fakebin/keyboard-rgb")}
     subprocess.run(["/usr/bin/bash", str(SCRIPT), "--rescan"], env=env, check=True, timeout=30)
 
 
@@ -242,3 +262,17 @@ def test_rescan_with_a_silent_server_still_applies_the_colour(rgb):
     rescan(root, server.getsockname()[1], wait="1")
     server.close()
     assert log(root)[-1] == "openrgb -m static -c D6FF00"
+
+
+def test_the_keyboard_gets_the_same_colour(rgb):
+    run, root = rgb
+    run(palette={"color5": "#FF0000"})
+    assert "keyboard color FF0000" in log(root)
+
+
+def test_the_keyboard_follows_off_and_reset(rgb):
+    run, root = rgb
+    run("--off")
+    run("--reset")
+    keyboard = [line for line in log(root) if line.startswith("keyboard")]
+    assert keyboard == ["keyboard off", "keyboard rainbow"]

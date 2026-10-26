@@ -92,7 +92,7 @@ Scope {
                 Text {
                     visible: !search.text
                     text: "\uf11c  Keybindings"  // keyboard
-                    color: Qt.alpha(Colors.foreground, 0.45)
+                    color: Colors.fg(0.45)
                     font: search.font
                 }
 
@@ -135,7 +135,7 @@ Scope {
                     verticalAlignment: Text.AlignBottom
                     bottomPadding: 4
                     text: section
-                    color: Qt.alpha(Colors.foreground, 0.5)
+                    color: Colors.fg(0.5)
                     font { family: root.font; pixelSize: 11; weight: Font.Bold }
                 }
 
@@ -167,7 +167,7 @@ Scope {
                                 radius: 6
                                 width: keyText.implicitWidth + 12
                                 height: 22
-                                color: Qt.alpha(Colors.foreground, 0.08)
+                                color: Colors.fg(0.08)
                                 Text {
                                     id: keyText
                                     anchors.centerIn: parent
@@ -187,7 +187,7 @@ Scope {
                         Text {
                             visible: row.submap !== ""
                             text: row.submap
-                            color: Qt.alpha(Colors.foreground, 0.45)
+                            color: Colors.fg(0.45)
                             font { family: root.font; pixelSize: 10 }
                         }
                     }

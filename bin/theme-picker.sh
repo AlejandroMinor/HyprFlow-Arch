@@ -84,12 +84,13 @@ as_json() {
 }
 
 # Apply a theme by its raw name; the wallpaper palette when it is "auto".
+# The panel calls it and stays open, so the change shows by itself: no notice.
 apply() {
     [ -n "$1" ] || exit 1
     if [ "$1" = "$AUTO_NAME" ] || [ "$1" = "$AUTO" ]; then
-        exec "$MANAGER" --generate-palette --notify
+        exec "$MANAGER" --generate-palette
     fi
-    exec "$MANAGER" --theme "$1" --notify
+    exec "$MANAGER" --theme "$1"
 }
 
 # The Quickshell panel when it is up; the terminal picker otherwise, so a

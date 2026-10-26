@@ -5,7 +5,8 @@ A GTK 4 layer-shell surface on the overlay, like master-pick: no window,
 no focus, and an empty input region, so clicks go straight through to what
 is underneath. Hyprland starts it once at login; a second copy exits.
 
-It follows workspace 1 when monitors come and go, and hides in game mode.
+It follows workspace 1 when monitors come and go, and hides in game mode
+or while switched off (Super+K > Activate Linux runs --toggle).
 """
 
 import ctypes
@@ -36,6 +37,7 @@ TITLE = "Activate Linux"
 SUBTITLE = "Go to Settings to activate Linux"
 MARGIN_RIGHT, MARGIN_BOTTOM = 8, 32  # where eww put it
 GAME_MODE = paths.HYPRFLOW_STATE / "game-mode"
+OFF = paths.HYPRFLOW_STATE / "watermark-off"  # switched off by the user
 # Events after which workspace 1 may sit on another monitor.
 MOVES = ("monitoradded", "monitorremoved", "moveworkspace")
 SETTLE_MS = 500  # a hotplug comes as a burst; place once it is over
@@ -60,10 +62,10 @@ def primary_port():
         return None
 
 
-def target(monitors, port, gaming):
-    """Where the watermark goes: nowhere in game mode, else the monitor
-    showing workspace 1, else the first one."""
-    if gaming or not monitors:
+def target(monitors, port, hidden):
+    """Where the watermark goes: nowhere in game mode or while switched off,
+    else the monitor showing workspace 1, else the first one."""
+    if hidden or not monitors:
         return None
     return next((m for m in monitors if m.get_connector() == port), monitors[0])
 
@@ -100,8 +102,10 @@ class Watermark:
         window.connect("realize", lambda w: w.get_surface().set_input_region(cairo.Region()))
 
         self.monitors.connect("items-changed", lambda *_: self.later())
-        self.game_mode = Gio.File.new_for_path(str(GAME_MODE)).monitor_file(Gio.FileMonitorFlags.NONE)
-        self.game_mode.connect("changed", lambda *_: self.later())
+        self.watches = [Gio.File.new_for_path(str(f)).monitor_file(Gio.FileMonitorFlags.NONE)
+                        for f in (GAME_MODE, OFF)]
+        for watch in self.watches:
+            watch.connect("changed", lambda *_: self.later())
         threading.Thread(target=self.listen, daemon=True).start()
         self.place()
 
@@ -122,7 +126,7 @@ class Watermark:
     def place(self):
         self.pending = 0
         items = [self.monitors.get_item(i) for i in range(self.monitors.get_n_items())]
-        monitor = target(items, primary_port(), GAME_MODE.exists())
+        monitor = target(items, primary_port(), GAME_MODE.exists() or OFF.exists())
         if monitor is None:
             self.window.set_visible(False)
         elif monitor != self.monitor or not self.window.get_visible():
@@ -134,7 +138,19 @@ class Watermark:
         return False
 
 
-def main():
+def toggle():
+    """Flip the off marker; the running watermark sees it and hides or shows."""
+    if OFF.exists():
+        OFF.unlink()
+    else:
+        OFF.parent.mkdir(parents=True, exist_ok=True)
+        OFF.touch()
+
+
+def main(args=()):
+    if list(args) == ["--toggle"]:
+        toggle()
+        return 0
     with single_instance("activate-linux"):
         app = Gtk.Application(application_id="dev.hyprflow.activatelinux")
         app.connect("activate", lambda app: Watermark(app).build())
@@ -142,4 +158,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

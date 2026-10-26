@@ -109,12 +109,12 @@ Scope {
 
                 Text {
                     text: root.speaker
-                    color: Qt.alpha(Colors.foreground, 0.45)
+                    color: Colors.fg(0.45)
                     font { family: root.font; pixelSize: 14 }
                 }
                 Text {
                     text: "Audio output"
-                    color: Qt.alpha(Colors.foreground, 0.45)
+                    color: Colors.fg(0.45)
                     font { family: root.font; pixelSize: 13 }
                     Layout.fillWidth: true
                 }
@@ -123,7 +123,7 @@ Scope {
                     text: root.query !== ""
                           ? root.shown.length + " shown"
                           : root.sinks.length + " outputs"
-                    color: Qt.alpha(Colors.foreground, 0.3)
+                    color: Colors.fg(0.3)
                     font { family: root.font; pixelSize: 11 }
                 }
             }
@@ -142,7 +142,7 @@ Scope {
                 Text {
                     visible: !search.text
                     text: "Search outputs"
-                    color: Qt.alpha(Colors.foreground, 0.45)
+                    color: Colors.fg(0.45)
                     font: search.font
                 }
 
@@ -227,7 +227,7 @@ Scope {
 
                         Text {
                             text: row.modelData.icon
-                            color: row.modelData.default ? Colors.accent : Qt.alpha(Colors.foreground, 0.75)
+                            color: row.modelData.default ? Colors.accent : Colors.fg(0.75)
                             font { family: root.font; pixelSize: 18 }
                             Layout.preferredWidth: 22
                             horizontalAlignment: Text.AlignHCenter
@@ -266,7 +266,7 @@ Scope {
                 Layout.bottomMargin: 6
                 visible: root.open && root.query !== "" && root.shown.length === 0
                 text: "No matches"
-                color: Qt.alpha(Colors.foreground, 0.35)
+                color: Colors.fg(0.35)
                 font { family: root.font; pixelSize: 12 }
                 horizontalAlignment: Text.AlignHCenter
             }

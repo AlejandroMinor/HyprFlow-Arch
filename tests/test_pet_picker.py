@@ -9,7 +9,8 @@ CSS = Path(__file__).resolve().parent.parent / "dotconfig" / "waybar" / "runcat-
 
 def apply(css, font):
     return subprocess.run(["bash", "-c", f'source "{SCRIPT}"; apply_runner "{font}"'],
-                          env={"RUNCAT_RUNNER_CSS": str(css), "PATH": "/usr/bin:/bin"},
+                          env={"RUNCAT_RUNNER_CSS": str(css), "PATH": "/usr/bin:/bin",
+                               "HOME": str(css.parent)},
                           capture_output=True, text=True)
 
 
@@ -32,3 +33,16 @@ def test_a_css_without_the_runner_line_is_left_alone(tmp_path):
     assert result.returncode == 1
     assert "no #custom-hardware-wrap font-family line" in result.stderr
     assert css.read_text() == "#clock { color: red; }\n"
+
+
+def remember(state, css=None):
+    env = {"XDG_STATE_HOME": str(state), "PATH": "/usr/bin:/bin", "HOME": str(state),
+           "RUNCAT_RUNNER_CSS": str(css or state / "no-waybar.css")}
+    return subprocess.run(["bash", "-c", f'source "{SCRIPT}"; remember_runner runcat-chicken'],
+                          env=env, capture_output=True, text=True)
+
+
+def test_the_pick_is_kept_for_the_quickshell_bar(tmp_path):
+    # The bar's Runcat module watches this file; no Waybar CSS is needed.
+    assert remember(tmp_path).returncode == 0
+    assert (tmp_path / "hyprflow" / "runner").read_text() == "runcat-chicken\n"

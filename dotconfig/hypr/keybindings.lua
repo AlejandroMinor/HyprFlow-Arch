@@ -159,7 +159,7 @@ end)
 hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("swaync-client -t"),          { description = "Notifications" })
 hl.bind("XF86NotificationCenter",  hl.dsp.exec_cmd("swaync-client -t"),          { description = "Notifications" })
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -C"),          { description = "Clear Notifications" })
-hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("killall -SIGUSR1 waybar"),   { description = "Show / Hide Bar" })
+hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd('sh -c "qs -c hyprflow ipc call bar toggle; killall -SIGUSR1 waybar"'), { description = "Show / Hide Bar" })
 hl.bind(mainMod .. " + A",         hl.dsp.window.bring_to_top(),                 { description = "Bring to Front" })
 -- The Quickshell panel, or the rofi menu when Quickshell is not running.
 hl.bind(mainMod .. " + K",         hl.dsp.exec_cmd("qs -c hyprflow ipc call quickactions toggle || ~/.local/lib/hyprflow/quick-actions.py"), { description = "Quick Actions (screens, audio, game mode, lights...)" })
@@ -345,6 +345,6 @@ hl.bind(mainMod .. " + SHIFT + Y", hl.dsp.layout("removemaster"),          { des
 --  SESSION & LAYOUT MANAGEMENT
 -- =======================================================
 
-hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py logout"), { description = "Save & Exit" })
+hl.bind(mainMod .. " + M",         hl.dsp.exec_cmd("qs -c hyprflow ipc call power toggle"), { description = "Power Menu" })
 hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py save"), { description = "Save Layout" })
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("~/.local/lib/hyprflow/session-manager.py load"),        { description = "Open Saved Layout" })

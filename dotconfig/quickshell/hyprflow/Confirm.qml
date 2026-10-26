@@ -1,4 +1,4 @@
-// "Are you sure?" for Super+Shift+Q and Super+M. hyprflow.menu (QuickshellMenu)
+// "Are you sure?" for Super+Shift+Q and the logout command. hyprflow.menu (QuickshellMenu)
 // asks through IPC with a reply pipe and waits on it; this writes the chosen
 // option there, or an empty line when dismissed.
 // qs -c hyprflow ipc call confirm ask PROMPT "Cancel\nLog out" /path/to/pipe

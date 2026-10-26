@@ -3,6 +3,8 @@
 
     session-manager.py save      ask for a name (existing ones listed, to overwrite)
     session-manager.py logout    save as the last session, then leave Hyprland
+    session-manager.py reboot    the same, then reboot
+    session-manager.py poweroff  the same, then shut down
                                  (--yes: already confirmed, by the power menu)
     session-manager.py load      pick a layout and reopen its windows
 
@@ -32,6 +34,12 @@ from hyprflow.menu import QuickshellMenu  # noqa: E402
 
 TEMPLATES = paths.CONFIG / "hypr" / "templates"
 LAST = "default"                      # what logout writes; shown as "Last session"
+# How a session can end: the confirm button and the notice for each.
+ENDINGS = {
+    "logout": ("Log out", "Logging out…"),
+    "reboot": ("Reboot", "Rebooting…"),
+    "poweroff": ("Shut down", "Shutting down…"),
+}
 IGNORED = {"waybar", "rofi", "swaync", ""}
 WAIT = 5.0                            # seconds a relaunched app gets to show its window
 
@@ -191,6 +199,13 @@ class Desktop:
             return None
         return [part.decode(errors="replace") for part in raw.split(b"\0") if part]
 
+    def leave(self, how):
+        """Ends the session: exits Hyprland, or reboots / shuts down."""
+        if how == "logout":
+            self.dispatch("hl.dsp.exit()")
+        else:
+            self.launch(["systemctl", how])
+
     def capture(self):
         """The layout entries for the windows open now."""
         return snapshot(self.query("clients"), self.query("monitors"), self.command_of)
@@ -243,18 +258,19 @@ class SessionManager:
         self.layouts.save(name, entries)
         self.notify(f"'{name}' {'updated' if existed else 'saved'}: {len(entries)} windows")
 
-    def logout(self, confirmed=False):
-        """Save the session as the last one and leave Hyprland. Confirms
-        first unless the caller already did: one chord ends the session, and
-        there is no undo."""
+    def end(self, how="logout", confirmed=False):
+        """Save the session as the last one, then log out, reboot or shut
+        down (ENDINGS). Confirms first unless the caller already did: one
+        chord ends the session, and there is no undo."""
+        button, notice = ENDINGS[how]
         entries = self.desktop.capture()
-        if not confirmed and self.menu.confirm(f"  Save {len(entries)} windows and log out?",
-                                               ["Cancel", "Log out"]) != "Log out":
+        if not confirmed and self.menu.confirm(f"  Save {len(entries)} windows and {button.lower()}?",
+                                               ["Cancel", button]) != button:
             return
         self.layouts.save(LAST, entries)
-        self.notify(f"Session saved ({len(entries)} windows). Logging out…", "critical")
+        self.notify(f"Session saved ({len(entries)} windows). {notice}", "critical")
         time.sleep(0.5)
-        self.desktop.dispatch("hl.dsp.exit()")
+        self.desktop.leave(how)
 
     def load(self):
         """Pick a layout and reopen it; Alt+D deletes the picked one and
@@ -289,13 +305,14 @@ class SessionManager:
 
 def main(argv):
     args = argv[1:]
-    if args not in (["save"], ["logout"], ["logout", "--yes"], ["load"]):
+    if args not in (["save"], ["load"]) and not (
+            args[:1] and args[0] in ENDINGS and args[1:] in ([], ["--yes"])):
         print(__doc__.split("\n\n")[1], file=sys.stderr)
         return 1
     # Composition root: the one place that chooses the concrete pieces.
     manager = SessionManager(Layouts(), QuickshellMenu(), Desktop(), notify)
-    if args[0] == "logout":
-        manager.logout(confirmed=args[1:] == ["--yes"])
+    if args[0] in ENDINGS:
+        manager.end(args[0], confirmed=args[1:] == ["--yes"])
     else:
         getattr(manager, args[0])()
     return 0

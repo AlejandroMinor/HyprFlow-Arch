@@ -1,0 +1,115 @@
+// The Quickshell bar: what goes where. Edit freely; the bar reloads on save.
+//
+// "bars": one layout per bar type (monitors.sh setup picks full, minimal or
+// none per screen). "modules": settings by module name. A name in a layout
+// loads modules/<Name>.qml (clock → Clock.qml) with its settings; with a
+// "type", that file instead (custom, drawer). Keys follow Waybar's:
+// a "custom" is any script that works as a Waybar custom module.
+{
+  "style": "clusters",     // a file in styles/: clusters, single, pills, edge
+  "colors": true,          // the theme's accent (wallust color5); false: white
+
+  "bars": {
+    "full": {
+      "left":   ["launcher", "workspaces", "overview", "hardware"],
+      "center": ["media-player"],
+      "right":  ["submap", "system-tools", "claude-usage", "privacy", "battery-hub",
+                 "audio", "mic", "vpn", "notifications", "clock", "quick-actions", "power"]
+    },
+    "minimal": {
+      "center": ["workspaces"]
+    }
+  },
+
+  "modules": {
+    "launcher": {
+      "type": "custom",
+      "format": "",
+      "on-click": "pkill -x rofi || rofi -show drun -modes 'drun,window,ssh,run' -theme ~/.config/rofi/hyprflow/launcher-centered.rasi"
+    },
+    "overview": {
+      "type": "custom",
+      "format": "󰾍",
+      "tooltip": "Overview",
+      "on-click": "hyprctl dispatch hl.plugin.hymission.open"
+    },
+    "hardware": {
+      "type": "drawer",
+      "modules": ["runcat", "cpu", "temperature", "memory", "disk", "network"]
+    },
+    "cava": {
+      "colors": true,      // the wallpaper's gradient; false: white
+      "panel": "media"     // a click opens this module's panel
+    },
+    "media-player": {
+      "type": "drawer",
+      "toggle": "hover",   // hovering slides the media out; a click opens the panel
+      "modules": ["cava", "media"]
+    },
+    "runcat": {
+      "type": "runcat",    // a custom whose font is pet-picker.sh's runner
+      "exec": "~/.local/lib/hyprflow/runcat-text",
+      "font": "runcat",
+      "font-size": 22
+    },
+    "temperature": {
+      "path": "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon*/temp1_input",
+      "critical": 80
+    },
+    "system-tools": {
+      "type": "drawer",
+      "icon": "󰒓",
+      "modules": ["updates", "tray", "language"]
+    },
+    "updates": {
+      "type": "custom",
+      "exec": "echo $(( $(pacman -Qu | wc -l) + $(paru -Qua | wc -l) ))",
+      "interval": 3600,
+      "format": " {}",
+      "on-click": "kitty --class updates-float -e paru -Syu"
+    },
+    "tray": {
+      "icons": { "Microsoft Edge": "󰇩", "spotify-client": "", "blueman": "󰂯" }
+    },
+    "language": {
+      "names": { "Spanish": "ES", "English (US)": "EN" }
+    },
+    "claude-usage": {
+      "type": "custom",
+      "exec": "~/.local/lib/hyprflow/claude-usage.sh",
+      "ring": true,        // a ring filled to the usage, not the script's robot
+      "interval": 300,
+      "on-click": "~/.local/lib/hyprflow/claude-usage.sh --refresh"
+    },
+    "battery-hub": {
+      "type": "battery",   // a custom whose click opens every device's battery
+      "exec": "~/.local/lib/hyprflow/battery-hub.py",
+      "on-click-middle": "~/.local/lib/hyprflow/battery-hub.py --toggle",
+      "on-click-right": "~/.local/lib/hyprflow/battery-hub.py --lights"
+    },
+    "vpn": {
+      "type": "custom",
+      "exec": "~/.local/lib/hyprflow/vpn_status.py",
+      "tooltip": "VPN",
+      "classes": {
+        "vpn-status-active":  { "format": "\udb81\udc83" },
+        "vpn-status-warning": { "format": "\udb82\udd9e", "dim": true }
+      }
+    },
+    "clock": {
+      "format": "dd/MM HH:mm"
+    },
+    "quick-actions": {
+      "type": "custom",
+      "format": "\udb85\udd42",
+      "tooltip": "Quick actions",
+      "on-click": "qs -c hyprflow ipc call quickactions toggle"
+    },
+    "power": {
+      "type": "custom",
+      "format": "󰐥",
+      "tooltip": "Power",
+      "on-click": "qs -c hyprflow ipc call power toggle"
+    }
+  }
+}

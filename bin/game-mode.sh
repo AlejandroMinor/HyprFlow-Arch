@@ -167,6 +167,7 @@ cmd_on() {
 
     swaync-client -dn >/dev/null 2>&1 || true
     pkill -x waybar 2>/dev/null || true
+    qs -c hyprflow ipc call bar hide >/dev/null 2>&1 || true
     # rgb-sync.sh does nothing without OpenRGB; --last on the way out restores it.
     [ "$GAME_RGB" = "1" ] && rgb_sync --off
 
@@ -213,7 +214,8 @@ cmd_off() {
     [ "$dnd" = "true" ] || swaync-client -df >/dev/null 2>&1 || true
     [ "$GAME_RGB" = "1" ] && rgb_sync --last
     [ -n "$sink_prev" ] && pactl set-default-sink "$sink_prev" 2>/dev/null
-    pgrep -x waybar >/dev/null || "$HYPRFLOW_LIB/waybar-restart.sh"
+    pgrep -x waybar >/dev/null || "$HYPRFLOW_LIB/bar-restart.sh"
+    qs -c hyprflow ipc call bar unhide >/dev/null 2>&1 || true
 
     msg "off"
     osd "$glyph" "Game mode" "Off" -1 || notify "Game mode off"

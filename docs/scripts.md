@@ -9,7 +9,7 @@
 | `wallust-theme-manager.sh` | Generate and apply color palettes |
 | `theme-picker.sh` | Picks the wallpaper palette or a preset from `~/.config/wallust/themes/`, each with its colours and the one in use marked; the Quickshell panel from `Super + K`, and the fzf picker in a terminal or over SSH (`--json` / `--set NAME` work without a display) |
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
-| `pet-picker.sh` | Switch the Waybar runner (cat / chicken) |
+| `pet-picker.sh` | Switch the bar's runner (cat / chicken): the Quickshell bar at once, Waybar after a restart |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
 | `trackpad-battery` | Apple Magic Trackpad battery, read from the trackpad itself |
 | `sinkswitch` | Pick the audio output from the terminal or over SSH (`sinkswitch --json` / `--set ID` work without a display); the short name for `lib/sink-switch.py` |
@@ -20,7 +20,7 @@ each one by its full path:
 
 | Script | Called by | Description |
 |--------|-----------|-------------|
-| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them, right click for the headset lights, notifications when one runs low (the laptop's with a "Power saver" button) |
+| `battery-hub.py` | Waybar | Every battery (laptop, mice, keyboards, controllers, headsets) from UPower, headsetcontrol, Logitech Bolt receivers and AirPods Max (their Bluetooth LE broadcast, in 10 % steps) in one module: click for all of them (the Quickshell bar: a panel with each one, the middle click switches the view), right click for the headset lights, notifications when one runs low (the laptop's with a "Power saver" button) |
 | `mute_indicator.py` | Waybar | Audio at a glance: output muted, and a badge while the microphone is muted |
 | `volume.sh` | Volume and mute keys | Change volume or mute; the level shows on the Quickshell OSD (it watches Pipewire, so the headset's own buttons show it too), or a transient notification without Quickshell |
 | `brightness.sh` | Brightness keys | Change the panel backlight; the level shows on the Quickshell OSD, or a notification without it |
@@ -37,8 +37,10 @@ each one by its full path:
 | `close-workspace.sh` | `Super + Shift + Q` | Close every window in the workspace, after a confirmation |
 | `hyprland-group-all.sh` | `Alt + G` | Group every window in the workspace |
 | `hyprland-show-desktop.sh` | `Super + D` | Show the desktop |
-| `session-manager.py` | `Super + W` / `Shift + W` / `M` | Save window layouts and reopen them from a menu; `Super + M` saves the session and logs out |
-| `quick-actions.py` | `Super + K` | The Quickshell panel (rofi when Quickshell is not running) to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, switch the keyboard layout, open the power menu, change the wallpaper or theme; switches show their state, and actions whose program is missing are hidden |
+| `battery-push.py` | SSH from another device (an iOS Shortcut) | Keeps the batteries other devices send (`add -`, JSON on stdin) for battery-hub, each for a day; `list`, `clear`. See optional-setup.md |
+| `calendar-events.py` | the calendar's +, pencil and ×, you (or SSH), a sync later | Adds (also as JSON on stdin), edits, removes and lists the events the bar's calendar shows: one JSON file per month in `~/.local/share/hyprflow/calendar/`, kept as history |
+| `session-manager.py` | `Super + W` / `Shift + W` | Save window layouts and reopen them from a menu; `logout` saves the session and leaves (Log out in the power menu) |
+| `quick-actions.py` | `Super + K` | The Quickshell panel (rofi when Quickshell is not running) to mirror or solo the screens, toggle game mode, the lights, the microphone and do not disturb, pick the audio output or power profile, switch the keyboard layout, open the power menu, change the wallpaper, the theme or the bar's spectrum style; switches show their state, and actions whose program is missing are hidden |
 | `confirm.py` | `close-workspace.sh` | Asks a yes/no question on the Quickshell panel (rofi when it is not running) and prints the answer |
 | `power-profile.sh` | `Super + K` | Switches to the next power profile and says which one is on (the Quickshell OSD, or a notification without it) |
 | `layout-picker.py` | `Super + K` | Picks the active keyboard layout among the ones declared in `hyprland.lua` (`es,us`): the chosen one moves to the front of `input:kb_layout`, and the OSD confirms it (a notification without Quickshell) |
@@ -48,7 +50,7 @@ each one by its full path:
 | `rgb-hotplug.py` | Hyprland | Rescans OpenRGB when a USB device is plugged in, so it takes the LED colour (or stays off) like the rest |
 | `mic-mute-watch.py` | Hyprland | A headset's own mic mute button (any with the standard Phone Mute control) mutes its microphone in Pipewire too, so the bar and the OSD show it |
 | `fastfetch-random.sh` | `.zshrc` | fastfetch with a random ascii/image logo |
-| `activate-linux.py` | Hyprland | The "Activate Linux" watermark, click-through, bottom right |
+| `activate-linux.py` | Hyprland, Super+K | The "Activate Linux" watermark, click-through, bottom right; `--toggle` switches it off/on |
 | `monitors.py` | `monitors.sh` | The monitor logic behind the command |
 | `hyprflow/` | the Python scripts | Shared package: paths, hyprctl, notifications, palette, the Waybar module base |
 | `common.sh` | the Bash scripts | Shared paths, messages, notifications (with urgency, icon, timeout, category and an action button), the Quickshell level OSD (`osd`, `quickshell_up`) and palette |

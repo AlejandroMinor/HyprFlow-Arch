@@ -95,6 +95,22 @@ def test_old_layouts_with_a_joined_command_still_launch(session):
     assert session.launch_argv(["kitty"]) == ["kitty"]
 
 
+def test_an_electron_cmdline_is_split_back_into_argv(session):
+    joined = ["/usr/lib/electron43/electron /usr/lib/obsidian/app.asar"]
+    assert session.launch_argv(joined) == ["/usr/lib/electron43/electron", "/usr/lib/obsidian/app.asar"]
+
+
+def test_a_program_that_fails_to_start_does_not_stop_the_rest(session):
+    class Fake(session.Desktop):
+        def query(self, what):
+            return []
+
+        def launch(self, argv):
+            raise FileNotFoundError(argv[0])
+
+    assert not Fake().reopen({"class": "gone", "workspace": 1, "command": ["gone"]}, MONITORS)
+
+
 @pytest.mark.parametrize("seconds, text", [
     (30, "just now"), (600, "10 min ago"), (7200, "2 h ago"), (3 * 86400, "3 days ago")])
 def test_ago(session, seconds, text):

@@ -110,10 +110,13 @@ def title(name):
 
 
 def launch_argv(command):
-    """Layouts store argv lists; older ones a joined string, run by a shell."""
-    if isinstance(command, list):
-        return command
-    return ["bash", "-c", command]
+    """Layouts store argv lists; older ones a joined string, run by a shell.
+    Electron apps rewrite their cmdline into one spaced string: split it."""
+    if not isinstance(command, list):
+        return ["bash", "-c", command]
+    if len(command) == 1 and " " in command[0] and not Path(command[0]).exists():
+        return command[0].split()
+    return command
 
 
 def placement(entry, monitors, address):
@@ -214,7 +217,10 @@ class Desktop:
         """Launches one window again and puts it back; False if it did not
         show up in time."""
         before = {c["address"] for c in self.query("clients")}
-        self.launch(launch_argv(entry["command"]))
+        try:
+            self.launch(launch_argv(entry["command"]))
+        except OSError:  # not installed anymore: the others still open
+            return False
         deadline = time.monotonic() + wait
         while time.monotonic() < deadline:
             time.sleep(0.25)

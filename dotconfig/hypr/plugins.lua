@@ -161,7 +161,7 @@ if hl.plugin.hyprglass then
 
     -- Namespace match is exact, not regex. mask_threshold keeps the pill's
     -- anti-aliased edge from counting as content.
-    hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.05 })
+    hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.5 })
 
     -- The panels' glass (Super+K > Appearance): lib/appearance.py writes the
     -- tone's values to state/glass.lua; without it, or with the glass turned
@@ -180,7 +180,7 @@ if hl.plugin.hyprglass then
             "hyprflow-appearance", "hyprflow-bar",
             "rofi", "swaync-notification-window", "swaync-control-center",
         }) do
-            hg.layer(ns, { preset = "panels", mask_threshold = 0.05 })
+            hg.layer(ns, { preset = "panels", mask_threshold = 0.5 })
         end
     end
 end

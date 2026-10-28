@@ -1,11 +1,19 @@
 # HyprFlow-Arch
 
 Hyprland + Arch Linux desktop config: multi-monitor, dynamic theming from the
-wallpaper, and Waybar modules for peripheral batteries and system status.
+wallpaper, and a Quickshell bar and panels for peripheral batteries and system
+status.
 
 ![Desktop](assets/screenshots/desktop.webp)
 ![Master layout with master-pick](assets/screenshots/master-pick.webp)
 ![Floating windows](assets/screenshots/floating.webp)
+
+| | |
+|---|---|
+| ![Media panel](assets/screenshots/bar-media.webp) | ![Sound panel](assets/screenshots/bar-sound.webp) |
+| ![Batteries panel](assets/screenshots/bar-batteries.webp) | ![Calendar](assets/screenshots/bar-calendar.webp) |
+| ![Quick actions (Super+K)](assets/screenshots/quick-actions.webp) | ![Keybind guide (Super+I)](assets/screenshots/key-guide.webp) |
+| ![Power menu](assets/screenshots/power-menu.webp) | ![Volume OSD](assets/screenshots/osd.webp) |
 
 ## Quick start
 
@@ -192,4 +200,10 @@ Once it runs, for changing things or looking them up:
 ## Older versions
 
 The Hyprland config here is Lua, the format since Hyprland 0.55 (`.conf`/hyprlang
-is deprecated). The last `.conf` version is tagged `pre-lua-migration`.
+is deprecated). The last `.conf` version is the
+[pre-lua-migration](https://github.com/AlejandroMinor/HyprFlow-Arch/releases/tag/pre-lua-migration)
+release.
+
+The bar and menus are Quickshell; the last version with Waybar and rofi menus is the
+[Waybar and rofi edition](https://github.com/AlejandroMinor/HyprFlow-Arch/releases/tag/pre-quickshell-migration)
+release.

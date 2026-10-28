@@ -42,13 +42,14 @@ from gi.repository import Gtk4LayerShell as LayerShell  # noqa: E402
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 from hyprflow import hyprland  # noqa: E402
 
-# Pill colours. The background alpha is deliberately low: hyprglass composites
-# its glass underneath this surface (see hg.layer("master-pick") in
-# hyprland.lua), and a solid fill would bury it.
-LABEL_BG = "#3a3a3a"
-LABEL_BG_ALPHA = 0.15
+# Pill colours: the panels' card, darker. No glass or blur: GTK 4.24
+# registers an empty ext-background-effect region and Hyprland 0.56 then
+# skips both on this surface.
+LABEL_BG = "#000000"
+LABEL_BG_ALPHA = 0.55
 LABEL_FG = "#f5f5f5"
-LABEL_BORDER = "#4a4a4a"
+LABEL_BORDER = "#ffffff"
+LABEL_BORDER_ALPHA = 0.08
 
 # Safety net: a stray invocation shouldn't sit there holding the keyboard grab.
 PICK_TIMEOUT_SECONDS = 15
@@ -60,12 +61,11 @@ window {{ background-color: transparent; }}
   color: {LABEL_FG};
   font-family: monospace;
   font-weight: 700;
-  border: 1px solid {LABEL_BORDER};
+  border: 1px solid alpha({LABEL_BORDER}, {LABEL_BORDER_ALPHA});
 }}
 """
 
-# Pill size at scale 1.0, scaled per window below. Not much smaller than this
-# or hyprglass's edge band has no room and the glass reads as a flat box.
+# Pill size at scale 1.0, scaled per window below.
 BASE_FONT_SIZE = 64
 BASE_PAD_V = 10
 BASE_PAD_H = 32
@@ -219,7 +219,7 @@ class MasterPick(Gtk.Application):
         self.win = win
         LayerShell.init_for_window(win)
         LayerShell.set_layer(win, LayerShell.Layer.OVERLAY)
-        LayerShell.set_namespace(win, "master-pick")  # matched by windowrules.lua and hyprglass in hyprland.lua
+        LayerShell.set_namespace(win, "master-pick")  # matched by windowrules.lua
         LayerShell.set_keyboard_mode(win, LayerShell.KeyboardMode.EXCLUSIVE)
         for edge in (
             LayerShell.Edge.TOP,

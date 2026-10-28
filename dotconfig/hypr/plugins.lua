@@ -1,5 +1,5 @@
 -- Plugin settings: hymission (the overview) and hyprglass (the glass on
--- windows and master-pick). Both follow the wallust palette from
+-- windows and panels). Both follow the wallust palette from
 -- colors.lua. Loaded after windowrules.lua, whose tags hyprglass reads.
 
 -- Rewrites a wallust color from colors.lua with an explicit alpha.
@@ -139,29 +139,6 @@ if hl.plugin.hyprglass then
         -- only ~3px on a 46px waybar.
         layers = { enabled = true },
     })
-
-    -- Pushed harder than "minor" because the pill is a fraction of a window's
-    -- size -- below that the effect reads as a flat tinted box. Legibility
-    -- doesn't matter here, it's on screen for a few seconds.
-    hg.preset("master-pick-glass", {
-        inherits             = "minor",
-        blur_strength        = 1.1,
-        edge_thickness       = 0.15,  -- plugin max
-        refraction_strength  = 8.0,
-        chromatic_aberration = 0.85,
-        lens_distortion      = 0.5,
-        fresnel_strength     = 1.0,   -- plugin max
-        -- The real transparency dial: the shader saturates the composite to
-        -- opaque at 1.0 no matter how transparent the pill's own CSS is.
-        glass_opacity        = 0.95,
-        -- Near-zero, unlike "minor": the accent dilutes across a kitty window
-        -- but turns a pill this small solid purple.
-        dark = { tint_color = tint(color5, 0x08) },
-    })
-
-    -- Namespace match is exact, not regex. mask_threshold keeps the pill's
-    -- anti-aliased edge from counting as content.
-    hg.layer("master-pick", { preset = "master-pick-glass", mask_threshold = 0.5 })
 
     -- The panels' glass (Super+K > Appearance): lib/appearance.py writes the
     -- tone's values to state/glass.lua; without it, or with the glass turned

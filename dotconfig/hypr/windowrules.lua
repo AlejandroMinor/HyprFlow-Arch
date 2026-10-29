@@ -228,6 +228,9 @@ hl.layer_rule({ name = "quickshell-blur", match = { namespace = "hyprflow-.*" },
 -- Quickshell folds its panels itself; Hyprland only fades them in and out.
 hl.layer_rule({ name = "quickshell-anim", match = { namespace = "hyprflow-.*" }, animation = "fade" })
 hl.layer_rule({ name = "swaync-blur",  match = { namespace = "swaync-.*" }, blur = true, ignore_alpha = 0.01 })
+-- The panel drops in from the top; popups only fade, swaync slides them from the right.
+hl.layer_rule({ name = "swaync-panel-anim", match = { namespace = "swaync-control-center" }, animation = "slide top" })
+hl.layer_rule({ name = "swaync-popup-anim", match = { namespace = "swaync-notification-window" }, animation = "fade" })
 hl.layer_rule({ name = "waybar-blur",  match = { namespace = "waybar" },   blur = true, ignore_alpha = 0.01 })
 -- No blur: GTK 4.24's empty background-effect region blocks it (master-pick.py).
 -- Fade because the global layersIn slide has no sensible edge to come from

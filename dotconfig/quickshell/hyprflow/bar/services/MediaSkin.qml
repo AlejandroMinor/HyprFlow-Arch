@@ -52,6 +52,7 @@ Singleton {
         { name: "magazine", label: "Magazine", file: "MagazineSkin.qml", group: "print" },
         { name: "stamp", label: "Stamp", file: "StampSkin.qml", group: "print" },
         { name: "poster", label: "Poster", file: "PosterSkin.qml", group: "print" },
+        { name: "cards", label: "Cards", file: "CardsSkin.qml", group: "print" },
         { name: "session", label: "Session", file: "SessionSkin.qml", group: "anime" },
         { name: "episode", label: "Episode", file: "EpisodeSkin.qml", group: "anime" },
         { name: "phantom", label: "Phantom", file: "PhantomSkin.qml", group: "anime" }
@@ -90,6 +91,7 @@ Singleton {
         { key: "showStack", label: "Stack", values: [true, false], names: ["On", "Off"] },
         { key: "stackDepth", label: "Pile", values: [3, 1], names: ["3", "1"] },
         { key: "risoInks", label: "Inks", values: [3, 2], names: ["3", "2"] },
+        { key: "cardsHand", label: "Hand", values: [5, 3], names: ["5", "3"] },
         { key: "lcdColor", label: "Colour", values: ["green", "gray", "amber"], names: ["Green", "Grey", "Amber"] },
         { key: "shellOpacity", label: "Shell", values: [1, 0.45], names: ["Solid", "Clear"] }
     ]
@@ -109,6 +111,8 @@ Singleton {
     // The pop-out's size: NowSpinning's presets, small to xl.
     readonly property var popOutSizes: ["small", "medium", "large", "xl"]
     property string popOutSize: "medium"
+    // The progress ring around the pop-out's round skins; off, a bar in its controls.
+    property bool popOutRing: true
     property bool beat: true  // skins with a pulse of their own pulse with the bass
     property var galleryOwner: null  // the Media module whose gallery is open
 
@@ -134,7 +138,8 @@ Singleton {
         file.setText(JSON.stringify({ skin: root.skin, settings: root.settings, backdrop: root.backdrop, backdropBlur: root.backdropBlur,
                                      lyricsPanel: root.lyricsPanel, lyricsBar: root.lyricsBar,
                                      lyricsLines: root.lyricsLines, beat: root.beat,
-                                     popOutScreen: root.popOutScreen, popOutSize: root.popOutSize }, null, 2) + "\n");
+                                     popOutScreen: root.popOutScreen, popOutSize: root.popOutSize,
+                                     popOutRing: root.popOutRing }, null, 2) + "\n");
     }
 
     FileView {
@@ -156,6 +161,7 @@ Singleton {
                 root.beat = data.beat !== false;
                 root.popOutScreen = data.popOutScreen ?? "";
                 root.popOutSize = root.popOutSizes.includes(data.popOutSize) ? data.popOutSize : "medium";
+                root.popOutRing = data.popOutRing !== false;
             } catch (e) {
                 root.skin = "cover";
             }

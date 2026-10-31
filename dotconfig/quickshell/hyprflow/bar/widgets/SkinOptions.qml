@@ -23,6 +23,18 @@ Flow {
                 modelData.values[(step + 1) % modelData.values.length])
         }
     }
+    // The round ones (vinyl, disc, single, neon disc) wear NowSpinning's
+    // progress ring when popped out; off, it goes in the controls' bar.
+    // One for all of them, like NowSpinning's own.
+    PanelButton {
+        visible: options.sample?.faceIsCircle === true
+        label: "Ring: " + (MediaSkin.popOutRing ? "On" : "Off")
+        fontFamily: options.fontFamily
+        onClicked: {
+            MediaSkin.popOutRing = !MediaSkin.popOutRing;
+            MediaSkin.save();
+        }
+    }
     // For every skin with a pulse of its own: with the bass, or its own.
     PanelButton {
         visible: options.sample?.audioLevel !== undefined

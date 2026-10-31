@@ -32,6 +32,13 @@ def test_snapshot_keeps_the_real_command_and_position_on_its_monitor(session):
                         "at": [120, 200], "size": [900, 600]}]
 
 
+def test_snapshot_takes_a_special_workspace_without_an_id(session):
+    # Hyprland 0.57 sends special:magic with no id: shutting down crashed on it.
+    window = client(2, "Spotify")
+    window["workspace"] = {"address": "special:magic", "type": "special", "name": "special:magic"}
+    assert session.snapshot([window], MONITORS, argv)[0]["workspace"] == -98
+
+
 def test_snapshot_skips_the_desktop_and_windows_without_a_command(session):
     clients = [client(1, "kitty"), client(9, "waybar"), client(99, "ghost")]
     assert [e["class"] for e in session.snapshot(clients, MONITORS, argv)] == ["kitty"]

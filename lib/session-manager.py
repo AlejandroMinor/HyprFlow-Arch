@@ -61,7 +61,9 @@ def snapshot(clients, monitors, command_of):
         seen.add(c["pid"])
         mon = by_id.get(c.get("monitor"), {"name": "", "x": 0, "y": 0})
         entries.append({
-            "workspace": c["workspace"]["id"],
+            # A special workspace comes without an id since Hyprland 0.57:
+            # -98, what special:magic always had, and is put back as.
+            "workspace": c["workspace"].get("id", -98),
             "command": argv,
             "class": c["class"],
             "initialClass": c.get("initialClass") or c["class"],

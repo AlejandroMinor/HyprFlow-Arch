@@ -179,7 +179,7 @@ class MasterPick(Gtk.Application):
             (
                 c
                 for c in hyprland.query("clients")
-                if c["workspace"]["id"] == ws_id
+                if c["workspace"].get("id") == ws_id  # a special one has none
                 and c["mapped"]
                 and not c["floating"]
             ),

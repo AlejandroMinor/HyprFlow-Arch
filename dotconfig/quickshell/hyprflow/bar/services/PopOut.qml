@@ -50,6 +50,7 @@ Singleton {
         out.tintFromArt = (options.tint ?? "leds") !== "off";
         out.audioReact = MediaSkin.beat;
         out.monitor = MediaSkin.popOutScreen;
+        out.discSize = MediaSkin.popOutSize;
         out.lyrics = MediaSkin.lyricsPanel;
         out.lyricsLines = MediaSkin.lyricsLines === 1 ? 1 : 3;  // it has 1 or 3
         return out;
@@ -96,6 +97,7 @@ Singleton {
         function onLyricsPanelChanged() { sync.restart(); }
         function onBeatChanged() { sync.restart(); }
         function onPopOutScreenChanged() { sync.restart(); }
+        function onPopOutSizeChanged() { sync.restart(); }
         function onLyricsLinesChanged() { sync.restart(); }
     }
 
@@ -171,6 +173,11 @@ Singleton {
         }
         if (typeof d.monitor === "string" && d.monitor !== MediaSkin.popOutScreen) {
             MediaSkin.popOutScreen = d.monitor;
+            changed = true;
+        }
+        // A plain number set by hand isn't one of the cog's sizes: left alone.
+        if (MediaSkin.popOutSizes.includes(d.discSize) && d.discSize !== MediaSkin.popOutSize) {
+            MediaSkin.popOutSize = d.discSize;
             changed = true;
         }
         if (typeof d.lyrics === "boolean" && d.lyrics !== MediaSkin.lyricsPanel) {

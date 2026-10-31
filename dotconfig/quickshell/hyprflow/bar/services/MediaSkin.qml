@@ -106,6 +106,9 @@ Singleton {
     property string pickerTab: "skin"  // the cog's open tab; not saved
     property string pickerGroup: groupOf(skin)  // the cog's skin group; not saved
     property string popOutScreen: ""  // the pop-out's monitor; "" lets Hyprland pick
+    // The pop-out's size: NowSpinning's presets, small to xl.
+    readonly property var popOutSizes: ["small", "medium", "large", "xl"]
+    property string popOutSize: "medium"
     property bool beat: true  // skins with a pulse of their own pulse with the bass
     property var galleryOwner: null  // the Media module whose gallery is open
 
@@ -131,7 +134,7 @@ Singleton {
         file.setText(JSON.stringify({ skin: root.skin, settings: root.settings, backdrop: root.backdrop, backdropBlur: root.backdropBlur,
                                      lyricsPanel: root.lyricsPanel, lyricsBar: root.lyricsBar,
                                      lyricsLines: root.lyricsLines, beat: root.beat,
-                                     popOutScreen: root.popOutScreen }, null, 2) + "\n");
+                                     popOutScreen: root.popOutScreen, popOutSize: root.popOutSize }, null, 2) + "\n");
     }
 
     FileView {
@@ -152,6 +155,7 @@ Singleton {
                 root.lyricsLines = Math.max(1, Math.min(4, data.lyricsLines ?? 3));
                 root.beat = data.beat !== false;
                 root.popOutScreen = data.popOutScreen ?? "";
+                root.popOutSize = root.popOutSizes.includes(data.popOutSize) ? data.popOutSize : "medium";
             } catch (e) {
                 root.skin = "cover";
             }

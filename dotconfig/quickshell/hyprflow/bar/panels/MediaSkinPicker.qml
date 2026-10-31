@@ -2,7 +2,7 @@
 // the track that is playing, then the picked one's options), Spectrum
 // (cava's styles for the bar; CavaLevels.setStyle, the bar switches at
 // once), Lyrics (in the bar, how many lines), Background (the blurred
-// cover's opacity and blur) and Pop-out (its monitor). The panel grows to
+// cover's opacity and blur) and Pop-out (its monitor and size). The panel grows to
 // the open tab.
 import QtQuick
 import QtQuick.Layouts
@@ -19,6 +19,17 @@ ColumnLayout {
     signal back()
 
     spacing: 8
+
+    readonly property var tabs: [["skin", "Skin"], ["spectrum", "Spectrum"], ["lyrics", "Lyrics"], ["background", "Background"], ["popout", "Pop-out"]]
+    // Tab and Shift+Tab (Ctrl too, like a browser) go through the tabs,
+    // wrapping around; the cog is opened with a click, so the keys are ours.
+    function step(by) {
+        const i = tabs.findIndex(t => t[0] === MediaSkin.pickerTab);
+        MediaSkin.pickerTab = tabs[(i + by + tabs.length) % tabs.length][0];
+    }
+    onVisibleChanged: if (visible) forceActiveFocus()
+    Keys.onTabPressed: step(1)
+    Keys.onBacktabPressed: step(-1)
 
     component Divider: Rectangle {
         Layout.fillWidth: true
@@ -47,6 +58,26 @@ ColumnLayout {
         }
     }
 
+    // A label and a row of choices, for the pop-out's tab.
+    component ChoiceRow: RowLayout {
+        property alias label: name.text
+        default property alias choices: flow.data
+        visible: MediaSkin.pickerTab === "popout"
+        Layout.fillWidth: true
+        spacing: 10
+        Text {
+            id: name
+            Layout.preferredWidth: 50
+            color: Colors.fg(0.6)
+            font { family: picker.panel.look.font; pixelSize: 10 }
+        }
+        Flow {
+            id: flow
+            Layout.fillWidth: true
+            spacing: 6
+        }
+    }
+
     RowLayout {
         Layout.fillWidth: true
         spacing: 6
@@ -70,7 +101,7 @@ ColumnLayout {
 
         // The tabs: one section at a time, the one picked underlined.
         Repeater {
-            model: [["skin", "Skin"], ["spectrum", "Spectrum"], ["lyrics", "Lyrics"], ["background", "Background"], ["popout", "Pop-out"]]
+            model: picker.tabs
             delegate: Item {
                 id: tabItem
                 required property var modelData
@@ -313,10 +344,8 @@ ColumnLayout {
     }
 
     // Which monitor the popped-out player sits on; Auto lets Hyprland pick.
-    Flow {
-        visible: MediaSkin.pickerTab === "popout"
-        Layout.fillWidth: true
-        spacing: 6
+    ChoiceRow {
+        label: "Screen"
         Repeater {
             model: [""].concat(Quickshell.screens.map(s => s.name))
             delegate: PanelButton {
@@ -326,6 +355,24 @@ ColumnLayout {
                 fontFamily: picker.panel.look.font
                 onClicked: {
                     MediaSkin.popOutScreen = modelData;
+                    MediaSkin.save();
+                }
+            }
+        }
+    }
+    // How big it is, NowSpinning's own sizes; it follows at once if open.
+    ChoiceRow {
+        label: "Size"
+        Repeater {
+            model: MediaSkin.popOutSizes
+            delegate: PanelButton {
+                required property string modelData
+                required property int index
+                label: ["S", "M", "L", "XL"][index]
+                strong: MediaSkin.popOutSize === modelData
+                fontFamily: picker.panel.look.font
+                onClicked: {
+                    MediaSkin.popOutSize = modelData;
                     MediaSkin.save();
                 }
             }

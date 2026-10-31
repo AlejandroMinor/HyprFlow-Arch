@@ -225,6 +225,7 @@ calendar events: calendar-events.py add / edit / remove (the panel's +, pencil a
 batteries from other devices: ssh … battery-push.py add - (an iOS Shortcut)
   → ~/.local/state/hyprflow/pushed-batteries.json → battery-hub's
   PushedSource (a day each, with the time it came) → the panel's "From other devices"
+  (and the bar text with --with-pushed, as the Quickshell bar runs it)
 ```
 
 Waybar starts each module in `modules.json` as a long running process.

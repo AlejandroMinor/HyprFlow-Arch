@@ -318,7 +318,7 @@ def test_view_toggles_and_tells_the_running_module(hub, tmp_path, monkeypatch):
     assert view.expanded
     view.toggle()
     assert not view.expanded
-    assert calls == [["pkill", "-USR1", "-f", r"battery-hub\.py$"]] * 2
+    assert calls == [["pkill", "-USR1", "-f", r"battery-hub\.py( --with-pushed)?$"]] * 2
 
 
 def test_toggle_pattern_spares_the_toggle_run_itself(hub):
@@ -772,6 +772,13 @@ def test_pushed_devices_stay_out_of_the_bar_text_but_not_the_list(hub, plain_pal
     assert view["text"] == "M 80%" and view["percentage"] == 80
     assert "iPhone" in view["tooltip"]
     assert [x["name"] for x in view["devices"]] == ["iPhone", "Mouse"]
+
+
+def test_with_pushed_the_lowest_pushed_device_can_stand_for_the_rest(hub, plain_palette):
+    d = devices(hub)
+    phone = hub.Device("iPhone", "P", 10, pushed=True)
+    view = hub.BatteryHub(None, [phone, d["mouse"]], False, plain_palette, with_pushed=True).render()
+    assert view["text"] == "P 10%" and view["percentage"] == 10
 
 
 def test_only_pushed_devices_leave_an_icon_to_open_the_panel(hub, plain_palette):

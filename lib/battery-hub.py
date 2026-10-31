@@ -22,6 +22,7 @@ it runs with the device name, the percentage and the level. It lives outside
 the repo.
 
     battery-hub.py            the module (Waybar exec, continuous: no interval)
+    battery-hub.py --with-pushed   the same, counting pushed devices in the bar text
     battery-hub.py --toggle   switch view; the running module redraws (on-click)
     battery-hub.py --lights   headset lights on/off via headsetcontrol (on-click-right)
 
@@ -708,17 +709,18 @@ class Palette:
 class BatteryHub:
     """Turns the batteries into the Waybar module for the current view."""
 
-    def __init__(self, laptop, peripherals, expanded, palette):
+    def __init__(self, laptop, peripherals, expanded, palette, with_pushed=False):
         self.laptop = laptop
         self.peripherals = peripherals
         self.expanded = expanded
         self.palette = palette
+        self.with_pushed = with_pushed
 
     @property
     def local(self):
-        """The peripherals read here: the bar text leaves out the pushed ones,
-        which only the tooltip and the panel list."""
-        return [p for p in self.peripherals if not p.pushed]
+        """The peripherals in the bar text: by default the pushed ones are left
+        to the tooltip and the panel; --with-pushed counts them too."""
+        return [p for p in self.peripherals if self.with_pushed or not p.pushed]
 
     def shown(self):
         """Devices in the bar text, in order."""
@@ -858,7 +860,7 @@ class ViewState:
             os.remove(self.path)
         else:
             open(self.path, "w").close()
-        subprocess.run(["pkill", "-USR1", "-f", r"battery-hub\.py$"])
+        subprocess.run(["pkill", "-USR1", "-f", r"battery-hub\.py( --with-pushed)?$"])
 
 
 def default_sources():
@@ -871,9 +873,10 @@ class BatteryHubModule(WaybarModule):
     (Observer: each source watches its own events) and when the view is
     toggled."""
 
-    def __init__(self, sources: list[BatterySource] | None = None):
+    def __init__(self, sources: list[BatterySource] | None = None, with_pushed=False):
         super().__init__()
         self.sources = default_sources() if sources is None else list(sources)
+        self.with_pushed = with_pushed
         self._changed = None  # set once the sources watch; see events()
         self.notifier = LowBatteryNotifier()
 
@@ -881,7 +884,8 @@ class BatteryHubModule(WaybarModule):
         laptop, peripherals = Batteries(self.sources).collect()
         # No low battery notice for a pushed device: it may not be at hand.
         self.notifier.notify(([laptop] if laptop else []) + [p for p in peripherals if not p.pushed])
-        return BatteryHub(laptop, peripherals, ViewState().expanded, Palette()).render()
+        return BatteryHub(laptop, peripherals, ViewState().expanded, Palette(),
+                          self.with_pushed).render()
 
     def events(self):
         # run() calls this again after an error. The watches live in GLib's
@@ -914,7 +918,7 @@ def main():
     if "--lights" in sys.argv:
         HeadsetLights().toggle()
         return
-    BatteryHubModule().run()
+    BatteryHubModule(with_pushed="--with-pushed" in sys.argv).run()
 
 
 if __name__ == "__main__":

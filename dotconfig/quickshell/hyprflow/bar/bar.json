@@ -83,7 +83,7 @@
     },
     "battery-hub": {
       "type": "battery",   // a custom whose click opens every device's battery
-      "exec": "~/.local/lib/hyprflow/battery-hub.py",
+      "exec": "~/.local/lib/hyprflow/battery-hub.py --with-pushed",
       "on-click-middle": "~/.local/lib/hyprflow/battery-hub.py --toggle",
       "on-click-right": "~/.local/lib/hyprflow/battery-hub.py --lights"
     },

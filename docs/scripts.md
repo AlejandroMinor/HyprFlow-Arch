@@ -11,7 +11,6 @@
 | `rgb-sync.sh` | Match the OpenRGB lighting to the wallpaper or theme |
 | `pet-picker.sh` | Switch the bar's runner (cat / chicken): the Quickshell bar at once, Waybar after a restart |
 | `hyprlock-flow.sh` | Rebuild the lockscreen layout, then lock |
-| `trackpad-battery` | Apple Magic Trackpad battery, read from the trackpad itself |
 | `sinkswitch` | Pick the audio output from the terminal or over SSH (`sinkswitch --json` / `--set ID` work without a display); the short name for `lib/sink-switch.py` |
 
 **Internal.** `lib/` holds what only Waybar, the keybindings or other scripts
@@ -64,7 +63,6 @@ Some pieces live in their own repositories and come in as git submodules, under
 |--------|-------------------|------------|
 | `runcat-text` | The animated CPU runner in the bar (cat or chicken) | No runner |
 | `waybar-claude-usage` | The Claude usage indicator in the bar (needs the Claude Code CLI logged in) | No Claude indicator |
-| `apple-magic-trackpad-battery` | The `trackpad-battery` command | No `trackpad-battery` |
 
 You do not have to fetch them yourself: if you cloned without `--recursive`,
 `install.sh` downloads them. If it cannot (no network, say), the install still

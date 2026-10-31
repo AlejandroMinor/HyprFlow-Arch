@@ -191,17 +191,6 @@ The rule gives the logged in user access to the receiver only. Its devices then
 show up in the battery module within five minutes (they are polled, not
 signalled). Over Bluetooth instead, UPower already reports them.
 
-## Magic Trackpad
-
-Only if you use an Apple Magic Trackpad. Over Bluetooth its driver often does not
-report the battery to UPower, and battery-hub only shows what UPower reports, so
-the trackpad may be missing from the bar. The `apple-magic-trackpad-battery`
-submodule asks the trackpad directly: run `trackpad-battery` to see its charge.
-
-Reading the trackpad needs a udev rule and your user in a group, once. The steps
-are in the
-[submodule README](https://github.com/AlejandroMinor/apple-magic-trackpad-battery-percent-python/blob/main/README.md).
-
 ## DisplayLink
 
 Only for monitors plugged into a DisplayLink dock or USB display adapter (common

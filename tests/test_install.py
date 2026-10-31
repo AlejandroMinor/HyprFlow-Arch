@@ -41,6 +41,7 @@ FAKES = {
                'case " $* " in *" -j "*) echo "[]" ;; esac; exit 0',
     "hyprpm": "",
     "killall": "",
+    "pgrep": "",      # Waybar "up" at once: bar-restart.sh skips its 3 s wait
     "qs": "exit 1",   # Quickshell "not running": install.sh writes the flag itself
     "fc-cache": "",
     "notify-send": "",

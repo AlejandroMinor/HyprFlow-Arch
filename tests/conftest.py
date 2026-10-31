@@ -20,10 +20,13 @@ def load_script(filename):
 
 
 @pytest.fixture(autouse=True)
-def no_real_keyboard(monkeypatch):
-    """rgb-sync.sh paints the real keyboard unless KEYBOARD_RGB says otherwise:
+def no_real_lights(monkeypatch):
+    """rgb-sync.sh paints the real keyboard and LEDs unless told otherwise:
     every test, and every script it starts, gets a no-op instead."""
     monkeypatch.setenv("KEYBOARD_RGB", "/usr/bin/true")
+    # Same for the OpenRGB server: nothing listens on port 1, no waiting.
+    monkeypatch.setenv("RGB_PORT", "1")
+    monkeypatch.setenv("RGB_WAIT_STEPS", "0")
 
 
 @pytest.fixture(scope="session")

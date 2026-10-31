@@ -103,6 +103,13 @@ def appearance_tone():
         return "black"
 
 
+def current_theme():
+    try:
+        return (paths.HYPRFLOW_STATE / "theme").read_text().strip() or "auto"
+    except OSError:
+        return "auto"
+
+
 def output(argv):
     try:
         return subprocess.run(argv, capture_output=True, text=True, timeout=2).stdout.strip()
@@ -146,31 +153,33 @@ def current_layout():
 
 
 # In the order they show; an action with none goes last, without a heading.
-SECTIONS = ("Screens", "Audio", "System", "Appearance")
+# "" is the top group, the most used, with no heading.
+SECTIONS = ("", "Screens", "Appearance", "System")
 
 ACTIONS = [
+    Action("󰓃", "Audio output", [LIB / "sink-switch.py", "--toggle"], needs="wpctl"),
+    Action("󰍬", "Microphone", [LIB / "volume.sh", "mic-mute"], mic_on, needs="wpctl"),
+    Action("󰂛", "Do not disturb", ["swaync-client", "-d"], dnd_on, needs="swaync-client"),
+    Action("󰐥", "Power menu", ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"], needs="qs"),
     Action("󰍺", "Mirror screens", [BIN / "monitors.sh", "mirror", "toggle"], mirror_on, section="Screens"),
     Action("󰍹", "Only the main screen", [BIN / "monitors.sh", "solo", "toggle"], solo_on, section="Screens"),
-    Action("󰓃", "Audio output", [LIB / "sink-switch.py", "--toggle"], needs="wpctl", section="Audio"),
-    Action("󰍬", "Microphone", [LIB / "volume.sh", "mic-mute"], mic_on, needs="wpctl", section="Audio"),
-    Action("󰊴", "Game mode", [BIN / "game-mode.sh", "toggle"], game_mode_on, section="System"),
-    Action("󰂛", "Do not disturb", ["swaync-client", "-d"], dnd_on, needs="swaync-client", section="System"),
-    Action("󰓅", "Power profile", [LIB / "power-profile.sh"], power_profile, needs="powerprofilesctl", section="System"),
-    Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl", section="System"),
-    Action("󰐥", "Power menu", ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"], needs="qs", section="System"),
-    Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
-    Action("", "Keyboard effect", ["qs", "-c", "hyprflow", "ipc", "call", "keyboardfx", "toggle"],
-           keyboard_effect, needs="qs", section="Appearance", when=keyboard_present),
-    Action("", "Activate Linux", [LIB / "activate-linux.py", "--toggle"], watermark_on, section="Appearance"),
+    Action("󰊴", "Game mode", [BIN / "game-mode.sh", "toggle"], game_mode_on, section="Screens"),
     Action("󰔎", "Appearance", ["qs", "-c", "hyprflow", "ipc", "call", "appearance", "toggle"],
            appearance_tone, needs="qs", section="Appearance"),
+    Action("󰏘", "Theme", [BIN / "theme-picker.sh", "--toggle"], current_theme, section="Appearance"),
     Action("󰸉", "Random wallpaper", ["waypaper", "--random"], section="Appearance"),
+    Action("󰌵", "Lights", [BIN / "rgb-sync.sh", "--toggle"], lights_on, section="Appearance"),
+    Action("", "Keyboard effect", ["qs", "-c", "hyprflow", "ipc", "call", "keyboardfx", "toggle"],
+           keyboard_effect, needs="qs", section="Appearance", when=keyboard_present),
+    Action("", "Activate Linux", [LIB / "activate-linux.py", "--toggle"], watermark_on, section="Appearance"),
+    Action("󰓅", "Power profile", [LIB / "power-profile.sh"], power_profile, needs="powerprofilesctl", section="System"),
+    Action("󰌌", "Keyboard layout", [LIB / "layout-picker.py"], current_layout, needs="hyprctl", section="System"),
 ]
 
 
 def ordered(actions):
     """By section, in SECTIONS order; stable, so ACTIONS keeps its order within
-    a section. An action with no (or an unknown) section goes last."""
+    a section. An unknown section goes last."""
     rank = {name: i for i, name in enumerate(SECTIONS)}
     return sorted(actions, key=lambda a: rank.get(a.section, len(SECTIONS)))
 
@@ -181,7 +190,7 @@ def grouped(actions):
     so picking it runs nothing)."""
     rows, targets, current = [], [], None
     for action in actions:
-        if action.section and action.section != current:
+        if action.section and action.section != current:  # "" has no heading
             current = action.section
             rows.append(f"<b>{current}</b>")
             targets.append(None)

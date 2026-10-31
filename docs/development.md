@@ -92,7 +92,7 @@ waypaper (Super+K → Random wallpaper, or waypaper itself) → its post_command
       → with --notify: the OSD says "Theme · Wallpaper" (or the preset's name)
 ```
 
-A preset instead: Super+K → Appearance → Theme tab (AppearancePanel.qml,
+A preset instead: Super+K → Theme, or Appearance → Theme tab (AppearancePanel.qml,
 ThemeList.qml; `theme-picker.sh --toggle` opens it there) → `--json` lists
 them, a pick runs `--set NAME` and the panel stays open, the mark moving once
 applied (no notice: the change shows); the fzf picker itself in a terminal or
@@ -254,13 +254,14 @@ volume module, `sink-switch.py --toggle` (see above).
 | Super+Shift+Q | `close-workspace.sh` |
 | Alt+G | `hyprland-group-all.sh` |
 | Super+Shift+Return | `master-pick.py` |
-| Super+K | `qs ipc call quickactions toggle` → QuickActions.qml (it reads `quick-actions.py --json`); without Quickshell, `quick-actions.py` → rofi |
+| Super+K | `qs ipc call quickactions toggle` → QuickActions.qml (it reads `quick-actions.py --json`); without Quickshell, `quick-actions.py` → rofi. The most used first with no heading (section ""), then Screens, Appearance, System |
 | Super+W / Super+Shift+W | `session-manager.py` save / load |
 | Media panel → pop-out button | PopOut (bar/services): merges the bar's skin and options into `~/.local/state/hyprflow/nowspinning/config.json` and runs `qs -d -p bar/nowspinning` with `NOWSPINNING_CONFIG_DIR` there; `qs list -p` every 2 s while the panel shows the button lights it; pressed again, `qs kill -p` |
 | Media panel → lyrics button, cog → Lyrics in bar | LyricsState (bar/services) loads NowSpinning's `Lyrics.qml` by URL and feeds it the bar's player, its position run on a local clock between MPRIS polls; MediaPanel shows previous/current/next in place of the track, Media.qml the current line in place of the title. Both switches live in `media-skin.json` |
 | Media panel → cog | MediaSkinPicker.qml, in tabs (Skin, Spectrum, Lyrics, Background; MediaSkin.pickerTab, not saved): every skin live, one group at a time (SkinFace loads `bar/nowspinning/skins/<X>.qml`, the submodule install.sh links; skins with `audioLevel` get the bass from CavaLevels); its gallery button sets MediaSkin.galleryOwner to the Media module, whose SkinGallery (an Overlay) opens with every skin bigger, and the bar's drawer closes behind it; a pick or an option writes `~/.local/state/hyprflow/media-skin.json`, which MediaSkin (bar/services) watches. Then cava's seven styles live (a pick writes `~/.local/state/hyprflow/cava-style`, which CavaLevels watches), and last Background sliders for the blurred cover's opacity (0–0.8) and blur (in media-skin.json; past the default a scrim and a text shadow keep it readable) |
 | Super+K → Activate Linux | `activate-linux.py --toggle` flips `~/.local/state/hyprflow/watermark-off`; the running watermark watches it (like `game-mode`) and hides or shows |
 | Super+K → Appearance | `qs ipc call appearance toggle` → AppearancePanel.qml, two tabs (Ctrl+Tab): Panels (ToneSettings.qml: the tones of palettes.json in their own colours, Transparency, Glass on/off, Blur (only with the glass on), Text colour and Reset, each running `appearance.py`; see The panels' tone) and Theme (ThemeList.qml, the wallust themes; see The wallpaper changes) |
+| Super+K → Theme | `theme-picker.sh --toggle` → the Appearance panel on its Theme tab; the state shown is `~/.local/state/hyprflow/theme` |
 | Super+K → Keyboard effect | `qs ipc call keyboardfx toggle` → KeyboardEffects.qml: a live KeyPreview per effect in the theme colour (`keyboard-rgb.py --json` gives both); a pick runs `keyboard-rgb.py effect N`, which also gives it the cached LED colour (dark while `led-off` is there). Listed only with the keyboard plugged in |
 | Waybar power button, Super+M, Super+K → Power menu | `qs ipc call power toggle` → PowerMenu.qml: Lock (`hyprlock-flow.sh`) and Suspend at once; Log out, Reboot and Shut down (`session-manager.py logout|reboot|poweroff --yes`, the session saved first) on a second press |
 | Volume, mute and brightness keys | `volume.sh` / `brightness.sh` → the Quickshell OSD (a notification without it); the OSD also watches Pipewire, so a headset's own buttons show it |

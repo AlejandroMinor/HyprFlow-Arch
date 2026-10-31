@@ -183,7 +183,27 @@ def test_run_with_an_unknown_label_runs_nothing(qa, args):
 def test_power_menu_action_opens_the_quickshell_panel(qa):
     action = next(a for a in qa.ACTIONS if a.label == "Power menu")
     assert action.argv == ["qs", "-c", "hyprflow", "ipc", "call", "power", "toggle"]
-    assert action.section == "System"
+    assert action.section == ""
+
+
+def test_the_most_used_come_first_without_a_heading(qa):
+    assert [a.label for a in qa.ordered(qa.ACTIONS)[:4]] == [
+        "Audio output", "Microphone", "Do not disturb", "Power menu"]
+    actions = [qa.Action("a", "Lights", ["one"], section="Appearance"),
+               qa.Action("b", "Power", ["two"])]
+    rows, targets = qa.grouped(qa.ordered(actions))
+    assert rows == ["b  Power", "<b>Appearance</b>", "a  Lights"]
+    assert targets[0].label == "Power"
+
+
+def test_theme_action_opens_the_theme_tab_and_names_the_theme(qa, monkeypatch, tmp_path):
+    action = next(a for a in qa.ACTIONS if a.label == "Theme")
+    assert action.argv[1:] == ["--toggle"] and action.argv[0].name == "theme-picker.sh"
+    assert action.section == "Appearance"
+    monkeypatch.setattr(qa.paths, "HYPRFLOW_STATE", tmp_path)
+    assert action.state_word() == "auto"
+    (tmp_path / "theme").write_text("nord\n")
+    assert action.state_word() == "nord"
 
 
 def test_activate_linux_action_toggles_the_watermark(qa, monkeypatch, tmp_path):

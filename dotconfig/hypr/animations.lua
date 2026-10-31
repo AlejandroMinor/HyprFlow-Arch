@@ -19,6 +19,8 @@ hl.animation({ leaf = "borderangle",   enabled = true,  speed = 50,   bezier = "
 hl.animation({ leaf = "windows",       enabled = true,  speed = 5,    bezier = "overshot" })
 hl.animation({ leaf = "windowsIn",     enabled = true,  speed = 6,    bezier = "overshot",     style = "popin 80%" })
 hl.animation({ leaf = "windowsOut",    enabled = true,  speed = 4,    bezier = "easeOutQuint", style = "popin 80%" })
+-- Moves and resizes: no bounce, short, so key repeats don't stack into a wobble
+hl.animation({ leaf = "windowsMove",   enabled = true,  speed = 2,    bezier = "easeOutQuint" })
 
 -- Fades
 hl.animation({ leaf = "fadeIn",        enabled = true,  speed = 5,    bezier = "almostLinear" })

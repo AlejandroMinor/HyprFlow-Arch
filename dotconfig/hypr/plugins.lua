@@ -105,14 +105,15 @@ if hl.plugin.hyprglass then
     end
 
     hg.preset("minor", {
-        blur_strength        = 1.5,
+        -- A quiet edge: the stronger liquid look was too much on a terminal.
+        blur_strength        = 2.5,
         blur_iterations      = 2,
         edge_thickness       = 0.06,  -- band holding the whole liquid part, max 0.15
-        refraction_strength  = 4.0,
-        chromatic_aberration = 0.25,
-        lens_distortion      = 0.4,
-        fresnel_strength     = 0.7,
-        specular_strength    = 1.0,
+        refraction_strength  = 1.5,
+        chromatic_aberration = 0.05,
+        lens_distortion      = 0.15,
+        fresnel_strength     = 0.35,
+        specular_strength    = 0.4,
 
         dark = {
             tint_color   = tint(color5, 0x18),

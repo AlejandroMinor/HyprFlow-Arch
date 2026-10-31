@@ -33,5 +33,9 @@ if has_nvidia() then
     hl.env("__GLX_VENDOR_LIBRARY_NAME",     "nvidia")
 else
     hl.env("LIBVA_DRIVER_NAME",             "radeonsi")
+    -- With nvidia-utils installed but no NVIDIA card, glvnd still loads its
+    -- EGL stack into every EGL client: ~90 MB resident in each (Quickshell,
+    -- kitty...), never used. Mesa only.
+    hl.env("__EGL_VENDOR_LIBRARY_FILENAMES", "/usr/share/glvnd/egl_vendor.d/50_mesa.json")
 end
 hl.env("ELECTRON_OZONE_PLATFORM_HINT",      "auto")

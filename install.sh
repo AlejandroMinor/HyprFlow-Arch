@@ -393,6 +393,17 @@ copy_configs() {
         cp -f "$REPO_PATH/dotconfig/$path" "$CONFIG_DEST/$path"
     done
 
+    # The copy adds and overwrites but never removes: a QML file moved or
+    # deleted in the repo stayed in ~/.config, still part of its module (an
+    # old bar/AudioState.qml was a second singleton beside services/'). Only
+    # .qml, and not through the NowSpinning link.
+    local qml_dest="$CONFIG_DEST/quickshell/hyprflow" stale
+    if [ -d "$qml_dest" ]; then
+        while IFS= read -r -d '' stale; do
+            [ -e "$REPO_PATH/dotconfig/quickshell/hyprflow/${stale#"$qml_dest"/}" ] || rm -f "$stale"
+        done < <(find "$qml_dest" -path "$qml_dest/bar/nowspinning" -prune -o -name '*.qml' -type f -print0)
+    fi
+
     # The full player's NowSpinning skins come from the submodule.
     if [ -d "$REPO_PATH/modules/NowSpinning/nowspinning" ]; then
         ln -sfn "$REPO_PATH/modules/NowSpinning/nowspinning" "$CONFIG_DEST/quickshell/hyprflow/bar/nowspinning"

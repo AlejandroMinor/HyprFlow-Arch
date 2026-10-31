@@ -109,8 +109,12 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("~/.local/lib/hyprflow/rgb-hotplug.py")
     -- A headset's own mic mute button mutes its microphone in Pipewire too.
     hl.exec_cmd("~/.local/lib/hyprflow/mic-mute-watch.py")
-    -- HyprFlow's Quickshell panels (Super+K); -n: one copy only.
-    hl.exec_cmd("qs -n -d -c hyprflow")
+    -- HyprFlow's Quickshell panels (Super+K); -n: one copy only. Drawn with
+    -- Vulkan where there is no NVIDIA card (env.lua's check): on the AMD
+    -- laptop, with music playing, 2 points less CPU and ~130 MB less than
+    -- OpenGL, the same pixels. The NVIDIA PC keeps OpenGL, not measured there.
+    hl.exec_cmd("[ -e /proc/driver/nvidia/version ] || [ -e /sys/module/nvidia/initstate ]"
+        .. " || export QSG_RHI_BACKEND=vulkan; exec qs -n -d -c hyprflow")
     -- OSD for play/pause, Caps/Num Lock and Do Not Disturb.
     hl.exec_cmd("~/.local/lib/hyprflow/osd-watch.py")
     -- Only where NetworkManager runs (this PC uses systemd-networkd).

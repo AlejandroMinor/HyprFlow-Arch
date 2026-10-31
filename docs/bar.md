@@ -128,14 +128,16 @@ The full player draws its cover plain or with a skin from
 [NowSpinning](https://github.com/AlejandroMinor/NowSpinning) (the
 `modules/NowSpinning` submodule): vinyl, 7" single, CD, bare disc, cassette,
 MiniDisc or Walkman, spinning with the track, the flat ones (Pixel,
-Polaroid, CRT, ASCII, Hologram, Foil), the cyber ones (HUD, Shard, Neon,
-Neon disc, Matrix, Terminal), the print ones (Sleeve, Deco, Gallery, Ticket,
-Magazine, Stamp) and the anime ones (Session, Episode, Phantom).
+Polaroid, CRT, ASCII, Hologram, Foil, Riso, LCD, Stained glass, Blueprint),
+the cyber ones (HUD, Shard, Neon, Neon disc, Matrix, Terminal, Datamosh),
+the print ones (Sleeve, Deco, Gallery, Ticket, Magazine, Stamp, Poster) and
+the anime ones (Session, Episode, Phantom).
 Its cog shows the skins live with what is playing, one group at a time
 (opening on the picked one's); the button beside the groups opens the
 gallery, every skin bigger in one card. Under the picked one its own options (tonearm, turntable, disc side, clear shell,
-pixel size, ASCII columns and colour, CRT bezel and glitch, Polaroid stack,
-hologram colour, motion, glitch, alpha and base, foil finish, sleeve colour,
+pixel size, ASCII columns and colour, CRT bezel and glitch, Polaroid stack
+and pile (the last three tracks' photos fanned out behind, or one), riso
+inks, LCD colour, hologram colour, motion, glitch, alpha and base, foil finish, sleeve colour,
 Beat (the skins with a pulse of their own pulse with the bar's cava), the light's
 Drift (moving on its own) and Hover (following the pointer) where a skin has them, and
 Tint for the skins with an accent: the LEDs' colour, one from the cover, or none,

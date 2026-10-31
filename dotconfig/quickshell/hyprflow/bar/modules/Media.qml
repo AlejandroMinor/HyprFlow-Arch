@@ -54,6 +54,10 @@ Module {
         if (trackTitle) lastTitle = trackTitle;
     }
 
+    // The panel's cover: with nothing playing it still opens (the cog has
+    // things to set), over the last cover or else a music note.
+    readonly property string panelArt: art || lastArt || Qt.resolvedUrl("../icons/no-cover.svg")
+
     function youtubeThumb(url) {
         const m = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
         return m ? "https://i.ytimg.com/vi/" + m[1] + "/mqdefault.jpg" : "";
@@ -66,7 +70,7 @@ Module {
     onClicked: openPanel()
     onRightClicked: player?.togglePlaying()
     function openPanel() {
-        if (player) bar.expand(mod, full, 480, 200);
+        bar.expand(mod, full, 480, 200);
     }
     Component { id: full; MediaPanel { media: mod } }
     SkinGallery { media: mod }

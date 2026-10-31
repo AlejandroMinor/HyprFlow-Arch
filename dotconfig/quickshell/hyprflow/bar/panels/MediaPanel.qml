@@ -18,7 +18,7 @@ Item {
     property var media             // the Media module: player, players, look
     readonly property var player: media.player
     readonly property var look: media.look
-    readonly property string art: media.art
+    readonly property string art: media.panelArt
     property bool picking: false   // the cog's skin picker instead of the player
     // The lyrics in place of the track, once there are synced ones.
     readonly property bool lyricsShown: MediaSkin.lyricsPanel && LyricsState.synced

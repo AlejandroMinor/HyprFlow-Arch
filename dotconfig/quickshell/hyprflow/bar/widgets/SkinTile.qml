@@ -26,7 +26,7 @@ Rectangle {
         width: tile.faceSize
         height: tile.faceSize
         skin: tile.entry.name
-        art: tile.media?.art ?? ""
+        art: tile.media?.panelArt ?? ""
         playing: tile.media?.player?.isPlaying ?? false
         title: tile.media?.player?.trackTitle ?? ""
         artist: tile.media?.player?.trackArtist ?? ""

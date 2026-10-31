@@ -1,5 +1,6 @@
 """Checks on the Hyprland Lua config in dotconfig/hypr/: every file it
-requires exists in the repo, and every file parses."""
+requires exists in the repo, every file parses, and no exec_cmd starts
+with a shell "[ ... ]"."""
 
 import re
 import shutil
@@ -26,3 +27,11 @@ def test_every_required_file_is_in_the_repo():
 def test_the_lua_parses(path):
     result = subprocess.run(["luac", "-p", str(path)], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("path", sorted(HYPR.glob("*.lua")), ids=lambda p: p.name)
+def test_no_command_starts_with_a_shell_test(path):
+    # Hyprland reads a leading "[" as exec rules ("[float] kitty"): "[ -e x ]"
+    # would be swallowed and the rest fail. Use "test -e x".
+    found = re.findall(r'exec_cmd\(\s*["\']\[\s', path.read_text())
+    assert not found, found

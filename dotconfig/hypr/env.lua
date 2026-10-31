@@ -28,7 +28,10 @@ local function has_nvidia()
     return false
 end
 
-if has_nvidia() then
+-- Global: hyprland.lua's start hook picks Quickshell's renderer with it.
+HAS_NVIDIA = has_nvidia()
+
+if HAS_NVIDIA then
     hl.env("LIBVA_DRIVER_NAME",             "nvidia")
     hl.env("__GLX_VENDOR_LIBRARY_NAME",     "nvidia")
 else

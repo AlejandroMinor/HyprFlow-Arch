@@ -15,8 +15,7 @@ the theme: a wallpaper sets it to the image's dominant vivid hue, a preset to it
 accent colour, always at full saturation since LEDs wash dim tones out to white.
 Without OpenRGB or its server, `rgb-sync.sh` only picks the accent colour (bar, focus border).
 
-First check that OpenRGB sees your hardware. If an ARGB strip or fan only lights
-up partly, open the `openrgb` GUI, resize its zone and save.
+First check that OpenRGB sees your hardware.
 
 ```bash
 sudo pacman -S openrgb
@@ -30,14 +29,25 @@ instead of the whole LAN.
 ```bash
 sudo mkdir -p /etc/systemd/system/openrgb.service.d /etc/openrgb
 sudo cp ~/HyprFlow-Arch/system/openrgb.service.d/override.conf /etc/systemd/system/openrgb.service.d/
-# Only if you resized zones in the GUI: the root server reads /etc/openrgb.
-sudo cp ~/.config/OpenRGB/sizes.ors /etc/openrgb/
 sudo systemctl daemon-reload
 sudo systemctl enable --now openrgb
 ```
 
 The colour applies on the next wallpaper or theme change, or right away with
 `rgb-sync.sh`.
+
+ARGB headers can't report what is plugged in, so an ARGB zone starts with no
+LEDs: fans and strips on it never change colour or turn off. Give each zone
+its LED count through the server, which saves it in
+`/etc/openrgb/Configuration.json`:
+
+```bash
+openrgb --client 127.0.0.1 -ld                      # find the device and its zones
+openrgb --client 127.0.0.1 -d DEVICE -z ZONE -sz LEDS
+```
+
+The saved sizes are matched by zone name, so redo this if an OpenRGB update
+renames the zones (1.1 did: `Aura Addressable 1` → `Addressable RGB Header 1`).
 
 ### RGB keyboard
 

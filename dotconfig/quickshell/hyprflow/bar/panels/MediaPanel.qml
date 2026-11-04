@@ -25,8 +25,10 @@ Item {
     // How far the backdrop is past its default, 0..1: drives the scrim and
     // the text shadow, so the default look is unchanged.
     readonly property real strength: Math.max(0, (MediaSkin.backdrop - 0.35) / (MediaSkin.backdropMax - 0.35))
-    // The card grows to fit the picker while it is open.
-    implicitHeight: picking ? picker.implicitHeight + 32 : 200
+    // The card grows to fit the picker while it is open, and the player
+    // when the chips are showing (more than one player).
+    implicitHeight: picking ? picker.implicitHeight + 32
+                            : Math.max(200, info.implicitHeight + info.Layout.topMargin + 32)
     Behavior on implicitHeight { Anim {} }
 
     function clock(seconds) {
@@ -94,6 +96,7 @@ Item {
         }
 
         ColumnLayout {
+            id: info
             Layout.fillWidth: true
             Layout.fillHeight: true
             // Clear of the buttons in the top right corner (pop out, lyrics, cog).

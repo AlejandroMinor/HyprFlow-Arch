@@ -100,14 +100,6 @@
             "key": "   Memory"
         },
         {
-            "type": "disk",
-            "key": "   Disk"
-        },
-        {
-            "type": "bluetooth",
-            "key": "   Bluetooth"
-        },
-        {
             "type": "battery",
             "key": "   Battery"
         },

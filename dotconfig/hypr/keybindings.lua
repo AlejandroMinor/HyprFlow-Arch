@@ -14,7 +14,7 @@ hl.bind(mainMod .. " + X",         function() if hl.plugin.hymission then hl.plu
 -- The Quickshell guide, or rofi when Quickshell is not running.
 hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("qs -c hyprflow ipc call keyguide toggle || ~/.local/lib/hyprflow/help-binds.sh"),                { description = "View Keybind Guide" })
 hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal),                                    { description = "Open Terminal (Kitty)" })
-hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("[float; size 900 600; center] kitty"),       { description = "Open Floating Kitty" })
+hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd("[float; size 1050 600; center] kitty"),       { description = "Open Floating Kitty" })
 hl.bind(mainMod .. " + SPACE",         hl.dsp.exec_cmd('sh -c "pkill -x rofi || ' .. menu .. '"'),  { description = "Open App Launcher" })
 hl.bind(mainMod .. " + D",         hl.dsp.exec_cmd("~/.local/lib/hyprflow/hyprland-show-desktop.sh"),    { description = "Show Desktop" })
 hl.bind(mainMod .. " + E",         hl.dsp.exec_cmd(fileManager),                                 { description = "Open File Manager" })

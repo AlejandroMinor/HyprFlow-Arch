@@ -2,7 +2,7 @@
 // picture, wearing the bar's look. Its config is written from MediaSkin
 // (the skin, its options, the shadow, the tint) into a folder of its own,
 // NOWSPINNING_CONFIG_DIR, so the standalone widget keeps its own; what
-// NowSpinning saves there itself (where it sits, docking) is kept. Both
+// NowSpinning saves there itself (where it was dragged) is kept. Both
 // ways while it runs: the cog's changes are written to it, and what is
 // picked on its own settings card comes back to the cog.
 pragma Singleton
@@ -54,6 +54,10 @@ Singleton {
         out.progressStyle = MediaSkin.popOutRing ? "ring" : "bar";
         out.lyrics = MediaSkin.lyricsPanel;
         out.lyricsLines = MediaSkin.lyricsLines === 1 ? 1 : 3;  // it has 1 or 3
+        out.lyricsSize = MediaSkin.popOutLyricsSize;
+        out.layer = MediaSkin.popOutLayer;
+        out.dock = MediaSkin.popOutDock;
+        out.audioWave = MediaSkin.popOutWave;
         return out;
     }
 
@@ -101,6 +105,10 @@ Singleton {
         function onPopOutSizeChanged() { sync.restart(); }
         function onPopOutRingChanged() { sync.restart(); }
         function onLyricsLinesChanged() { sync.restart(); }
+        function onPopOutLayerChanged() { sync.restart(); }
+        function onPopOutDockChanged() { sync.restart(); }
+        function onPopOutWaveChanged() { sync.restart(); }
+        function onPopOutLyricsSizeChanged() { sync.restart(); }
     }
 
     // Its settings card saved: bring what differs back to the cog.
@@ -195,6 +203,23 @@ Singleton {
         const lines = d.lyricsLines === 1 ? 1 : MediaSkin.lyricsLines === 1 ? 3 : MediaSkin.lyricsLines;
         if ((d.lyricsLines === 1 || d.lyricsLines === 3) && lines !== MediaSkin.lyricsLines) {
             MediaSkin.lyricsLines = lines;
+            changed = true;
+        }
+        if (MediaSkin.popOutLayers.includes(d.layer) && d.layer !== MediaSkin.popOutLayer) {
+            MediaSkin.popOutLayer = d.layer;
+            changed = true;
+        }
+        // Docked by right clicking it, undocked by a tap: both come back.
+        if (MediaSkin.popOutDocks.includes(d.dock) && d.dock !== MediaSkin.popOutDock) {
+            MediaSkin.popOutDock = d.dock;
+            changed = true;
+        }
+        if (typeof d.audioWave === "boolean" && d.audioWave !== MediaSkin.popOutWave) {
+            MediaSkin.popOutWave = d.audioWave;
+            changed = true;
+        }
+        if (MediaSkin.popOutLyricsSizes.includes(d.lyricsSize) && d.lyricsSize !== MediaSkin.popOutLyricsSize) {
+            MediaSkin.popOutLyricsSize = d.lyricsSize;
             changed = true;
         }
         if (changed)

@@ -378,4 +378,89 @@ ColumnLayout {
             }
         }
     }
+    // Overlay: above everything; Top: above windows; Bottom: on the desktop.
+    ChoiceRow {
+        label: "Layer"
+        Repeater {
+            model: MediaSkin.popOutLayers
+            delegate: PanelButton {
+                required property string modelData
+                label: modelData[0].toUpperCase() + modelData.slice(1)
+                strong: MediaSkin.popOutLayer === modelData
+                fontFamily: picker.panel.look.font
+                onClicked: {
+                    MediaSkin.popOutLayer = modelData;
+                    MediaSkin.save();
+                }
+            }
+        }
+    }
+    // The edge it hides against, as right clicking it does.
+    ChoiceRow {
+        label: "Dock"
+        Repeater {
+            model: MediaSkin.popOutDocks
+            delegate: PanelButton {
+                required property string modelData
+                label: modelData ? modelData[0].toUpperCase() + modelData.slice(1) : "None"
+                strong: MediaSkin.popOutDock === modelData
+                fontFamily: picker.panel.look.font
+                onClicked: {
+                    MediaSkin.popOutDock = modelData;
+                    MediaSkin.save();
+                }
+            }
+        }
+    }
+    // The progress wave: around the round skins (vinyl, disc, single, neon
+    // disc) or in the controls' bar; square skins always use the bar.
+    ChoiceRow {
+        label: "Progress"
+        Repeater {
+            model: [[true, "Ring"], [false, "Clean"]]
+            delegate: PanelButton {
+                required property var modelData
+                label: modelData[1]
+                strong: MediaSkin.popOutRing === modelData[0]
+                fontFamily: picker.panel.look.font
+                onClicked: {
+                    MediaSkin.popOutRing = modelData[0];
+                    MediaSkin.save();
+                }
+            }
+        }
+    }
+    // Music: the wave swings with cava's bands; Plain: a fixed sine.
+    ChoiceRow {
+        label: "Wave"
+        Repeater {
+            model: [[true, "Music"], [false, "Plain"]]
+            delegate: PanelButton {
+                required property var modelData
+                label: modelData[1]
+                strong: MediaSkin.popOutWave === modelData[0]
+                fontFamily: picker.panel.look.font
+                onClicked: {
+                    MediaSkin.popOutWave = modelData[0];
+                    MediaSkin.save();
+                }
+            }
+        }
+    }
+    ChoiceRow {
+        label: "Lyrics"
+        Repeater {
+            model: MediaSkin.popOutLyricsSizes
+            delegate: PanelButton {
+                required property string modelData
+                label: modelData[0].toUpperCase()
+                strong: MediaSkin.popOutLyricsSize === modelData
+                fontFamily: picker.panel.look.font
+                onClicked: {
+                    MediaSkin.popOutLyricsSize = modelData;
+                    MediaSkin.save();
+                }
+            }
+        }
+    }
 }

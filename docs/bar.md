@@ -143,7 +143,10 @@ Drift (moving on its own) and Hover (following the pointer) where a skin has the
 Tint for the skins with an accent: the LEDs' colour, one from the cover, or none,
 and Shadow, a soft drop shadow, for the skins that cast none of their own),
 then Background sliders for the opacity and blur of the cover behind the player,
-and Pop-out, the monitor the popped-out player sits on (Auto lets Hyprland pick).
+and Pop-out, the popped-out player's monitor (Auto lets Hyprland pick), size,
+layer (overlay, top, bottom), dock edge, progress (a ring around the round
+skins, or Clean: only a bar in the controls on hover), its wave (with the music or a plain sine) and
+lyrics text size.
 All are saved in `~/.local/state/hyprflow/media-skin.json`. A skin missing
 from the submodule's checkout is left out of the picker.
 

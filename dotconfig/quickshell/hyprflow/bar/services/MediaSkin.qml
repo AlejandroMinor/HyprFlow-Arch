@@ -113,6 +113,14 @@ Singleton {
     property string popOutSize: "medium"
     // The progress ring around the pop-out's round skins; off, a bar in its controls.
     property bool popOutRing: true
+    // NowSpinning's widget options, the same for every skin.
+    readonly property var popOutLayers: ["overlay", "top", "bottom"]
+    property string popOutLayer: "overlay"
+    readonly property var popOutDocks: ["", "left", "right", "top", "bottom"]
+    property string popOutDock: ""   // edge it hides against; "" = not docked
+    property bool popOutWave: true
+    readonly property var popOutLyricsSizes: ["small", "medium", "large"]
+    property string popOutLyricsSize: "medium"
     property bool beat: true  // skins with a pulse of their own pulse with the bass
     property var galleryOwner: null  // the Media module whose gallery is open
 
@@ -139,7 +147,9 @@ Singleton {
                                      lyricsPanel: root.lyricsPanel, lyricsBar: root.lyricsBar,
                                      lyricsLines: root.lyricsLines, beat: root.beat,
                                      popOutScreen: root.popOutScreen, popOutSize: root.popOutSize,
-                                     popOutRing: root.popOutRing }, null, 2) + "\n");
+                                     popOutRing: root.popOutRing, popOutLayer: root.popOutLayer,
+                                     popOutDock: root.popOutDock, popOutWave: root.popOutWave,
+                                     popOutLyricsSize: root.popOutLyricsSize }, null, 2) + "\n");
     }
 
     FileView {
@@ -162,6 +172,10 @@ Singleton {
                 root.popOutScreen = data.popOutScreen ?? "";
                 root.popOutSize = root.popOutSizes.includes(data.popOutSize) ? data.popOutSize : "medium";
                 root.popOutRing = data.popOutRing !== false;
+                root.popOutLayer = root.popOutLayers.includes(data.popOutLayer) ? data.popOutLayer : "overlay";
+                root.popOutDock = root.popOutDocks.includes(data.popOutDock) ? data.popOutDock : "";
+                root.popOutWave = data.popOutWave !== false;
+                root.popOutLyricsSize = root.popOutLyricsSizes.includes(data.popOutLyricsSize) ? data.popOutLyricsSize : "medium";
             } catch (e) {
                 root.skin = "cover";
             }

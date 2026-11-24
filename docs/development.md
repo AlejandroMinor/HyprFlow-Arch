@@ -125,12 +125,24 @@ Big Picture closed → gamemode.lua → game-mode.sh bigpicture-closed → off
 off → reads the state file and undoes each step
 ```
 
+### Entering a submap
+
+```
+Super+G / Super+R / Super+Shift+S → toggle_submap (hyprland.lua)
+  → hl.dsp.submap(NAME), then `qs ipc call submap enter NAME TITLE KEY`
+      (title and exit key from SUBMAP_MODES)
+  → SubmapState.qml (singleton) → SubmapHud.qml (keys from help-binds-parse.py)
+                                → bar/modules/Submap.qml (pill in the LED accent)
+  → while active it asks `hyprctl submap` every 250 ms; back at "default"
+      both close (Lua binds send no event on leaving)
+```
+
 ### Taking a screenshot
 
 ```
 Super+Shift+S submap (keybindings.lua) → r/w/s (region/window/screen) or
   Shift+r/w/s (to the clipboard)
-  → the submap HUD is dismissed first (or the frozen shot shows it)
+  → `ipc call submap leave` hides the HUD and pill first (or the frozen shot shows it)
   → lib/screenshot.sh MODE [--clipboard] → hyprshot, piped into satty
       (satty saves to ~/Pictures/Screenshots/<date>.png, right-click copies,
        --disable-notifications: the toast is ours, not satty's)

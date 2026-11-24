@@ -1,7 +1,6 @@
 // The keys of the submap you are in (Super+G, Super+R, Super+Shift+S), at the
-// bottom while it lasts. toggle_submap (hyprland.lua) opens it with the title
-// and exit key from SUBMAP_MODES; the keys come from help-binds-parse.py, the
-// same list as Super+I. Leaving the submap, any way, closes it.
+// bottom while it lasts. SubmapState brings the title and exit key; the keys
+// come from help-binds-parse.py, the same list as Super+I.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -13,43 +12,15 @@ Scope {
     readonly property string home: Quickshell.env("HOME")
     readonly property string font: "JetBrainsMono Nerd Font"
     property bool open: false
-    property string submap: ""
-    property string title: ""
-    property string exitKey: ""
+    readonly property string submap: SubmapState.name
+    readonly property string title: SubmapState.title
+    readonly property string exitKey: SubmapState.exitKey
     property var binds: []  // [{keys, description}] of this submap
 
-    IpcHandler {
-        target: "submap"
-        function enter(name: string, title: string, exitKey: string): void {
-            root.submap = name;
-            root.title = title;
-            root.exitKey = exitKey;
-            parser.running = true;  // opens once the keys are read
-        }
-        // Right away, before a screenshot freezes the screen.
-        function leave(): void {
-            root.open = false;
-        }
-    }
-
-    // Hyprland 0.56 sends no event when a Lua bind leaves the submap, so ask
-    // while open: "default" means back to the normal binds.
-    Timer {
-        interval: 250
-        repeat: true
-        running: root.open
-        onTriggered: current.running = true
-    }
-
-    Process {
-        id: current
-        command: ["hyprctl", "submap"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (text.trim() !== root.submap)
-                    root.open = false;
-            }
-        }
+    Connections {
+        target: SubmapState
+        function onEntered() { parser.running = true; }  // opens once the keys are read
+        function onActiveChanged() { if (!SubmapState.active) root.open = false; }
     }
 
     Process {
@@ -63,7 +34,7 @@ Scope {
                     .map(line => line.split("\t"))
                     .filter(f => f.length === 4 && f[3] === root.submap && !f[2].startsWith("Exit"))
                     .map(f => ({ keys: f[1], description: f[2] }));
-                root.open = true;
+                root.open = SubmapState.active;  // not if left while reading
             }
         }
     }
